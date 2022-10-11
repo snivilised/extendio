@@ -23,7 +23,7 @@
 
 ## 🔰 Introduction
 
-This project provides extensions to Go standard libraries, typically `io` and `filepath`. It is intended the client should be abe to use this alongside the standard libraries like `io.fs`, but to make it easier to do so, the convention within `extendio` will be to name sub-packages it contains with a prefix of ___x___, so that there is no clash with the standard version and therefore nullifies the requirement to use an alternative alias; eg the `fs` package inside `extendio` is called `xfs`.
+This project provides extensions/alternative implementations to Go standard libraries, typically (typically but not limited to) `io` and `filepath`. It is intended the client should be abe to use this alongside the standard libraries like `io.fs`, but to make it easier to do so, the convention within `extendio` will be to name sub-packages it contains with a prefix of ___x___, so that there is no clash with the standard version and therefore nullifies the requirement to use an alternative alias; eg the `fs` package inside `extendio` is called `xfs`.
 
 ### 👣 Walk/WalkDir
 
@@ -31,7 +31,16 @@ The `io` and `filepath` libraries both contain a function `WalkDir` that allows 
 
 `Walk` traverses the directory tree, invoking `os.Lstat` for every directory and file it finds. However, this is quite heavy weight so in version __go1.16__, `WalkDir` was introduced which aims to be more efficient by avoiding this `os.Lstat` invoke.
 
-Despite the optimisation provided by `WalkDir`, it is still not implemented in an efficient way for some scenarios. If the client needs to walk a directory structure that contains many files and is only interested in the directory structure, not the file contents, then requiring the client to have to be notified for every entry and returning from the callback function using the `fs.DirEntry.IsDir()`. This still seems to be overkill in this use-case.
+Despite the optimisation provided by `WalkDir`, it is still not implemented in an efficient way for some scenarios. If the client needs to walk a directory structure that contains many files and is only interested in the directory structure, not the prevalence of files, then requiring the client to have to be notified for every entry and returning from the callback function using the `fs.DirEntry.IsDir()`. This still seems to be overkill in this use-case (essentially, what we're trying to achieve is the equivalent of the [-Directory](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem?view=powershell-7.2#-directory) option of the PowerShell [Get-ChildItem](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem?view=powershell-7.2#description) command at the same time as maintaining the same sorting characteristics it already possesses). 
+
+I recently discovered this article: [If this code could walk](https://engineering.kablamo.com.au/posts/2021/quick-comparison-between-go-file-walk-implementations), which talks about an alternative library [godirwalk](https://github.com/karrick/godirwalk) and how it performs in comparison to the `filepath.WalkFir` implementation. This article has thrown everything up in the air, so in the interests of avoiding premature optimisation, the alternative implementation provided here as `Traverse` will not try improve on performance as was the original intention, as `filepath.Walk` has seen a dramatic improvement to its performance as of late. The aim will simply be to provide an alternative way of interacting with the file system, taking into consideration some of the short-comings of `filepath.WalkDir` identified by `godirwalk`.
+
+Use of the new `Traverse` functionality over `filepath.Walk/WalkDir` is not primarily about performance (in fact it can't be because some of the new features necessarily require more processing). Rather it's about the following significant deficiencies (not even addressed by `godirwalk`) that need to be addressed:
+- process directory entries only (omit files)
+- sort directory names in a non case sensitive manner, so that "a" would be visited before "B"
+- integration of complex search criteria (globs and regular expressions)
+- filtering based upon directory categories (eg Leaf nodes)
+- notification of traversal depth
 
 # 🎀 Features
 

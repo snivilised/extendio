@@ -8,12 +8,32 @@ import (
 	"github.com/samber/lo"
 )
 
-func Walkover(root string) {
-	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
-		parent, leaf := filepath.Split(path)
+func WalkOver(root string) {
+	err := WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+		const p, l = 0, 1
 
-		emoji := lo.Ternary(entry.IsDir(), "🍉", "🧊")
-		fmt.Printf("---> '%s %s' (🌿 %s)\n", emoji, parent, leaf)
+		parent, leaf := filepath.Split(path)
+		emojis := lo.Ternary(entry.IsDir(), []string{"🍉", "🍂"}, []string{"🧊", "🍃"})
+
+		fmt.Printf("---> '%s %s' (%s %s)\n", emojis[p], parent, emojis[l], leaf)
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("---> 💥ERROR: '%v' ...\n", err)
+	}
+}
+
+func WalkOverOnlyDirectories(root string) {
+	err := WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+		if !entry.IsDir() {
+			return nil
+		}
+		const p, l = 0, 1
+
+		parent, leaf := filepath.Split(path)
+		emojis := lo.Ternary(entry.IsDir(), []string{"🍉", "🍂"}, []string{"🧊", "🍃"})
+
+		fmt.Printf("---> '%s %s' (%s %s)\n", emojis[p], parent, emojis[l], leaf)
 		return nil
 	})
 	if err != nil {
