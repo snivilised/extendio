@@ -54,7 +54,7 @@ Use of the new `Traverse` functionality over `filepath.Walk/WalkDir` is not prim
 + unit testing with [Ginkgo](https://onsi.github.io/ginkgo/)/[Gomega](https://onsi.github.io/gomega/)
 ## 👣 Traverse
 
-- Provides a declarative paradigm, to allow the client to be notified on a wider set of criteria and to minimise callback invocation. This allows for more efficiency when navigating large directory trees.
+- Provides a pre-emptive declarative paradigm, to allow the client to be notified on a wider set of criteria and to minimise callback invocation. This allows for more efficiency when navigating large directory trees.
 - More comprehensive filtering capabilities incorporating that which is already provided by `filepath.Match`). The filtering will include positive and negative matching for globs (shell patterns) and regular expressions.
 - The callback function signature will differ from `WalkDir`. Instead of being passed just the corresponding `fs.DirEntry`, another custom type will be introduced which contains as a member `fs.DirEntry`. More properties can be attached to this new abstraction to support more features (as indicated below).
 - Add `Depth` property. This will indicate to the callback how many levels of descending has occurred relative to the root directory.

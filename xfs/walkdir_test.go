@@ -163,4 +163,38 @@ var _ = Describe("WalkDir", Ordered, func() {
 			})
 		})
 	})
+
+	Context("File Mode Bit Patterns", func() {
+		It("🧪 should: show bit patterns of various FileMode values", func() {
+			values := []fs.FileMode{fs.ModeDir, fs.ModeAppend, fs.ModeType, fs.ModePerm}
+
+			for _, val := range values {
+				raw := uint32(val)
+				GinkgoWriter.Printf("---> 🤖 ModeDir: '%v' (%v)\n", val, raw)
+			}
+		})
+	})
+
+	Context("FilterScopeEnum", func() {
+		It("🧪 should: show bit patterns of various FilterScopeEnum values", func() {
+			values := []xfs.FilterScopeEnum{
+				xfs.LeafNodes, xfs.TopNodes, xfs.IntermediateNodes, xfs.FolderNodes, xfs.FileNodes, xfs.AllNodes,
+			}
+
+			for _, val := range values {
+				raw := uint32(val)
+				GinkgoWriter.Printf("---> 🐉 FilterScopeEnum: '%v' (%v)\n", val, raw)
+			}
+		})
+
+		It("🧪 should: ???", func() {
+			values := []xfs.FilterScopeEnum{
+				xfs.LeafNodes | xfs.TopNodes,
+			}
+			for _, val := range values {
+				raw := uint32(val)
+				GinkgoWriter.Printf("---> 🐦 Multi - FilterScopeEnum: '%v' (%v)\n", val, raw)
+			}
+		})
+	})
 })
