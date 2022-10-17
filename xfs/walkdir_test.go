@@ -57,12 +57,29 @@ var _ = Describe("WalkDir", Ordered, func() {
 				})
 			})
 
+			Context("Walk", func() {
+				It("🧪 should: WalkDir (standard)", func() {
+					// WalkDir invokes the callback for files, so not suitable
+					//
+					dream := filepath.Join(root, "DREAM-POP")
+
+					if err := filepath.WalkDir(dream, func(path string, d fs.DirEntry, err error) error {
+						GinkgoWriter.Printf("---> 💎 WALK-PATH: '%v' ...\n", path)
+
+						return nil
+					}); err != nil {
+						Expect(false)
+					}
+				})
+			})
+
 			Context("WalkDir", func() {
 				It("🧪 should: WalkDir (standard)", func() {
 					// WalkDir invokes the callback for files, so not suitable
 					//
 					dream := filepath.Join(root, "DREAM-POP")
-					if err := filepath.Walk(dream, func(path string, info os.FileInfo, err error) error {
+
+					if err := filepath.WalkDir(dream, func(path string, d fs.DirEntry, err error) error {
 						GinkgoWriter.Printf("---> 📚 WALKDIR-PATH: '%v' ...\n", path)
 
 						return nil
@@ -187,7 +204,7 @@ var _ = Describe("WalkDir", Ordered, func() {
 			}
 		})
 
-		It("🧪 should: ???", func() {
+		It("🧪 should: show bit pattern when multiple node types defined", func() {
 			values := []xfs.FilterScopeEnum{
 				xfs.LeafNodes | xfs.TopNodes,
 			}
