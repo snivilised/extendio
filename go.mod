@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/onsi/ginkgo/v2 v2.3.1
 	github.com/onsi/gomega v1.22.1
-	github.com/samber/lo v1.30.0
+	github.com/samber/lo v1.33.0
 )
 
 require (
