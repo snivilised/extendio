@@ -36,19 +36,19 @@ func TraverseAny(root string, fn ...AnyOptionFn) *LocalisableError {
 	// options := composeOptions[AnyOptions](fn...)
 
 	if options.Callback == nil {
-		return &LocalisableError{Error: errors.New("missing callback function")}
+		return &LocalisableError{Inner: errors.New("missing callback function")}
 	}
 
 	info, err := os.Lstat(root)
 	var le *LocalisableError = nil
 	if err != nil {
-		item := TraverseItem{Path: root, Error: &LocalisableError{Error: err}}
+		item := TraverseItem{Path: root, Error: &LocalisableError{Inner: err}}
 		le = options.Callback(&item)
 	} else {
 		item := TraverseItem{Path: root, Info: info}
 		le = traverseAny(&options, &item)
 	}
-	if (le != nil) && (le.Error == fs.SkipDir) {
+	if (le != nil) && (le.Inner == fs.SkipDir) {
 		return nil
 	}
 	return le
@@ -57,7 +57,7 @@ func TraverseAny(root string, fn ...AnyOptionFn) *LocalisableError {
 func traverseAny(options *AnyOptions, currentItem *TraverseItem) *LocalisableError {
 
 	if le := options.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
-		if le != nil && le.Error == fs.SkipDir && currentItem.Entry.IsDir() {
+		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
 			// Successfully skipped directory
 			//
 			le = nil
@@ -68,7 +68,7 @@ func traverseAny(options *AnyOptions, currentItem *TraverseItem) *LocalisableErr
 	entries, err := readDir(currentItem.Path)
 	if err != nil {
 		item := currentItem.Clone()
-		item.Error = &LocalisableError{Error: err}
+		item.Error = &LocalisableError{Inner: err}
 
 		// Second call, to report ReadDir error
 		//
@@ -76,7 +76,7 @@ func traverseAny(options *AnyOptions, currentItem *TraverseItem) *LocalisableErr
 			if err == fs.SkipDir && (currentItem.Entry != nil && currentItem.Entry.IsDir()) {
 				err = nil
 			}
-			return &LocalisableError{Error: err}
+			return &LocalisableError{Inner: err}
 		}
 	}
 
@@ -85,7 +85,7 @@ func traverseAny(options *AnyOptions, currentItem *TraverseItem) *LocalisableErr
 		childItem := TraverseItem{Path: childPath, Entry: childEntry}
 
 		if childLe := traverseAny(options, &childItem); childLe != nil {
-			if childLe.Error == fs.SkipDir {
+			if childLe.Inner == fs.SkipDir {
 				break
 			}
 			return childLe

@@ -14,7 +14,7 @@ func folderCallbackWithErrorCheck(o *xfs.FolderOptions) {
 		GinkgoWriter.Printf("---> 🍩 ON-CALLBACK: '%v' ...\n", item.Path)
 
 		if item.Error != nil {
-			GinkgoWriter.Printf("---> 🔥 ON-CALLBACK (error): '%s' ...\n", item.Error.Error)
+			GinkgoWriter.Printf("---> 🔥 ON-CALLBACK (error): '%s' ...\n", item.Error.Inner)
 		}
 		Expect(item.Info.IsDir()).To(BeTrue())
 

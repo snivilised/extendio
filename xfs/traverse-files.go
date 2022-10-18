@@ -24,23 +24,23 @@ func TraverseFiles(root string, fn ...FileOptionFn) *LocalisableError {
 	options := composeFileOptions(fn...)
 
 	if options.Callback == nil {
-		return &LocalisableError{Error: errors.New("missing callback function")}
+		return &LocalisableError{Inner: errors.New("missing callback function")}
 	}
 
 	info, err := os.Lstat(root)
 	var le *LocalisableError = nil
 	if err != nil {
-		le = &LocalisableError{Error: err}
+		le = &LocalisableError{Inner: err}
 	} else {
 
 		if info.IsDir() {
 			item := TraverseItem{Path: root, Info: info}
 			le = traverseFiles(&options, &item)
 		} else {
-			le = &LocalisableError{Error: errors.New("Not a directory")}
+			le = &LocalisableError{Inner: errors.New("Not a directory")}
 		}
 	}
-	if (le != nil) && (le.Error == fs.SkipDir) {
+	if (le != nil) && (le.Inner == fs.SkipDir) {
 		return nil
 	}
 	return le
@@ -62,17 +62,17 @@ func traverseFiles(options *FileOptions, currentItem *TraverseItem) *Localisable
 
 	entries, err := readDir(currentItem.Path)
 	if err != nil {
-		return &LocalisableError{Error: err}
+		return &LocalisableError{Inner: err}
 	}
 
 	for _, childEntry := range entries {
 		childPath := filepath.Join(currentItem.Path, childEntry.Name())
 		info, err := childEntry.Info()
-		le := lo.Ternary(err == nil, nil, &LocalisableError{Error: err})
+		le := lo.Ternary(err == nil, nil, &LocalisableError{Inner: err})
 		childItem := TraverseItem{Path: childPath, Info: info, Entry: childEntry, Error: le}
 
 		if childLe := traverseFiles(options, &childItem); childLe != nil {
-			if childLe.Error == fs.SkipDir {
+			if childLe.Inner == fs.SkipDir {
 				break
 			}
 			return childLe

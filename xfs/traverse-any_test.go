@@ -14,7 +14,7 @@ func anyCallbackWithErrorCheck(o *xfs.AnyOptions) {
 		GinkgoWriter.Printf("---> 🥭 ON-CALLBACK: '%v' ...\n", item.Path)
 
 		if item.Error != nil {
-			GinkgoWriter.Printf("---> 🔥 ON-CALLBACK (error): '%s' ...\n", item.Error.Error)
+			GinkgoWriter.Printf("---> 🔥 ON-CALLBACK (error): '%s' ...\n", item.Error.Inner)
 		}
 
 		return nil
@@ -63,7 +63,7 @@ var _ = Describe("TraverseAny", Ordered, func() {
 						GinkgoWriter.Printf("---> 🥭 ON-CALLBACK: '%v' ...\n", item.Path)
 
 						if item.Error != nil {
-							GinkgoWriter.Printf("---> 🔥 ON-CALLBACK (error): '%s' ...\n", item.Error.Error)
+							GinkgoWriter.Printf("---> 🔥 ON-CALLBACK (error): '%s' ...\n", item.Error.Inner)
 						}
 
 						return nil

@@ -27,13 +27,13 @@ func TraverseFolders(root string, fn ...FolderOptionFn) *LocalisableError {
 	options := composeFolderOptions(fn...)
 
 	if options.Callback == nil {
-		return &LocalisableError{Error: errors.New("missing callback function")}
+		return &LocalisableError{Inner: errors.New("missing callback function")}
 	}
 
 	info, err := os.Lstat(root)
 	var le *LocalisableError = nil
 	if err != nil {
-		item := TraverseItem{Path: root, Info: info, Error: &LocalisableError{Error: err}}
+		item := TraverseItem{Path: root, Info: info, Error: &LocalisableError{Inner: err}}
 		le = options.Callback(&item)
 	} else {
 
@@ -41,11 +41,11 @@ func TraverseFolders(root string, fn ...FolderOptionFn) *LocalisableError {
 			item := TraverseItem{Path: root, Info: info}
 			le = traverseFolders(&options, &item)
 		} else {
-			item := TraverseItem{Path: root, Info: info, Error: &LocalisableError{Error: errors.New("Not a directory")}}
+			item := TraverseItem{Path: root, Info: info, Error: &LocalisableError{Inner: errors.New("Not a directory")}}
 			le = options.Callback(&item)
 		}
 	}
-	if (le != nil) && (le.Error == fs.SkipDir) {
+	if (le != nil) && (le.Inner == fs.SkipDir) {
 		return nil
 	}
 	return le
@@ -54,7 +54,7 @@ func TraverseFolders(root string, fn ...FolderOptionFn) *LocalisableError {
 func traverseFolders(options *FolderOptions, currentItem *TraverseItem) *LocalisableError {
 
 	if le := options.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
-		if le != nil && le.Error == fs.SkipDir && currentItem.Entry.IsDir() {
+		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
 			// Successfully skipped directory
 			//
 			le = nil
@@ -65,7 +65,7 @@ func traverseFolders(options *FolderOptions, currentItem *TraverseItem) *Localis
 	entries, err := readDir(currentItem.Path)
 	if err != nil {
 		item := currentItem.Clone()
-		item.Error = &LocalisableError{Error: err}
+		item.Error = &LocalisableError{Inner: err}
 
 		// Second call, to report ReadDir error
 		//
@@ -73,7 +73,7 @@ func traverseFolders(options *FolderOptions, currentItem *TraverseItem) *Localis
 			if err == fs.SkipDir && (currentItem.Entry != nil && currentItem.Entry.IsDir()) {
 				err = nil
 			}
-			return &LocalisableError{Error: err}
+			return &LocalisableError{Inner: err}
 		}
 	}
 
@@ -86,11 +86,11 @@ func traverseFolders(options *FolderOptions, currentItem *TraverseItem) *Localis
 	for _, childEntry := range filtered {
 		childPath := filepath.Join(currentItem.Path, childEntry.Name())
 		info, err := childEntry.Info()
-		le := lo.Ternary(err == nil, nil, &LocalisableError{Error: err})
+		le := lo.Ternary(err == nil, nil, &LocalisableError{Inner: err})
 		childItem := TraverseItem{Path: childPath, Info: info, Entry: childEntry, Error: le}
 
 		if childLe := traverseFolders(options, &childItem); childLe != nil {
-			if childLe.Error == fs.SkipDir {
+			if childLe.Inner == fs.SkipDir {
 				break
 			}
 			return childLe
