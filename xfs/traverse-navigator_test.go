@@ -1,6 +1,7 @@
 package xfs_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -24,7 +25,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 		Expect(true)
 	})
 
-	FContext("Create navigators", func() {
+	Context("Create navigators", func() {
 		It("🧪 should: ", func() {
 			subs := []xfs.TraverseSubscription{xfs.SubscribeAny, xfs.SubscribeFolders, xfs.SubscribeFiles}
 
@@ -32,13 +33,26 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 				navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
 					o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
-						GinkgoWriter.Printf("---> 🍧 ON-NAVIGATOR-CALLBACK: '%v' ...\n", item.Path)
+						fmt.Printf("---> 🍧 ON-NAVIGATOR-CALLBACK: '%v' ...\n", item.Path)
 						return nil
 					}
 					o.Subscription = subscriber
 				})
 				_ = navigator.Walk(heavy)
 			}
+		})
+	})
+
+	Context("universal", func() {
+		It("🧪 should: walk all directories and folders", func() {
+			navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
+				o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+					GinkgoWriter.Printf("---> 🍧 ON-NAVIGATOR-CALLBACK: '%v' ...\n", item.Path)
+					return nil
+				}
+				o.Subscription = xfs.SubscribeAny
+			})
+			_ = navigator.Walk(heavy)
 		})
 	})
 })

@@ -1,7 +1,13 @@
 package xfs
 
+import "errors"
+
 func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
+
+	if o.Callback == nil {
+		panic(LocalisableError{Inner: errors.New("missing callback function")})
+	}
 
 	var subject navigatorSubject
 

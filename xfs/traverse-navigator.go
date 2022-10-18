@@ -36,6 +36,7 @@ func composeTraverseOptions(fn ...TraverseOptionFn) TraverseOptions {
 }
 
 type TraverseResult struct {
+	Error *LocalisableError
 }
 
 type TraverseNavigator interface {
@@ -43,6 +44,6 @@ type TraverseNavigator interface {
 }
 
 type navigatorSubject interface {
-	top(root string) *TraverseResult
-	traverse(currentItem *TraverseItem) *TraverseResult
+	top(root string) *LocalisableError
+	traverse(currentItem *TraverseItem) *LocalisableError
 }
