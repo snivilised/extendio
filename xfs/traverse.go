@@ -16,14 +16,25 @@ type ExtendedItem struct {
 }
 
 // TraverseItem info provided for each file system entity encountered
-// during traversal.
+// during traversal. The root item does not have a DirEntry because it is
+// not created as a result of a readDir invoke. Therefore, the client has
+// to know that when its function is called back, they will be no DirEntry
+// for the root entity.
 //
 
 type TraverseItem struct {
 	Path      string
-	Entry     *fs.DirEntry  // contains a FileInfo via Info() function
-	Extension *ExtendedItem // make this an interface?
-	Error     error
+	Entry     fs.DirEntry   // contains a FileInfo via Info() function
+	Info      fs.FileInfo   // optional file info instance
+	Extension *ExtendedItem // make this an interface?, no
+	Error     *LocalisableError
+}
+
+func (ti *TraverseItem) Clone() *TraverseItem {
+
+	return &TraverseItem{
+		Path: ti.Path, Entry: ti.Entry, Info: ti.Info, Extension: ti.Extension, Error: ti.Error,
+	}
 }
 
 // these will be similar to filepath.WalkFunc, defined as:
@@ -31,30 +42,39 @@ type TraverseItem struct {
 // will use TraverseItem instead of path string, info fs.FileInfo
 // So far all these functions appear to be the same, so this may eventually
 // reduced to just a single entity.
-type FolderFn func(item *TraverseItem) error
-type FileFn func(item *TraverseItem) error
-type AnyFn func(item *TraverseItem) error
+// !!! you dont need FileInfo, that is provided by Walk via invoking Lstat
+// all you need are the DirEntry's which are created by calling readDir
+//
 
-type Options struct {
+type FolderCallback func(item *TraverseItem) *LocalisableError
+type FileCallback func(item *TraverseItem) *LocalisableError
+type AnyCallback func(item *TraverseItem) *LocalisableError
+
+type GenericOptions struct {
 	CaseSensitive bool // case sensitive traversal order
 	Extend        bool // request an extended response
 }
 
+type IOptions interface {
+	CaseSensitive() bool
+	Extend() bool
+}
+
 type FolderOptions struct {
-	Options
-	Fn FolderFn
+	GenericOptions
+	Callback FolderCallback
 }
 type FolderOptionFn func(o *FolderOptions)
 
 type FileOptions struct {
-	Options
-	Fn FileFn
+	GenericOptions
+	Callback FileCallback
 }
 type FileOptionFn func(o *FileOptions)
 
 type AnyOptions struct {
-	Options
-	Fn AnyFn
+	GenericOptions
+	Callback AnyCallback
 }
 type AnyOptionFn func(o *AnyOptions)
 
