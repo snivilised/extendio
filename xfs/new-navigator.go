@@ -2,6 +2,8 @@ package xfs
 
 import "errors"
 
+// NewNavigator navigator factory function which uses the functional
+// options pattern.
 func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 

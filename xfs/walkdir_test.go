@@ -21,6 +21,10 @@ var _ = Describe("WalkDir", Ordered, func() {
 
 	var root string
 
+	BeforeEach(func() {
+		Skip("comprehension only")
+	})
+
 	BeforeAll(func() {
 		if current, err := os.Getwd(); err == nil {
 			parent, _ := filepath.Split(current)
