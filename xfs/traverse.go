@@ -2,7 +2,6 @@ package xfs
 
 import (
 	"io/fs"
-	"os"
 )
 
 // ExtendedItem provides extended information if the client requests
@@ -37,67 +36,50 @@ func (ti *TraverseItem) Clone() *TraverseItem {
 	}
 }
 
-// these will be similar to filepath.WalkFunc, defined as:
-// func(path string, info fs.FileInfo, err error) error, except they
-// will use TraverseItem instead of path string, info fs.FileInfo
-// So far all these functions appear to be the same, so this may eventually
-// reduced to just a single entity.
-// !!! you dont need FileInfo, that is provided by Walk via invoking Lstat
-// all you need are the DirEntry's which are created by calling readDir
-//
+type TraverseSubscription uint
 
-type FolderCallback func(item *TraverseItem) *LocalisableError
-type FileCallback func(item *TraverseItem) *LocalisableError
-type AnyCallback func(item *TraverseItem) *LocalisableError
+const (
+	_ TraverseSubscription = iota
+	SubscribeAny
+	SubscribeFolders
+	SubscribeFiles
+)
 
-type GenericOptions struct {
-	CaseSensitive bool // case sensitive traversal order
-	Extend        bool // request an extended response
+type TraverseCallback func(item *TraverseItem) *LocalisableError
+
+type TraverseOptions struct {
+	Subscription    TraverseSubscription
+	IsCaseSensitive bool // case sensitive traversal order
+	Extend          bool // request an extended result
+	WithMetrics     bool
+	Callback        TraverseCallback
+	OnDescend       TraverseCallback
+	OnAscend        TraverseCallback
 }
+type TraverseOptionFn func(o *TraverseOptions)
 
-type IOptions interface {
-	CaseSensitive() bool
-	Extend() bool
-}
-
-type FolderOptions struct {
-	GenericOptions
-	Callback FolderCallback
-}
-type FolderOptionFn func(o *FolderOptions)
-
-type FileOptions struct {
-	GenericOptions
-	Callback FileCallback
-}
-type FileOptionFn func(o *FileOptions)
-
-type AnyOptions struct {
-	GenericOptions
-	Callback AnyCallback
-}
-type AnyOptionFn func(o *AnyOptions)
-
-// FakeTraverse walks the file tree rooted at root, calling fn for each file or
-// directory in the tree, including root.
-//
-// All errors that arise visiting files and directories are filtered by fn:
-// see the fs.WalkDirFunc documentation for details.
-//
-// The files are walked in lexical order, which makes the output deterministic
-// but requires FakeTraverse to read an entire directory into memory before proceeding
-// to walk that directory.
-//
-// FakeTraverse does not follow symbolic links.
-func FakeTraverse(root string, fn fs.WalkDirFunc) error {
-	info, err := os.Lstat(root)
-	if err != nil {
-		err = fn(root, nil, err)
-	} else {
-		err = walkDir(root, &statDirEntry{info}, fn)
+func composeTraverseOptions(fn ...TraverseOptionFn) TraverseOptions {
+	options := TraverseOptions{
+		Subscription:    SubscribeAny,
+		IsCaseSensitive: false,
+		Extend:          false,
 	}
-	if err == fs.SkipDir {
-		return nil
+
+	for _, functionalOption := range fn {
+		functionalOption(&options)
 	}
-	return err
+	return options
+}
+
+type TraverseResult struct {
+	Error *LocalisableError
+}
+
+type TraverseNavigator interface {
+	Walk(root string) *TraverseResult
+}
+
+type navigatorSubject interface {
+	top(root string) *LocalisableError
+	traverse(currentItem *TraverseItem) *LocalisableError
 }

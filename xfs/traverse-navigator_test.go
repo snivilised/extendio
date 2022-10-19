@@ -41,7 +41,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 	})
 
 	Context("Path exists", func() {
-		FDescribeTable("Navigator",
+		DescribeTable("Navigator",
 			func(message, relative string, subscription xfs.TraverseSubscription, callback xfs.TraverseCallback) {
 				path := path(root, relative)
 				navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
