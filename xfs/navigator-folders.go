@@ -2,7 +2,6 @@ package xfs
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -15,8 +14,6 @@ type foldersNavigator struct {
 }
 
 func (n *foldersNavigator) top(root string) *LocalisableError {
-	fmt.Printf("---> ✈️ [foldersNavigator]::top\n")
-
 	info, err := os.Lstat(root)
 	var le *LocalisableError = nil
 	if err != nil {
@@ -39,8 +36,6 @@ func (n *foldersNavigator) top(root string) *LocalisableError {
 }
 
 func (n *foldersNavigator) traverse(currentItem *TraverseItem) *LocalisableError {
-	fmt.Printf("---> ✈️ [foldersNavigator]::traverse\n")
-
 	if le := n.options.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
 			// Successfully skipped directory

@@ -2,7 +2,6 @@ package xfs
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -15,8 +14,6 @@ type filesNavigator struct {
 }
 
 func (n *filesNavigator) top(root string) *LocalisableError {
-	fmt.Printf("---> 🛩️ [filesNavigator]::top\n")
-
 	info, err := os.Lstat(root)
 	var le *LocalisableError = nil
 	if err != nil {
@@ -37,7 +34,11 @@ func (n *filesNavigator) top(root string) *LocalisableError {
 }
 
 func (n *filesNavigator) traverse(currentItem *TraverseItem) *LocalisableError {
-	fmt.Printf("---> 🛩️ [filesNavigator]::traverse\n")
+	//
+	// For files, the registered callback will only be invoked for file entries. This means
+	// that the client will have no way to skip the descending of a particular directory. In
+	// this case, the client should use the OnDescend callback (yet to be implemented) and
+	// return SkipDir from there.
 
 	if (currentItem.Entry != nil) && !(currentItem.Entry.IsDir()) {
 		return n.options.Callback(currentItem)

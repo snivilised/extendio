@@ -2,7 +2,6 @@ package xfs
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -13,8 +12,6 @@ type universalNavigator struct {
 }
 
 func (n *universalNavigator) top(root string) *LocalisableError {
-	fmt.Printf("---> 🚀 [universalNavigator]::top\n")
-
 	if n.options.Callback == nil {
 		return &LocalisableError{Inner: errors.New("missing callback function")}
 	}
