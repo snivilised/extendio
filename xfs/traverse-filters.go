@@ -55,32 +55,40 @@ var filterScopeStrings map[FilterScopeEnum]string = map[FilterScopeEnum]string{
 	AllNodes:          "All",
 }
 
+// String
 func (f FilterScopeEnum) String() string {
 	result := filterScopeStrings[f]
 	return lo.Ternary(result == "", "[multi]", result)
 }
 
+// TraverseFilter filter that can be applied to file system entries. When specified,
+// the callback will only be invoked for file system nodes that pass the filter.
 type TraverseFilter interface {
 	IsMatch(name string, scope FilterScopeEnum) bool
 }
 
+// Filter base filter struct
 type Filter struct {
-	Scope FilterScopeEnum
+	Scope FilterScopeEnum // defines which file system nodes the filter should be applied to
 }
 
+// RegexFilter regex filter
 type RegexFilter struct {
 	Filter
 }
 
+// IsMatch
 func (f *RegexFilter) IsMatch(name string, scope FilterScopeEnum) bool {
 
 	return false
 }
 
+// GlobFilter wildcard filter
 type GlobFilter struct {
 	Filter
 }
 
+// IsMatch
 func (f *GlobFilter) IsMatch(name string, scope FilterScopeEnum) bool {
 
 	return false
@@ -88,4 +96,9 @@ func (f *GlobFilter) IsMatch(name string, scope FilterScopeEnum) bool {
 
 // CustomFilter is not a real filter, it represents a filter that would be defined by the client
 type CustomFilter struct {
+	Filter
+}
+
+func (f *CustomFilter) IsMatch(name string, scope FilterScopeEnum) bool {
+	panic("IsMatch not defined for custom filter")
 }
