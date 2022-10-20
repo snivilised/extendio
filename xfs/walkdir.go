@@ -4,7 +4,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"sort"
 )
 
 // !!! IMPORTANT: all of the original code will eventually be removed. Just being keep here
@@ -84,7 +83,8 @@ func walkDir(path string, d fs.DirEntry, walkDirFn fs.WalkDirFunc) error {
 // readDir reads the directory named by dirname and returns
 // a sorted list of directory entries.
 // NB: this needs to be replaced with a version that can sort without
-// regard to case sensitivity
+// regard to case sensitivity. Actually, all we need to do is remove
+// the sort line and let a hook do that instead.
 //
 
 func readDir(dirname string) ([]fs.DirEntry, error) {
@@ -97,6 +97,6 @@ func readDir(dirname string) ([]fs.DirEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
+	// sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
 	return dirs, nil
 }

@@ -12,9 +12,6 @@ type universalNavigator struct {
 }
 
 func (n *universalNavigator) top(root string) *LocalisableError {
-	if n.options.Callback == nil {
-		return &LocalisableError{Inner: errors.New("missing callback function")}
-	}
 
 	info, err := os.Lstat(root)
 	var le *LocalisableError = nil
@@ -41,7 +38,7 @@ func (n *universalNavigator) traverse(currentItem *TraverseItem) *LocalisableErr
 		return le
 	}
 
-	entries, err := readDir(currentItem.Path)
+	entries, err := n.options.Hooks.ReadDirectory(currentItem.Path)
 	if err != nil {
 		item := currentItem.Clone()
 		item.Error = &LocalisableError{Inner: err}
@@ -54,6 +51,12 @@ func (n *universalNavigator) traverse(currentItem *TraverseItem) *LocalisableErr
 			}
 			return &LocalisableError{Inner: err}
 		}
+	}
+
+	if entries, err = n.options.Hooks.Sort(entries); err != nil {
+		panic(LocalisableError{
+			Inner: errors.New("universal navigator sort function failed"),
+		})
 	}
 
 	for _, childEntry := range entries {

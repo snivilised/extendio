@@ -199,7 +199,7 @@ var _ = Describe("WalkDir", Ordered, func() {
 	Context("FilterScopeEnum", func() {
 		It("🧪 should: show bit patterns of various FilterScopeEnum values", func() {
 			values := []xfs.FilterScopeEnum{
-				xfs.LeafNodes, xfs.TopNodes, xfs.IntermediateNodes, xfs.FolderNodes, xfs.FileNodes, xfs.AllNodes,
+				xfs.LeafScopeEn, xfs.TopScopeEn, xfs.IntermediateScopeEn, xfs.FolderScopeEn, xfs.FileScopeEn, xfs.AllScopesEn,
 			}
 
 			for _, val := range values {
@@ -210,7 +210,7 @@ var _ = Describe("WalkDir", Ordered, func() {
 
 		It("🧪 should: show bit pattern when multiple node types defined", func() {
 			values := []xfs.FilterScopeEnum{
-				xfs.LeafNodes | xfs.TopNodes,
+				xfs.LeafScopeEn | xfs.TopScopeEn,
 			}
 			for _, val := range values {
 				raw := uint32(val)
