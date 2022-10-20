@@ -68,13 +68,13 @@ type TraverseFilter interface {
 	IsMatch(name string, scope FilterScopeEnum) bool
 }
 
-// Filter base filter struct
+// Filter base filter struct.
 type Filter struct {
 	Scope  FilterScopeEnum // defines which file system nodes the filter should be applied to
 	Negate bool            // select to define a negative match
 }
 
-// RegexFilter regex filter
+// RegexFilter regex filter.
 type RegexFilter struct {
 	Filter
 }
@@ -90,7 +90,7 @@ func (f *RegexFilter) IsMatch(name string, scope FilterScopeEnum) bool {
 	return true
 }
 
-// GlobFilter wildcard filter
+// GlobFilter wildcard filter.
 type GlobFilter struct {
 	Filter
 }
@@ -101,7 +101,7 @@ func (f *GlobFilter) IsMatch(name string, scope FilterScopeEnum) bool {
 	return true
 }
 
-// CustomFilter is not a real filter, it represents a filter that would be defined by the client
+// CustomFilter is not a real filter, it represents a filter that would be defined by the client.
 type CustomFilter struct {
 	Filter
 }

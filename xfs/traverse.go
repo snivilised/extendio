@@ -27,7 +27,7 @@ type TraverseItem struct {
 	Error     *LocalisableError
 }
 
-// Clone makes shallow copy of TraverseItem (except the error)
+// Clone makes shallow copy of TraverseItem (except the error).
 func (ti *TraverseItem) Clone() *TraverseItem {
 
 	return &TraverseItem{
@@ -36,7 +36,7 @@ func (ti *TraverseItem) Clone() *TraverseItem {
 }
 
 // TraverseSubscription type to define traversal subscription (for which file system
-// items the client defined callback are invoked for)
+// items the client defined callback are invoked for).
 type TraverseSubscription uint
 
 const (
@@ -46,20 +46,20 @@ const (
 	SubscribeFiles                        // invoke callback for files only
 )
 
-// TraverseCallback defines traversal callback function signature
+// TraverseCallback defines traversal callback function signature.
 type TraverseCallback func(item *TraverseItem) *LocalisableError
 
-// TraverseResult the result of the traversal process
+// TraverseResult the result of the traversal process.
 type TraverseResult struct {
-	Error *LocalisableError
+	Error error
 }
 
-// TraverseNavigator interface to the main traverse instance
+// TraverseNavigator interface to the main traverse instance.
 type TraverseNavigator interface {
 	Walk(root string) *TraverseResult
 }
 
-type navigatorSubject interface {
+type navigatorCore interface {
 	top(root string) *LocalisableError
 	traverse(currentItem *TraverseItem) *LocalisableError
 }

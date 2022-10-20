@@ -13,26 +13,26 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 		})
 	}
 
-	var subject navigatorSubject
+	var core navigatorCore
 
 	switch o.Subscription {
 	case SubscribeAny:
-		subject = &universalNavigator{
+		core = &universalNavigator{
 			navigator: navigator{options: o},
 		}
 
 	case SubscribeFolders:
-		subject = &foldersNavigator{
+		core = &foldersNavigator{
 			navigator: navigator{options: o},
 		}
 
 	case SubscribeFiles:
-		subject = &filesNavigator{
+		core = &filesNavigator{
 			navigator: navigator{options: o},
 		}
 	}
 	nav := &navigatorController{
-		subject: subject,
+		core: core,
 	}
 
 	return nav
