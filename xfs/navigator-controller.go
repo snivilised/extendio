@@ -3,17 +3,13 @@ package xfs
 import "fmt"
 
 type navigatorController struct {
-	subject navigatorSubject
+	core navigatorCore
 }
 
 func (n *navigatorController) Walk(root string) *TraverseResult {
 	fmt.Printf("---> 🛡️ [navigatorController]::Walk, root: '%v'\n", root)
 
 	return &TraverseResult{
-		Error: n.subject.top(root),
+		Error: n.core.top(root),
 	}
 }
-
-// func (n navigatorController) Dummy() bool {
-// 	return false
-// }
