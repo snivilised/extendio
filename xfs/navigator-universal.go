@@ -4,23 +4,23 @@ import (
 	"errors"
 	"io/fs"
 	"os"
-	"path/filepath"
 )
 
 type universalNavigator struct {
 	navigator
 }
 
-func (n *universalNavigator) top(root string) *LocalisableError {
+func (n *universalNavigator) top(frame *navigationFrame) *LocalisableError {
 
-	info, err := os.Lstat(root)
+	info, err := os.Lstat(frame.Root)
 	var le *LocalisableError = nil
 	if err != nil {
-		item := TraverseItem{Path: root, Error: &LocalisableError{Inner: err}}
-		le = n.options.Callback(&item)
+		item := &TraverseItem{Path: frame.Root, Info: info, Error: &LocalisableError{Inner: err}}
+
+		le = n.options.Callback(item)
 	} else {
-		item := TraverseItem{Path: root, Info: info}
-		le = n.traverse(&item)
+		item := &TraverseItem{Path: frame.Root, Info: info}
+		le = n.traverse(item, frame)
 	}
 	if (le != nil) && (le.Inner == fs.SkipDir) {
 		return nil
@@ -28,7 +28,15 @@ func (n *universalNavigator) top(root string) *LocalisableError {
 	return le
 }
 
-func (n *universalNavigator) traverse(currentItem *TraverseItem) *LocalisableError {
+func (n *universalNavigator) traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
+	defer func() {
+		_ = n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
+	}()
+	navi := &navigationInfo{options: n.options, item: currentItem, frame: frame}
+	_ = n.descend(navi)
+	entries, readErr := n.children.read(currentItem)
+	_ = n.options.Hooks.Extend(navi, entries)
+
 	if le := n.options.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
 			// Successfully skipped directory
@@ -38,37 +46,23 @@ func (n *universalNavigator) traverse(currentItem *TraverseItem) *LocalisableErr
 		return le
 	}
 
-	entries, err := n.options.Hooks.ReadDirectory(currentItem.Path)
-	if err != nil {
-		item := currentItem.Clone()
-		item.Error = &LocalisableError{Inner: err}
-
-		// Second call, to report ReadDir error
-		//
-		if le := n.options.Callback(item); le != nil {
-			if err == fs.SkipDir && (currentItem.Entry != nil && currentItem.Entry.IsDir()) {
-				return nil
-			}
-			return &LocalisableError{Inner: err}
+	if exit, err := n.children.notify(&notifyInfo{
+		item: currentItem, entries: entries, readErr: readErr,
+	}); exit {
+		return err
+	} else {
+		var err error
+		if err = n.options.Hooks.Sort(entries); err != nil {
+			panic(LocalisableError{
+				Inner: errors.New("universal navigator sort function failed"),
+			})
 		}
-	}
 
-	if entries, err = n.options.Hooks.Sort(entries); err != nil {
-		panic(LocalisableError{
-			Inner: errors.New("universal navigator sort function failed"),
+		return n.children.traverse(&agentTraverseInfo{
+			core:    n,
+			entries: entries,
+			parent:  currentItem,
+			frame:   frame,
 		})
 	}
-
-	for _, childEntry := range entries {
-		childPath := filepath.Join(currentItem.Path, childEntry.Name())
-		childItem := TraverseItem{Path: childPath, Entry: childEntry}
-
-		if childLe := n.traverse(&childItem); childLe != nil {
-			if childLe.Inner == fs.SkipDir {
-				break
-			}
-			return childLe
-		}
-	}
-	return nil
 }

@@ -199,7 +199,7 @@ var _ = Describe("WalkDir", Ordered, func() {
 	Context("FilterScopeEnum", func() {
 		It("🧪 should: show bit patterns of various FilterScopeEnum values", func() {
 			values := []xfs.FilterScopeEnum{
-				xfs.LeafScopeEn, xfs.TopScopeEn, xfs.IntermediateScopeEn, xfs.FolderScopeEn, xfs.FileScopeEn, xfs.AllScopesEn,
+				xfs.LeafScopeEn, xfs.TopScopeEn, xfs.IntermediateScopeEn, xfs.AllScopesEn,
 			}
 
 			for _, val := range values {

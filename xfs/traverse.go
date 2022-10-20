@@ -7,8 +7,9 @@ import (
 // ExtendedItem provides extended information if the client requests
 // it by setting the Extend boolean in the traverse options.
 type ExtendedItem struct {
-	Depth     int             // traversal depth relative to the root
+	Depth     uint            // traversal depth relative to the root
 	IsLeaf    bool            // defines whether this node a leaf node
+	Name      string          // derived as the leaf segment from filepath.Split
 	Parent    string          // derived as the directory from filepath.Split
 	NodeScope FilterScopeEnum // type of folder corresponding to the Filter Scope
 	Custom    any             // to be set and used by the client
@@ -59,9 +60,20 @@ type TraverseNavigator interface {
 	Walk(root string) *TraverseResult
 }
 
+type navigationFrame struct {
+	Root  string
+	Depth uint
+}
+
 type navigatorCore interface {
-	top(root string) *LocalisableError
-	traverse(currentItem *TraverseItem) *LocalisableError
+	top(frame *navigationFrame) *LocalisableError
+	traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError
+}
+
+type navigationInfo struct {
+	options *TraverseOptions
+	item    *TraverseItem
+	frame   *navigationFrame
 }
 
 type TraverseController interface {

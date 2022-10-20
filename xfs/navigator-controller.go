@@ -8,8 +8,11 @@ type navigatorController struct {
 
 func (n *navigatorController) Walk(root string) *TraverseResult {
 	fmt.Printf("---> 🛡️ [navigatorController]::Walk, root: '%v'\n", root)
+	frame := navigationFrame{
+		Root: root,
+	}
 
 	return &TraverseResult{
-		Error: n.core.top(root),
+		Error: n.core.top(&frame),
 	}
 }
