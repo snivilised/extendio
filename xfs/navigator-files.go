@@ -41,12 +41,20 @@ func (n *filesNavigator) traverse(currentItem *TraverseItem) *LocalisableError {
 	// return SkipDir from there.
 
 	if (currentItem.Entry != nil) && !(currentItem.Entry.IsDir()) {
+		// Effectively, this is the file only filter
+		//
 		return n.options.Callback(currentItem)
 	}
 
-	entries, err := readDir(currentItem.Path)
+	entries, err := n.options.Hooks.ReadDirectory(currentItem.Path)
 	if err != nil {
 		return &LocalisableError{Inner: err}
+	}
+
+	if entries, err = n.options.Hooks.Sort(entries); err != nil {
+		panic(LocalisableError{
+			Inner: errors.New("files navigator sort function failed"),
+		})
 	}
 
 	for _, childEntry := range entries {

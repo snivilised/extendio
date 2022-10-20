@@ -1,6 +1,7 @@
 package xfs
 
 import (
+	"errors"
 	"math"
 
 	"github.com/samber/lo"
@@ -17,42 +18,42 @@ const (
 	// For directories, any node that has no sub folders. For files, any node
 	// that appears under a leaf directory node
 	//
-	LeafNodes FilterScopeEnum = 1 << iota
+	LeafScopeEn FilterScopeEnum = 1 << iota
 
 	// Any node that is a direct descendent of the root node
 	//
-	TopNodes
+	TopScopeEn
 
-	// IntermediateNodes apply filter to nodes which are neither leaf or top nodes
+	// IntermediateScopeEn apply filter to nodes which are neither leaf or top nodes
 	//
-	IntermediateNodes
+	IntermediateScopeEn
 
-	// FolderNodes apply filter to folder nodes
+	// FolderScopeEn apply filter to folder nodes
 	//
-	FolderNodes
+	FolderScopeEn
 
-	// FileNodes apply filter to file nodes
+	// FileScopeEn apply filter to file nodes
 	//
-	FileNodes
+	FileScopeEn
 
-	// CustomNodes apply filter to node using client defined categorisation
+	// CustomScopeEn apply filter to node using client defined categorisation
 	// (yet to be confirmed)
 	//
-	CustomNodes
+	CustomScopeEn
 
-	// AllNodes apply the filter to any node type
+	// AllScopesEn apply the filter to any node type
 	//
-	AllNodes = math.MaxInt32
+	AllScopesEn = math.MaxUint32
 )
 
 var filterScopeStrings map[FilterScopeEnum]string = map[FilterScopeEnum]string{
-	LeafNodes:         "Leaf",
-	TopNodes:          "Top",
-	IntermediateNodes: "Intermediate",
-	FolderNodes:       "Folder",
-	FileNodes:         "File",
-	CustomNodes:       "Custom",
-	AllNodes:          "All",
+	LeafScopeEn:         "Leaf",
+	TopScopeEn:          "Top",
+	IntermediateScopeEn: "Intermediate",
+	FolderScopeEn:       "Folder",
+	FileScopeEn:         "File",
+	CustomScopeEn:       "Custom",
+	AllScopesEn:         "All",
 }
 
 // String
@@ -69,7 +70,8 @@ type TraverseFilter interface {
 
 // Filter base filter struct
 type Filter struct {
-	Scope FilterScopeEnum // defines which file system nodes the filter should be applied to
+	Scope  FilterScopeEnum // defines which file system nodes the filter should be applied to
+	Negate bool            // select to define a negative match
 }
 
 // RegexFilter regex filter
@@ -77,10 +79,15 @@ type RegexFilter struct {
 	Filter
 }
 
+type FilterInfo struct {
+	Filter      TraverseFilter
+	ActualScope FilterScopeEnum
+}
+
 // IsMatch
 func (f *RegexFilter) IsMatch(name string, scope FilterScopeEnum) bool {
 
-	return false
+	return true
 }
 
 // GlobFilter wildcard filter
@@ -91,7 +98,7 @@ type GlobFilter struct {
 // IsMatch
 func (f *GlobFilter) IsMatch(name string, scope FilterScopeEnum) bool {
 
-	return false
+	return true
 }
 
 // CustomFilter is not a real filter, it represents a filter that would be defined by the client
@@ -100,5 +107,7 @@ type CustomFilter struct {
 }
 
 func (f *CustomFilter) IsMatch(name string, scope FilterScopeEnum) bool {
-	panic("IsMatch not defined for custom filter")
+	panic(LocalisableError{
+		Inner: errors.New("IsMatch not defined for custom filter"),
+	})
 }

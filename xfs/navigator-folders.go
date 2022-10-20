@@ -25,7 +25,9 @@ func (n *foldersNavigator) top(root string) *LocalisableError {
 			item := TraverseItem{Path: root, Info: info}
 			le = n.traverse(&item)
 		} else {
-			item := TraverseItem{Path: root, Info: info, Error: &LocalisableError{Inner: errors.New("Not a directory")}}
+			item := TraverseItem{
+				Path: root, Info: info, Error: &LocalisableError{Inner: errors.New("not a directory")},
+			}
 			le = n.options.Callback(&item)
 		}
 	}
@@ -45,7 +47,7 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem) *LocalisableError
 		return le
 	}
 
-	entries, err := readDir(currentItem.Path)
+	entries, err := n.options.Hooks.ReadDirectory(currentItem.Path)
 	if err != nil {
 		item := currentItem.Clone()
 		item.Error = &LocalisableError{Inner: err}
@@ -60,13 +62,17 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem) *LocalisableError
 		}
 	}
 
-	// this should be extracted away into a directory-entry filter
-	//
-	filtered := lo.Filter(entries, func(de fs.DirEntry, i int) bool {
+	dirs := lo.Filter(entries, func(de fs.DirEntry, i int) bool {
 		return de.Type().IsDir()
 	})
 
-	for _, childEntry := range filtered {
+	if dirs, err = n.options.Hooks.Sort(dirs); err != nil {
+		panic(LocalisableError{
+			Inner: errors.New("folder navigator sort function failed"),
+		})
+	}
+
+	for _, childEntry := range dirs {
 		childPath := filepath.Join(currentItem.Path, childEntry.Name())
 		info, err := childEntry.Info()
 		le := lo.Ternary(err == nil, nil, &LocalisableError{Inner: err})
