@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io/fs"
 	"os"
-	"path/filepath"
 
 	"github.com/samber/lo"
 )
@@ -13,22 +12,28 @@ type foldersNavigator struct {
 	navigator
 }
 
-func (n *foldersNavigator) top(root string) *LocalisableError {
-	info, err := os.Lstat(root)
+func (n *foldersNavigator) top(frame *navigationFrame) *LocalisableError {
+	info, err := os.Lstat(frame.Root)
 	var le *LocalisableError = nil
 	if err != nil {
-		item := TraverseItem{Path: root, Info: info, Error: &LocalisableError{Inner: err}}
-		le = n.options.Callback(&item)
+		item := &TraverseItem{Path: frame.Root, Info: info, Error: &LocalisableError{Inner: err}}
+		_ = n.options.Hooks.Extend(&navigationInfo{
+			options: n.options, item: item, frame: frame,
+		}, []fs.DirEntry{})
+		le = n.options.Callback(item)
 	} else {
 
 		if info.IsDir() {
-			item := TraverseItem{Path: root, Info: info}
-			le = n.traverse(&item)
+			item := &TraverseItem{Path: frame.Root, Info: info}
+			le = n.traverse(item, frame)
 		} else {
-			item := TraverseItem{
-				Path: root, Info: info, Error: &LocalisableError{Inner: errors.New("not a directory")},
+			item := &TraverseItem{
+				Path: frame.Root, Info: info, Error: &LocalisableError{Inner: errors.New("not a directory")},
 			}
-			le = n.options.Callback(&item)
+			_ = n.options.Hooks.Extend(&navigationInfo{
+				options: n.options, item: item, frame: frame,
+			}, []fs.DirEntry{})
+			le = n.options.Callback(item)
 		}
 	}
 	if (le != nil) && (le.Inner == fs.SkipDir) {
@@ -37,7 +42,15 @@ func (n *foldersNavigator) top(root string) *LocalisableError {
 	return le
 }
 
-func (n *foldersNavigator) traverse(currentItem *TraverseItem) *LocalisableError {
+func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
+	defer func() {
+		_ = n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
+	}()
+	navi := &navigationInfo{options: n.options, item: currentItem, frame: frame}
+	_ = n.descend(navi)
+	entries, readErr := n.children.read(currentItem)
+	_ = n.options.Hooks.Extend(navi, entries)
+
 	if le := n.options.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
 			// Successfully skipped directory
@@ -47,43 +60,27 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem) *LocalisableError
 		return le
 	}
 
-	entries, err := n.options.Hooks.ReadDirectory(currentItem.Path)
-	if err != nil {
-		item := currentItem.Clone()
-		item.Error = &LocalisableError{Inner: err}
+	if exit, err := n.children.notify(&notifyInfo{
+		item: currentItem, entries: entries, readErr: readErr,
+	}); exit {
+		return err
+	} else {
+		dirs := lo.Filter(entries, func(de fs.DirEntry, i int) bool {
+			return de.Type().IsDir()
+		})
 
-		// Second call, to report ReadDir error
-		//
-		if le := n.options.Callback(item); le != nil {
-			if err == fs.SkipDir && (currentItem.Entry != nil && currentItem.Entry.IsDir()) {
-				err = nil
-			}
-			return &LocalisableError{Inner: err}
+		var err error
+		if err = n.options.Hooks.Sort(dirs); err != nil {
+			panic(LocalisableError{
+				Inner: errors.New("folder navigator sort function failed"),
+			})
 		}
-	}
 
-	dirs := lo.Filter(entries, func(de fs.DirEntry, i int) bool {
-		return de.Type().IsDir()
-	})
-
-	if dirs, err = n.options.Hooks.Sort(dirs); err != nil {
-		panic(LocalisableError{
-			Inner: errors.New("folder navigator sort function failed"),
+		return n.children.traverse(&agentTraverseInfo{
+			core:    n,
+			entries: dirs,
+			parent:  currentItem,
+			frame:   frame,
 		})
 	}
-
-	for _, childEntry := range dirs {
-		childPath := filepath.Join(currentItem.Path, childEntry.Name())
-		info, err := childEntry.Info()
-		le := lo.Ternary(err == nil, nil, &LocalisableError{Inner: err})
-		childItem := TraverseItem{Path: childPath, Info: info, Entry: childEntry, Error: le}
-
-		if childLe := n.traverse(&childItem); childLe != nil {
-			if childLe.Inner == fs.SkipDir {
-				break
-			}
-			return childLe
-		}
-	}
-	return nil
 }

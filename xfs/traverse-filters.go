@@ -28,14 +28,6 @@ const (
 	//
 	IntermediateScopeEn
 
-	// FolderScopeEn apply filter to folder nodes
-	//
-	FolderScopeEn
-
-	// FileScopeEn apply filter to file nodes
-	//
-	FileScopeEn
-
 	// CustomScopeEn apply filter to node using client defined categorisation
 	// (yet to be confirmed)
 	//
@@ -50,8 +42,6 @@ var filterScopeStrings map[FilterScopeEnum]string = map[FilterScopeEnum]string{
 	LeafScopeEn:         "Leaf",
 	TopScopeEn:          "Top",
 	IntermediateScopeEn: "Intermediate",
-	FolderScopeEn:       "Folder",
-	FileScopeEn:         "File",
 	CustomScopeEn:       "Custom",
 	AllScopesEn:         "All",
 }

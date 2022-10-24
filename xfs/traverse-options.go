@@ -6,7 +6,7 @@ import "github.com/samber/lo"
 type TraverseOptions struct {
 	Subscription    TraverseSubscription // defines which node types are visited
 	IsCaseSensitive bool                 // case sensitive traversal order
-	Extend          bool                 // request an extended result
+	DoExtend        bool                 // request an extended result
 	WithMetrics     bool                 // request metrics in TraversalResult
 	Callback        TraverseCallback     // traversal callback (universal, folders, files)
 	OnDescend       TraverseCallback     // callback to invoke as a folder is descended (before children)
@@ -20,7 +20,13 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	options := TraverseOptions{
 		Subscription:    SubscribeAny,
 		IsCaseSensitive: false,
-		Extend:          false,
+		DoExtend:        false,
+		OnDescend: func(item *TraverseItem) *LocalisableError {
+			return nil
+		},
+		OnAscend: func(item *TraverseItem) *LocalisableError {
+			return nil
+		},
 		Hooks: traverseHooks{
 			ReadDirectory: readDir,
 		},
@@ -34,6 +40,10 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 		options.Hooks.Sort = lo.Ternary(options.IsCaseSensitive,
 			CaseSensitiveSortHookFn, CaseInSensitiveSortHookFn,
 		)
+	}
+
+	if options.Hooks.Extend == nil {
+		options.Hooks.Extend = lo.Ternary(options.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
 	}
 
 	return &options
