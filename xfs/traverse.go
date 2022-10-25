@@ -5,7 +5,7 @@ import (
 )
 
 // ExtendedItem provides extended information if the client requests
-// it by setting the Extend boolean in the traverse options.
+// it by setting the DoExtend boolean in the traverse options.
 type ExtendedItem struct {
 	Depth     uint            // traversal depth relative to the root
 	IsLeaf    bool            // defines whether this node a leaf node
@@ -68,13 +68,14 @@ type navigationFrame struct {
 	Depth uint
 }
 
-type navigatorCore interface {
+type navigatorImpl interface {
+	options() *TraverseOptions
 	top(frame *navigationFrame) *LocalisableError
 	traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError
 }
 
-type navigationInfo struct {
-	options *TraverseOptions
-	item    *TraverseItem
-	frame   *navigationFrame
+type NavigationParams struct {
+	Options *TraverseOptions
+	Item    *TraverseItem
+	Frame   *navigationFrame
 }
