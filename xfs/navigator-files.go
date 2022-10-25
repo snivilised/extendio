@@ -38,14 +38,14 @@ func (n *filesNavigator) traverse(currentItem *TraverseItem, frame *navigationFr
 	// return SkipDir from there.
 
 	defer func() {
-		_ = n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
+		n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
 	}()
 	navi := &navigationInfo{options: n.options, item: currentItem, frame: frame}
-	_ = n.descend(navi)
+	n.descend(navi)
 
 	entries, readErr := n.children.read(currentItem)
 	if (currentItem.Entry != nil) && !(currentItem.Entry.IsDir()) {
-		_ = n.options.Hooks.Extend(navi, entries)
+		n.options.Hooks.Extend(navi, entries)
 
 		// Effectively, this is the file only filter
 		//

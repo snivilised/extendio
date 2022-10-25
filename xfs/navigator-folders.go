@@ -17,7 +17,7 @@ func (n *foldersNavigator) top(frame *navigationFrame) *LocalisableError {
 	var le *LocalisableError = nil
 	if err != nil {
 		item := &TraverseItem{Path: frame.Root, Info: info, Error: &LocalisableError{Inner: err}}
-		_ = n.options.Hooks.Extend(&navigationInfo{
+		n.options.Hooks.Extend(&navigationInfo{
 			options: n.options, item: item, frame: frame,
 		}, []fs.DirEntry{})
 		le = n.options.Callback(item)
@@ -30,7 +30,7 @@ func (n *foldersNavigator) top(frame *navigationFrame) *LocalisableError {
 			item := &TraverseItem{
 				Path: frame.Root, Info: info, Error: &LocalisableError{Inner: errors.New("not a directory")},
 			}
-			_ = n.options.Hooks.Extend(&navigationInfo{
+			n.options.Hooks.Extend(&navigationInfo{
 				options: n.options, item: item, frame: frame,
 			}, []fs.DirEntry{})
 			le = n.options.Callback(item)
@@ -44,12 +44,12 @@ func (n *foldersNavigator) top(frame *navigationFrame) *LocalisableError {
 
 func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
 	defer func() {
-		_ = n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
+		n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
 	}()
 	navi := &navigationInfo{options: n.options, item: currentItem, frame: frame}
-	_ = n.descend(navi)
+	n.descend(navi)
 	entries, readErr := n.children.read(currentItem)
-	_ = n.options.Hooks.Extend(navi, entries)
+	n.options.Hooks.Extend(navi, entries)
 
 	if le := n.options.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {

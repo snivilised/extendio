@@ -22,7 +22,7 @@ type SortEntriesHookFn func(entries []fs.DirEntry, custom ...any) error
 type FilterEntriesHookFn func(entries []fs.DirEntry, info *FilterInfo, custom ...any) ([]fs.DirEntry, error)
 
 // ExtendHookFn
-type ExtendHookFn func(ei *navigationInfo, descendants []fs.DirEntry) error
+type ExtendHookFn func(ei *navigationInfo, descendants []fs.DirEntry)
 
 type traverseHooks struct {
 	ReadDirectory ReadDirectoryHookFn

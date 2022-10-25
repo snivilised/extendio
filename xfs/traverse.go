@@ -50,6 +50,9 @@ const (
 // TraverseCallback defines traversal callback function signature.
 type TraverseCallback func(item *TraverseItem) *LocalisableError
 
+// AscendancyHandler defines the signatures of ascend/descend handlers
+type AscendancyHandler func(item *TraverseItem)
+
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
 	Error error
@@ -74,8 +77,4 @@ type navigationInfo struct {
 	options *TraverseOptions
 	item    *TraverseItem
 	frame   *navigationFrame
-}
-
-type TraverseController interface {
-	Dummy() bool
 }
