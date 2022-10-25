@@ -12,7 +12,7 @@ import (
 // override this by setting the custom function on options.Hooks.Extend. If the client
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
-func DefaultExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) error {
+func DefaultExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) {
 
 	if ei.item.Extension != nil {
 		panic(LocalisableError{
@@ -42,9 +42,6 @@ func DefaultExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) error {
 		NodeScope: scope,
 	}
 	// fmt.Printf("💥 extend> depth: '%v', name: '%v', scope: '%v'\n", ei.frame.Depth, name, scope)
-	return nil
 }
 
-func nullExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) error {
-	return nil
-}
+func nullExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) {}

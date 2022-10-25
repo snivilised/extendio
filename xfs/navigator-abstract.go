@@ -20,12 +20,12 @@ func (n *navigator) traverse(item *TraverseItem, frame *navigationFrame) *Locali
 	return nil
 }
 
-func (n *navigator) descend(navi *navigationInfo) *LocalisableError {
+func (n *navigator) descend(navi *navigationInfo) {
 	navi.frame.Depth++
-	return n.options.OnDescend(navi.item)
+	n.options.OnDescend(navi.item)
 }
 
-func (n *navigator) ascend(navi *navigationInfo) *LocalisableError {
+func (n *navigator) ascend(navi *navigationInfo) {
 	navi.frame.Depth--
-	return n.options.OnAscend(navi.item)
+	n.options.OnAscend(navi.item)
 }

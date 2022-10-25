@@ -30,12 +30,12 @@ func (n *universalNavigator) top(frame *navigationFrame) *LocalisableError {
 
 func (n *universalNavigator) traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
 	defer func() {
-		_ = n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
+		n.ascend(&navigationInfo{options: n.options, item: currentItem, frame: frame})
 	}()
 	navi := &navigationInfo{options: n.options, item: currentItem, frame: frame}
-	_ = n.descend(navi)
+	n.descend(navi)
 	entries, readErr := n.children.read(currentItem)
-	_ = n.options.Hooks.Extend(navi, entries)
+	n.options.Hooks.Extend(navi, entries)
 
 	if le := n.options.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
