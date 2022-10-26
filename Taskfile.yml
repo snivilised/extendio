@@ -1,0 +1,59 @@
+version: '3'
+silent: true
+
+dotenv: ['.env']
+
+tasks:
+  b:
+    cmds:
+      - go build ./...
+
+  t:
+    cmds:
+      - go test ./...
+
+  dry:
+    cmds:
+      - ginkgo -v --dry-run ./...
+
+  watchv:
+    cmds:
+      - ginkgo watch -v -r -p ./...
+
+  watch:
+    cmds:
+      - ginkgo watch -r -p ./...
+
+  # initialise a test suite for a package. (only 1 per package)
+  boot:
+    cmds:
+      - ginkgo bootstrap
+
+  # run tests suites recursive
+  g:
+    cmds:
+      - ginkgo -r
+
+  # invoke as task gen -- <item>
+  gl:
+    cmds:
+      - ginkgo -r --label-filter={{.CLI_ARGS}}
+
+  # run tests suites recursive with verbose
+  gv:
+    cmds:
+      - ginkgo -r -v
+
+  # generate a test file for the item provided (item_test.go)
+  # invoke as task gen -- <item>
+  gen:
+    cmds:
+      - ginkgo generate {{.CLI_ARGS}}
+
+  lint:
+    cmds:
+      - golangci-lint run
+
+  cover:
+    cmds:
+      - goveralls -repotoken {{.COVERALLS_TOKEN}}
