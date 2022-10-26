@@ -12,11 +12,11 @@ import (
 // override this by setting the custom function on options.Hooks.Extend. If the client
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
-func DefaultExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) {
+func DefaultExtendHookFn(ei *NavigationParams, descendants []fs.DirEntry) {
 
-	if ei.item.Extension != nil {
+	if ei.Item.Extension != nil {
 		panic(LocalisableError{
-			Inner: fmt.Errorf("extend: item for path '%v' already extended", ei.item.Path),
+			Inner: fmt.Errorf("extend: item for path '%v' already extended", ei.Item.Path),
 		})
 	}
 
@@ -27,15 +27,15 @@ func DefaultExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) {
 	isLeaf := len(grouped[true]) == 0
 
 	scope := IntermediateScopeEn
-	if ei.frame.Depth == 1 {
+	if ei.Frame.Depth == 1 {
 		scope = TopScopeEn
 	} else if isLeaf {
 		scope = LeafScopeEn
 	}
 
-	parent, name := filepath.Split(ei.item.Path)
-	ei.item.Extension = &ExtendedItem{
-		Depth:     ei.frame.Depth,
+	parent, name := filepath.Split(ei.Item.Path)
+	ei.Item.Extension = &ExtendedItem{
+		Depth:     ei.Frame.Depth,
 		IsLeaf:    isLeaf,
 		Name:      name,
 		Parent:    parent,
@@ -44,4 +44,4 @@ func DefaultExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) {
 	// fmt.Printf("💥 extend> depth: '%v', name: '%v', scope: '%v'\n", ei.frame.Depth, name, scope)
 }
 
-func nullExtendHookFn(ei *navigationInfo, descendants []fs.DirEntry) {}
+func nullExtendHookFn(ei *NavigationParams, descendants []fs.DirEntry) {}

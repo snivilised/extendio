@@ -3,7 +3,7 @@ package xfs
 import "fmt"
 
 type navigatorController struct {
-	core navigatorCore
+	impl navigatorImpl
 }
 
 func (n *navigatorController) Walk(root string) *TraverseResult {
@@ -13,6 +13,6 @@ func (n *navigatorController) Walk(root string) *TraverseResult {
 	}
 
 	return &TraverseResult{
-		Error: n.core.top(&frame),
+		Error: n.impl.top(&frame),
 	}
 }

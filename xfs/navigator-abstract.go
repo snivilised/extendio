@@ -1,31 +1,20 @@
 package xfs
 
-import (
-	"fmt"
-)
-
 type navigator struct {
-	options  *TraverseOptions
-	children *childAgent
+	o     *TraverseOptions
+	agent *childAgent
 }
 
-func (n *navigator) top(frame *navigationFrame) *LocalisableError {
-	fmt.Printf("---> 🚁 [navigator]::top\n")
-
-	return nil
+func (n *navigator) options() *TraverseOptions {
+	return n.o
 }
 
-func (n *navigator) traverse(item *TraverseItem, frame *navigationFrame) *LocalisableError {
-	fmt.Printf("---> 🚁 [navigator]::traverse\n")
-	return nil
+func (n *navigator) descend(navi *NavigationParams) {
+	navi.Frame.Depth++
+	n.o.OnDescend(navi.Item)
 }
 
-func (n *navigator) descend(navi *navigationInfo) {
-	navi.frame.Depth++
-	n.options.OnDescend(navi.item)
-}
-
-func (n *navigator) ascend(navi *navigationInfo) {
-	navi.frame.Depth--
-	n.options.OnAscend(navi.item)
+func (n *navigator) ascend(navi *NavigationParams) {
+	navi.Frame.Depth--
+	n.o.OnAscend(navi.Item)
 }

@@ -13,32 +13,32 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 		})
 	}
 
-	var core navigatorCore
+	var impl navigatorImpl
 
 	switch o.Subscription {
 	case SubscribeAny:
-		core = &universalNavigator{
-			navigator: navigator{options: o, children: &childAgent{
-				options: o, DO_INVOKE: true,
+		impl = &universalNavigator{
+			navigator: navigator{o: o, agent: &childAgent{
+				o: o, DO_INVOKE: true,
 			}},
 		}
 
 	case SubscribeFolders:
-		core = &foldersNavigator{
-			navigator: navigator{options: o, children: &childAgent{
-				options: o, DO_INVOKE: true,
+		impl = &foldersNavigator{
+			navigator: navigator{o: o, agent: &childAgent{
+				o: o, DO_INVOKE: true,
 			}},
 		}
 
 	case SubscribeFiles:
-		core = &filesNavigator{
-			navigator: navigator{options: o, children: &childAgent{
-				options: o, DO_INVOKE: false,
+		impl = &filesNavigator{
+			navigator: navigator{o: o, agent: &childAgent{
+				o: o, DO_INVOKE: false,
 			}},
 		}
 	}
 	nav := &navigatorController{
-		core: core,
+		impl: impl,
 	}
 
 	return nav

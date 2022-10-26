@@ -2,11 +2,15 @@ package xfs
 
 import (
 	"io/fs"
+	"os"
 	"sort"
 	"strings"
 
 	"github.com/samber/lo"
 )
+
+// Lstat function signature that enables the default t be overridden
+type QueryStatusHookFn func(path string) (fs.FileInfo, error)
 
 // ReadDirectoryHookFn hook function to define implementation of how a directory's
 // entries are read. A default implementation is preset, so does not have to be set
@@ -22,13 +26,20 @@ type SortEntriesHookFn func(entries []fs.DirEntry, custom ...any) error
 type FilterEntriesHookFn func(entries []fs.DirEntry, info *FilterInfo, custom ...any) ([]fs.DirEntry, error)
 
 // ExtendHookFn
-type ExtendHookFn func(ei *navigationInfo, descendants []fs.DirEntry)
+type ExtendHookFn func(navi *NavigationParams, descendants []fs.DirEntry)
 
-type traverseHooks struct {
+// TraverseHooks defines the suite of items that can be customised by the client
+type TraverseHooks struct {
+	QueryStatus   QueryStatusHookFn
 	ReadDirectory ReadDirectoryHookFn
 	Sort          SortEntriesHookFn
 	Filter        FilterEntriesHookFn
 	Extend        ExtendHookFn
+}
+
+// Lstat is the default Query Status hook function
+func LstatHookFn(path string) (fs.FileInfo, error) {
+	return os.Lstat(path)
 }
 
 // FilterHookFn is the default Filter hook function.
