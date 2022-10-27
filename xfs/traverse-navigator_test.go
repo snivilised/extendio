@@ -13,6 +13,14 @@ import (
 	"github.com/snivilised/extendio/xfs"
 )
 
+func normalise(p string) string {
+	return strings.ReplaceAll(p, "/", string(filepath.Separator))
+}
+
+func reason(item *xfs.TraverseItem) string {
+	return fmt.Sprintf("❌ for item named: '%v'", item.Extension.Name)
+}
+
 type naviTE struct {
 	message       string
 	relative      string
@@ -372,5 +380,95 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				exclude: "Northern Council",
 			}),
 		)
+
+		Context("sub-path", func() {
+			When("KeepTrailingSep set to true", func() {
+				It("should: calculate subpath WITH trailing separator", func() {
+
+					expectations := map[string]string{
+						"RETRO-WAVE":                   "",
+						"Chromatics":                   normalise("/"),
+						"Night Drive":                  normalise("/Chromatics/"),
+						"A1 - The Telephone Call.flac": normalise("/Chromatics/Night Drive/"),
+					}
+					navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
+						o.Subscription = xfs.SubscribeAny
+						o.DoExtend = true
+						o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+							if expected, ok := expectations[item.Extension.Name]; ok {
+								Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
+								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
+									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
+								)
+							}
+
+							return nil
+						}
+						o.Behaviours.SubPath.KeepTrailingSep = true
+					})
+					path := path(root, "RETRO-WAVE")
+					navigator.Walk(path)
+				})
+
+				When("using RootItemSubPath", func() {
+					It("should: calculate subpath WITH trailing separator", func() {
+
+						expectations := map[string]string{
+							"edm":                         "",
+							"_segments.def.infex.txt":     "/_segments.def.infex.txt",
+							"Orbital 2 (The Brown Album)": normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)"),
+							"03 - Lush 3-1.flac":          normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)/03 - Lush 3-1.flac"),
+						}
+						navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
+							o.Subscription = xfs.SubscribeAny
+							o.DoExtend = true
+							o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+								if expected, ok := expectations[item.Extension.Name]; ok {
+									Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
+									GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
+										item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
+									)
+								}
+
+								return nil
+							}
+							o.Hooks.FolderSubPath = xfs.RootItemSubPath
+							o.Hooks.FileSubPath = xfs.RootItemSubPath
+							o.Behaviours.SubPath.KeepTrailingSep = true
+						})
+						path := path(root, "edm")
+						navigator.Walk(path)
+					})
+				})
+			})
+
+			When("KeepTrailingSep set to false", func() {
+				It("should: calculate subpath WITHOUT trailing separator", func() {
+					expectations := map[string]string{
+						"RETRO-WAVE":            "",
+						"Electric Youth":        normalise(""),
+						"Innerworld":            normalise("/Electric Youth"),
+						"A1 - Before Life.flac": normalise("/Electric Youth/Innerworld"),
+					}
+					navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
+						o.Subscription = xfs.SubscribeAny
+						o.DoExtend = true
+						o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+							if expected, ok := expectations[item.Extension.Name]; ok {
+								Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
+								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
+									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
+								)
+							}
+
+							return nil
+						}
+						o.Behaviours.SubPath.KeepTrailingSep = false
+					})
+					path := path(root, "RETRO-WAVE")
+					navigator.Walk(path)
+				})
+			})
+		})
 	})
 })

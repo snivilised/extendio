@@ -28,6 +28,9 @@ type FilterEntriesHookFn func(entries []fs.DirEntry, info *FilterInfo, custom ..
 // ExtendHookFn
 type ExtendHookFn func(navi *NavigationParams, descendants []fs.DirEntry)
 
+// SubPathHookFn
+type SubPathHookFn func(info *SubPathInfo) string
+
 // TraverseHooks defines the suite of items that can be customised by the client
 type TraverseHooks struct {
 	QueryStatus   QueryStatusHookFn
@@ -35,6 +38,8 @@ type TraverseHooks struct {
 	Sort          SortEntriesHookFn
 	Filter        FilterEntriesHookFn
 	Extend        ExtendHookFn
+	FolderSubPath SubPathHookFn
+	FileSubPath   SubPathHookFn
 }
 
 // Lstat is the default Query Status hook function

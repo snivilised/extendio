@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"strings"
 
 	"github.com/samber/lo"
 )
@@ -12,11 +13,11 @@ import (
 // override this by setting the custom function on options.Hooks.Extend. If the client
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
-func DefaultExtendHookFn(ei *NavigationParams, descendants []fs.DirEntry) {
+func DefaultExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {
 
-	if ei.Item.Extension != nil {
+	if params.Item.Extension != nil {
 		panic(LocalisableError{
-			Inner: fmt.Errorf("extend: item for path '%v' already extended", ei.Item.Path),
+			Inner: fmt.Errorf("extend: item for path '%v' already extended", params.Item.Path),
 		})
 	}
 
@@ -27,21 +28,40 @@ func DefaultExtendHookFn(ei *NavigationParams, descendants []fs.DirEntry) {
 	isLeaf := len(grouped[true]) == 0
 
 	scope := IntermediateScopeEn
-	if ei.Frame.Depth == 1 {
+	if params.Frame.Depth == 1 {
 		scope = TopScopeEn
 	} else if isLeaf {
 		scope = LeafScopeEn
 	}
 
-	parent, name := filepath.Split(ei.Item.Path)
-	ei.Item.Extension = &ExtendedItem{
-		Depth:     ei.Frame.Depth,
+	parent, name := filepath.Split(params.Item.Path)
+	params.Item.Extension = &ExtendedItem{
+		Depth:     params.Frame.Depth,
 		IsLeaf:    isLeaf,
 		Name:      name,
 		Parent:    parent,
 		NodeScope: scope,
 	}
-	// fmt.Printf("💥 extend> depth: '%v', name: '%v', scope: '%v'\n", ei.frame.Depth, name, scope)
+
+	spInfo := &SubPathInfo{Root: params.Frame.Root, Item: params.Item}
+	subpath := lo.TernaryF(params.Item.IsDir(),
+		func() string { return params.Options.Hooks.FolderSubPath(spInfo) },
+		func() string { return params.Options.Hooks.FileSubPath(spInfo) },
+	)
+
+	subpath = lo.TernaryF(params.Options.Behaviours.SubPath.KeepTrailingSep,
+		func() string { return subpath },
+		func() string {
+			result := subpath
+			sep := string(filepath.Separator)
+			if strings.HasSuffix(subpath, sep) {
+				result = subpath[:strings.LastIndex(subpath, sep)]
+			}
+			return result
+		},
+	)
+
+	params.Item.Extension.SubPath = subpath
 }
 
 func nullExtendHookFn(ei *NavigationParams, descendants []fs.DirEntry) {}

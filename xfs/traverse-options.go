@@ -2,7 +2,17 @@ package xfs
 
 import "github.com/samber/lo"
 
-// TraverseOptions customise the way a directory tree in traversed
+// SubPathBehaviour
+type SubPathBehaviour struct {
+	KeepTrailingSep bool
+}
+
+// NavigationBehaviours
+type NavigationBehaviours struct {
+	SubPath SubPathBehaviour
+}
+
+// TraverseOptions customise the way a directory tree is traversed
 type TraverseOptions struct {
 	Subscription    TraverseSubscription // defines which node types are visited
 	IsCaseSensitive bool                 // case sensitive traversal order
@@ -12,7 +22,8 @@ type TraverseOptions struct {
 	OnDescend       AscendancyHandler    // handler to invoke as a folder is descended (before children)
 	OnAscend        AscendancyHandler    // handler to invoke as a folder is ascended (after children)
 
-	Hooks TraverseHooks
+	Hooks      TraverseHooks
+	Behaviours NavigationBehaviours
 }
 type TraverseOptionFn func(o *TraverseOptions) // functional traverse options
 
@@ -26,6 +37,13 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 		Hooks: TraverseHooks{
 			QueryStatus:   LstatHookFn,
 			ReadDirectory: ReadEntries,
+			FolderSubPath: RootParentSubPath,
+			FileSubPath:   RootParentSubPath,
+		},
+		Behaviours: NavigationBehaviours{
+			SubPath: SubPathBehaviour{
+				KeepTrailingSep: true,
+			},
 		},
 	}
 
