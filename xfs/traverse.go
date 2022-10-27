@@ -63,6 +63,12 @@ type TraverseCallback func(item *TraverseItem) *LocalisableError
 // AscendancyHandler defines the signatures of ascend/descend handlers
 type AscendancyHandler func(item *TraverseItem)
 
+// BeginHandler life cycle event handler, invoked before start of traversal
+type BeginHandler func(root string)
+
+// EndHandler life cycle event handler, invoked at end of traversal
+type EndHandler func(result *TraverseResult)
+
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
 	Error error

@@ -19,6 +19,8 @@ type TraverseOptions struct {
 	DoExtend        bool                 // request an extended result
 	WithMetrics     bool                 // request metrics in TraversalResult
 	Callback        TraverseCallback     // traversal callback (universal, folders, files)
+	OnBegin         BeginHandler         // invoked at beginning of traversal
+	OnEnd           EndHandler           // invoked at end of traversal
 	OnDescend       AscendancyHandler    // handler to invoke as a folder is descended (before children)
 	OnAscend        AscendancyHandler    // handler to invoke as a folder is ascended (after children)
 
@@ -32,6 +34,8 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 		Subscription:    SubscribeAny,
 		IsCaseSensitive: false,
 		DoExtend:        false,
+		OnBegin:         func(root string) {},
+		OnEnd:           func(result *TraverseResult) {},
 		OnDescend:       func(item *TraverseItem) {},
 		OnAscend:        func(item *TraverseItem) {},
 		Hooks: TraverseHooks{
