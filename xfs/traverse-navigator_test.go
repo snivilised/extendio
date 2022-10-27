@@ -23,7 +23,7 @@ func reason(item *xfs.TraverseItem) string {
 
 func begin(em string) xfs.BeginHandler {
 	return func(root string) {
-		fmt.Printf("---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, root)
+		GinkgoWriter.Printf("---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, root)
 	}
 }
 
