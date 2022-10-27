@@ -55,6 +55,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 				xfs.NewNavigator(func(o *xfs.TraverseOptions) {
 					o.Subscription = xfs.SubscribeAny
+					o.OnBegin = begin("🧲")
 				})
 
 				Fail("❌ expected panic due to missing callback")
@@ -80,9 +81,9 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						xfs.DefaultExtendHookFn(navi, descendants)
 					}
 					o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
-
 						return nil
 					}
+					o.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -109,6 +110,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						recording = append(recording, item.Error)
 						return item.Error
 					}
+					o.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -133,6 +135,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 						return item.Error
 					}
+					o.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -151,6 +154,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 						return item.Error
 					}
+					o.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -179,6 +183,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 					return item.Error
 				}
+				o.OnBegin = begin("🧲")
 			})
 			const relative = "RETRO-WAVE"
 			path := path(root, relative)
@@ -207,6 +212,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 					return item.Error
 				}
+				o.OnBegin = begin("🧲")
 			})
 			const relative = "RETRO-WAVE/Electric Youth/Innerworld/A2 - Runaway.flac"
 			path := path(root, relative)
@@ -238,6 +244,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 						return item.Error
 					}
+					o.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
