@@ -2,6 +2,8 @@ package xfs
 
 import (
 	"io/fs"
+
+	"github.com/samber/lo"
 )
 
 // ExtendedItem provides extended information if the client requests
@@ -11,6 +13,7 @@ type ExtendedItem struct {
 	IsLeaf    bool            // defines whether this node a leaf node
 	Name      string          // derived as the leaf segment from filepath.Split
 	Parent    string          // derived as the directory from filepath.Split
+	SubPath   string          // represents the path between the root and the current item
 	NodeScope FilterScopeEnum // type of folder corresponding to the Filter Scope
 	Custom    any             // to be set and used by the client
 }
@@ -34,6 +37,13 @@ func (ti *TraverseItem) Clone() *TraverseItem {
 	return &TraverseItem{
 		Path: ti.Path, Entry: ti.Entry, Info: ti.Info, Extension: ti.Extension,
 	}
+}
+
+func (ti *TraverseItem) IsDir() bool {
+	return lo.TernaryF(ti.Entry != nil,
+		func() bool { return ti.Entry.IsDir() },
+		func() bool { return ti.Info.IsDir() },
+	)
 }
 
 // TraverseSubscription type to define traversal subscription (for which file system
@@ -78,4 +88,9 @@ type NavigationParams struct {
 	Options *TraverseOptions
 	Item    *TraverseItem
 	Frame   *navigationFrame
+}
+
+type SubPathInfo struct {
+	Root string
+	Item *TraverseItem
 }
