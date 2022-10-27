@@ -37,9 +37,9 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 			}},
 		}
 	}
-	nav := &navigatorController{
+	ctrl := &navigatorController{
 		impl: impl,
 	}
 
-	return nav
+	return ctrl
 }
