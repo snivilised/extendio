@@ -37,13 +37,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     
-    - run: go test -v -coverprofile=coverage.out ./...
+    - name: Create Coverage Directory
+      shell: bash
+      run: |
+        mkdir -p ./coverage
+
+    - run: go test -v -coverprofile=./coverage/coverage.out ./...
 
     - uses: shogo82148/actions-goveralls@v1
       with:
-        path-to-profile: coverage.out
+        path-to-profile: ./coverage/coverage.out
 
     - name: Send coverage
       env:
         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: goveralls -coverprofile=coverage.out -service=github
+      run: goveralls -coverprofile=./coverage/coverage.out -service=github
