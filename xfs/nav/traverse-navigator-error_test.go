@@ -1,4 +1,4 @@
-package xfs_test
+package nav_test
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/snivilised/extendio/translate"
-	"github.com/snivilised/extendio/xfs"
+	"github.com/snivilised/extendio/xfs/nav"
 )
 
 type errorTE struct {
@@ -32,7 +32,7 @@ func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error)
 			return readDirFakeError(dirname)
 		}
 
-		return xfs.ReadEntries(dirname)
+		return nav.ReadEntries(dirname)
 	}
 }
 
@@ -42,7 +42,9 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	BeforeAll(func() {
 		if current, err := os.Getwd(); err == nil {
 			parent, _ := filepath.Split(current)
-			root = filepath.Join(parent, "Test", "data", "MUSICO")
+			grand := filepath.Dir(parent)
+			great := filepath.Dir(grand)
+			root = filepath.Join(great, "Test", "data", "MUSICO")
 		}
 	})
 
@@ -54,8 +56,8 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}()
 				_ = root
 
-				xfs.NewNavigator(func(o *xfs.TraverseOptions) {
-					o.Subscription = xfs.SubscribeAny
+				nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Subscription = nav.SubscribeAny
 					o.OnBegin = begin("🧲")
 				})
 
@@ -72,16 +74,16 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					_ = recover()
 				}()
 
-				navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
-					o.Subscription = xfs.SubscribeFolders
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Subscription = nav.SubscribeFolders
 					o.DoExtend = true
-					o.Hooks.Extend = func(navi *xfs.NavigationParams, descendants []fs.DirEntry) {
-						navi.Item.Extension = &xfs.ExtendedItem{
+					o.Hooks.Extend = func(navi *nav.NavigationParams, descendants []fs.DirEntry) {
+						navi.Item.Extension = &nav.ExtendedItem{
 							Name: "dummy",
 						}
-						xfs.DefaultExtendHookFn(navi, descendants)
+						nav.DefaultExtendHookFn(navi, descendants)
 					}
-					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
+					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						return nil
 					}
 					o.OnBegin = begin("🧲")
@@ -100,11 +102,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Context("navigator-folders", func() {
 			It("🧪 should: invoke callback with error", func() {
 				recording := []error{}
-				navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
-					o.Subscription = xfs.SubscribeFolders
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Subscription = nav.SubscribeFolders
 					o.DoExtend = true
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
+					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)
@@ -125,11 +127,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 		Context("navigator-files", func() {
 			It("🧪 should: invoke callback with immediate read error", func() {
-				navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
-					o.Subscription = xfs.SubscribeFiles
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Subscription = nav.SubscribeFiles
 					o.DoExtend = true
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
+					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)
@@ -144,11 +146,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			})
 
 			It("🧪 should: invoke callback with error at ...", func() {
-				navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
-					o.Subscription = xfs.SubscribeFiles
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Subscription = nav.SubscribeFiles
 					o.DoExtend = true
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
-					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
+					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)
@@ -170,14 +172,14 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				_ = recover()
 			}()
 
-			navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
+			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Subscription = entry.subscription
 				o.DoExtend = true
 				o.Hooks.Sort = func(entries []fs.DirEntry, custom ...any) error {
 
 					return errors.New("fake sort error")
 				}
-				o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
+				o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 					GinkgoWriter.Printf("---> 🔥 SORT-CALLBACK: '%v', error: '%v'\n",
 						item.Path, item.Error,
 					)
@@ -195,17 +197,17 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		func(entry *errorTE) string {
 			return fmt.Sprintf("🧪 ===> ('%v') should panic", entry.message)
 		},
-		Entry(nil, &errorTE{naviTE{message: "universal", subscription: xfs.SubscribeAny}}),
-		Entry(nil, &errorTE{naviTE{message: "folders", subscription: xfs.SubscribeFolders}}),
-		Entry(nil, &errorTE{naviTE{message: "files", subscription: xfs.SubscribeFiles}}),
+		Entry(nil, &errorTE{naviTE{message: "universal", subscription: nav.SubscribeAny}}),
+		Entry(nil, &errorTE{naviTE{message: "folders", subscription: nav.SubscribeFolders}}),
+		Entry(nil, &errorTE{naviTE{message: "files", subscription: nav.SubscribeFiles}}),
 	)
 
 	DescribeTable("given: root is not a folder",
 		func(entry *errorTE) {
-			navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
+			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Subscription = entry.subscription
 				o.DoExtend = true
-				o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
+				o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 					GinkgoWriter.Printf("---> 🔥 ROOT NOT FOLDER: '%v', error: '%v'\n",
 						item.Path, item.Error,
 					)
@@ -224,20 +226,20 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		func(entry *errorTE) string {
 			return fmt.Sprintf("🧪 ===> ('%v') should return error", entry.message)
 		},
-		Entry(nil, &errorTE{naviTE{message: "universal", subscription: xfs.SubscribeAny}}),
-		Entry(nil, &errorTE{naviTE{message: "folders", subscription: xfs.SubscribeFolders}}),
-		Entry(nil, &errorTE{naviTE{message: "files", subscription: xfs.SubscribeFiles}}),
+		Entry(nil, &errorTE{naviTE{message: "universal", subscription: nav.SubscribeAny}}),
+		Entry(nil, &errorTE{naviTE{message: "folders", subscription: nav.SubscribeFolders}}),
+		Entry(nil, &errorTE{naviTE{message: "files", subscription: nav.SubscribeFiles}}),
 	)
 
 	Context("top level QueryStatus", func() {
 		Context("given: error occurs", func() {
 			It("🧪 should: halt traversal", func() {
-				navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
-					o.Subscription = xfs.SubscribeFolders
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Subscription = nav.SubscribeFolders
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
-					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
+					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 ROOT-QUERY-STATUS: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)

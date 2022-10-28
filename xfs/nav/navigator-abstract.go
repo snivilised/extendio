@@ -1,4 +1,4 @@
-package xfs
+package nav
 
 type navigator struct {
 	o     *TraverseOptions
