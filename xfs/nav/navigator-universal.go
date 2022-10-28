@@ -1,4 +1,4 @@
-package xfs
+package nav
 
 import (
 	"errors"

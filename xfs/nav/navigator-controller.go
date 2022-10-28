@@ -1,4 +1,4 @@
-package xfs
+package nav
 
 type navigatorController struct {
 	impl navigatorImpl

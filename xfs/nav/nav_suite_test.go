@@ -1,4 +1,4 @@
-package xfs_test
+package nav_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestXfs(t *testing.T) {
+func TestNav(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Xfs Suite")
+	RunSpecs(t, "Nav Suite")
 }

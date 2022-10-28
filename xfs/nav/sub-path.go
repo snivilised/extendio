@@ -1,4 +1,4 @@
-package xfs
+package nav
 
 // Tail extracts the end part of a string, starting from the offset
 func Tail(input string, offset int) string {
