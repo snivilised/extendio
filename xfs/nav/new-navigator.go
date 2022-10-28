@@ -22,21 +22,21 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	switch o.Subscription {
 	case SubscribeAny:
 		impl = &universalNavigator{
-			navigator: navigator{o: o, agent: &childAgent{
+			navigator: navigator{o: o, agent: &agent{
 				o: o, DO_INVOKE: true,
 			}},
 		}
 
 	case SubscribeFolders:
 		impl = &foldersNavigator{
-			navigator: navigator{o: o, agent: &childAgent{
+			navigator: navigator{o: o, agent: &agent{
 				o: o, DO_INVOKE: true,
 			}},
 		}
 
 	case SubscribeFiles:
 		impl = &filesNavigator{
-			navigator: navigator{o: o, agent: &childAgent{
+			navigator: navigator{o: o, agent: &agent{
 				o: o, DO_INVOKE: false,
 			}},
 		}
