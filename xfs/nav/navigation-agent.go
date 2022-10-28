@@ -9,7 +9,7 @@ import (
 	. "github.com/snivilised/extendio/translate"
 )
 
-type childAgent struct {
+type agent struct {
 	DO_INVOKE bool // this should be considered const
 	o         *TraverseOptions
 }
@@ -19,7 +19,7 @@ type agentTopParams struct {
 	frame *navigationFrame
 }
 
-func (a *childAgent) top(params *agentTopParams) *LocalisableError {
+func (a *agent) top(params *agentTopParams) *LocalisableError {
 	info, err := a.o.Hooks.QueryStatus(params.frame.Root)
 	var le *LocalisableError = nil
 	if err != nil {
@@ -51,7 +51,7 @@ func (a *childAgent) top(params *agentTopParams) *LocalisableError {
 	return le
 }
 
-func (a *childAgent) read(item *TraverseItem) ([]fs.DirEntry, error) {
+func (a *agent) read(item *TraverseItem) ([]fs.DirEntry, error) {
 	// this method was spun out from notify, as there needs to be a separation
 	// between these pieces of functionality to support 'extension'; ie we
 	// need to read the contents of an items contents to determine the properties
@@ -66,7 +66,7 @@ type agentNotifyParams struct {
 	readErr error
 }
 
-func (a *childAgent) notify(params *agentNotifyParams) (bool, *LocalisableError) {
+func (a *agent) notify(params *agentNotifyParams) (bool, *LocalisableError) {
 
 	exit := false
 	if params.readErr != nil {
@@ -98,7 +98,7 @@ type agentTraverseParams struct {
 	frame   *navigationFrame
 }
 
-func (a *childAgent) traverse(params *agentTraverseParams) *LocalisableError {
+func (a *agent) traverse(params *agentTraverseParams) *LocalisableError {
 	for _, entry := range params.entries {
 		path := filepath.Join(params.parent.Path, entry.Name())
 		info, err := entry.Info()
