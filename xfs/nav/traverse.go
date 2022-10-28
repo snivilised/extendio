@@ -81,8 +81,9 @@ type TraverseNavigator interface {
 }
 
 type navigationFrame struct {
-	Root  string
-	Depth uint
+	Root     string
+	Depth    uint
+	listener *navigationListener
 }
 
 type navigatorImpl interface {

@@ -16,6 +16,7 @@ type SortBehaviours struct {
 type NavigationBehaviours struct {
 	SubPath SubPathBehaviour
 	Sort    SortBehaviours
+	Listen  ListenBehaviour
 }
 
 type Notifications struct {
@@ -23,6 +24,8 @@ type Notifications struct {
 	OnEnd     EndHandler        // invoked at end of traversal
 	OnDescend AscendancyHandler // handler to invoke as a folder is descended (before children)
 	OnAscend  AscendancyHandler // handler to invoke as a folder is ascended (after children)
+	OnStart   ListenHandler     // handler invoked when start listening condition met if enabled
+	OnStop    ListenHandler     // handler invoked when finish listening condition met if enabled
 }
 
 // TraverseOptions customise the way a directory tree is traversed
@@ -34,6 +37,7 @@ type TraverseOptions struct {
 	Notify       Notifications
 	Hooks        TraverseHooks
 	Behaviours   NavigationBehaviours
+	Listen       ListenOptions
 }
 type TraverseOptionFn func(o *TraverseOptions) // functional traverse options
 
@@ -60,6 +64,14 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 			Sort: SortBehaviours{
 				IsCaseSensitive: false,
 			},
+			Listen: ListenBehaviour{
+				InclusiveStart: true,
+				InclusiveStop:  false,
+			},
+		},
+		Listen: ListenOptions{
+			Start: nil,
+			Stop:  nil,
 		},
 	}
 

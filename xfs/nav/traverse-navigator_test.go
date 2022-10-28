@@ -18,7 +18,7 @@ func normalise(p string) string {
 	return strings.ReplaceAll(p, "/", string(filepath.Separator))
 }
 
-func reason(item *nav.TraverseItem) string {
+func xname(item *nav.TraverseItem) string {
 	return fmt.Sprintf("❌ for item named: '%v'", item.Extension.Name)
 }
 
@@ -48,6 +48,17 @@ type skipTE struct {
 	naviTE
 	skip    string
 	exclude string
+}
+
+type listenTE struct {
+	naviTE
+	start      nav.Listener
+	stop       nav.Listener
+	incStart   bool
+	incStop    bool
+	mute       bool
+	mandatory  []string
+	prohibited []string
 }
 
 func universalCallback(item *nav.TraverseItem) *LocalisableError {
@@ -414,7 +425,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						o.DoExtend = true
 						o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 							if expected, ok := expectations[item.Extension.Name]; ok {
-								Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
+								Expect(item.Extension.SubPath).To(Equal(expected), xname(item))
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 								)
@@ -443,7 +454,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 							o.DoExtend = true
 							o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 								if expected, ok := expectations[item.Extension.Name]; ok {
-									Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
+									Expect(item.Extension.SubPath).To(Equal(expected), xname(item))
 									GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 										item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 									)
@@ -475,7 +486,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						o.DoExtend = true
 						o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 							if expected, ok := expectations[item.Extension.Name]; ok {
-								Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
+								Expect(item.Extension.SubPath).To(Equal(expected), xname(item))
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 								)
@@ -491,5 +502,147 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				})
 			})
 		})
+
+		DescribeTable("listening",
+			func(entry *listenTE) {
+
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
+						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
+							item.Extension.Name,
+						)
+
+						Expect(lo.Contains(entry.prohibited, item.Extension.Name)).To(BeFalse(), xname(item))
+						Expect(lo.Contains(entry.mandatory, item.Extension.Name)).To(BeTrue(), xname(item))
+
+						entry.mandatory = lo.Reject(entry.mandatory, func(s string, _ int) bool {
+							return s == item.Extension.Name
+						})
+						return nil
+					}
+					o.Subscription = entry.subscription
+					o.DoExtend = entry.extended
+					o.Listen.Start = entry.start
+					o.Listen.Stop = entry.stop
+					o.Behaviours.Listen.InclusiveStart = entry.incStart
+					o.Behaviours.Listen.InclusiveStop = entry.incStop
+
+					if !entry.mute {
+						o.Notify.OnStart = func(description string) {
+							GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
+						}
+						o.Notify.OnStop = func(description string) {
+							GinkgoWriter.Printf("===> 🔇 Stop Listening: '%v'\n", description)
+						}
+					}
+
+					o.Notify.OnBegin = begin("🛡️")
+				})
+
+				path := path(root, entry.relative)
+				navigator.Walk(path)
+
+				reason := fmt.Sprintf("❌ remaining: '%v'", strings.Join(entry.mandatory, ", "))
+				Expect(len(entry.mandatory)).To(Equal(0), reason)
+			},
+			func(entry *listenTE) string {
+				return fmt.Sprintf("🧪 ===> '%v'", entry.message)
+			},
+
+			Entry(nil, &listenTE{
+				naviTE: naviTE{
+					message:      "listening, start and stop (folders, inc:default)",
+					relative:     "RETRO-WAVE",
+					extended:     true,
+					subscription: nav.SubscribeFolders,
+				},
+				start: &nav.ListenerFn{
+					Name: "Name: Night Drive",
+					Fn: func(item *nav.TraverseItem) bool {
+						return item.Extension.Name == "Night Drive"
+					},
+				},
+				stop: &nav.ListenerFn{
+					Name: "Name: Electric Youth",
+					Fn: func(item *nav.TraverseItem) bool {
+						return item.Extension.Name == "Electric Youth"
+					},
+				},
+				incStart:   true,
+				incStop:    false,
+				mandatory:  []string{"Night Drive", "College", "Northern Council", "Teenage Color"},
+				prohibited: []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
+			}),
+
+			Entry(nil, &listenTE{
+				naviTE: naviTE{
+					message:      "listening, start and stop (folders, excl:start, inc:stop, mute)",
+					relative:     "RETRO-WAVE",
+					extended:     true,
+					subscription: nav.SubscribeFolders,
+				},
+				start: &nav.ListenerFn{
+					Name: "Name: Night Drive",
+					Fn: func(item *nav.TraverseItem) bool {
+						return item.Extension.Name == "Night Drive"
+					},
+				},
+				stop: &nav.ListenerFn{
+					Name: "Name: Electric Youth",
+					Fn: func(item *nav.TraverseItem) bool {
+						return item.Extension.Name == "Electric Youth"
+					},
+				},
+				incStart:  false,
+				incStop:   true,
+				mute:      true,
+				mandatory: []string{"College", "Northern Council", "Teenage Color", "Electric Youth"},
+				prohibited: []string{"Night Drive", "RETRO-WAVE", "Chromatics",
+					"Innerworld",
+				},
+			}),
+
+			Entry(nil, &listenTE{
+				naviTE: naviTE{
+					message:      "listening, start only (folders, inc:default)",
+					relative:     "RETRO-WAVE",
+					extended:     true,
+					subscription: nav.SubscribeFolders,
+				},
+				start: &nav.ListenerFn{
+					Name: "Name: Night Drive",
+					Fn: func(item *nav.TraverseItem) bool {
+						return item.Extension.Name == "Night Drive"
+					},
+				},
+				incStart: true,
+				incStop:  false,
+				mandatory: []string{"Night Drive", "College", "Northern Council", "Teenage Color",
+					"Electric Youth", "Innerworld",
+				},
+				prohibited: []string{"RETRO-WAVE", "Chromatics"},
+			}),
+
+			Entry(nil, &listenTE{
+				naviTE: naviTE{
+					message:      "listening, stop only (folders, inc:default)",
+					relative:     "RETRO-WAVE",
+					extended:     true,
+					subscription: nav.SubscribeFolders,
+				},
+				stop: &nav.ListenerFn{
+					Name: "Name: Electric Youth",
+					Fn: func(item *nav.TraverseItem) bool {
+						return item.Extension.Name == "Electric Youth"
+					},
+				},
+				incStart: true,
+				incStop:  false,
+				mandatory: []string{"RETRO-WAVE", "Chromatics", "Night Drive", "College",
+					"Northern Council", "Teenage Color",
+				},
+				prohibited: []string{"Electric Youth", "Innerworld"},
+			}),
+		)
 	})
 })
