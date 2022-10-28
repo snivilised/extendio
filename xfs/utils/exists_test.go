@@ -1,4 +1,4 @@
-package xfs_test
+package utils_test
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/snivilised/extendio/xfs"
+	"github.com/snivilised/extendio/xfs/utils"
 )
 
 func path(parent, relative string) string {
@@ -21,8 +21,9 @@ var _ = Describe("Exists Utils", Ordered, func() {
 
 	BeforeAll(func() {
 		if current, err := os.Getwd(); err == nil {
-			parent, _ := filepath.Split(current)
-			root = filepath.Join(parent, "Test", "data", "MUSICO")
+			parent := filepath.Dir(current)
+			grand := filepath.Dir(parent)
+			root = filepath.Join(grand, "Test", "data", "MUSICO")
 			heavy = filepath.Join(root, "rock", "metal", "dark", "HEAVY-METAL")
 		}
 	})
@@ -32,16 +33,14 @@ var _ = Describe("Exists Utils", Ordered, func() {
 			path := path(heavy, relative)
 
 			GinkgoWriter.Printf("---> 🔰 FULL-PATH: '%v'\n", path)
-			Expect(xfs.Exists(path)).To(Equal(expected))
+			Expect(utils.Exists(path)).To(Equal(expected))
 		},
 
 		func(message, relative string, expected bool) string {
 			return fmt.Sprintf("🥣 message: '%v'", message)
 		},
 		Entry(nil, "existing folder", "Mötley Crüe/Theatre of Pain", true),
-		Entry(nil, "existing file",
-			"Mötley Crüe/Theatre of Pain/01 - City Boy Blues.flac",
-			true),
+		Entry(nil, "existing file", "Mötley Crüe/Theatre of Pain/01 - City Boy Blues.flac", true),
 		Entry(nil, "missing", "Mötley Crüe/Insomnia", false),
 	)
 
@@ -50,7 +49,7 @@ var _ = Describe("Exists Utils", Ordered, func() {
 			path := path(heavy, relative)
 			GinkgoWriter.Printf("---> 🔰 FULL-PATH: '%v'\n", path)
 
-			Expect(xfs.FolderExists(path)).To(Equal(expected))
+			Expect(utils.FolderExists(path)).To(Equal(expected))
 		},
 		func(message, relative string, expected bool) string {
 			return fmt.Sprintf("🍤 message: '%v'", message)
@@ -66,7 +65,7 @@ var _ = Describe("Exists Utils", Ordered, func() {
 			path := path(heavy, relative)
 			GinkgoWriter.Printf("---> 🔰 FULL-PATH: '%v'\n", path)
 
-			Expect(xfs.FileExists(path)).To(Equal(expected))
+			Expect(utils.FileExists(path)).To(Equal(expected))
 		},
 		func(message, relative string, expected bool) string {
 			return fmt.Sprintf("🍤 message: '%v'", message)
