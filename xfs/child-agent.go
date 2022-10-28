@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/translate"
 )
 
 type childAgent struct {
@@ -22,13 +23,9 @@ func (a *childAgent) top(params *agentTopParams) *LocalisableError {
 	info, err := a.o.Hooks.QueryStatus(params.frame.Root)
 	var le *LocalisableError = nil
 	if err != nil {
-		// top level stat error
-		//
 		item := &TraverseItem{Path: params.frame.Root, Info: info, Error: &LocalisableError{Inner: err}}
 		le = params.impl.options().Callback(item)
 	} else {
-		// traverse from top
-		//
 		if info.IsDir() {
 			item := &TraverseItem{Path: params.frame.Root, Info: info}
 			le = params.impl.traverse(item, params.frame)

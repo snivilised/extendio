@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/translate"
 )
 
 // FilterScopeEnum allows client to define which node types should be filtered.

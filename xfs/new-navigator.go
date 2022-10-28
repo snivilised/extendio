@@ -1,6 +1,10 @@
 package xfs
 
-import "errors"
+import (
+	"errors"
+
+	. "github.com/snivilised/extendio/translate"
+)
 
 // NewNavigator navigator factory function which uses the functional
 // options pattern.

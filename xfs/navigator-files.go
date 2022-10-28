@@ -2,6 +2,8 @@ package xfs
 
 import (
 	"errors"
+
+	. "github.com/snivilised/extendio/translate"
 )
 
 type filesNavigator struct {
@@ -28,8 +30,8 @@ func (n *filesNavigator) traverse(currentItem *TraverseItem, frame *navigationFr
 	}()
 	navi := &NavigationParams{Options: n.o, Item: currentItem, Frame: frame}
 	n.descend(navi)
-
 	entries, readErr := n.agent.read(currentItem)
+
 	if (currentItem.Entry != nil) && !(currentItem.Entry.IsDir()) {
 		n.o.Hooks.Extend(navi, entries)
 

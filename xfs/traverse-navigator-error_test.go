@@ -10,6 +10,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs"
 )
 
@@ -80,7 +81,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						}
 						xfs.DefaultExtendHookFn(navi, descendants)
 					}
-					o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 						return nil
 					}
 					o.OnBegin = begin("🧲")
@@ -103,7 +104,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Subscription = xfs.SubscribeFolders
 					o.DoExtend = true
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)
@@ -128,7 +129,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Subscription = xfs.SubscribeFiles
 					o.DoExtend = true
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)
@@ -147,7 +148,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Subscription = xfs.SubscribeFiles
 					o.DoExtend = true
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
-					o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)
@@ -176,7 +177,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 					return errors.New("fake sort error")
 				}
-				o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+				o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 					GinkgoWriter.Printf("---> 🔥 SORT-CALLBACK: '%v', error: '%v'\n",
 						item.Path, item.Error,
 					)
@@ -204,7 +205,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
 				o.Subscription = entry.subscription
 				o.DoExtend = true
-				o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+				o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 					GinkgoWriter.Printf("---> 🔥 ROOT NOT FOLDER: '%v', error: '%v'\n",
 						item.Path, item.Error,
 					)
@@ -236,7 +237,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
-					o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+					o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 ROOT-QUERY-STATUS: '%v', error: '%v'\n",
 							item.Path, item.Error,
 						)
