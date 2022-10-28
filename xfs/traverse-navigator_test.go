@@ -27,6 +27,11 @@ func begin(em string) xfs.BeginHandler {
 	}
 }
 
+func path(parent, relative string) string {
+	segments := strings.Split(relative, "/")
+	return filepath.Join(append([]string{parent}, segments...)...)
+}
+
 type naviTE struct {
 	message       string
 	relative      string

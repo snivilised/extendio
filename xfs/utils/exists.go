@@ -1,4 +1,4 @@
-package xfs
+package utils
 
 import (
 	"os"
