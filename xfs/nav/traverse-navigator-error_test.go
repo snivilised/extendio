@@ -58,7 +58,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 				nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Subscription = nav.SubscribeAny
-					o.OnBegin = begin("🧲")
+					o.Notify.OnBegin = begin("🧲")
 				})
 
 				Fail("❌ expected panic due to missing callback")
@@ -86,7 +86,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						return nil
 					}
-					o.OnBegin = begin("🧲")
+					o.Notify.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -113,7 +113,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						recording = append(recording, item.Error)
 						return item.Error
 					}
-					o.OnBegin = begin("🧲")
+					o.Notify.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -138,7 +138,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 						return item.Error
 					}
-					o.OnBegin = begin("🧲")
+					o.Notify.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -157,7 +157,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 						return item.Error
 					}
-					o.OnBegin = begin("🧲")
+					o.Notify.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -186,7 +186,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 					return item.Error
 				}
-				o.OnBegin = begin("🧲")
+				o.Notify.OnBegin = begin("🧲")
 			})
 			const relative = "RETRO-WAVE"
 			path := path(root, relative)
@@ -215,7 +215,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 					return item.Error
 				}
-				o.OnBegin = begin("🧲")
+				o.Notify.OnBegin = begin("🧲")
 			})
 			const relative = "RETRO-WAVE/Electric Youth/Innerworld/A2 - Runaway.flac"
 			path := path(root, relative)
@@ -247,7 +247,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 						return item.Error
 					}
-					o.OnBegin = begin("🧲")
+					o.Notify.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)

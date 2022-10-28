@@ -7,37 +7,46 @@ type SubPathBehaviour struct {
 	KeepTrailingSep bool
 }
 
+// SortBehaviours
+type SortBehaviours struct {
+	IsCaseSensitive bool // case sensitive traversal order
+}
+
 // NavigationBehaviours
 type NavigationBehaviours struct {
 	SubPath SubPathBehaviour
+	Sort    SortBehaviours
+}
+
+type Notifications struct {
+	OnBegin   BeginHandler      // invoked at beginning of traversal
+	OnEnd     EndHandler        // invoked at end of traversal
+	OnDescend AscendancyHandler // handler to invoke as a folder is descended (before children)
+	OnAscend  AscendancyHandler // handler to invoke as a folder is ascended (after children)
 }
 
 // TraverseOptions customise the way a directory tree is traversed
 type TraverseOptions struct {
-	Subscription    TraverseSubscription // defines which node types are visited
-	IsCaseSensitive bool                 // case sensitive traversal order
-	DoExtend        bool                 // request an extended result
-	WithMetrics     bool                 // request metrics in TraversalResult
-	Callback        TraverseCallback     // traversal callback (universal, folders, files)
-	OnBegin         BeginHandler         // invoked at beginning of traversal
-	OnEnd           EndHandler           // invoked at end of traversal
-	OnDescend       AscendancyHandler    // handler to invoke as a folder is descended (before children)
-	OnAscend        AscendancyHandler    // handler to invoke as a folder is ascended (after children)
-
-	Hooks      TraverseHooks
-	Behaviours NavigationBehaviours
+	Subscription TraverseSubscription // defines which node types are visited
+	DoExtend     bool                 // request an extended result
+	WithMetrics  bool                 // request metrics in TraversalResult
+	Callback     TraverseCallback     // traversal callback (universal, folders, files)
+	Notify       Notifications
+	Hooks        TraverseHooks
+	Behaviours   NavigationBehaviours
 }
 type TraverseOptionFn func(o *TraverseOptions) // functional traverse options
 
 func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	o := TraverseOptions{
-		Subscription:    SubscribeAny,
-		IsCaseSensitive: false,
-		DoExtend:        false,
-		OnBegin:         func(root string) {},
-		OnEnd:           func(result *TraverseResult) {},
-		OnDescend:       func(item *TraverseItem) {},
-		OnAscend:        func(item *TraverseItem) {},
+		Subscription: SubscribeAny,
+		DoExtend:     false,
+		Notify: Notifications{
+			OnBegin:   func(root string) {},
+			OnEnd:     func(result *TraverseResult) {},
+			OnDescend: func(item *TraverseItem) {},
+			OnAscend:  func(item *TraverseItem) {},
+		},
 		Hooks: TraverseHooks{
 			QueryStatus:   LstatHookFn,
 			ReadDirectory: ReadEntries,
@@ -48,6 +57,9 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 			SubPath: SubPathBehaviour{
 				KeepTrailingSep: true,
 			},
+			Sort: SortBehaviours{
+				IsCaseSensitive: false,
+			},
 		},
 	}
 
@@ -56,7 +68,7 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	}
 
 	if o.Hooks.Sort == nil {
-		o.Hooks.Sort = lo.Ternary(o.IsCaseSensitive,
+		o.Hooks.Sort = lo.Ternary(o.Behaviours.Sort.IsCaseSensitive,
 			CaseSensitiveSortHookFn, CaseInSensitiveSortHookFn,
 		)
 	}

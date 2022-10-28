@@ -5,7 +5,7 @@ type navigatorController struct {
 }
 
 func (n *navigatorController) Walk(root string) *TraverseResult {
-	n.impl.options().OnBegin(root)
+	n.impl.options().Notify.OnBegin(root)
 	frame := navigationFrame{
 		Root: root,
 	}
@@ -13,7 +13,7 @@ func (n *navigatorController) Walk(root string) *TraverseResult {
 	result := &TraverseResult{
 		Error: n.impl.top(&frame),
 	}
-	n.impl.options().OnEnd(result)
+	n.impl.options().Notify.OnEnd(result)
 
 	return result
 }

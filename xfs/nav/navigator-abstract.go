@@ -11,10 +11,10 @@ func (n *navigator) options() *TraverseOptions {
 
 func (n *navigator) descend(navi *NavigationParams) {
 	navi.Frame.Depth++
-	n.o.OnDescend(navi.Item)
+	n.o.Notify.OnDescend(navi.Item)
 }
 
 func (n *navigator) ascend(navi *NavigationParams) {
 	navi.Frame.Depth--
-	n.o.OnAscend(navi.Item)
+	n.o.Notify.OnAscend(navi.Item)
 }
