@@ -183,8 +183,8 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					o.Callback = callback
 					o.Subscription = entry.subscription
 					o.DoExtend = entry.extended
-					o.IsCaseSensitive = entry.caseSensitive
-					o.OnBegin = begin("🛡️")
+					o.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
+					o.Notify.OnBegin = begin("🛡️")
 				})
 
 				if entry.visit {
@@ -347,7 +347,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						o.Subscription = nav.SubscribeFolders
 						o.DoExtend = true
 						o.Callback = skipFolderCallback("College", "Northern Council")
-						o.OnBegin = begin("🛡️")
+						o.Notify.OnBegin = begin("🛡️")
 					})
 					path := path(root, "RETRO-WAVE")
 					navigator.Walk(path)
@@ -360,7 +360,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						o.Subscription = nav.SubscribeAny
 						o.DoExtend = true
 						o.Callback = skipFolderCallback("College", "Northern Council")
-						o.OnBegin = begin("🛡️")
+						o.Notify.OnBegin = begin("🛡️")
 					})
 					path := path(root, "RETRO-WAVE")
 					navigator.Walk(path)
@@ -373,7 +373,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Subscription = entry.subscription
 					o.Callback = skipFolderCallback("College", "Northern Council")
-					o.OnBegin = begin("🛡️")
+					o.Notify.OnBegin = begin("🛡️")
 				})
 				path := path(root, "RETRO-WAVE")
 				navigator.Walk(path)
@@ -423,7 +423,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 							return nil
 						}
 						o.Behaviours.SubPath.KeepTrailingSep = true
-						o.OnBegin = begin("🛡️")
+						o.Notify.OnBegin = begin("🛡️")
 					})
 					path := path(root, "RETRO-WAVE")
 					navigator.Walk(path)
@@ -454,7 +454,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 							o.Hooks.FolderSubPath = nav.RootItemSubPath
 							o.Hooks.FileSubPath = nav.RootItemSubPath
 							o.Behaviours.SubPath.KeepTrailingSep = true
-							o.OnBegin = begin("🛡️")
+							o.Notify.OnBegin = begin("🛡️")
 						})
 						path := path(root, "edm")
 						navigator.Walk(path)
@@ -484,7 +484,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 							return nil
 						}
 						o.Behaviours.SubPath.KeepTrailingSep = false
-						o.OnBegin = begin("🛡️")
+						o.Notify.OnBegin = begin("🛡️")
 					})
 					path := path(root, "RETRO-WAVE")
 					navigator.Walk(path)
