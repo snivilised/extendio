@@ -1,4 +1,4 @@
-package xfs
+package translate
 
 // LocalisableError is an error that is translate-able (Localisable)
 // this has to be modified to implement the error interface.

@@ -4,6 +4,7 @@ import (
 	"io/fs"
 
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/translate"
 )
 
 // ExtendedItem provides extended information if the client requests

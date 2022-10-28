@@ -3,6 +3,8 @@ package xfs
 import (
 	"errors"
 	"io/fs"
+
+	. "github.com/snivilised/extendio/translate"
 )
 
 type universalNavigator struct {

@@ -5,6 +5,7 @@ import (
 	"io/fs"
 
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/translate"
 )
 
 type foldersNavigator struct {

@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs"
 )
 
@@ -49,21 +50,21 @@ type skipTE struct {
 	exclude string
 }
 
-func universalCallback(item *xfs.TraverseItem) *xfs.LocalisableError {
+func universalCallback(item *xfs.TraverseItem) *LocalisableError {
 	GinkgoWriter.Printf("---> 🌊 ON-NAVIGATOR-CALLBACK: '%v'\n", item.Path)
 	Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
 
 	return nil
 }
 
-func universalCallbackEx(item *xfs.TraverseItem) *xfs.LocalisableError {
+func universalCallbackEx(item *xfs.TraverseItem) *LocalisableError {
 	GinkgoWriter.Printf("---> 🌊 ON-NAVIGATOR-CALLBACK-EX: '%v'\n", item.Path)
 	Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
 
 	return nil
 }
 
-func foldersCallback(item *xfs.TraverseItem) *xfs.LocalisableError {
+func foldersCallback(item *xfs.TraverseItem) *LocalisableError {
 	GinkgoWriter.Printf("---> ☀️ ON-NAVIGATOR-CALLBACK: '%v'\n", item.Path)
 	Expect(item.Info.IsDir()).To(BeTrue())
 	Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
@@ -74,7 +75,7 @@ func foldersCallback(item *xfs.TraverseItem) *xfs.LocalisableError {
 func foldersCaseSensitiveCallback(first, second string) xfs.TraverseCallback {
 	recording := recordingMap{}
 
-	return func(item *xfs.TraverseItem) *xfs.LocalisableError {
+	return func(item *xfs.TraverseItem) *LocalisableError {
 		recording[item.Path] = true
 
 		GinkgoWriter.Printf("---> ☀️ CASE-SENSITIVE-CALLBACK: '%v'\n", item.Path)
@@ -95,7 +96,7 @@ func foldersCaseSensitiveCallback(first, second string) xfs.TraverseCallback {
 	}
 }
 
-func foldersCallbackEx(item *xfs.TraverseItem) *xfs.LocalisableError {
+func foldersCallbackEx(item *xfs.TraverseItem) *LocalisableError {
 	GinkgoWriter.Printf("---> ☀️ ON-NAVIGATOR-CALLBACK-EX: '%v'\n", item.Path)
 	Expect(item.Info.IsDir()).To(BeTrue())
 	Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
@@ -103,7 +104,7 @@ func foldersCallbackEx(item *xfs.TraverseItem) *xfs.LocalisableError {
 	return nil
 }
 
-func filesCallback(item *xfs.TraverseItem) *xfs.LocalisableError {
+func filesCallback(item *xfs.TraverseItem) *LocalisableError {
 	GinkgoWriter.Printf("---> 🌙 ON-NAVIGATOR-CALLBACK: '%v'\n", item.Path)
 	Expect(item.Info.IsDir()).To(BeFalse())
 	Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
@@ -111,7 +112,7 @@ func filesCallback(item *xfs.TraverseItem) *xfs.LocalisableError {
 	return nil
 }
 
-func filesCallbackEx(item *xfs.TraverseItem) *xfs.LocalisableError {
+func filesCallbackEx(item *xfs.TraverseItem) *LocalisableError {
 	GinkgoWriter.Printf("---> 🌙 ON-NAVIGATOR-CALLBACK-EX: '%v'\n", item.Path)
 	Expect(item.Info.IsDir()).To(BeFalse())
 	Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
@@ -120,13 +121,13 @@ func filesCallbackEx(item *xfs.TraverseItem) *xfs.LocalisableError {
 
 func skipFolderCallback(skip, exclude string) xfs.TraverseCallback {
 
-	return func(item *xfs.TraverseItem) *xfs.LocalisableError {
+	return func(item *xfs.TraverseItem) *LocalisableError {
 		GinkgoWriter.Printf("---> ♻️ ON-NAVIGATOR-SKIP-CALLBACK(skip:%v): '%v'\n", skip, item.Path)
 
 		Expect(strings.HasSuffix(item.Path, exclude)).To(BeFalse())
 
 		return lo.Ternary(strings.HasSuffix(item.Path, skip),
-			&xfs.LocalisableError{Inner: fs.SkipDir}, nil,
+			&LocalisableError{Inner: fs.SkipDir}, nil,
 		)
 	}
 }
@@ -160,7 +161,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				recording := recordingMap{}
 				visited := []string{}
 
-				once := func(item *xfs.TraverseItem) *xfs.LocalisableError {
+				once := func(item *xfs.TraverseItem) *LocalisableError {
 					_, found := recording[item.Path]
 					Expect(found).To(BeFalse())
 					recording[item.Path] = true
@@ -168,7 +169,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					return entry.callback(item)
 				}
 
-				visitor := func(item *xfs.TraverseItem) *xfs.LocalisableError {
+				visitor := func(item *xfs.TraverseItem) *LocalisableError {
 					// just kept to enable visitor specific debug activity
 					//
 					return once(item)
@@ -409,7 +410,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
 						o.Subscription = xfs.SubscribeAny
 						o.DoExtend = true
-						o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+						o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 							if expected, ok := expectations[item.Extension.Name]; ok {
 								Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
@@ -438,7 +439,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
 							o.Subscription = xfs.SubscribeAny
 							o.DoExtend = true
-							o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+							o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 								if expected, ok := expectations[item.Extension.Name]; ok {
 									Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
 									GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
@@ -470,7 +471,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					navigator := xfs.NewNavigator(func(o *xfs.TraverseOptions) {
 						o.Subscription = xfs.SubscribeAny
 						o.DoExtend = true
-						o.Callback = func(item *xfs.TraverseItem) *xfs.LocalisableError {
+						o.Callback = func(item *xfs.TraverseItem) *LocalisableError {
 							if expected, ok := expectations[item.Extension.Name]; ok {
 								Expect(item.Extension.SubPath).To(Equal(expected), reason(item))
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/translate"
 )
 
 // DefaultExtendHookFn is the default extend hook function. The client can choose to
@@ -24,7 +25,6 @@ func DefaultExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {
 	grouped := lo.GroupBy(descendants, func(item fs.DirEntry) bool {
 		return item.IsDir()
 	})
-
 	isLeaf := len(grouped[true]) == 0
 
 	scope := IntermediateScopeEn
