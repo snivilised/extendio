@@ -1,6 +1,7 @@
 package nav
 
 import (
+	"errors"
 	"io/fs"
 
 	"github.com/samber/lo"
@@ -102,3 +103,5 @@ type SubPathInfo struct {
 	Root string
 	Item *TraverseItem
 }
+
+var Terminate = errors.New("terminate traverse")
