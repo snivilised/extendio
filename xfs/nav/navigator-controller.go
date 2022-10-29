@@ -62,7 +62,7 @@ func (c *navigatorController) initial(o *ListenOptions) ListeningState {
 
 	case o.Start != nil:
 		initialState = ListenPending
-		o.Stop = &ListenerFn{
+		o.Stop = &ListenerBy{
 			Name: "no-op: run to completion (don't stop early)",
 			Fn: func(item *TraverseItem) bool {
 				return false
@@ -71,7 +71,7 @@ func (c *navigatorController) initial(o *ListenOptions) ListeningState {
 
 	case o.Stop != nil:
 		initialState = ListenActive
-		o.Start = &ListenerFn{
+		o.Start = &ListenerBy{
 			Name: "no-op: start listening straight away",
 			Fn: func(item *TraverseItem) bool {
 				return true
@@ -120,10 +120,7 @@ func (c *navigatorController) listeners(frame *navigationFrame) *navigationListe
 		},
 
 		ListenRetired: func(item *TraverseItem) *LocalisableError {
-			// done with listening, lets finish early
-			// TODO: define a new return error that denotes finished
-			//
-			return nil
+			return &LocalisableError{Inner: Terminate}
 		},
 	}
 }

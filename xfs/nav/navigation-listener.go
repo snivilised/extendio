@@ -6,16 +6,16 @@ type Listener interface {
 	IsMatch(item *TraverseItem) bool
 }
 
-type ListenerFn struct {
+type ListenerBy struct {
 	Fn   ListenPredicate
 	Name string
 }
 
-func (f *ListenerFn) Description() string {
+func (f *ListenerBy) Description() string {
 	return f.Name
 }
 
-func (f *ListenerFn) IsMatch(item *TraverseItem) bool {
+func (f *ListenerBy) IsMatch(item *TraverseItem) bool {
 	return f.Fn(item)
 }
 

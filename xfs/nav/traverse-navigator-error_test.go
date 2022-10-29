@@ -10,6 +10,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -33,6 +34,24 @@ func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error)
 		}
 
 		return nav.ReadEntries(dirname)
+	}
+}
+
+func errorCallback(name string, extended bool, hasError bool) nav.TraverseCallback {
+
+	ex := lo.Ternary(extended, "-EX", "")
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
+
+		if extended {
+			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+		} else {
+			Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+		}
+		if hasError {
+			Expect(item.Error).ToNot(BeNil())
+		}
+		return item.Error
 	}
 }
 
@@ -75,18 +94,18 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}()
 
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🧲")
 					o.Subscription = nav.SubscribeFolders
-					o.DoExtend = true
 					o.Hooks.Extend = func(navi *nav.NavigationParams, descendants []fs.DirEntry) {
 						navi.Item.Extension = &nav.ExtendedItem{
 							Name: "dummy",
 						}
 						nav.DefaultExtendHookFn(navi, descendants)
 					}
+					o.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						return nil
 					}
-					o.Notify.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -103,9 +122,10 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			It("🧪 should: invoke callback with error", func() {
 				recording := []error{}
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🧲")
 					o.Subscription = nav.SubscribeFolders
-					o.DoExtend = true
 					o.Hooks.ReadDirectory = readDirFakeError
+					o.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
@@ -113,7 +133,6 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						recording = append(recording, item.Error)
 						return item.Error
 					}
-					o.Notify.OnBegin = begin("🧲")
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -128,17 +147,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Context("navigator-files", func() {
 			It("🧪 should: invoke callback with immediate read error", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Subscription = nav.SubscribeFiles
-					o.DoExtend = true
-					o.Hooks.ReadDirectory = readDirFakeError
-					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
-							item.Path, item.Error,
-						)
-
-						return item.Error
-					}
 					o.Notify.OnBegin = begin("🧲")
+					o.Subscription = nav.SubscribeFiles
+					o.Hooks.ReadDirectory = readDirFakeError
+					o.DoExtend = true
+					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.DoExtend, false)
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -147,17 +160,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 			It("🧪 should: invoke callback with error at ...", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Subscription = nav.SubscribeFiles
-					o.DoExtend = true
-					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
-					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
-							item.Path, item.Error,
-						)
-
-						return item.Error
-					}
 					o.Notify.OnBegin = begin("🧲")
+					o.Subscription = nav.SubscribeFiles
+					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
+					o.DoExtend = true
+					o.Callback = errorCallback("(FILES):ERR-AT", o.DoExtend, false)
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -173,20 +180,14 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			}()
 
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				o.Notify.OnBegin = begin("🧲")
 				o.Subscription = entry.subscription
-				o.DoExtend = true
 				o.Hooks.Sort = func(entries []fs.DirEntry, custom ...any) error {
 
 					return errors.New("fake sort error")
 				}
-				o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-					GinkgoWriter.Printf("---> 🔥 SORT-CALLBACK: '%v', error: '%v'\n",
-						item.Path, item.Error,
-					)
-
-					return item.Error
-				}
-				o.Notify.OnBegin = begin("🧲")
+				o.DoExtend = true
+				o.Callback = errorCallback("SORT-ERR", o.DoExtend, false)
 			})
 			const relative = "RETRO-WAVE"
 			path := path(root, relative)
@@ -205,22 +206,14 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	DescribeTable("given: root is not a folder",
 		func(entry *errorTE) {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				o.Notify.OnBegin = begin("🧲")
 				o.Subscription = entry.subscription
 				o.DoExtend = true
-				o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-					GinkgoWriter.Printf("---> 🔥 ROOT NOT FOLDER: '%v', error: '%v'\n",
-						item.Path, item.Error,
-					)
-					Expect(item.Error).ToNot(BeNil())
-
-					return item.Error
-				}
-				o.Notify.OnBegin = begin("🧲")
+				o.Callback = errorCallback("ROOT-NOT-FOLDER-ERR", o.DoExtend, true)
 			})
 			const relative = "RETRO-WAVE/Electric Youth/Innerworld/A2 - Runaway.flac"
 			path := path(root, relative)
 			_ = navigator.Walk(path)
-
 		},
 
 		func(entry *errorTE) string {
@@ -235,19 +228,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Context("given: error occurs", func() {
 			It("🧪 should: halt traversal", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🧲")
 					o.Subscription = nav.SubscribeFolders
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
-					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-						GinkgoWriter.Printf("---> 🔥 ROOT-QUERY-STATUS: '%v', error: '%v'\n",
-							item.Path, item.Error,
-						)
-						Expect(item.Error).ToNot(BeNil())
-
-						return item.Error
-					}
-					o.Notify.OnBegin = begin("🧲")
+					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.DoExtend, true)
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)

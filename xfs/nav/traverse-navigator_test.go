@@ -61,26 +61,19 @@ type listenTE struct {
 	prohibited []string
 }
 
-func universalCallback(item *nav.TraverseItem) *LocalisableError {
-	GinkgoWriter.Printf("---> 🌊 ON-NAVIGATOR-CALLBACK: '%v'\n", item.Path)
-	Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+func universalCallback(name string, extended bool) nav.TraverseCallback {
 
-	return nil
-}
+	ex := lo.Ternary(extended, "-EX", "")
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 🌊 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
 
-func universalCallbackEx(item *nav.TraverseItem) *LocalisableError {
-	GinkgoWriter.Printf("---> 🌊 ON-NAVIGATOR-CALLBACK-EX: '%v'\n", item.Path)
-	Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
-
-	return nil
-}
-
-func foldersCallback(item *nav.TraverseItem) *LocalisableError {
-	GinkgoWriter.Printf("---> ☀️ ON-NAVIGATOR-CALLBACK: '%v'\n", item.Path)
-	Expect(item.Info.IsDir()).To(BeTrue())
-	Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
-
-	return nil
+		if extended {
+			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+		} else {
+			Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+		}
+		return nil
+	}
 }
 
 func foldersCaseSensitiveCallback(first, second string) nav.TraverseCallback {
@@ -107,27 +100,34 @@ func foldersCaseSensitiveCallback(first, second string) nav.TraverseCallback {
 	}
 }
 
-func foldersCallbackEx(item *nav.TraverseItem) *LocalisableError {
-	GinkgoWriter.Printf("---> ☀️ ON-NAVIGATOR-CALLBACK-EX: '%v'\n", item.Path)
-	Expect(item.Info.IsDir()).To(BeTrue())
-	Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+func foldersCallback(name string, extended bool) nav.TraverseCallback {
 
-	return nil
+	ex := lo.Ternary(extended, "-EX", "")
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> ☀️ %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
+		Expect(item.Info.IsDir()).To(BeTrue())
+
+		if extended {
+			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+		} else {
+			Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+		}
+		return nil
+	}
 }
 
-func filesCallback(item *nav.TraverseItem) *LocalisableError {
-	GinkgoWriter.Printf("---> 🌙 ON-NAVIGATOR-CALLBACK: '%v'\n", item.Path)
-	Expect(item.Info.IsDir()).To(BeFalse())
-	Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+func filesCallback(name string, extended bool) nav.TraverseCallback {
 
-	return nil
-}
+	ex := lo.Ternary(extended, "-EX", "")
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 🌙 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
+		Expect(item.Info.IsDir()).To(BeFalse())
 
-func filesCallbackEx(item *nav.TraverseItem) *LocalisableError {
-	GinkgoWriter.Printf("---> 🌙 ON-NAVIGATOR-CALLBACK-EX: '%v'\n", item.Path)
-	Expect(item.Info.IsDir()).To(BeFalse())
-	Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
-	return nil
+		if extended {
+			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+		}
+		return nil
+	}
 }
 
 func skipFolderCallback(skip, exclude string) nav.TraverseCallback {
@@ -191,11 +191,11 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 				path := path(root, entry.relative)
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Callback = callback
-					o.Subscription = entry.subscription
-					o.DoExtend = entry.extended
-					o.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
 					o.Notify.OnBegin = begin("🛡️")
+					o.Subscription = entry.subscription
+					o.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
+					o.DoExtend = entry.extended
+					o.Callback = callback
 				})
 
 				if entry.visit {
@@ -228,14 +228,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				relative:     "RETRO-WAVE/Chromatics/Night Drive",
 				extended:     IsExtended,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallbackEx,
+				callback:     universalCallback("(UNIVERSAL):LEAF-PATH", IsExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders",
 				relative:     "RETRO-WAVE",
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback,
+				callback:     universalCallback("(UNIVERSAL):CONTAINS-FOLDERS", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders",
@@ -243,14 +243,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     NotExtended,
 				visit:        true,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback,
+				callback:     universalCallback("(UNIVERSAL):VISIT-CONTAINS-FOLDERS", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders (large)",
 				relative:     "",
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback,
+				callback:     universalCallback("(UNIVERSAL):CONTAINS-FOLDERS (large)", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders (large, ensure single invoke)",
@@ -258,7 +258,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     NotExtended,
 				once:         true,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback,
+				callback:     universalCallback("(UNIVERSAL):CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
 			}),
 
 			// === folders =======================================================
@@ -268,14 +268,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				relative:     "RETRO-WAVE/Chromatics/Night Drive",
 				extended:     NotExtended,
 				subscription: nav.SubscribeFolders,
-				callback:     foldersCallback,
+				callback:     foldersCallback("(FOLDERS):LEAF-PATH", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders",
 				relative:     "RETRO-WAVE",
 				extended:     IsExtended,
 				subscription: nav.SubscribeFolders,
-				callback:     foldersCallbackEx,
+				callback:     foldersCallback("(FOLDERS):CONTAINS-FOLDERS ", IsExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders (check all invoked)",
@@ -283,14 +283,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     IsExtended,
 				visit:        true,
 				subscription: nav.SubscribeFolders,
-				callback:     foldersCallbackEx,
+				callback:     foldersCallback("(FOLDERS):CONTAINS-FOLDERS (check all invoked)", IsExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders (large)",
 				relative:     "",
 				extended:     NotExtended,
 				subscription: nav.SubscribeFolders,
-				callback:     foldersCallback,
+				callback:     foldersCallback("(FOLDERS):CONTAINS-FOLDERS (large)", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders (large, ensure single invoke)",
@@ -298,7 +298,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     NotExtended,
 				once:         true,
 				subscription: nav.SubscribeFolders,
-				callback:     foldersCallback,
+				callback:     foldersCallback("(FOLDERS):CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
 			}),
 
 			Entry(nil, &naviTE{
@@ -317,14 +317,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				relative:     "RETRO-WAVE/Chromatics/Night Drive",
 				extended:     NotExtended,
 				subscription: nav.SubscribeFiles,
-				callback:     filesCallback,
+				callback:     filesCallback("(FILES):LEAF-PATH", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders",
 				relative:     "RETRO-WAVE",
 				extended:     NotExtended,
 				subscription: nav.SubscribeFiles,
-				callback:     filesCallback,
+				callback:     filesCallback("(FILES):CONTAINS-FOLDERS", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders",
@@ -332,14 +332,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     NotExtended,
 				visit:        true,
 				subscription: nav.SubscribeFiles,
-				callback:     filesCallback,
+				callback:     filesCallback("(FILES):VISIT-CONTAINS-FOLDERS", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders (large)",
 				relative:     "",
 				extended:     IsExtended,
 				subscription: nav.SubscribeFiles,
-				callback:     filesCallbackEx,
+				callback:     filesCallback("(FILES):CONTAINS-FOLDERS (large)", IsExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders (large, ensure single invoke)",
@@ -347,7 +347,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     IsExtended,
 				once:         true,
 				subscription: nav.SubscribeFiles,
-				callback:     filesCallbackEx,
+				callback:     filesCallback("(FILES):CONTAINS-FOLDERS (large, ensure single invoke)", IsExtended),
 			}),
 		)
 
@@ -421,7 +421,9 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						"A1 - The Telephone Call.flac": normalise("/Chromatics/Night Drive/"),
 					}
 					navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+						o.Notify.OnBegin = begin("🛡️")
 						o.Subscription = nav.SubscribeAny
+						o.Behaviours.SubPath.KeepTrailingSep = true
 						o.DoExtend = true
 						o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 							if expected, ok := expectations[item.Extension.Name]; ok {
@@ -433,8 +435,6 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 							return nil
 						}
-						o.Behaviours.SubPath.KeepTrailingSep = true
-						o.Notify.OnBegin = begin("🛡️")
 					})
 					path := path(root, "RETRO-WAVE")
 					navigator.Walk(path)
@@ -445,12 +445,16 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 						expectations := map[string]string{
 							"edm":                         "",
-							"_segments.def.infex.txt":     "/_segments.def.infex.txt",
+							"_segments.def.infex.txt":     normalise("/_segments.def.infex.txt"),
 							"Orbital 2 (The Brown Album)": normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)"),
 							"03 - Lush 3-1.flac":          normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)/03 - Lush 3-1.flac"),
 						}
 						navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+							o.Notify.OnBegin = begin("🛡️")
 							o.Subscription = nav.SubscribeAny
+							o.Hooks.FolderSubPath = nav.RootItemSubPath
+							o.Hooks.FileSubPath = nav.RootItemSubPath
+							o.Behaviours.SubPath.KeepTrailingSep = true
 							o.DoExtend = true
 							o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 								if expected, ok := expectations[item.Extension.Name]; ok {
@@ -462,10 +466,6 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 								return nil
 							}
-							o.Hooks.FolderSubPath = nav.RootItemSubPath
-							o.Hooks.FileSubPath = nav.RootItemSubPath
-							o.Behaviours.SubPath.KeepTrailingSep = true
-							o.Notify.OnBegin = begin("🛡️")
 						})
 						path := path(root, "edm")
 						navigator.Walk(path)
@@ -477,11 +477,13 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				It("should: calculate subpath WITHOUT trailing separator", func() {
 					expectations := map[string]string{
 						"RETRO-WAVE":            "",
-						"Electric Youth":        normalise(""),
+						"Electric Youth":        "",
 						"Innerworld":            normalise("/Electric Youth"),
 						"A1 - Before Life.flac": normalise("/Electric Youth/Innerworld"),
 					}
 					navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+						o.Notify.OnBegin = begin("🛡️")
+						o.Behaviours.SubPath.KeepTrailingSep = false
 						o.Subscription = nav.SubscribeAny
 						o.DoExtend = true
 						o.Callback = func(item *nav.TraverseItem) *LocalisableError {
@@ -494,8 +496,6 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 							return nil
 						}
-						o.Behaviours.SubPath.KeepTrailingSep = false
-						o.Notify.OnBegin = begin("🛡️")
 					})
 					path := path(root, "RETRO-WAVE")
 					navigator.Walk(path)
@@ -505,8 +505,22 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 		DescribeTable("listening",
 			func(entry *listenTE) {
-
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🛡️")
+					o.Subscription = entry.subscription
+					o.Behaviours.Listen.InclusiveStart = entry.incStart
+					o.Behaviours.Listen.InclusiveStop = entry.incStop
+					o.Listen.Start = entry.start
+					o.Listen.Stop = entry.stop
+					if !entry.mute {
+						o.Notify.OnStart = func(description string) {
+							GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
+						}
+						o.Notify.OnStop = func(description string) {
+							GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
+						}
+					}
+					o.DoExtend = entry.extended
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
 							item.Extension.Name,
@@ -520,25 +534,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						})
 						return nil
 					}
-					o.Subscription = entry.subscription
-					o.DoExtend = entry.extended
-					o.Listen.Start = entry.start
-					o.Listen.Stop = entry.stop
-					o.Behaviours.Listen.InclusiveStart = entry.incStart
-					o.Behaviours.Listen.InclusiveStop = entry.incStop
-
-					if !entry.mute {
-						o.Notify.OnStart = func(description string) {
-							GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
-						}
-						o.Notify.OnStop = func(description string) {
-							GinkgoWriter.Printf("===> 🔇 Stop Listening: '%v'\n", description)
-						}
-					}
-
-					o.Notify.OnBegin = begin("🛡️")
 				})
-
 				path := path(root, entry.relative)
 				navigator.Walk(path)
 
@@ -556,13 +552,13 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				start: &nav.ListenerFn{
+				start: &nav.ListenerBy{
 					Name: "Name: Night Drive",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Night Drive"
 					},
 				},
-				stop: &nav.ListenerFn{
+				stop: &nav.ListenerBy{
 					Name: "Name: Electric Youth",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Electric Youth"
@@ -581,13 +577,13 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				start: &nav.ListenerFn{
+				start: &nav.ListenerBy{
 					Name: "Name: Night Drive",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Night Drive"
 					},
 				},
-				stop: &nav.ListenerFn{
+				stop: &nav.ListenerBy{
 					Name: "Name: Electric Youth",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Electric Youth"
@@ -609,7 +605,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				start: &nav.ListenerFn{
+				start: &nav.ListenerBy{
 					Name: "Name: Night Drive",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Night Drive"
@@ -630,7 +626,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				stop: &nav.ListenerFn{
+				stop: &nav.ListenerBy{
 					Name: "Name: Electric Youth",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Electric Youth"
@@ -643,6 +639,69 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				},
 				prohibited: []string{"Electric Youth", "Innerworld"},
 			}),
+
+			Entry(nil, &listenTE{
+				naviTE: naviTE{
+					message:      "listening, stop only (folders, inc:default)",
+					relative:     "RETRO-WAVE",
+					extended:     true,
+					subscription: nav.SubscribeFolders,
+				},
+				stop: &nav.ListenerBy{
+					Name: "Name: Night Drive",
+					Fn: func(item *nav.TraverseItem) bool {
+						return item.Extension.Name == "Night Drive"
+					},
+				},
+				incStart:  true,
+				incStop:   false,
+				mandatory: []string{"RETRO-WAVE", "Chromatics"},
+				prohibited: []string{"Night Drive", "College", "Northern Council",
+					"Teenage Color", "Electric Youth", "Innerworld",
+				},
+			}),
 		)
+
+		Context("Early Exit", func() {
+			It("should: exit early (folders)", func() {
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🛡️")
+					o.Subscription = nav.SubscribeFolders
+					o.Listen.Stop = &nav.ListenerBy{
+						Name: "Name: DREAM-POP",
+						Fn: func(item *nav.TraverseItem) bool {
+							return item.Extension.Name == "DREAM-POP"
+						},
+					}
+					o.Notify.OnStop = func(description string) {
+						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
+					}
+					o.DoExtend = true
+					o.Callback = foldersCallback("EARLY-EXIT-😴", o.DoExtend)
+				})
+				path := path(root, "")
+				navigator.Walk(path)
+			})
+
+			It("should: exit early (files)", func() {
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🛡️")
+					o.Subscription = nav.SubscribeFiles
+					o.Listen.Stop = &nav.ListenerBy{
+						Name: "Name(contains): Captain",
+						Fn: func(item *nav.TraverseItem) bool {
+							return strings.Contains(item.Extension.Name, "Captain")
+						},
+					}
+					o.Notify.OnStop = func(description string) {
+						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
+					}
+					o.DoExtend = true
+					o.Callback = filesCallback("EARLY-EXIT-😴", o.DoExtend)
+				})
+				path := path(root, "")
+				navigator.Walk(path)
+			})
+		})
 	})
 })
