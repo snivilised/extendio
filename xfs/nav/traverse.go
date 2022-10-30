@@ -85,6 +85,7 @@ type navigationFrame struct {
 	Root     string
 	Depth    uint
 	listener *navigationListener
+	client   TraverseCallback
 }
 
 type navigatorImpl interface {
