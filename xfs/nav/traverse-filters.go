@@ -53,16 +53,27 @@ func (f FilterScopeEnum) String() string {
 	return lo.Ternary(result == "", "[multi]", result)
 }
 
+// FilterPredicate
+type FilterPredicate func(item *TraverseItem) bool
+
 // TraverseFilter filter that can be applied to file system entries. When specified,
 // the callback will only be invoked for file system nodes that pass the filter.
 type TraverseFilter interface {
-	IsMatch(name string, scope FilterScopeEnum) bool
+	Description() string
+	IsMatch(item *TraverseItem) bool
+	IsApplicable(item *TraverseItem) bool
 }
 
 // Filter base filter struct.
 type Filter struct {
-	Scope  FilterScopeEnum // defines which file system nodes the filter should be applied to
-	Negate bool            // select to define a negative match
+	Name          string
+	RequiredScope FilterScopeEnum // defines which file system nodes the filter should be applied to
+	Negate        bool            // select to define a negative match
+}
+
+type FilterBy struct {
+	Filter
+	Fn FilterPredicate
 }
 
 // RegexFilter regex filter.

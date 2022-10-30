@@ -5,8 +5,6 @@ import (
 	"os"
 	"sort"
 	"strings"
-
-	"github.com/samber/lo"
 )
 
 // Lstat function signature that enables the default t be overridden
@@ -50,11 +48,11 @@ func LstatHookFn(path string) (fs.FileInfo, error) {
 // FilterHookFn is the default Filter hook function.
 func FilterHookFn(entries []fs.DirEntry, info *FilterInfo, custom ...any) ([]fs.DirEntry, error) {
 
-	filtered := lo.Filter(entries, func(entry fs.DirEntry, index int) bool {
-		info.Filter.IsMatch(entry.Name(), info.ActualScope)
-		return false
-	})
-	return filtered, nil
+	// filtered := lo.Filter(entries, func(entry fs.DirEntry, index int) bool {
+	// 	info.Filter.IsMatch(entry.Name(), info.ActualScope)
+	// 	return false
+	// })
+	return nil, nil
 }
 
 // CaseSensitiveSortHookFn hook function for case sensitive directory traversal. A
