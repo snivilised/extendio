@@ -35,11 +35,11 @@ func (n *filesNavigator) traverse(currentItem *TraverseItem, frame *navigationFr
 
 		// Effectively, this is the file only filter
 		//
-		return n.o.Callback(currentItem)
+		return n.agent.proxy(currentItem, frame)
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
-		item: currentItem, entries: entries, readErr: readErr,
+		frame: frame, item: currentItem, entries: entries, readErr: readErr,
 	}); exit || err != nil {
 		return err
 	} else {

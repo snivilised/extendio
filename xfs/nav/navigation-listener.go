@@ -10,16 +10,16 @@ type Listener interface {
 	IsMatch(item *TraverseItem) bool
 }
 
-type ListenerBy struct {
+type ListenBy struct {
 	Fn   ListenPredicate
 	Name string
 }
 
-func (f *ListenerBy) Description() string {
+func (f *ListenBy) Description() string {
 	return f.Name
 }
 
-func (f *ListenerBy) IsMatch(item *TraverseItem) bool {
+func (f *ListenBy) IsMatch(item *TraverseItem) bool {
 	return f.Fn(item)
 }
 
@@ -78,12 +78,17 @@ func newListener(o *TraverseOptions, frame *navigationFrame) *navigationListener
 	listener := &navigationListener{
 		listen: initialState,
 	}
-	listener.states = *listenStates(o, frame)
-	listener.init()
 
-	o.Callback = func(item *TraverseItem) *LocalisableError {
+	decorated := frame.client
+	decorator := func(item *TraverseItem) *LocalisableError {
 		return listener.current(item)
 	}
+	frame.decorate("listener 🎀", decorator)
+
+	listener.states = *listenStates(&listenStatesParams{
+		decorated: decorated, o: o, frame: frame,
+	})
+	listener.init()
 
 	if o.Notify.OnStart == nil {
 		o.Notify.OnStart = func(description string) {}
@@ -105,7 +110,7 @@ func backfillListenState(o *ListenOptions) ListeningState {
 
 	case o.Start != nil:
 		initialState = ListenPending
-		o.Stop = &ListenerBy{
+		o.Stop = &ListenBy{
 			Name: "run to completion (don't stop early)",
 			Fn: func(item *TraverseItem) bool {
 				return false
@@ -114,7 +119,7 @@ func backfillListenState(o *ListenOptions) ListeningState {
 
 	case o.Stop != nil:
 		initialState = ListenActive
-		o.Start = &ListenerBy{
+		o.Start = &ListenBy{
 			Name: "start listening straight away",
 			Fn: func(item *TraverseItem) bool {
 				return true
@@ -125,18 +130,24 @@ func backfillListenState(o *ListenOptions) ListeningState {
 	return initialState
 }
 
-func listenStates(o *TraverseOptions, frame *navigationFrame) *navigationListeningStates {
+type listenStatesParams struct {
+	decorated TraverseCallback
+	o         *TraverseOptions
+	frame     *navigationFrame
+}
+
+func listenStates(params *listenStatesParams) *navigationListeningStates {
 
 	return &navigationListeningStates{
 		ListenPending: func(item *TraverseItem) *LocalisableError {
 			// listening not yet started
 			//
-			if o.Listen.Start.IsMatch(item) {
-				frame.listener.transition(ListenActive)
-				o.Notify.OnStart(o.Listen.Start.Description())
+			if params.o.Listen.Start.IsMatch(item) {
+				params.frame.listener.transition(ListenActive)
+				params.o.Notify.OnStart(params.o.Listen.Start.Description())
 
-				if o.Behaviours.Listen.InclusiveStart {
-					return frame.client(item)
+				if params.o.Behaviours.Listen.InclusiveStart {
+					return params.decorated(item)
 				}
 				return nil
 			}
@@ -146,16 +157,16 @@ func listenStates(o *TraverseOptions, frame *navigationFrame) *navigationListeni
 		ListenActive: func(item *TraverseItem) *LocalisableError {
 			// listening
 			//
-			if o.Listen.Stop.IsMatch(item) {
-				frame.listener.transition(ListenRetired)
-				o.Notify.OnStop(o.Listen.Stop.Description())
+			if params.o.Listen.Stop.IsMatch(item) {
+				params.frame.listener.transition(ListenRetired)
+				params.o.Notify.OnStop(params.o.Listen.Stop.Description())
 
-				if o.Behaviours.Listen.InclusiveStop {
-					return frame.client(item)
+				if params.o.Behaviours.Listen.InclusiveStop {
+					return params.decorated(item)
 				}
 				return nil
 			}
-			return frame.client(item)
+			return params.decorated(item)
 		},
 
 		ListenRetired: func(item *TraverseItem) *LocalisableError {

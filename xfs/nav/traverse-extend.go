@@ -27,6 +27,9 @@ func DefaultExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {
 	})
 	isLeaf := len(grouped[true]) == 0
 
+	// TODO(issue #38): this scope designation is not correct. We also need to define
+	// a child scope which are the immediate descendants of the top level.
+	//
 	scope := IntermediateScopeEn
 	if params.Frame.Depth == 1 {
 		scope = TopScopeEn
@@ -64,4 +67,4 @@ func DefaultExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {
 	params.Item.Extension.SubPath = subpath
 }
 
-func nullExtendHookFn(ei *NavigationParams, descendants []fs.DirEntry) {}
+func nullExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {}
