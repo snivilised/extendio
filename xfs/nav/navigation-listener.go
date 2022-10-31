@@ -51,17 +51,17 @@ const (
 )
 
 var listeningStateStrings map[ListeningState]string = map[ListeningState]string{
-	ListenDefault: "Listening Default",
-	ListenPending: "Listening Pending",
-	ListenActive:  "Listening Active",
-	ListenRetired: "Listening Retired",
+	ListenDefault: "Listen Default",
+	ListenPending: "Listen Pending",
+	ListenActive:  "Listen Active",
+	ListenRetired: "Listen Retired",
 }
 
 func (s ListeningState) String() string {
 	return listeningStateStrings[s]
 }
 
-type navigationListeners map[ListeningState]TraverseCallback
+type navigationListeningStates map[ListeningState]TraverseCallback
 
 func bootstrapListener(o *TraverseOptions, frame *navigationFrame) {
 
@@ -125,9 +125,9 @@ func backfillListenState(o *ListenOptions) ListeningState {
 	return initialState
 }
 
-func listenStates(o *TraverseOptions, frame *navigationFrame) *navigationListeners {
+func listenStates(o *TraverseOptions, frame *navigationFrame) *navigationListeningStates {
 
-	return &navigationListeners{
+	return &navigationListeningStates{
 		ListenPending: func(item *TraverseItem) *LocalisableError {
 			// listening not yet started
 			//
@@ -159,14 +159,14 @@ func listenStates(o *TraverseOptions, frame *navigationFrame) *navigationListene
 		},
 
 		ListenRetired: func(item *TraverseItem) *LocalisableError {
-			return &LocalisableError{Inner: Terminate}
+			return &LocalisableError{Inner: TERMINATE_ERR}
 		},
 	}
 }
 
 type navigationListener struct {
 	listen  ListeningState
-	states  navigationListeners
+	states  navigationListeningStates
 	current TraverseCallback
 }
 

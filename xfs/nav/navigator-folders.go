@@ -1,7 +1,6 @@
 package nav
 
 import (
-	"errors"
 	"io/fs"
 
 	"github.com/samber/lo"
@@ -49,9 +48,7 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigation
 
 		var err error
 		if err = n.o.Hooks.Sort(dirs); err != nil {
-			panic(LocalisableError{
-				Inner: errors.New("folder navigator sort function failed"),
-			})
+			panic(FOLDERS_NAV_SORT_L_ERR)
 		}
 
 		return n.agent.traverse(&agentTraverseParams{

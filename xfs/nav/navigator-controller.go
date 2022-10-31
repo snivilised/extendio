@@ -11,7 +11,7 @@ type navigatorController struct {
 func (c *navigatorController) Walk(root string) *TraverseResult {
 	o := c.impl.options()
 	o.Notify.OnBegin(root)
-	frame := navigationFrame{ // inject the frame in from new-navigator
+	frame := navigationFrame{
 		Root:   root,
 		client: o.Callback,
 	}

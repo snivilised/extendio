@@ -1,20 +1,12 @@
 package nav
 
-import (
-	"errors"
-
-	. "github.com/snivilised/extendio/translate"
-)
-
 // NewNavigator navigator factory function which uses the functional
 // options pattern.
 func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 
 	if o.Callback == nil {
-		panic(LocalisableError{
-			Inner: errors.New("missing callback function"),
-		})
+		panic(MISSING_CALLBACK_FN_L_ERR)
 	}
 
 	var impl navigatorImpl

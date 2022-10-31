@@ -1,7 +1,6 @@
 package nav
 
 import (
-	"errors"
 	"io/fs"
 	"path/filepath"
 
@@ -30,18 +29,17 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 			item := &TraverseItem{Path: params.frame.Root, Info: info}
 			le = params.impl.traverse(item, params.frame)
 		} else {
-			NOT_A_DIRECTORY_L_ERROR := &LocalisableError{Inner: errors.New("Not a directory")}
 
 			if a.DO_INVOKE {
 				item := &TraverseItem{
-					Path: params.frame.Root, Info: info, Error: NOT_A_DIRECTORY_L_ERROR,
+					Path: params.frame.Root, Info: info, Error: &NOT_DIRECTORY_L_ERR,
 				}
 				params.impl.options().Hooks.Extend(&NavigationParams{
 					Options: params.impl.options(), Item: item, Frame: params.frame,
 				}, []fs.DirEntry{})
 				le = params.impl.options().Callback(item)
 			} else {
-				le = NOT_A_DIRECTORY_L_ERROR
+				le = &NOT_DIRECTORY_L_ERR
 			}
 		}
 	}

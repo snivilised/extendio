@@ -1,7 +1,6 @@
 package nav
 
 import (
-	"errors"
 	"io/fs"
 
 	. "github.com/snivilised/extendio/translate"
@@ -44,9 +43,7 @@ func (n *universalNavigator) traverse(currentItem *TraverseItem, frame *navigati
 	} else {
 		var err error
 		if err = n.o.Hooks.Sort(entries); err != nil {
-			panic(LocalisableError{
-				Inner: errors.New("universal navigator sort function failed"),
-			})
+			panic(UNIVERSAL_NAV_SORT_L_ERR)
 		}
 
 		return n.agent.traverse(&agentTraverseParams{
