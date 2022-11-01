@@ -15,6 +15,8 @@ func (c *navigatorController) Walk(root string) *TraverseResult {
 		Root:   root,
 		client: o.Callback,
 	}
+
+	bootstrapFilter(o, &frame)
 	bootstrapListener(o, &frame)
 
 	result := &TraverseResult{

@@ -80,13 +80,6 @@ type TraverseNavigator interface {
 	Walk(root string) *TraverseResult
 }
 
-type navigationFrame struct {
-	Root     string
-	Depth    uint
-	listener *navigationListener
-	client   TraverseCallback
-}
-
 type navigatorImpl interface {
 	options() *TraverseOptions
 	top(frame *navigationFrame) *LocalisableError

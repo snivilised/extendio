@@ -23,7 +23,7 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 	var le *LocalisableError = nil
 	if err != nil {
 		item := &TraverseItem{Path: params.frame.Root, Info: info, Error: &LocalisableError{Inner: err}}
-		le = params.impl.options().Callback(item)
+		le = a.proxy(item, params.frame)
 	} else {
 		if info.IsDir() {
 			item := &TraverseItem{Path: params.frame.Root, Info: info}
@@ -37,7 +37,7 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 				params.impl.options().Hooks.Extend(&NavigationParams{
 					Options: params.impl.options(), Item: item, Frame: params.frame,
 				}, []fs.DirEntry{})
-				le = params.impl.options().Callback(item)
+				le = a.proxy(item, params.frame)
 			} else {
 				le = &NOT_DIRECTORY_L_ERR
 			}
@@ -59,6 +59,7 @@ func (a *agent) read(item *TraverseItem) ([]fs.DirEntry, error) {
 }
 
 type agentNotifyParams struct {
+	frame   *navigationFrame
 	item    *TraverseItem
 	entries []fs.DirEntry
 	readErr error
@@ -75,7 +76,7 @@ func (a *agent) notify(params *agentNotifyParams) (bool, *LocalisableError) {
 
 			// Second call, to report ReadDir error
 			//
-			if le := a.o.Callback(item2); le != nil {
+			if le := a.proxy(item2, params.frame); le != nil {
 				if params.readErr == fs.SkipDir && (item2.Entry != nil && item2.Entry.IsDir()) {
 					params.readErr = nil
 				}
@@ -111,4 +112,13 @@ func (a *agent) traverse(params *agentTraverseParams) *LocalisableError {
 		}
 	}
 	return nil
+}
+
+func (a *agent) proxy(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
+	// proxy is the correct way to invoke the client callback, because it takes into
+	// account any active decorations such as listening and filtering. It should be noted
+	// that the Callback on the options represents the client defined function which
+	// can be decorated. Only the callback on the frame should ever be invoked.
+	//
+	return frame.client(currentItem)
 }

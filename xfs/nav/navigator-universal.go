@@ -27,7 +27,7 @@ func (n *universalNavigator) traverse(currentItem *TraverseItem, frame *navigati
 	entries, readErr := n.agent.read(currentItem)
 	n.o.Hooks.Extend(navi, entries)
 
-	if le := n.o.Callback(currentItem); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
+	if le := n.agent.proxy(currentItem, frame); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
 			// Successfully skipped directory
 			//
@@ -37,7 +37,7 @@ func (n *universalNavigator) traverse(currentItem *TraverseItem, frame *navigati
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
-		item: currentItem, entries: entries, readErr: readErr,
+		frame: frame, item: currentItem, entries: entries, readErr: readErr,
 	}); exit {
 		return err
 	} else {

@@ -38,6 +38,7 @@ type TraverseOptions struct {
 	Hooks        TraverseHooks
 	Behaviours   NavigationBehaviours
 	Listen       ListenOptions
+	Filter       TraverseFilter
 }
 type TraverseOptionFn func(o *TraverseOptions) // functional traverse options
 
@@ -56,6 +57,7 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 			ReadDirectory: ReadEntries,
 			FolderSubPath: RootParentSubPath,
 			FileSubPath:   RootParentSubPath,
+			Filter:        InitFilter,
 		},
 		Behaviours: NavigationBehaviours{
 			SubPath: SubPathBehaviour{

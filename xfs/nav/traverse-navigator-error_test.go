@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/translate"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -76,8 +77,8 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				_ = root
 
 				nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Subscription = nav.SubscribeAny
 					o.Notify.OnBegin = begin("🧲")
+					o.Subscription = nav.SubscribeAny
 				})
 
 				Fail("❌ expected panic due to missing callback")
@@ -241,4 +242,53 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			})
 		})
 	})
+
+	DescribeTable("RegexFilter (error)",
+		func(entry *filterTE) {
+			defer func() {
+				pe := recover()
+				if entry.errorContains != "" {
+					if err, ok := pe.(error); ok {
+						Expect(strings.Contains(err.Error(), entry.errorContains)).To(BeTrue())
+					}
+				} else {
+					Expect(pe).To(Equal(entry.expectedErr))
+				}
+			}()
+
+			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				o.Notify.OnBegin = begin("🧲")
+				o.Subscription = nav.SubscribeFolders
+				o.Filter = &nav.RegexFilter{
+					Filter: nav.Filter{
+						Name:    entry.name,
+						Pattern: entry.pattern,
+					},
+				}
+				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
+					return nil
+				}
+			})
+			const relative = "RETRO-WAVE"
+			path := path(root, relative)
+			_ = navigator.Walk(path)
+
+			Fail(fmt.Sprintf("❌ expected panic due to '%v'", entry.name))
+		},
+		func(entry *filterTE) string {
+			return fmt.Sprintf("🧪 ===> '%v'", entry.message)
+		},
+
+		Entry(nil, &filterTE{
+			naviTE:      naviTE{message: "regex missing pattern"},
+			name:        "missing pattern test",
+			expectedErr: nav.PATTERN_NOT_DEFINED_L_ERR,
+		}),
+		Entry(nil, &filterTE{
+			naviTE:        naviTE{message: "bad regex pattern"},
+			name:          "bad regex pattern test",
+			pattern:       "(",
+			errorContains: "Compile",
+		}),
+	)
 })

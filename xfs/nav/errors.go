@@ -22,3 +22,6 @@ var UNIVERSAL_NAV_SORT_L_ERR = LocalisableError{Inner: UNIVERSAL_NAV_SORT_ERR}
 
 var MISSING_CALLBACK_FN_ERR = errors.New("missing callback function")
 var MISSING_CALLBACK_FN_L_ERR = LocalisableError{Inner: MISSING_CALLBACK_FN_ERR}
+
+var PATTERN_NOT_DEFINED_ERR = errors.New("pattern not defined")
+var PATTERN_NOT_DEFINED_L_ERR = LocalisableError{Inner: PATTERN_NOT_DEFINED_ERR}

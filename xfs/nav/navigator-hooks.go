@@ -20,8 +20,8 @@ type ReadDirectoryHookFn func(dirname string) ([]fs.DirEntry, error)
 // the TraverseOptions, but can be overridden if needed.
 type SortEntriesHookFn func(entries []fs.DirEntry, custom ...any) error
 
-// FilterEntriesHookFn hook function.
-type FilterEntriesHookFn func(entries []fs.DirEntry, info *FilterInfo, custom ...any) ([]fs.DirEntry, error)
+// FilterInitHookFn
+type FilterInitHookFn func(o *TraverseOptions, frame *navigationFrame)
 
 // ExtendHookFn
 type ExtendHookFn func(navi *NavigationParams, descendants []fs.DirEntry)
@@ -34,7 +34,7 @@ type TraverseHooks struct {
 	QueryStatus   QueryStatusHookFn
 	ReadDirectory ReadDirectoryHookFn
 	Sort          SortEntriesHookFn
-	Filter        FilterEntriesHookFn
+	Filter        FilterInitHookFn
 	Extend        ExtendHookFn
 	FolderSubPath SubPathHookFn
 	FileSubPath   SubPathHookFn
@@ -43,16 +43,6 @@ type TraverseHooks struct {
 // Lstat is the default Query Status hook function
 func LstatHookFn(path string) (fs.FileInfo, error) {
 	return os.Lstat(path)
-}
-
-// FilterHookFn is the default Filter hook function.
-func FilterHookFn(entries []fs.DirEntry, info *FilterInfo, custom ...any) ([]fs.DirEntry, error) {
-
-	// filtered := lo.Filter(entries, func(entry fs.DirEntry, index int) bool {
-	// 	info.Filter.IsMatch(entry.Name(), info.ActualScope)
-	// 	return false
-	// })
-	return nil, nil
 }
 
 // CaseSensitiveSortHookFn hook function for case sensitive directory traversal. A

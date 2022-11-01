@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/translate"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -59,6 +60,16 @@ type listenTE struct {
 	mute       bool
 	mandatory  []string
 	prohibited []string
+}
+
+type filterTE struct {
+	naviTE
+	name          string
+	pattern       string
+	scope         nav.FilterScopeEnum
+	negate        bool
+	expectedErr   error
+	errorContains string
 }
 
 func universalCallback(name string, extended bool) nav.TraverseCallback {
@@ -552,13 +563,13 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				start: &nav.ListenerBy{
+				start: &nav.ListenBy{
 					Name: "Name: Night Drive",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Night Drive"
 					},
 				},
-				stop: &nav.ListenerBy{
+				stop: &nav.ListenBy{
 					Name: "Name: Electric Youth",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Electric Youth"
@@ -577,13 +588,13 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				start: &nav.ListenerBy{
+				start: &nav.ListenBy{
 					Name: "Name: Night Drive",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Night Drive"
 					},
 				},
-				stop: &nav.ListenerBy{
+				stop: &nav.ListenBy{
 					Name: "Name: Electric Youth",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Electric Youth"
@@ -605,7 +616,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				start: &nav.ListenerBy{
+				start: &nav.ListenBy{
 					Name: "Name: Night Drive",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Night Drive"
@@ -626,7 +637,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				stop: &nav.ListenerBy{
+				stop: &nav.ListenBy{
 					Name: "Name: Electric Youth",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Electric Youth"
@@ -647,7 +658,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					extended:     true,
 					subscription: nav.SubscribeFolders,
 				},
-				stop: &nav.ListenerBy{
+				stop: &nav.ListenBy{
 					Name: "Name: Night Drive",
 					Fn: func(item *nav.TraverseItem) bool {
 						return item.Extension.Name == "Night Drive"
@@ -667,7 +678,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Subscription = nav.SubscribeFolders
-					o.Listen.Stop = &nav.ListenerBy{
+					o.Listen.Stop = &nav.ListenBy{
 						Name: "Name: DREAM-POP",
 						Fn: func(item *nav.TraverseItem) bool {
 							return item.Extension.Name == "DREAM-POP"
@@ -687,7 +698,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Subscription = nav.SubscribeFiles
-					o.Listen.Stop = &nav.ListenerBy{
+					o.Listen.Stop = &nav.ListenBy{
 						Name: "Name(contains): Captain",
 						Fn: func(item *nav.TraverseItem) bool {
 							return strings.Contains(item.Extension.Name, "Captain")
@@ -703,5 +714,208 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				navigator.Walk(path)
 			})
 		})
+
+		DescribeTable("RegexFilter",
+			func(entry *filterTE) {
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🛡️")
+					o.Subscription = entry.subscription
+					o.Filter = &nav.RegexFilter{
+						Filter: nav.Filter{
+							Name:          entry.name,
+							RequiredScope: entry.scope,
+							Pattern:       entry.pattern,
+							Negate:        entry.negate,
+						},
+					}
+					o.DoExtend = true
+					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
+						GinkgoWriter.Printf("===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							o.Filter.Description(), o.Filter.Source(), item.Extension.Name, item.Extension.NodeScope, o.Filter.Scope(),
+						)
+						Expect(o.Filter.IsMatch(item)).To(BeTrue(), xname(item))
+						return nil
+					}
+				})
+				path := path(root, entry.relative)
+				_ = navigator.Walk(path)
+			},
+			func(entry *filterTE) string {
+				return fmt.Sprintf("🧪 ===> '%v'", entry.message)
+			},
+
+			// !!! -> if the folder doesn't pass the filter, should that folder be skipped?
+			// make this a behaviour option
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "files(any scope): regex filter",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeFiles,
+				},
+				name:    "items that start with 'vinyl'",
+				pattern: "^vinyl",
+				scope:   nav.AllScopesEn,
+			}),
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "files(any scope): regex filter (negate)",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeFiles,
+				},
+				name:    "items that don't start with 'vinyl'",
+				pattern: "^vinyl",
+				scope:   nav.AllScopesEn,
+				negate:  true,
+			}),
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "files(default to any scope): regex filter",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeFiles,
+				},
+				name:    "items that start with 'vinyl'",
+				pattern: "^vinyl",
+			}),
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "folders(any scope): regex filter",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeFolders,
+				},
+				name:    "items that start with 'C'",
+				pattern: "^C",
+				scope:   nav.AllScopesEn,
+			}),
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "folders(any scope): regex filter (negate)",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeFolders,
+				},
+				name:    "items that don't start with 'C'",
+				pattern: "^C",
+				scope:   nav.AllScopesEn,
+				negate:  true,
+			}),
+
+			// Entry(nil, &filterTE{
+			// 	// THIS TEST NOT YET FINALISED. WHEN A SCOPE IS NOT APPLICABLE, NODE IS STILL VISITED
+			// 	naviTE: naviTE{
+			// 		message:      "folders(top): regex filter",
+			// 		relative:     "PROGRESSIVE-HOUSE",
+			// 		subscription: nav.SubscribeFolders,
+			// 	},
+			// 	name:    "top items that contain 'a'",
+			// 	pattern: "a",
+			// 	scope:   nav.TopScopeEn,
+			// }),
+		)
+
+		Context("folders", func() {
+			Context("given: filter and listen both active", func() {
+				It("🧪 should: apply filter within the listen range", func() {
+					navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+						o.Notify.OnBegin = begin("🛡️")
+						o.Subscription = nav.SubscribeFolders
+						o.Filter = &nav.RegexFilter{
+							Filter: nav.Filter{
+								Name:          "Contains 'o'",
+								RequiredScope: nav.AllScopesEn,
+								Pattern:       "(i?)o",
+							},
+						}
+						o.Listen.Start = &nav.ListenBy{
+							Name: "Name: Orbital",
+							Fn: func(item *nav.TraverseItem) bool {
+								return item.Extension.Name == "Orbital"
+							},
+						}
+						o.Listen.Stop = &nav.ListenBy{
+							Name: "Name: Underworld",
+							Fn: func(item *nav.TraverseItem) bool {
+								return item.Extension.Name == "Underworld"
+							},
+						}
+						o.Notify.OnStart = func(description string) {
+							GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
+						}
+						o.Notify.OnStop = func(description string) {
+							GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
+						}
+						o.DoExtend = true
+						o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
+							GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
+								item.Extension.Name,
+							)
+							GinkgoWriter.Printf("===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+								o.Filter.Description(), o.Filter.Source(), item.Extension.Name, item.Extension.NodeScope, o.Filter.Scope(),
+							)
+							Expect(o.Filter.IsMatch(item)).To(BeTrue(), xname(item))
+							return nil
+						}
+					})
+					path := path(root, "edm/ELECTRONICA")
+					_ = navigator.Walk(path)
+				})
+			})
+		})
+
+		DescribeTable("GlobFilter",
+			func(entry *filterTE) {
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🛡️")
+					o.Subscription = entry.subscription
+					o.Filter = &nav.GlobFilter{
+						Filter: nav.Filter{
+							Name:          entry.name,
+							RequiredScope: entry.scope,
+							Pattern:       entry.pattern,
+							Negate:        entry.negate,
+						},
+					}
+					o.DoExtend = true
+					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
+						GinkgoWriter.Printf("===> 💠 Glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							o.Filter.Description(), o.Filter.Source(), item.Extension.Name, item.Extension.NodeScope, o.Filter.Scope(),
+						)
+						Expect(o.Filter.IsMatch(item)).To(BeTrue(), xname(item))
+						return nil
+					}
+				})
+				path := path(root, entry.relative)
+				_ = navigator.Walk(path)
+			},
+			func(entry *filterTE) string {
+				return fmt.Sprintf("🧪 ===> '%v'", entry.message)
+			},
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "universal(any scope): glob filter",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeAny,
+				},
+				name:    "items with .flac suffix",
+				pattern: "*.flac",
+				scope:   nav.AllScopesEn,
+			}),
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "universal(any scope): glob filter (negate)",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeAny,
+				},
+				name:    "items without .flac suffix",
+				pattern: "*.flac",
+				scope:   nav.AllScopesEn,
+				negate:  true,
+			}),
+		)
 	})
 })
