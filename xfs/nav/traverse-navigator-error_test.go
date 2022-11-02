@@ -4,68 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
-	"path/filepath"
-	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/samber/lo"
-	"github.com/snivilised/extendio/translate"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
-
-type errorTE struct {
-	naviTE
-}
-
-func readDirFakeError(dirname string) ([]fs.DirEntry, error) {
-
-	entries := []fs.DirEntry{}
-	err := errors.New("fake read error")
-	return entries, err
-}
-
-func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error) {
-
-	return func(dirname string) ([]fs.DirEntry, error) {
-		if strings.HasSuffix(dirname, name) {
-			return readDirFakeError(dirname)
-		}
-
-		return nav.ReadEntries(dirname)
-	}
-}
-
-func errorCallback(name string, extended bool, hasError bool) nav.TraverseCallback {
-
-	ex := lo.Ternary(extended, "-EX", "")
-	return func(item *nav.TraverseItem) *LocalisableError {
-		GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
-
-		if extended {
-			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
-		} else {
-			Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
-		}
-		if hasError {
-			Expect(item.Error).ToNot(BeNil())
-		}
-		return item.Error
-	}
-}
 
 var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		if current, err := os.Getwd(); err == nil {
-			parent, _ := filepath.Split(current)
-			grand := filepath.Dir(parent)
-			great := filepath.Dir(grand)
-			root = filepath.Join(great, "Test", "data", "MUSICO")
-		}
+		root = cwd()
 	})
 
 	Context("new-navigator", func() {
@@ -242,53 +192,4 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			})
 		})
 	})
-
-	DescribeTable("RegexFilter (error)",
-		func(entry *filterTE) {
-			defer func() {
-				pe := recover()
-				if entry.errorContains != "" {
-					if err, ok := pe.(error); ok {
-						Expect(strings.Contains(err.Error(), entry.errorContains)).To(BeTrue())
-					}
-				} else {
-					Expect(pe).To(Equal(entry.expectedErr))
-				}
-			}()
-
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-				o.Notify.OnBegin = begin("🧲")
-				o.Subscription = nav.SubscribeFolders
-				o.Filter = &nav.RegexFilter{
-					Filter: nav.Filter{
-						Name:    entry.name,
-						Pattern: entry.pattern,
-					},
-				}
-				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					return nil
-				}
-			})
-			const relative = "RETRO-WAVE"
-			path := path(root, relative)
-			_ = navigator.Walk(path)
-
-			Fail(fmt.Sprintf("❌ expected panic due to '%v'", entry.name))
-		},
-		func(entry *filterTE) string {
-			return fmt.Sprintf("🧪 ===> '%v'", entry.message)
-		},
-
-		Entry(nil, &filterTE{
-			naviTE:      naviTE{message: "regex missing pattern"},
-			name:        "missing pattern test",
-			expectedErr: nav.PATTERN_NOT_DEFINED_L_ERR,
-		}),
-		Entry(nil, &filterTE{
-			naviTE:        naviTE{message: "bad regex pattern"},
-			name:          "bad regex pattern test",
-			pattern:       "(",
-			errorContains: "Compile",
-		}),
-	)
 })
