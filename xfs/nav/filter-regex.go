@@ -23,5 +23,5 @@ func (f *RegexFilter) IsMatch(item *TraverseItem) bool {
 	if f.IsApplicable(item) {
 		return f.Invert(f.rex.Match([]byte(item.Extension.Name)))
 	}
-	return true
+	return f.IfNotApplicable
 }

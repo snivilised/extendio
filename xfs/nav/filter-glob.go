@@ -15,5 +15,5 @@ func (f *GlobFilter) IsMatch(item *TraverseItem) bool {
 		matched, _ := filepath.Match(f.Pattern, item.Extension.Name)
 		return f.Invert(matched)
 	}
-	return true
+	return f.IfNotApplicable
 }
