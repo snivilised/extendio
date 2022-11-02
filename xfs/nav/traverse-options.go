@@ -7,15 +7,15 @@ type SubPathBehaviour struct {
 	KeepTrailingSep bool
 }
 
-// SortBehaviours
-type SortBehaviours struct {
+// SortBehaviour
+type SortBehaviour struct {
 	IsCaseSensitive bool // case sensitive traversal order
 }
 
 // NavigationBehaviours
 type NavigationBehaviours struct {
 	SubPath SubPathBehaviour
-	Sort    SortBehaviours
+	Sort    SortBehaviour
 	Listen  ListenBehaviour
 }
 
@@ -63,7 +63,7 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 			SubPath: SubPathBehaviour{
 				KeepTrailingSep: true,
 			},
-			Sort: SortBehaviours{
+			Sort: SortBehaviour{
 				IsCaseSensitive: false,
 			},
 			Listen: ListenBehaviour{

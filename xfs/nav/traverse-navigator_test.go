@@ -23,6 +23,10 @@ func xname(item *nav.TraverseItem) string {
 	return fmt.Sprintf("❌ for item named: '%v'", item.Extension.Name)
 }
 
+func named(name string) string {
+	return fmt.Sprintf("❌ for item named: '%v'", name)
+}
+
 func begin(em string) nav.BeginHandler {
 	return func(root string) {
 		GinkgoWriter.Printf("---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, root)
@@ -46,6 +50,8 @@ type naviTE struct {
 	caseSensitive bool
 	subscription  nav.TraverseSubscription
 	callback      nav.TraverseCallback
+	mandatory     []string
+	prohibited    []string
 }
 
 type skipTE struct {
@@ -56,23 +62,24 @@ type skipTE struct {
 
 type listenTE struct {
 	naviTE
-	start      nav.Listener
-	stop       nav.Listener
-	incStart   bool
-	incStop    bool
-	mute       bool
-	mandatory  []string
-	prohibited []string
+	start    nav.Listener
+	stop     nav.Listener
+	incStart bool
+	incStop  bool
+	mute     bool
+	// mandatory  []string
+	// prohibited []string
 }
 
 type filterTE struct {
 	naviTE
-	name          string
-	pattern       string
-	scope         nav.FilterScopeEnum
-	negate        bool
-	expectedErr   error
-	errorContains string
+	name            string
+	pattern         string
+	scope           nav.FilterScopeEnum
+	negate          bool
+	expectedErr     error
+	errorContains   string
+	ifNotApplicable bool
 }
 
 type scopeTE struct {
@@ -699,12 +706,16 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
 			},
 
+			// === folders =======================================================
+
 			Entry(nil, &listenTE{
 				naviTE: naviTE{
 					message:      "listening, start and stop (folders, inc:default)",
 					relative:     "RETRO-WAVE",
 					extended:     true,
 					subscription: nav.SubscribeFolders,
+					mandatory:    []string{"Night Drive", "College", "Northern Council", "Teenage Color"},
+					prohibited:   []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
 				},
 				start: &nav.ListenBy{
 					Name: "Name: Night Drive",
@@ -718,10 +729,8 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						return item.Extension.Name == "Electric Youth"
 					},
 				},
-				incStart:   true,
-				incStop:    false,
-				mandatory:  []string{"Night Drive", "College", "Northern Council", "Teenage Color"},
-				prohibited: []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
+				incStart: true,
+				incStop:  false,
 			}),
 			Entry(nil, &listenTE{
 				naviTE: naviTE{
@@ -729,6 +738,10 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					relative:     "RETRO-WAVE",
 					extended:     true,
 					subscription: nav.SubscribeFolders,
+					mandatory:    []string{"College", "Northern Council", "Teenage Color", "Electric Youth"},
+					prohibited: []string{"Night Drive", "RETRO-WAVE", "Chromatics",
+						"Innerworld",
+					},
 				},
 				start: &nav.ListenBy{
 					Name: "Name: Night Drive",
@@ -742,13 +755,9 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						return item.Extension.Name == "Electric Youth"
 					},
 				},
-				incStart:  false,
-				incStop:   true,
-				mute:      true,
-				mandatory: []string{"College", "Northern Council", "Teenage Color", "Electric Youth"},
-				prohibited: []string{"Night Drive", "RETRO-WAVE", "Chromatics",
-					"Innerworld",
-				},
+				incStart: false,
+				incStop:  true,
+				mute:     true,
 			}),
 			Entry(nil, &listenTE{
 				naviTE: naviTE{
@@ -756,6 +765,10 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					relative:     "RETRO-WAVE",
 					extended:     true,
 					subscription: nav.SubscribeFolders,
+					mandatory: []string{"Night Drive", "College", "Northern Council", "Teenage Color",
+						"Electric Youth", "Innerworld",
+					},
+					prohibited: []string{"RETRO-WAVE", "Chromatics"},
 				},
 				start: &nav.ListenBy{
 					Name: "Name: Night Drive",
@@ -765,10 +778,6 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				},
 				incStart: true,
 				incStop:  false,
-				mandatory: []string{"Night Drive", "College", "Northern Council", "Teenage Color",
-					"Electric Youth", "Innerworld",
-				},
-				prohibited: []string{"RETRO-WAVE", "Chromatics"},
 			}),
 			Entry(nil, &listenTE{
 				naviTE: naviTE{
@@ -776,6 +785,10 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					relative:     "RETRO-WAVE",
 					extended:     true,
 					subscription: nav.SubscribeFolders,
+					mandatory: []string{"RETRO-WAVE", "Chromatics", "Night Drive", "College",
+						"Northern Council", "Teenage Color",
+					},
+					prohibited: []string{"Electric Youth", "Innerworld"},
 				},
 				stop: &nav.ListenBy{
 					Name: "Name: Electric Youth",
@@ -785,10 +798,6 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				},
 				incStart: true,
 				incStop:  false,
-				mandatory: []string{"RETRO-WAVE", "Chromatics", "Night Drive", "College",
-					"Northern Council", "Teenage Color",
-				},
-				prohibited: []string{"Electric Youth", "Innerworld"},
 			}),
 			Entry(nil, &listenTE{
 				naviTE: naviTE{
@@ -796,6 +805,10 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					relative:     "RETRO-WAVE",
 					extended:     true,
 					subscription: nav.SubscribeFolders,
+					mandatory:    []string{"RETRO-WAVE", "Chromatics"},
+					prohibited: []string{"Night Drive", "College", "Northern Council",
+						"Teenage Color", "Electric Youth", "Innerworld",
+					},
 				},
 				stop: &nav.ListenBy{
 					Name: "Name: Night Drive",
@@ -803,12 +816,8 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						return item.Extension.Name == "Night Drive"
 					},
 				},
-				incStart:  true,
-				incStop:   false,
-				mandatory: []string{"RETRO-WAVE", "Chromatics"},
-				prohibited: []string{"Night Drive", "College", "Northern Council",
-					"Teenage Color", "Electric Youth", "Innerworld",
-				},
+				incStart: true,
+				incStop:  false,
 			}),
 		)
 
@@ -856,15 +865,18 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 		DescribeTable("RegexFilter",
 			func(entry *filterTE) {
+				recording := recordingMap{}
+
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Subscription = entry.subscription
 					o.Filter = &nav.RegexFilter{
 						Filter: nav.Filter{
-							Name:          entry.name,
-							RequiredScope: entry.scope,
-							Pattern:       entry.pattern,
-							Negate:        entry.negate,
+							Name:            entry.name,
+							RequiredScope:   entry.scope,
+							Pattern:         entry.pattern,
+							Negate:          entry.negate,
+							IfNotApplicable: entry.ifNotApplicable,
 						},
 					}
 					o.DoExtend = true
@@ -873,18 +885,32 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 							o.Filter.Description(), o.Filter.Source(), item.Extension.Name, item.Extension.NodeScope, o.Filter.Scope(),
 						)
 						Expect(o.Filter.IsMatch(item)).To(BeTrue(), xname(item))
+						recording[item.Extension.Name] = true
 						return nil
 					}
 				})
 				path := path(root, entry.relative)
 				_ = navigator.Walk(path)
+
+				if entry.mandatory != nil {
+					for _, name := range entry.mandatory {
+						_, found := recording[name]
+						Expect(found).To(BeTrue(), named(name))
+					}
+				}
+
+				if entry.prohibited != nil {
+					for _, name := range entry.prohibited {
+						_, found := recording[name]
+						Expect(found).To(BeFalse(), named(name))
+					}
+				}
 			},
 			func(entry *filterTE) string {
 				return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
 			},
 
-			// !!! -> if the folder doesn't pass the filter, should that folder be skipped?
-			// make this a behaviour option
+			// === files =========================================================
 
 			Entry(nil, &filterTE{
 				naviTE: naviTE{
@@ -916,6 +942,9 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				name:    "items that start with 'vinyl'",
 				pattern: "^vinyl",
 			}),
+
+			// === folders =======================================================
+
 			Entry(nil, &filterTE{
 				naviTE: naviTE{
 					message:      "folders(any scope): regex filter",
@@ -938,17 +967,33 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				negate:  true,
 			}),
 
-			// Entry(nil, &filterTE{
-			// 	// THIS TEST NOT YET FINALISED. WHEN A SCOPE IS NOT APPLICABLE, NODE IS STILL VISITED
-			// 	naviTE: naviTE{
-			// 		message:      "folders(top): regex filter",
-			// 		relative:     "PROGRESSIVE-HOUSE",
-			// 		subscription: nav.SubscribeFolders,
-			// 	},
-			// 	name:    "top items that contain 'a'",
-			// 	pattern: "a",
-			// 	scope:   nav.TopScopeEn,
-			// }),
+			// === ifNotApplicable ===============================================
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "folders(top): regex filter (ifNotApplicable=true)",
+					relative:     "PROGRESSIVE-HOUSE",
+					subscription: nav.SubscribeFolders,
+					mandatory:    []string{"PROGRESSIVE-HOUSE"},
+				},
+				name:            "top items that contain 'HOUSE'",
+				pattern:         "HOUSE",
+				scope:           nav.TopScopeEn,
+				ifNotApplicable: true,
+			}),
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "folders(top): regex filter (ifNotApplicable=false)",
+					relative:     "PROGRESSIVE-HOUSE",
+					subscription: nav.SubscribeFolders,
+					mandatory:    []string{"PROGRESSIVE-HOUSE"},
+					prohibited:   []string{"Blue Amazon", "The Javelin"},
+				},
+				name:            "top items that contain 'HOUSE'",
+				pattern:         "HOUSE",
+				scope:           nav.TopScopeEn,
+				ifNotApplicable: false,
+			}),
 		)
 
 		Context("folders", func() {
@@ -1002,15 +1047,18 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 
 		DescribeTable("GlobFilter",
 			func(entry *filterTE) {
+				recording := recordingMap{}
+
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Subscription = entry.subscription
 					o.Filter = &nav.GlobFilter{
 						Filter: nav.Filter{
-							Name:          entry.name,
-							RequiredScope: entry.scope,
-							Pattern:       entry.pattern,
-							Negate:        entry.negate,
+							Name:            entry.name,
+							RequiredScope:   entry.scope,
+							Pattern:         entry.pattern,
+							Negate:          entry.negate,
+							IfNotApplicable: entry.ifNotApplicable,
 						},
 					}
 					o.DoExtend = true
@@ -1019,11 +1067,26 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 							o.Filter.Description(), o.Filter.Source(), item.Extension.Name, item.Extension.NodeScope, o.Filter.Scope(),
 						)
 						Expect(o.Filter.IsMatch(item)).To(BeTrue(), xname(item))
+						recording[item.Extension.Name] = true
 						return nil
 					}
 				})
 				path := path(root, entry.relative)
 				_ = navigator.Walk(path)
+
+				if entry.mandatory != nil {
+					for _, name := range entry.mandatory {
+						_, found := recording[name]
+						Expect(found).To(BeTrue(), named(name))
+					}
+				}
+
+				if entry.prohibited != nil {
+					for _, name := range entry.prohibited {
+						_, found := recording[name]
+						Expect(found).To(BeFalse(), named(name))
+					}
+				}
 			},
 			func(entry *filterTE) string {
 				return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -1035,7 +1098,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					relative:     "RETRO-WAVE",
 					subscription: nav.SubscribeAny,
 				},
-				name:    "items with .flac suffix",
+				name:    "items with '.flac' suffix",
 				pattern: "*.flac",
 				scope:   nav.AllScopesEn,
 			}),
@@ -1049,6 +1112,34 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				pattern: "*.flac",
 				scope:   nav.AllScopesEn,
 				negate:  true,
+			}),
+
+			// === ifNotApplicable ===============================================
+
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "universal(any scope): glob filter (ifNotApplicable=true)",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeAny,
+					mandatory:    []string{"A1 - Can You Kiss Me First.flac"},
+				},
+				name:            "items with '.flac' suffix",
+				pattern:         "*.flac",
+				scope:           nav.LeafScopeEn,
+				ifNotApplicable: true,
+			}),
+			Entry(nil, &filterTE{
+				naviTE: naviTE{
+					message:      "universal(any scope): glob filter (ifNotApplicable=false)",
+					relative:     "RETRO-WAVE",
+					subscription: nav.SubscribeAny,
+					mandatory:    []string{"A1 - Can You Kiss Me First.flac"},
+					prohibited:   []string{"vinyl-info.teenage-color"},
+				},
+				name:            "items with '.flac' suffix",
+				pattern:         "*.flac",
+				scope:           nav.LeafScopeEn,
+				ifNotApplicable: false,
 			}),
 		)
 	})
