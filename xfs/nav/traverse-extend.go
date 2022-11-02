@@ -21,19 +21,23 @@ func DefaultExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {
 			Inner: fmt.Errorf("extend: item for path '%v' already extended", params.Item.Path),
 		})
 	}
-
-	grouped := lo.GroupBy(descendants, func(item fs.DirEntry) bool {
-		return item.IsDir()
-	})
-	isLeaf := len(grouped[true]) == 0
-
-	// TODO(issue #38): this scope designation is not correct. We also need to define
-	// a child scope which are the immediate descendants of the top level.
-	//
+	isLeaf := false
 	scope := IntermediateScopeEn
-	if params.Frame.Depth == 1 {
-		scope = TopScopeEn
-	} else if isLeaf {
+
+	if params.Item.IsDir() {
+		grouped := lo.GroupBy(descendants, func(item fs.DirEntry) bool {
+			return item.IsDir()
+		})
+		isLeaf = len(grouped[true]) == 0
+
+		if isLeaf && params.Frame.Depth == 1 {
+			scope = TopScopeEn | LeafScopeEn
+		} else if params.Frame.Depth == 1 {
+			scope = TopScopeEn
+		} else if isLeaf {
+			scope = LeafScopeEn
+		}
+	} else {
 		scope = LeafScopeEn
 	}
 
