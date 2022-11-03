@@ -86,13 +86,14 @@ type navigatorImpl interface {
 	traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError
 }
 
-type NavigationParams struct {
+type NavigationInfo struct {
 	Options *TraverseOptions
 	Item    *TraverseItem
 	Frame   *navigationFrame
 }
 
 type SubPathInfo struct {
-	Root string
-	Item *TraverseItem
+	Root      string
+	Item      *TraverseItem
+	Behaviour *SubPathBehaviour
 }

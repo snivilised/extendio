@@ -39,9 +39,9 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 			path := path(root, entry.relative)
 			_ = navigator.Walk(path)
 
-			for p, expected := range entry.expectedScopes {
-				actual := recording[p]
-				Expect(expected).To(Equal(actual))
+			for name, expected := range entry.expectedScopes {
+				actual := recording[name]
+				Expect(actual).To(Equal(expected), reason(name))
 			}
 		},
 		func(entry *scopeTE) string {
@@ -58,8 +58,8 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				callback:     universalScopeCallback("LEAF-PATH"),
 			},
 			expectedScopes: recordingScopeMap{
-				"Night Drive":                  nav.TopScopeEn | nav.LeafScopeEn,
-				"A1 - The Telephone Call.flac": nav.LeafScopeEn,
+				"Night Drive":                  nav.ScopeRootEn | nav.ScopeLeafEn,
+				"A1 - The Telephone Call.flac": nav.ScopeLeafEn,
 			},
 		}),
 		Entry(nil, &scopeTE{
@@ -70,9 +70,21 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				callback:     universalScopeCallback("CONTAINS-FOLDERS"),
 			},
 			expectedScopes: recordingScopeMap{
-				"RETRO-WAVE":                   nav.TopScopeEn,
-				"Night Drive":                  nav.LeafScopeEn,
-				"A1 - The Telephone Call.flac": nav.LeafScopeEn,
+				"RETRO-WAVE":                   nav.ScopeRootEn,
+				"Night Drive":                  nav.ScopeLeafEn,
+				"A1 - The Telephone Call.flac": nav.ScopeLeafEn,
+			},
+		}),
+
+		Entry(nil, &scopeTE{
+			naviTE: naviTE{
+				message:      "universal: Path contains folders (Top & Leaf)",
+				relative:     "RETRO-WAVE/Chromatics",
+				subscription: nav.SubscribeAny,
+				callback:     universalScopeCallback("CONTAINS-FOLDERS"),
+			},
+			expectedScopes: recordingScopeMap{
+				"Night Drive": nav.ScopeTopEn | nav.ScopeLeafEn,
 			},
 		}),
 
@@ -86,7 +98,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				callback:     foldersScopeCallback("LEAF-PATH"),
 			},
 			expectedScopes: recordingScopeMap{
-				"Night Drive": nav.TopScopeEn | nav.LeafScopeEn,
+				"Night Drive": nav.ScopeRootEn | nav.ScopeLeafEn,
 			},
 		}),
 		Entry(nil, &scopeTE{
@@ -97,9 +109,9 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				callback:     foldersScopeCallback("CONTAINS-FOLDERS"),
 			},
 			expectedScopes: recordingScopeMap{
-				"RETRO-WAVE":  nav.TopScopeEn,
-				"Chromatics":  nav.IntermediateScopeEn,
-				"Night Drive": nav.LeafScopeEn,
+				"RETRO-WAVE":  nav.ScopeRootEn,
+				"Chromatics":  nav.ScopeTopEn,
+				"Night Drive": nav.ScopeLeafEn,
 			},
 		}),
 
@@ -113,7 +125,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				callback:     filesScopeCallback("CONTAINS-FOLDERS"),
 			},
 			expectedScopes: recordingScopeMap{
-				"segments.bass.infex.txt": nav.LeafScopeEn,
+				"segments.bass.infex.txt": nav.ScopeLeafEn,
 			},
 		}),
 	)

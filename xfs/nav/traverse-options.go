@@ -9,7 +9,8 @@ type SubPathBehaviour struct {
 
 // SortBehaviour
 type SortBehaviour struct {
-	IsCaseSensitive bool // case sensitive traversal order
+	IsCaseSensitive     bool // case sensitive traversal order
+	DirectoryEntryOrder DirectoryEntryOrderEnum
 }
 
 // NavigationBehaviours
@@ -64,7 +65,8 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 				KeepTrailingSep: true,
 			},
 			Sort: SortBehaviour{
-				IsCaseSensitive: false,
+				IsCaseSensitive:     false,
+				DirectoryEntryOrder: DirectoryEntryOrderFoldersFirstEn,
 			},
 			Listen: ListenBehaviour{
 				InclusiveStart: true,

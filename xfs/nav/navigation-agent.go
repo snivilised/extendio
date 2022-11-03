@@ -34,7 +34,7 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 				item := &TraverseItem{
 					Path: params.frame.Root, Info: info, Error: &NOT_DIRECTORY_L_ERR,
 				}
-				params.impl.options().Hooks.Extend(&NavigationParams{
+				params.impl.options().Hooks.Extend(&NavigationInfo{
 					Options: params.impl.options(), Item: item, Frame: params.frame,
 				}, []fs.DirEntry{})
 				le = a.proxy(item, params.frame)
@@ -49,13 +49,21 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 	return le
 }
 
-func (a *agent) read(item *TraverseItem) ([]fs.DirEntry, error) {
+func (a *agent) read(item *TraverseItem, order DirectoryEntryOrderEnum) (*DirectoryEntries, error) {
 	// this method was spun out from notify, as there needs to be a separation
 	// between these pieces of functionality to support 'extension'; ie we
 	// need to read the contents of an items contents to determine the properties
 	// created for the extension.
 	//
-	return a.o.Hooks.ReadDirectory(item.Path)
+	entries, err := a.o.Hooks.ReadDirectory(item.Path)
+
+	de := DirectoryEntries{
+		Options: a.o,
+		Order:   order,
+	}
+	de.arrange(&entries)
+
+	return &de, err
 }
 
 type agentNotifyParams struct {
@@ -91,14 +99,14 @@ func (a *agent) notify(params *agentNotifyParams) (bool, *LocalisableError) {
 }
 
 type agentTraverseParams struct {
-	impl    navigatorImpl
-	entries []fs.DirEntry
-	parent  *TraverseItem
-	frame   *navigationFrame
+	impl     navigatorImpl
+	contents *[]fs.DirEntry
+	parent   *TraverseItem
+	frame    *navigationFrame
 }
 
 func (a *agent) traverse(params *agentTraverseParams) *LocalisableError {
-	for _, entry := range params.entries {
+	for _, entry := range *params.contents {
 		path := filepath.Join(params.parent.Path, entry.Name())
 		info, err := entry.Info()
 		le := lo.Ternary(err == nil, nil, &LocalisableError{Inner: err})

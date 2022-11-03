@@ -1,5 +1,11 @@
 package nav
 
+import (
+	"path/filepath"
+
+	"github.com/samber/lo"
+)
+
 // Tail extracts the end part of a string, starting from the offset
 func Tail(input string, offset int) string {
 	asRunes := []rune(input)
@@ -26,8 +32,8 @@ func RootItemSubPath(info *SubPathInfo) string {
 
 func RootParentSubPath(info *SubPathInfo) string {
 
-	if info.Item.Extension.NodeScope == TopScopeEn {
-		return ""
+	if info.Item.Extension.NodeScope == ScopeTopEn {
+		return lo.Ternary(info.Behaviour.KeepTrailingSep, string(filepath.Separator), "")
 	}
 	return Difference(info.Root, info.Item.Extension.Parent)
 }

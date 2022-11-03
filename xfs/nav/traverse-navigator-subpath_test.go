@@ -31,7 +31,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						if expected, ok := expectations[item.Extension.Name]; ok {
-							Expect(item.Extension.SubPath).To(Equal(expected), named(item.Extension.Name))
+							Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
 							GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 								item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 							)
@@ -62,7 +62,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						o.DoExtend = true
 						o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 							if expected, ok := expectations[item.Extension.Name]; ok {
-								Expect(item.Extension.SubPath).To(Equal(expected), named(item.Extension.Name))
+								Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
 								GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 								)
@@ -92,7 +92,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						if expected, ok := expectations[item.Extension.Name]; ok {
-							Expect(item.Extension.SubPath).To(Equal(expected), named(item.Extension.Name))
+							Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
 							GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
 								item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 							)

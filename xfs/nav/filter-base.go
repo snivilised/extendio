@@ -11,6 +11,12 @@ type Filter struct {
 	IfNotApplicable bool
 }
 
+func (f *Filter) Validate() {
+	if f.RequiredScope == ScopeUndefinedEn {
+		f.RequiredScope = ScopeAllEn
+	}
+}
+
 func (f *Filter) Description() string {
 	return f.Name
 }

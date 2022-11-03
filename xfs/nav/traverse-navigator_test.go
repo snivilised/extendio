@@ -79,14 +79,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				relative:     "RETRO-WAVE/Chromatics/Night Drive",
 				extended:     IsExtended,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback("(UNIVERSAL):LEAF-PATH", IsExtended),
+				callback:     universalCallback("LEAF-PATH", IsExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders",
 				relative:     "RETRO-WAVE",
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback("(UNIVERSAL):CONTAINS-FOLDERS", NotExtended),
+				callback:     universalCallback("CONTAINS-FOLDERS", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders",
@@ -94,14 +94,14 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     NotExtended,
 				visit:        true,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback("(UNIVERSAL):VISIT-CONTAINS-FOLDERS", NotExtended),
+				callback:     universalCallback("VISIT-CONTAINS-FOLDERS", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders (large)",
 				relative:     "",
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback("(UNIVERSAL):CONTAINS-FOLDERS (large)", NotExtended),
+				callback:     universalCallback("CONTAINS-FOLDERS (large)", NotExtended),
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders (large, ensure single invoke)",
@@ -109,7 +109,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				extended:     NotExtended,
 				once:         true,
 				subscription: nav.SubscribeAny,
-				callback:     universalCallback("(UNIVERSAL):CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
+				callback:     universalCallback("CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
 			}),
 
 			// === folders =======================================================

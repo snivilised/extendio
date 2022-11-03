@@ -47,37 +47,42 @@ func bootstrapFilter(o *TraverseOptions, frame *navigationFrame) {
 type FilterScopeEnum uint32
 
 const (
-	UndefinedScopeEn FilterScopeEnum = 0
-	// Any node that is a direct descendent of the root node
-	//
-	TopScopeEn FilterScopeEnum = 1 << iota
+	ScopeUndefinedEn FilterScopeEnum = 1 << iota
 
-	// For directories, any node that has no sub folders. For files, any node
+	// ScopeRootEn, the Root scope
+	//
+	ScopeRootEn
+
+	// ScopeTopEn, any node that is a direct descendent of the root node
+	//
+	ScopeTopEn
+
+	// ScopeLeafEn, for directories, any node that has no sub folders. For files, any node
 	// that appears under a leaf directory node
 	//
-	LeafScopeEn
+	ScopeLeafEn
 
-	// IntermediateScopeEn apply filter to nodes which are neither leaf or top nodes
+	// ScopeIntermediateEn, apply filter to nodes which are neither leaf or top nodes
 	//
-	IntermediateScopeEn
+	ScopeIntermediateEn
 
-	// CustomScopeEn apply filter to node using client defined categorisation
-	// (yet to be confirmed)
+	// ScopeCustomEn, client defined categorisation (yet to be confirmed)
 	//
-	CustomScopeEn
+	ScopeCustomEn
 
-	// AllScopesEn apply the filter to any node type
+	// ScopeAllEn, any node type
 	//
-	AllScopesEn = math.MaxUint32
+	ScopeAllEn = math.MaxUint32
 )
 
 var filterScopeStrings map[FilterScopeEnum]string = map[FilterScopeEnum]string{
-	UndefinedScopeEn:    "Undefined",
-	TopScopeEn:          "Top",
-	LeafScopeEn:         "Leaf",
-	IntermediateScopeEn: "Intermediate",
-	CustomScopeEn:       "Custom",
-	AllScopesEn:         "All",
+	ScopeUndefinedEn:    "Undefined",
+	ScopeRootEn:         "Root",
+	ScopeTopEn:          "Top",
+	ScopeLeafEn:         "Leaf",
+	ScopeIntermediateEn: "Intermediate",
+	ScopeCustomEn:       "Custom",
+	ScopeAllEn:          "All",
 }
 
 // String
