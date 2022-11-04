@@ -24,7 +24,7 @@ type SortEntriesHookFn func(entries []fs.DirEntry, custom ...any) error
 type FilterInitHookFn func(o *TraverseOptions, frame *navigationFrame)
 
 // ExtendHookFn
-type ExtendHookFn func(navi *NavigationParams, descendants []fs.DirEntry)
+type ExtendHookFn func(navi *NavigationInfo, descendants []fs.DirEntry)
 
 // SubPathHookFn
 type SubPathHookFn func(info *SubPathInfo) string

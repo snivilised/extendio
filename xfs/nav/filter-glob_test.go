@@ -38,7 +38,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					GinkgoWriter.Printf("===> 💠 Glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
 						o.Filter.Description(), o.Filter.Source(), item.Extension.Name, item.Extension.NodeScope, o.Filter.Scope(),
 					)
-					Expect(o.Filter.IsMatch(item)).To(BeTrue(), named(item.Extension.Name))
+					Expect(o.Filter.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
 					recording[item.Extension.Name] = true
 					return nil
 				}
@@ -49,14 +49,14 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
 					_, found := recording[name]
-					Expect(found).To(BeTrue(), named(name))
+					Expect(found).To(BeTrue(), reason(name))
 				}
 			}
 
 			if entry.prohibited != nil {
 				for _, name := range entry.prohibited {
 					_, found := recording[name]
-					Expect(found).To(BeFalse(), named(name))
+					Expect(found).To(BeFalse(), reason(name))
 				}
 			}
 		},
@@ -72,7 +72,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			},
 			name:    "items with '.flac' suffix",
 			pattern: "*.flac",
-			scope:   nav.AllScopesEn,
+			scope:   nav.ScopeAllEn,
 		}),
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
@@ -82,7 +82,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			},
 			name:    "items without .flac suffix",
 			pattern: "*.flac",
-			scope:   nav.AllScopesEn,
+			scope:   nav.ScopeAllEn,
 			negate:  true,
 		}),
 
@@ -97,7 +97,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			},
 			name:            "items with '.flac' suffix",
 			pattern:         "*.flac",
-			scope:           nav.LeafScopeEn,
+			scope:           nav.ScopeLeafEn,
 			ifNotApplicable: true,
 		}),
 		Entry(nil, &filterTE{
@@ -110,7 +110,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			},
 			name:            "items with '.flac' suffix",
 			pattern:         "*.flac",
-			scope:           nav.LeafScopeEn,
+			scope:           nav.ScopeLeafEn,
 			ifNotApplicable: false,
 		}),
 	)

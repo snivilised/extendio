@@ -47,7 +47,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Subscription = nav.SubscribeFolders
-					o.Hooks.Extend = func(navi *nav.NavigationParams, descendants []fs.DirEntry) {
+					o.Hooks.Extend = func(navi *nav.NavigationInfo, descendants []fs.DirEntry) {
 						navi.Item.Extension = &nav.ExtendedItem{
 							Name: "dummy",
 						}

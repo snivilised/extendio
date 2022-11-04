@@ -3,7 +3,6 @@ package nav
 import (
 	"io/fs"
 
-	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
 )
 
@@ -21,12 +20,18 @@ func (n *foldersNavigator) top(frame *navigationFrame) *LocalisableError {
 
 func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
 	defer func() {
-		n.ascend(&NavigationParams{Options: n.o, Item: currentItem, Frame: frame})
+		n.ascend(&NavigationInfo{Options: n.o, Item: currentItem, Frame: frame})
 	}()
-	navi := &NavigationParams{Options: n.o, Item: currentItem, Frame: frame}
+	navi := &NavigationInfo{Options: n.o, Item: currentItem, Frame: frame}
 	n.descend(navi)
-	entries, readErr := n.agent.read(currentItem)
-	n.o.Hooks.Extend(navi, entries)
+	// for the folders navigator, we ignore the user defined setting in
+	// n.o.Behaviours.Sort.DirectoryEntryOrder, as we're only interested in
+	// folders and therefore force to use DirectoryEntryOrderFoldersFirstEn instead
+	//
+	entries, readErr := n.agent.read(currentItem, DirectoryEntryOrderFoldersFirstEn)
+	folders := entries.Folders
+	entries.sort(&folders)
+	n.o.Hooks.Extend(navi, folders)
 
 	if le := n.agent.proxy(currentItem, frame); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
@@ -38,24 +43,16 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigation
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
-		frame: frame, item: currentItem, entries: entries, readErr: readErr,
+		frame: frame, item: currentItem, entries: folders, readErr: readErr,
 	}); exit {
 		return err
 	} else {
-		dirs := lo.Filter(entries, func(de fs.DirEntry, i int) bool {
-			return de.Type().IsDir()
-		})
-
-		var err error
-		if err = n.o.Hooks.Sort(dirs); err != nil {
-			panic(FOLDERS_NAV_SORT_L_ERR)
-		}
 
 		return n.agent.traverse(&agentTraverseParams{
-			impl:    n,
-			entries: dirs,
-			parent:  currentItem,
-			frame:   frame,
+			impl:     n,
+			contents: &folders,
+			parent:   currentItem,
+			frame:    frame,
 		})
 	}
 }

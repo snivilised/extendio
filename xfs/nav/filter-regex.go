@@ -9,9 +9,7 @@ type RegexFilter struct {
 }
 
 func (f *RegexFilter) Validate() {
-	if f.RequiredScope == UndefinedScopeEn {
-		f.RequiredScope = AllScopesEn
-	}
+	f.Filter.Validate()
 	if f.Pattern == "" {
 		panic(PATTERN_NOT_DEFINED_L_ERR)
 	}

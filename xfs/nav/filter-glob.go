@@ -7,8 +7,6 @@ type GlobFilter struct {
 	Filter
 }
 
-func (f *GlobFilter) Validate() {}
-
 // IsMatch
 func (f *GlobFilter) IsMatch(item *TraverseItem) bool {
 	if f.IsApplicable(item) {

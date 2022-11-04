@@ -14,49 +14,65 @@ import (
 // override this by setting the custom function on options.Hooks.Extend. If the client
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
-func DefaultExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {
+func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 
-	if params.Item.Extension != nil {
+	if navi.Item.Extension != nil {
 		panic(LocalisableError{
-			Inner: fmt.Errorf("extend: item for path '%v' already extended", params.Item.Path),
+			Inner: fmt.Errorf("extend: item for path '%v' already extended", navi.Item.Path),
 		})
 	}
 	isLeaf := false
-	scope := IntermediateScopeEn
+	scope := ScopeIntermediateEn
 
-	if params.Item.IsDir() {
+	if navi.Item.IsDir() {
+		// TODO: you shouldn't have to work this out again as it has already been performed:
+		// the descendent passed in should be replaced with an Entries instance
+		//
 		grouped := lo.GroupBy(descendants, func(item fs.DirEntry) bool {
 			return item.IsDir()
 		})
 		isLeaf = len(grouped[true]) == 0
 
-		if isLeaf && params.Frame.Depth == 1 {
-			scope = TopScopeEn | LeafScopeEn
-		} else if params.Frame.Depth == 1 {
-			scope = TopScopeEn
-		} else if isLeaf {
-			scope = LeafScopeEn
+		// eventually, the scope/depth designation will be put into an abstraction,
+		// perhaps a scope->depth map. This will support resume, where these designations
+		// will have to be adjusted
+		//
+		// Root=1
+		// Top=2
+		//
+
+		switch {
+		case isLeaf && navi.Frame.Depth == 1:
+			scope = ScopeRootEn | ScopeLeafEn
+		case navi.Frame.Depth == 1:
+			scope = ScopeRootEn
+		case isLeaf && navi.Frame.Depth == 2:
+			scope = ScopeTopEn | ScopeLeafEn
+		case navi.Frame.Depth == 2:
+			scope = ScopeTopEn
+		case isLeaf:
+			scope = ScopeLeafEn
 		}
 	} else {
-		scope = LeafScopeEn
+		scope = ScopeLeafEn
 	}
 
-	parent, name := filepath.Split(params.Item.Path)
-	params.Item.Extension = &ExtendedItem{
-		Depth:     params.Frame.Depth,
+	parent, name := filepath.Split(navi.Item.Path)
+	navi.Item.Extension = &ExtendedItem{
+		Depth:     navi.Frame.Depth,
 		IsLeaf:    isLeaf,
 		Name:      name,
 		Parent:    parent,
 		NodeScope: scope,
 	}
 
-	spInfo := &SubPathInfo{Root: params.Frame.Root, Item: params.Item}
-	subpath := lo.TernaryF(params.Item.IsDir(),
-		func() string { return params.Options.Hooks.FolderSubPath(spInfo) },
-		func() string { return params.Options.Hooks.FileSubPath(spInfo) },
+	spInfo := &SubPathInfo{Root: navi.Frame.Root, Item: navi.Item, Behaviour: &navi.Options.Behaviours.SubPath}
+	subpath := lo.TernaryF(navi.Item.IsDir(),
+		func() string { return navi.Options.Hooks.FolderSubPath(spInfo) },
+		func() string { return navi.Options.Hooks.FileSubPath(spInfo) },
 	)
 
-	subpath = lo.TernaryF(params.Options.Behaviours.SubPath.KeepTrailingSep,
+	subpath = lo.TernaryF(navi.Options.Behaviours.SubPath.KeepTrailingSep,
 		func() string { return subpath },
 		func() string {
 			result := subpath
@@ -68,7 +84,7 @@ func DefaultExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {
 		},
 	)
 
-	params.Item.Extension.SubPath = subpath
+	navi.Item.Extension.SubPath = subpath
 }
 
-func nullExtendHookFn(params *NavigationParams, descendants []fs.DirEntry) {}
+func nullExtendHookFn(params *NavigationInfo, descendants []fs.DirEntry) {}

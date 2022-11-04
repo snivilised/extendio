@@ -17,6 +17,7 @@ import (
 
 type recordingMap map[string]bool
 type recordingScopeMap map[string]nav.FilterScopeEnum
+type recordingOrderMap map[string]int
 
 type naviTE struct {
 	message       string
@@ -62,6 +63,12 @@ type scopeTE struct {
 	expectedScopes recordingScopeMap
 }
 
+type sortTE struct {
+	filterTE
+	expectedOrder []string
+	order         nav.DirectoryEntryOrderEnum
+}
+
 func cwd() string {
 	if current, err := os.Getwd(); err == nil {
 		parent, _ := filepath.Split(current)
@@ -79,13 +86,15 @@ func normalise(p string) string {
 	return strings.ReplaceAll(p, "/", string(filepath.Separator))
 }
 
-func named(name string) string {
+func reason(name string) string {
 	return fmt.Sprintf("❌ for item named: '%v'", name)
 }
 
 func begin(em string) nav.BeginHandler {
 	return func(root string) {
-		GinkgoWriter.Printf("---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, root)
+		GinkgoWriter.Printf(
+			"---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, root,
+		)
 	}
 }
 
@@ -94,53 +103,46 @@ func path(parent, relative string) string {
 	return filepath.Join(append([]string{parent}, segments...)...)
 }
 
-func foldersCallback(name string, extended bool) nav.TraverseCallback {
+func universalCallback(name string, extended bool) nav.TraverseCallback {
 
 	ex := lo.Ternary(extended, "-EX", "")
 	return func(item *nav.TraverseItem) *LocalisableError {
-		GinkgoWriter.Printf("---> ☀️ FOLDERS:%v-CALLBACK%v: '%v'\n", name, ex, item.Path)
-		Expect(item.Info.IsDir()).To(BeTrue())
+		depth := lo.TernaryF(extended,
+			func() uint { return item.Extension.Depth },
+			func() uint { return 9999 },
+		)
+		GinkgoWriter.Printf(
+			"---> 🌊 UNIVERSAL//%v-CALLBACK%v: (depth:%v) '%v'\n", name, ex, depth, item.Path,
+		)
 
 		if extended {
-			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+			Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
 		} else {
-			Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+			Expect(item.Extension).To(BeNil(), reason(item.Path))
 		}
 		return nil
 	}
 }
 
-func universalScopeCallback(name string) nav.TraverseCallback {
+func foldersCallback(name string, extended bool) nav.TraverseCallback {
 
+	ex := lo.Ternary(extended, "-EX", "")
 	return func(item *nav.TraverseItem) *LocalisableError {
-		Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Extension.Name))
-		GinkgoWriter.Printf("---> 🌠 UNIVERSAL:%v-CALLBACK-EX item-scope: (%v) '%v'\n",
-			name, item.Extension.NodeScope, item.Extension.Name,
+		depth := lo.TernaryF(extended,
+			func() uint { return item.Extension.Depth },
+			func() uint { return 9999 },
 		)
-		return nil
-	}
-}
 
-func foldersScopeCallback(name string) nav.TraverseCallback {
-
-	return func(item *nav.TraverseItem) *LocalisableError {
-		Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Extension.Name))
-		GinkgoWriter.Printf("---> 🌟 FOLDERS:%v-CALLBACK-EX item-scope: (%v) '%v'\n",
-			name, item.Extension.NodeScope, item.Extension.Name,
+		GinkgoWriter.Printf(
+			"---> ☀️ FOLDERS//%v-CALLBACK%v: (depth:%v) '%v'\n", name, ex, depth, item.Path,
 		)
 		Expect(item.Info.IsDir()).To(BeTrue())
-		return nil
-	}
-}
 
-func filesScopeCallback(name string) nav.TraverseCallback {
-
-	return func(item *nav.TraverseItem) *LocalisableError {
-		Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Extension.Name))
-		GinkgoWriter.Printf("---> 🌬️ FILES:%v-CALLBACK-EX item-scope: (%v) '%v'\n",
-			name, item.Extension.NodeScope, item.Extension.Name,
-		)
-		Expect(item.Info.IsDir()).To(BeFalse())
+		if extended {
+			Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
+		} else {
+			Expect(item.Extension).To(BeNil(), reason(item.Path))
+		}
 		return nil
 	}
 }
@@ -149,27 +151,99 @@ func filesCallback(name string, extended bool) nav.TraverseCallback {
 
 	ex := lo.Ternary(extended, "-EX", "")
 	return func(item *nav.TraverseItem) *LocalisableError {
-		GinkgoWriter.Printf("---> 🌙 FILES:%v-CALLBACK%v: '%v'\n", name, ex, item.Path)
+		GinkgoWriter.Printf("---> 🌙 FILES//%v-CALLBACK%v: '%v'\n", name, ex, item.Path)
 		Expect(item.Info.IsDir()).To(BeFalse())
 
 		if extended {
-			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+			Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
 		}
 		return nil
 	}
 }
 
-func universalCallback(name string, extended bool) nav.TraverseCallback {
+// === scope
 
-	ex := lo.Ternary(extended, "-EX", "")
+func universalScopeCallback(name string) nav.TraverseCallback {
+
 	return func(item *nav.TraverseItem) *LocalisableError {
-		GinkgoWriter.Printf("---> 🌊 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
+		GinkgoWriter.Printf("---> 🌠 UNIVERSAL//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
+			name, item.Extension.NodeScope, item.Extension.Name,
+		)
+		Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+		return nil
+	}
+}
 
-		if extended {
-			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
-		} else {
-			Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+func foldersScopeCallback(name string) nav.TraverseCallback {
+
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 🌟 FOLDERS//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
+			name, item.Extension.NodeScope, item.Extension.Name,
+		)
+		Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+		Expect(item.Info.IsDir()).To(BeTrue())
+		return nil
+	}
+}
+
+func filesScopeCallback(name string) nav.TraverseCallback {
+
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 🌬️ FILES//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
+			name, item.Extension.NodeScope, item.Extension.Name,
+		)
+		Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+		Expect(item.Info.IsDir()).To(BeFalse())
+		return nil
+	}
+}
+
+// === sort
+
+func universalSortCallback(name string) nav.TraverseCallback {
+
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 💚 UNIVERSAL//%v-SORT-CALLBACK-EX(scope:%v, depth:%v) '%v'\n",
+			name, item.Extension.NodeScope, item.Extension.Depth, item.Extension.Name,
+		)
+		Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+		return nil
+	}
+}
+
+func foldersSortCallback(name string) nav.TraverseCallback {
+
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 💜 FOLDERS//%v-SORT-CALLBACK-EX '%v'\n",
+			name, item.Extension.Name,
+		)
+		Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+		Expect(item.Info.IsDir()).To(BeTrue())
+		return nil
+	}
+}
+
+func filesSortCallback(name string) nav.TraverseCallback {
+
+	return func(item *nav.TraverseItem) *LocalisableError {
+		GinkgoWriter.Printf("---> 💙 FILES//%v-SORT-CALLBACK-EX '%v'\n",
+			name, item.Extension.Name,
+		)
+		Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+		Expect(item.Info.IsDir()).To(BeFalse())
+		return nil
+	}
+}
+
+func universalDepthCallback(name string, maxDepth uint) nav.TraverseCallback {
+
+	return func(item *nav.TraverseItem) *LocalisableError {
+		if item.Extension.Depth <= maxDepth {
+			GinkgoWriter.Printf("---> 💚 UNIVERSAL//%v-SORT-CALLBACK-EX(scope:%v, depth:%v) '%v'\n",
+				name, item.Extension.NodeScope, item.Extension.Depth, item.Extension.Name,
+			)
 		}
+		Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
 		return nil
 	}
 }
@@ -198,10 +272,14 @@ func foldersCaseSensitiveCallback(first, second string) nav.TraverseCallback {
 	}
 }
 
+// === skip
+
 func skipFolderCallback(skip, exclude string) nav.TraverseCallback {
 
 	return func(item *nav.TraverseItem) *LocalisableError {
-		GinkgoWriter.Printf("---> ♻️ ON-NAVIGATOR-SKIP-CALLBACK(skip:%v): '%v'\n", skip, item.Path)
+		GinkgoWriter.Printf(
+			"---> ♻️ ON-NAVIGATOR-SKIP-CALLBACK(skip:%v): '%v'\n", skip, item.Path,
+		)
 
 		Expect(strings.HasSuffix(item.Path, exclude)).To(BeFalse())
 
@@ -251,9 +329,9 @@ func errorCallback(name string, extended bool, hasError bool) nav.TraverseCallba
 		GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
 
 		if extended {
-			Expect(item.Extension).NotTo(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+			Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
 		} else {
-			Expect(item.Extension).To(BeNil(), fmt.Sprintf("❌ %v", item.Path))
+			Expect(item.Extension).To(BeNil(), reason(item.Path))
 		}
 		if hasError {
 			Expect(item.Error).ToNot(BeNil())

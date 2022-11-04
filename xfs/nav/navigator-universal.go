@@ -20,12 +20,18 @@ func (n *universalNavigator) top(frame *navigationFrame) *LocalisableError {
 
 func (n *universalNavigator) traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
 	defer func() {
-		n.ascend(&NavigationParams{Options: n.o, Item: currentItem, Frame: frame})
+		n.ascend(&NavigationInfo{Options: n.o, Item: currentItem, Frame: frame})
 	}()
-	navi := &NavigationParams{Options: n.o, Item: currentItem, Frame: frame}
+	navi := &NavigationInfo{Options: n.o, Item: currentItem, Frame: frame}
 	n.descend(navi)
-	entries, readErr := n.agent.read(currentItem)
-	n.o.Hooks.Extend(navi, entries)
+	entries, readErr := n.agent.read(currentItem, n.o.Behaviours.Sort.DirectoryEntryOrder)
+	// Files and Folders need to be sorted independently to preserve the navigation order
+	// stipulated by .Behaviours.Sort.DirectoryEntryOrder
+	//
+	entries.sort(&entries.Files)
+	entries.sort(&entries.Folders)
+	sorted := entries.all()
+	n.o.Hooks.Extend(navi, *sorted)
 
 	if le := n.agent.proxy(currentItem, frame); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
 		if le != nil && le.Inner == fs.SkipDir && currentItem.Entry.IsDir() {
@@ -37,20 +43,16 @@ func (n *universalNavigator) traverse(currentItem *TraverseItem, frame *navigati
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
-		frame: frame, item: currentItem, entries: entries, readErr: readErr,
+		frame: frame, item: currentItem, entries: *sorted, readErr: readErr,
 	}); exit {
 		return err
 	} else {
-		var err error
-		if err = n.o.Hooks.Sort(entries); err != nil {
-			panic(UNIVERSAL_NAV_SORT_L_ERR)
-		}
 
 		return n.agent.traverse(&agentTraverseParams{
-			impl:    n,
-			entries: entries,
-			parent:  currentItem,
-			frame:   frame,
+			impl:     n,
+			contents: sorted,
+			parent:   currentItem,
+			frame:    frame,
 		})
 	}
 }

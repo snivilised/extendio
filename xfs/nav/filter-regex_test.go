@@ -41,7 +41,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 						o.Filter.Description(), o.Filter.Source(), item.Extension.Name,
 						item.Extension.NodeScope, o.Filter.Scope(),
 					)
-					Expect(o.Filter.IsMatch(item)).To(BeTrue(), named(item.Extension.Name))
+					Expect(o.Filter.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
 					recording[item.Extension.Name] = true
 					return nil
 				}
@@ -52,14 +52,14 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
 					_, found := recording[name]
-					Expect(found).To(BeTrue(), named(name))
+					Expect(found).To(BeTrue(), reason(name))
 				}
 			}
 
 			if entry.prohibited != nil {
 				for _, name := range entry.prohibited {
 					_, found := recording[name]
-					Expect(found).To(BeFalse(), named(name))
+					Expect(found).To(BeFalse(), reason(name))
 				}
 			}
 		},
@@ -77,7 +77,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			},
 			name:    "items that start with 'vinyl'",
 			pattern: "^vinyl",
-			scope:   nav.AllScopesEn,
+			scope:   nav.ScopeAllEn,
 		}),
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
@@ -87,7 +87,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			},
 			name:    "items that don't start with 'vinyl'",
 			pattern: "^vinyl",
-			scope:   nav.AllScopesEn,
+			scope:   nav.ScopeAllEn,
 			negate:  true,
 		}),
 		Entry(nil, &filterTE{
@@ -110,7 +110,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			},
 			name:    "items that start with 'C'",
 			pattern: "^C",
-			scope:   nav.AllScopesEn,
+			scope:   nav.ScopeAllEn,
 		}),
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
@@ -120,7 +120,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			},
 			name:    "items that don't start with 'C'",
 			pattern: "^C",
-			scope:   nav.AllScopesEn,
+			scope:   nav.ScopeAllEn,
 			negate:  true,
 		}),
 
@@ -135,20 +135,20 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			},
 			name:            "top items that contain 'HOUSE'",
 			pattern:         "HOUSE",
-			scope:           nav.TopScopeEn,
+			scope:           nav.ScopeTopEn,
 			ifNotApplicable: true,
 		}),
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
 				message:      "folders(top): regex filter (ifNotApplicable=false)",
-				relative:     "PROGRESSIVE-HOUSE",
+				relative:     "",
 				subscription: nav.SubscribeFolders,
 				mandatory:    []string{"PROGRESSIVE-HOUSE"},
 				prohibited:   []string{"Blue Amazon", "The Javelin"},
 			},
 			name:            "top items that contain 'HOUSE'",
 			pattern:         "HOUSE",
-			scope:           nav.TopScopeEn,
+			scope:           nav.ScopeTopEn,
 			ifNotApplicable: false,
 		}),
 	)

@@ -43,10 +43,10 @@ var _ = Describe("Listener", Ordered, func() {
 					)
 
 					Expect(lo.Contains(entry.prohibited, item.Extension.Name)).To(
-						BeFalse(), named(item.Extension.Name),
+						BeFalse(), reason(item.Extension.Name),
 					)
 					Expect(lo.Contains(entry.mandatory, item.Extension.Name)).To(
-						BeTrue(), named(item.Extension.Name),
+						BeTrue(), reason(item.Extension.Name),
 					)
 
 					entry.mandatory = lo.Reject(entry.mandatory, func(s string, _ int) bool {
@@ -231,7 +231,7 @@ var _ = Describe("Listener", Ordered, func() {
 					o.Filter = &nav.RegexFilter{
 						Filter: nav.Filter{
 							Name:          "Contains 'o'",
-							RequiredScope: nav.AllScopesEn,
+							RequiredScope: nav.ScopeAllEn,
 							Pattern:       "(i?)o",
 						},
 					}
@@ -263,7 +263,7 @@ var _ = Describe("Listener", Ordered, func() {
 							o.Filter.Description(), o.Filter.Source(), item.Extension.Name,
 							item.Extension.NodeScope, o.Filter.Scope(),
 						)
-						Expect(o.Filter.IsMatch(item)).To(BeTrue(), named(item.Extension.Name))
+						Expect(o.Filter.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
 						return nil
 					}
 				})
