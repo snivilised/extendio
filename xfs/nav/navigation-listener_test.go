@@ -228,7 +228,7 @@ var _ = Describe("Listener", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Subscription = nav.SubscribeFolders
-					o.Filter = &nav.RegexFilter{
+					o.Filters.Current = &nav.RegexFilter{
 						Filter: nav.Filter{
 							Name:          "Contains 'o'",
 							RequiredScope: nav.ScopeAllEn,
@@ -260,10 +260,10 @@ var _ = Describe("Listener", Ordered, func() {
 						)
 						GinkgoWriter.Printf(
 							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-							o.Filter.Description(), o.Filter.Source(), item.Extension.Name,
-							item.Extension.NodeScope, o.Filter.Scope(),
+							o.Filters.Current.Description(), o.Filters.Current.Source(), item.Extension.Name,
+							item.Extension.NodeScope, o.Filters.Current.Scope(),
 						)
-						Expect(o.Filter.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
+						Expect(o.Filters.Current.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
 						return nil
 					}
 				})

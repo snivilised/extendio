@@ -34,7 +34,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Subscription = entry.subscription
-				o.Filter = &nav.GlobFilter{
+				o.Filters.Current = &nav.GlobFilter{
 					Filter: nav.Filter{
 						Name:            entry.name,
 						RequiredScope:   entry.scope,

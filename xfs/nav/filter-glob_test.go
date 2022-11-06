@@ -24,7 +24,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Subscription = entry.subscription
-				o.Filter = &nav.GlobFilter{
+				o.Filters.Current = &nav.GlobFilter{
 					Filter: nav.Filter{
 						Name:            entry.name,
 						RequiredScope:   entry.scope,
@@ -35,10 +35,12 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				}
 				o.DoExtend = true
 				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					GinkgoWriter.Printf("===> 💠 Glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-						o.Filter.Description(), o.Filter.Source(), item.Extension.Name, item.Extension.NodeScope, o.Filter.Scope(),
+					GinkgoWriter.Printf(
+						"===> 💠 Glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+						o.Filters.Current.Description(), o.Filters.Current.Source(),
+						item.Extension.Name, item.Extension.NodeScope, o.Filters.Current.Scope(),
 					)
-					Expect(o.Filter.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
+					Expect(o.Filters.Current.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
 					recording[item.Extension.Name] = true
 					return nil
 				}
