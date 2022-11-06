@@ -29,6 +29,10 @@ type Notifications struct {
 	OnStop    ListenHandler     // handler invoked when finish listening condition met if enabled
 }
 
+type NavigationFilters struct {
+	Current TraverseFilter
+}
+
 // TraverseOptions customise the way a directory tree is traversed
 type TraverseOptions struct {
 	Subscription TraverseSubscription // defines which node types are visited
@@ -39,7 +43,8 @@ type TraverseOptions struct {
 	Hooks        TraverseHooks
 	Behaviours   NavigationBehaviours
 	Listen       ListenOptions
-	Filter       TraverseFilter
+	// Filter       TraverseFilter
+	Filters NavigationFilters
 }
 type TraverseOptionFn func(o *TraverseOptions) // functional traverse options
 
@@ -77,6 +82,7 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 			Start: nil,
 			Stop:  nil,
 		},
+		Filters: NavigationFilters{},
 	}
 
 	for _, functionalOption := range fn {

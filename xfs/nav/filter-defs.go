@@ -19,17 +19,17 @@ import (
 // sure the DoExtend value is set to true in the options, otherwise a panic will occur due to the
 // filter attempting to de-reference the Extension on the TraverseItem.
 func InitFilter(o *TraverseOptions, frame *navigationFrame) {
-	if o.Filter != nil {
-		o.Filter.Validate()
+	if o.Filters.Current != nil {
+		o.Filters.Current.Validate()
 		o.DoExtend = true
 		decorated := frame.client
 		decorator := func(item *TraverseItem) *LocalisableError {
-			if o.Filter.IsMatch(item) {
+			if o.Filters.Current.IsMatch(item) {
 				return decorated(item)
 			}
 			return nil
 		}
-		frame.decorate("init-filter 🎁", decorator)
+		frame.decorate("init-current-filter 🎁", decorator)
 	}
 }
 
