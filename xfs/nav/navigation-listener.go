@@ -50,17 +50,6 @@ const (
 	ListenRetired                // denoted conditional listening is now deactivated
 )
 
-var listeningStateStrings map[ListeningState]string = map[ListeningState]string{
-	ListenDefault: "Listen Default",
-	ListenPending: "Listen Pending",
-	ListenActive:  "Listen Active",
-	ListenRetired: "Listen Retired",
-}
-
-func (s ListeningState) String() string {
-	return listeningStateStrings[s]
-}
-
 type navigationListeningStates map[ListeningState]TraverseCallback
 
 func bootstrapListener(o *TraverseOptions, frame *navigationFrame) {

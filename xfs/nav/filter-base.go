@@ -2,6 +2,8 @@ package nav
 
 import "github.com/samber/lo"
 
+// Filter =====================================================================
+
 // Filter base filter struct.
 type Filter struct {
 	Name            string
@@ -11,14 +13,14 @@ type Filter struct {
 	IfNotApplicable bool
 }
 
+func (f *Filter) Description() string {
+	return f.Name
+}
+
 func (f *Filter) Validate() {
 	if f.RequiredScope == ScopeUndefinedEn {
 		f.RequiredScope = ScopeAllEn
 	}
-}
-
-func (f *Filter) Description() string {
-	return f.Name
 }
 
 func (f *Filter) Source() string {
@@ -29,15 +31,33 @@ func (f *Filter) IsApplicable(item *TraverseItem) bool {
 	return (f.RequiredScope & item.Extension.NodeScope) > 0
 }
 
-func (f *Filter) Invert(result bool) bool {
-	return lo.Ternary(f.Negate, !result, result)
-}
-
 func (f *Filter) Scope() FilterScopeEnum {
 	return f.RequiredScope
 }
 
-type FilterInfo struct {
-	Filter      TraverseFilter
-	ActualScope FilterScopeEnum
+func (f *Filter) invert(result bool) bool {
+	return lo.Ternary(f.Negate, !result, result)
+}
+
+// CompoundFilter =============================================================
+
+// CompoundFilter filter used when subscription is FoldersWithFiles
+type CompoundFilter struct {
+	Name    string
+	Pattern string
+	Negate  bool
+}
+
+func (f *CompoundFilter) Description() string {
+	return f.Name
+}
+
+func (f *CompoundFilter) Validate() {}
+
+func (f *CompoundFilter) Source() string {
+	return f.Pattern
+}
+
+func (f *CompoundFilter) invert(result bool) bool {
+	return lo.Ternary(f.Negate, !result, result)
 }

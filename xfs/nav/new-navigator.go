@@ -19,7 +19,7 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 			}},
 		}
 
-	case SubscribeFolders:
+	case SubscribeFolders, SubscribeFoldersWithFiles:
 		impl = &foldersNavigator{
 			navigator: navigator{o: o, agent: &agent{
 				o: o, DO_INVOKE: true,

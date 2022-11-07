@@ -30,13 +30,14 @@ type TraverseItem struct {
 	Info      fs.FileInfo   // optional file info instance
 	Extension *ExtendedItem // extended information about the file system node, if requested
 	Error     *LocalisableError
+	Children  []fs.DirEntry
 }
 
 // Clone makes shallow copy of TraverseItem (except the error).
 func (ti *TraverseItem) Clone() *TraverseItem {
 
 	return &TraverseItem{
-		Path: ti.Path, Entry: ti.Entry, Info: ti.Info, Extension: ti.Extension,
+		Path: ti.Path, Entry: ti.Entry, Info: ti.Info, Extension: ti.Extension, Children: ti.Children,
 	}
 }
 
@@ -52,10 +53,11 @@ func (ti *TraverseItem) IsDir() bool {
 type TraverseSubscription uint
 
 const (
-	_                TraverseSubscription = iota
-	SubscribeAny                          // invoke callback for files and folders
-	SubscribeFolders                      // invoke callback for folders only
-	SubscribeFiles                        // invoke callback for files only
+	_                         TraverseSubscription = iota
+	SubscribeAny                                   // invoke callback for files and folders
+	SubscribeFolders                               // invoke callback for folders only
+	SubscribeFoldersWithFiles                      // invoke callback for folders only but include files
+	SubscribeFiles                                 // invoke callback for files only
 )
 
 // TraverseCallback defines traversal callback function signature.

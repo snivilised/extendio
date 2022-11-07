@@ -1,6 +1,7 @@
 package nav
 
 import (
+	"io/fs"
 	"math"
 
 	"github.com/samber/lo"
@@ -31,6 +32,11 @@ func InitFilter(o *TraverseOptions, frame *navigationFrame) {
 		}
 		frame.decorate("init-current-filter 🎁", decorator)
 	}
+
+	if o.Filters.Children != nil {
+		o.Filters.Children.Validate()
+		o.DoExtend = true
+	}
 }
 
 func bootstrapFilter(o *TraverseOptions, frame *navigationFrame) {
@@ -47,11 +53,11 @@ func bootstrapFilter(o *TraverseOptions, frame *navigationFrame) {
 type FilterScopeEnum uint32
 
 const (
-	ScopeUndefinedEn FilterScopeEnum = 1 << iota
+	ScopeUndefinedEn FilterScopeEnum = 0
 
 	// ScopeRootEn, the Root scope
 	//
-	ScopeRootEn
+	ScopeRootEn FilterScopeEnum = 1 << (iota - 1)
 
 	// ScopeTopEn, any node that is a direct descendent of the root node
 	//
@@ -100,4 +106,13 @@ type TraverseFilter interface {
 	IsMatch(item *TraverseItem) bool
 	IsApplicable(item *TraverseItem) bool
 	Scope() FilterScopeEnum
+}
+
+// CompoundTraverseFilter filter that can be applied to a folder's collection of entries
+// when subscription is
+type CompoundTraverseFilter interface {
+	Description() string
+	Validate()
+	Source() string
+	Matching(children []fs.DirEntry) []fs.DirEntry
 }

@@ -41,7 +41,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 						item.Extension.Name, item.Extension.NodeScope, o.Filters.Current.Scope(),
 					)
 					Expect(o.Filters.Current.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
-					recording[item.Extension.Name] = true
+					recording[item.Extension.Name] = len(item.Children)
 					return nil
 				}
 			})
@@ -88,6 +88,16 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			negate:  true,
 		}),
 
+		Entry(nil, &filterTE{
+			naviTE: naviTE{
+				message:      "universal(undefined scope): glob filter",
+				relative:     "RETRO-WAVE",
+				subscription: nav.SubscribeAny,
+			},
+			name:    "items with '.flac' suffix",
+			pattern: "*.flac",
+		}),
+
 		// === ifNotApplicable ===============================================
 
 		Entry(nil, &filterTE{
@@ -114,6 +124,89 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			pattern:         "*.flac",
 			scope:           nav.ScopeLeafEn,
 			ifNotApplicable: false,
+		}),
+	)
+
+	DescribeTable("Filter Children (glob)",
+		func(entry *filterTE) {
+			recording := recordingMap{}
+
+			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				o.Notify.OnBegin = begin("🛡️")
+				o.Subscription = entry.subscription
+				o.Filters.Children = &nav.CompoundGlobFilter{
+					CompoundFilter: nav.CompoundFilter{
+						Name:    entry.name,
+						Pattern: entry.pattern,
+						Negate:  entry.negate,
+					},
+				}
+				o.DoExtend = true
+				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
+					actualNoChildren := len(item.Children)
+					GinkgoWriter.Printf(
+						"===> 💠 Glob Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
+						o.Filters.Children.Description(), actualNoChildren, o.Filters.Children.Source(),
+						item.Extension.Name, item.Extension.NodeScope,
+					)
+					recording[item.Extension.Name] = len(item.Children)
+					return nil
+				}
+			})
+			path := path(root, entry.relative)
+			_ = navigator.Walk(path)
+
+			if entry.mandatory != nil {
+				for _, name := range entry.mandatory {
+					_, found := recording[name]
+					Expect(found).To(BeTrue(), reason(name))
+				}
+			}
+
+			if entry.prohibited != nil {
+				for _, name := range entry.prohibited {
+					_, found := recording[name]
+					Expect(found).To(BeFalse(), reason(name))
+				}
+			}
+			for n, actualNoChildren := range entry.expectedNoChildren {
+				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
+			}
+		},
+		func(entry *filterTE) string {
+			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
+		},
+		Entry(nil, &filterTE{
+			naviTE: naviTE{
+				message:      "folder(with files): glob filter",
+				relative:     "RETRO-WAVE",
+				subscription: nav.SubscribeFoldersWithFiles,
+				expectedNoChildren: map[string]int{
+					"Night Drive":      2,
+					"Northern Council": 2,
+					"Teenage Color":    2,
+					"Innerworld":       2,
+				},
+			},
+			name:    "items with '.flac' suffix",
+			pattern: "*.flac",
+		}),
+
+		Entry(nil, &filterTE{
+			naviTE: naviTE{
+				message:      "folder(with files): glob filter (negate)",
+				relative:     "RETRO-WAVE",
+				subscription: nav.SubscribeFoldersWithFiles,
+				expectedNoChildren: map[string]int{
+					"Night Drive":      3,
+					"Northern Council": 3,
+					"Teenage Color":    2,
+					"Innerworld":       2,
+				},
+			},
+			name:    "items without '.txt' suffix",
+			pattern: "*.txt",
+			negate:  true,
 		}),
 	)
 })

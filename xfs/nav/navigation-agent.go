@@ -22,17 +22,24 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 	info, err := a.o.Hooks.QueryStatus(params.frame.Root)
 	var le *LocalisableError = nil
 	if err != nil {
-		item := &TraverseItem{Path: params.frame.Root, Info: info, Error: &LocalisableError{Inner: err}}
+		item := &TraverseItem{
+			Path: params.frame.Root, Info: info, Error: &LocalisableError{Inner: err},
+			Children: []fs.DirEntry{},
+		}
 		le = a.proxy(item, params.frame)
 	} else {
 		if info.IsDir() {
-			item := &TraverseItem{Path: params.frame.Root, Info: info}
+			item := &TraverseItem{
+				Path: params.frame.Root, Info: info,
+				Children: []fs.DirEntry{},
+			}
 			le = params.impl.traverse(item, params.frame)
 		} else {
 
 			if a.DO_INVOKE {
 				item := &TraverseItem{
 					Path: params.frame.Root, Info: info, Error: &NOT_DIRECTORY_L_ERR,
+					Children: []fs.DirEntry{},
 				}
 				params.impl.options().Hooks.Extend(&NavigationInfo{
 					Options: params.impl.options(), Item: item, Frame: params.frame,
@@ -110,7 +117,10 @@ func (a *agent) traverse(params *agentTraverseParams) *LocalisableError {
 		path := filepath.Join(params.parent.Path, entry.Name())
 		info, err := entry.Info()
 		le := lo.Ternary(err == nil, nil, &LocalisableError{Inner: err})
-		child := TraverseItem{Path: path, Info: info, Entry: entry, Error: le}
+		child := TraverseItem{
+			Path: path, Info: info, Entry: entry, Error: le,
+			Children: []fs.DirEntry{},
+		}
 
 		if le = params.impl.traverse(&child, params.frame); le != nil {
 			if le.Inner == fs.SkipDir {

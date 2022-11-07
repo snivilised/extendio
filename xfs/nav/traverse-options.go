@@ -30,7 +30,8 @@ type Notifications struct {
 }
 
 type NavigationFilters struct {
-	Current TraverseFilter
+	Current  TraverseFilter
+	Children CompoundTraverseFilter
 }
 
 // TraverseOptions customise the way a directory tree is traversed
@@ -43,8 +44,7 @@ type TraverseOptions struct {
 	Hooks        TraverseHooks
 	Behaviours   NavigationBehaviours
 	Listen       ListenOptions
-	// Filter       TraverseFilter
-	Filters NavigationFilters
+	Filters      NavigationFilters
 }
 type TraverseOptionFn func(o *TraverseOptions) // functional traverse options
 

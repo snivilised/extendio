@@ -27,6 +27,13 @@ func (e *DirectoryEntries) arrange(entries *[]fs.DirEntry) {
 
 	e.Folders = grouped[true]
 	e.Files = grouped[false]
+
+	if e.Folders == nil {
+		e.Folders = []fs.DirEntry{}
+	}
+	if e.Files == nil {
+		e.Files = []fs.DirEntry{}
+	}
 }
 
 func (e *DirectoryEntries) all() *[]fs.DirEntry {
