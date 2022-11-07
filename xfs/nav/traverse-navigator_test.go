@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -28,7 +29,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				once := func(item *nav.TraverseItem) *LocalisableError {
 					_, found := recording[item.Path]
 					Expect(found).To(BeFalse())
-					recording[item.Path] = true
+					recording[item.Path] = len(item.Children)
 
 					return entry.callback(item)
 				}
@@ -202,4 +203,87 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 			}),
 		)
 	})
+
+	DescribeTable("Folders With Files",
+		func(entry *naviTE) {
+			recording := recordingMap{}
+			visited := []string{}
+
+			once := func(item *nav.TraverseItem) *LocalisableError {
+				_, found := recording[item.Extension.Name]
+				Expect(found).To(BeFalse())
+				recording[item.Extension.Name] = len(item.Children)
+
+				return entry.callback(item)
+			}
+
+			path := path(root, entry.relative)
+			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				o.Notify.OnBegin = begin("🛡️")
+				o.Subscription = entry.subscription
+				o.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
+				o.DoExtend = entry.extended
+				o.Callback = once
+			})
+
+			if entry.visit {
+				_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
+					if subscribes(entry.subscription, de) {
+						visited = append(visited, path)
+					}
+					return nil
+				})
+			}
+			_ = navigator.Walk(path)
+
+			if entry.visit {
+				every := lo.EveryBy(visited, func(p string) bool {
+
+					segments := strings.Split(p, string(filepath.Separator))
+					name, err := lo.Last(segments)
+
+					if err == nil {
+						_, found := recording[name]
+						return found
+					}
+					return false
+				})
+				Expect(every).To(BeTrue())
+			}
+
+			for n, actualNoChildren := range entry.expectedNoChildren {
+				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
+			}
+		},
+		func(entry *naviTE) string {
+			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
+		},
+		// === folders (with files) ==========================================
+
+		Entry(nil, &naviTE{
+			message:      "folders(with files): Path is leaf",
+			relative:     "RETRO-WAVE/Chromatics/Night Drive",
+			extended:     IsExtended,
+			subscription: nav.SubscribeFoldersWithFiles,
+			callback:     foldersCallback("LEAF-PATH", IsExtended),
+			expectedNoChildren: map[string]int{
+				"Night Drive": 4,
+			},
+		}),
+
+		Entry(nil, &naviTE{
+			message:      "folders(with files): Path contains folders (check all invoked)",
+			relative:     "RETRO-WAVE",
+			extended:     IsExtended,
+			visit:        true,
+			subscription: nav.SubscribeFoldersWithFiles,
+			callback:     foldersCallback("CONTAINS-FOLDERS (check all invoked)", IsExtended),
+			expectedNoChildren: map[string]int{
+				"Night Drive":      4,
+				"Northern Council": 4,
+				"Teenage Color":    3,
+				"Innerworld":       3,
+			},
+		}),
+	)
 })

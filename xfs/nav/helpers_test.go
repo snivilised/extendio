@@ -15,21 +15,22 @@ import (
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
-type recordingMap map[string]bool
+type recordingMap map[string]int
 type recordingScopeMap map[string]nav.FilterScopeEnum
 type recordingOrderMap map[string]int
 
 type naviTE struct {
-	message       string
-	relative      string
-	extended      bool
-	once          bool
-	visit         bool
-	caseSensitive bool
-	subscription  nav.TraverseSubscription
-	callback      nav.TraverseCallback
-	mandatory     []string
-	prohibited    []string
+	message            string
+	relative           string
+	extended           bool
+	once               bool
+	visit              bool
+	caseSensitive      bool
+	subscription       nav.TraverseSubscription
+	callback           nav.TraverseCallback
+	mandatory          []string
+	prohibited         []string
+	expectedNoChildren map[string]int
 }
 
 type skipTE struct {
@@ -132,17 +133,20 @@ func foldersCallback(name string, extended bool) nav.TraverseCallback {
 			func() uint { return item.Extension.Depth },
 			func() uint { return 9999 },
 		)
-
+		actualNoChildren := len(item.Children)
 		GinkgoWriter.Printf(
-			"---> ☀️ FOLDERS//%v-CALLBACK%v: (depth:%v) '%v'\n", name, ex, depth, item.Path,
+			"---> ☀️ FOLDERS//%v-CALLBACK%v: (depth:%v, children:%v) '%v'\n",
+			name, ex, depth, actualNoChildren, item.Path,
 		)
 		Expect(item.Info.IsDir()).To(BeTrue())
+		// Expect(actualNoChildren).To(Equal(expectedNoChildren))
 
 		if extended {
 			Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
 		} else {
 			Expect(item.Extension).To(BeNil(), reason(item.Path))
 		}
+
 		return nil
 	}
 }
@@ -252,7 +256,7 @@ func foldersCaseSensitiveCallback(first, second string) nav.TraverseCallback {
 	recording := recordingMap{}
 
 	return func(item *nav.TraverseItem) *LocalisableError {
-		recording[item.Path] = true
+		recording[item.Path] = len(item.Children)
 
 		GinkgoWriter.Printf("---> ☀️ CASE-SENSITIVE-CALLBACK: '%v'\n", item.Path)
 		Expect(item.Info.IsDir()).To(BeTrue())
@@ -293,7 +297,7 @@ func subscribes(subscription nav.TraverseSubscription, de fs.DirEntry) bool {
 
 	any := (subscription == nav.SubscribeAny)
 	files := (subscription == nav.SubscribeFiles) && (!de.IsDir())
-	folders := (subscription == nav.SubscribeFolders) && (de.IsDir())
+	folders := ((subscription == nav.SubscribeFolders) || subscription == nav.SubscribeFoldersWithFiles) && (de.IsDir())
 
 	return any || files || folders
 }

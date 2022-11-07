@@ -3,6 +3,7 @@ package nav
 import (
 	"io/fs"
 
+	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
 )
 
@@ -31,6 +32,17 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigation
 	entries, readErr := n.agent.read(currentItem, DirectoryEntryOrderFoldersFirstEn)
 	folders := entries.Folders
 	entries.sort(&folders)
+
+	if n.o.Subscription == SubscribeFoldersWithFiles {
+		files := lo.TernaryF(n.o.Filters.Children == nil,
+			func() []fs.DirEntry { return entries.Files },
+			func() []fs.DirEntry { return n.o.Filters.Children.Matching(entries.Files) },
+		)
+
+		entries.sort(&files)
+		currentItem.Children = files
+	}
+
 	n.o.Hooks.Extend(navi, folders)
 
 	if le := n.agent.proxy(currentItem, frame); le != nil || (currentItem.Entry != nil && !currentItem.Entry.IsDir()) {
