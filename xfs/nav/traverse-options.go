@@ -1,6 +1,9 @@
 package nav
 
-import "github.com/samber/lo"
+import (
+	"github.com/mohae/deepcopy"
+	"github.com/samber/lo"
+)
 
 // SubPathBehaviour
 type SubPathBehaviour struct {
@@ -100,4 +103,9 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	}
 
 	return &o
+}
+
+func (o *TraverseOptions) Clone() *TraverseOptions {
+	clone := deepcopy.Copy(o)
+	return clone.(*TraverseOptions)
 }
