@@ -1,0 +1,27 @@
+{
+  "Subscription": 1,
+  "DoExtend": false,
+  "WithMetrics": false,
+  "Behaviours": {
+    "SubPath": {
+      "KeepTrailingSep": true
+    },
+    "Sort": {
+      "IsCaseSensitive": false,
+      "DirectoryEntryOrder": 0
+    },
+    "Listen": {
+      "InclusiveStart": true,
+      "InclusiveStop": false
+    }
+  },
+  "Persist": {
+    "Format": 1
+  },
+  "AdaptedOptions": {
+    "Filters": {
+      "Current": null,
+      "Children": null
+    }
+  }
+}
