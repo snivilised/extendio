@@ -34,9 +34,9 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigation
 	entries.sort(&folders)
 
 	if n.o.Subscription == SubscribeFoldersWithFiles {
-		files := lo.TernaryF(n.o.Filters.Children == nil,
+		files := lo.TernaryF(frame.filters.Compound == nil,
 			func() []fs.DirEntry { return entries.Files },
-			func() []fs.DirEntry { return n.o.Filters.Children.Matching(entries.Files) },
+			func() []fs.DirEntry { return frame.filters.Compound.Matching(entries.Files) },
 		)
 
 		entries.sort(&files)

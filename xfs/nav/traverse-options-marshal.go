@@ -49,6 +49,7 @@ type TraverseOptionsAsJSON struct {
 	DoExtend       bool
 	WithMetrics    bool
 	Behaviours     NavigationBehaviours
+	FilterDefs     FilterDefinitions
 	Persist        PersistOptions
 	AdaptedOptions AdaptedPersistOptions
 }
@@ -114,6 +115,7 @@ func (m *OptionMarshallerJSON) restore() {
 	m.Options.DoExtend = m.OptionsJSON.DoExtend
 	m.Options.WithMetrics = m.OptionsJSON.WithMetrics
 	m.Options.Behaviours = m.OptionsJSON.Behaviours
+	m.Options.FilterDefs = m.OptionsJSON.FilterDefs
 	m.Options.Persist = m.OptionsJSON.Persist
 }
 
@@ -123,22 +125,8 @@ func (m *OptionMarshallerJSON) toJSON() *TraverseOptionsAsJSON {
 		DoExtend:     m.Options.DoExtend,
 		WithMetrics:  m.Options.WithMetrics,
 		Behaviours:   m.Options.Behaviours,
+		FilterDefs:   m.Options.FilterDefs,
 		Persist:      m.Options.Persist,
-	}
-
-	if m.Options.Filters.Current != nil {
-		result.AdaptedOptions.Filters.Current = &PersistCurrentFilterDef{
-			Description: m.Options.Filters.Current.Description(),
-			Source:      m.Options.Filters.Current.Source(),
-			Scope:       m.Options.Filters.Current.Scope(),
-		}
-	}
-
-	if m.Options.Filters.Children != nil {
-		result.AdaptedOptions.Filters.Children = &PersistChildrenFilterDef{
-			Description: m.Options.Filters.Children.Description(),
-			Source:      m.Options.Filters.Children.Source(),
-		}
 	}
 
 	return result

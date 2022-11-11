@@ -10,7 +10,6 @@ type navigatorController struct {
 
 func (c *navigatorController) Walk(root string) *TraverseResult {
 	o := c.impl.options()
-	o.Notify.OnBegin(root)
 	frame := navigationFrame{
 		Root:   root,
 		client: o.Callback,
@@ -18,6 +17,9 @@ func (c *navigatorController) Walk(root string) *TraverseResult {
 
 	bootstrapFilter(o, &frame)
 	bootstrapListener(o, &frame)
+
+	state := &NavigationState{Root: root, Filters: frame.filters}
+	o.Notify.OnBegin(state)
 
 	result := &TraverseResult{
 		Error: c.impl.top(&frame),

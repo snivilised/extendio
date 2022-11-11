@@ -5,6 +5,17 @@ import (
 	"github.com/samber/lo"
 )
 
+// A note about TraverseOptions/MARSHAL_EXCLUSIONS:
+// TraverseOptionsAsJSON needs to be kept in sync with TraverseOptions,
+// so when the former changes, then so should the latter. The only exception
+// to this rule is if the new option is not serialisable, eg it is a function
+// or an interface. A unit test (traverse-options-marshall) has been defined
+// to enforce this so if an addition is made to TraverseOptions without the
+// corresponding change to TraverseOptionsAsJSON, then the test should fail.
+// If a non serialisable option is being added, then its name should be added
+// to GetMarshalOptionsExclusions.
+//
+
 // SubPathBehaviour
 type SubPathBehaviour struct {
 	KeepTrailingSep bool
@@ -63,18 +74,39 @@ type Notifications struct {
 	OnStop ListenHandler
 }
 
-type NavigationFilters struct {
+type FilterDefinitions struct {
 	// Current denotes the filter object that represents the current file system item
 	// being visited.
 	//
-	Current TraverseFilter
+	Current FilterDef
 
 	// Children denotes the compound filter that is applied to the direct descendants
 	// of the current file system item being visited.
 	//
-	Children CompoundTraverseFilter
+	Children CompoundFilterDef
 }
 
+type NavigationFilters struct {
+	// Current denotes the filter object that represents the Current file system item
+	// being visited.
+	//
+	Current TraverseFilter
+
+	// Compound denotes the Compound filter that is applied to the direct descendants
+	// of the current file system item being visited.
+	//
+	Compound CompoundTraverseFilter
+}
+
+// NavigationState carries information about navigation that client may be
+// interested in and permitted to access, as opposed to the navigationFrame
+// which is meant for internal purposes only.
+type NavigationState struct {
+	Root    string
+	Filters NavigationFilters
+}
+
+// PersistOptions contains options for persisting traverse options
 type PersistOptions struct {
 	Format   PersistenceFormatEnum
 	Restorer OptionsRestorer `json:"-"`
@@ -115,11 +147,18 @@ type TraverseOptions struct {
 	//
 	Listen ListenOptions `json:"-"`
 
-	// Filters restricts for which file system nodes the Callback is invoked for.
+	// FilterDefs definitions of filters that restricts for which file system nodes the
+	// Callback is invoked for.
 	//
-	Filters NavigationFilters `json:"-"`
+	FilterDefs FilterDefinitions
 
+	// Persist contains options for persisting traverse options
+	//
 	Persist PersistOptions
+}
+
+func GetMarshalOptionsExclusions() []string {
+	return []string{"Callback", "Notify", "Hooks", "Listen", "Persist"}
 }
 
 // TraverseOptionFn functional traverse options
@@ -155,7 +194,7 @@ func GetDefaultOptions() *TraverseOptions {
 		Subscription: SubscribeAny,
 		DoExtend:     false,
 		Notify: Notifications{
-			OnBegin:   func(root string) {},
+			OnBegin:   func(state *NavigationState) {},
 			OnEnd:     func(result *TraverseResult) {},
 			OnDescend: func(item *TraverseItem) {},
 			OnAscend:  func(item *TraverseItem) {},
@@ -165,7 +204,7 @@ func GetDefaultOptions() *TraverseOptions {
 			ReadDirectory: ReadEntries,
 			FolderSubPath: RootParentSubPath,
 			FileSubPath:   RootParentSubPath,
-			Filter:        InitFilter,
+			InitFilters:   InitFiltersHookFn,
 		},
 		Behaviours: NavigationBehaviours{
 			SubPath: SubPathBehaviour{
@@ -184,7 +223,7 @@ func GetDefaultOptions() *TraverseOptions {
 			Start: nil,
 			Stop:  nil,
 		},
-		Filters: NavigationFilters{},
+		FilterDefs: FilterDefinitions{},
 		Persist: PersistOptions{
 			Format: PersistInJSONEn,
 		},

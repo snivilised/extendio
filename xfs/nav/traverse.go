@@ -67,7 +67,7 @@ type TraverseCallback func(item *TraverseItem) *LocalisableError
 type AscendancyHandler func(item *TraverseItem)
 
 // BeginHandler life cycle event handler, invoked before start of traversal
-type BeginHandler func(root string)
+type BeginHandler func(state *NavigationState)
 
 // EndHandler life cycle event handler, invoked at end of traversal
 type EndHandler func(result *TraverseResult)
