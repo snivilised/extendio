@@ -70,7 +70,7 @@ type sortTE struct {
 	order         nav.DirectoryEntryOrderEnum
 }
 
-func cwd() string {
+func cwd() string { // oops, this is a bad name for the function, cwd is incorrect
 	if current, err := os.Getwd(); err == nil {
 		parent, _ := filepath.Split(current)
 		grand := filepath.Dir(parent)
@@ -78,6 +78,18 @@ func cwd() string {
 		return filepath.Join(great, "Test", "data", "MUSICO")
 	}
 	panic("could not get root path")
+}
+
+func joinCwd(segments ...string) string {
+	if current, err := os.Getwd(); err == nil {
+		parent, _ := filepath.Split(current)
+		grand := filepath.Dir(parent)
+		great := filepath.Dir(grand)
+		all := append([]string{great}, segments...)
+		return filepath.Join(all...)
+	}
+	panic("could not get root path")
+
 }
 
 const IsExtended = true

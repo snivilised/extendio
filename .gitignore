@@ -20,3 +20,5 @@ ginkgo.report
 
 .task/
 .env
+
+test-options*.json

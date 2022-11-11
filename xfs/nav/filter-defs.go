@@ -81,7 +81,7 @@ const (
 	ScopeAllEn = math.MaxUint32
 )
 
-var filterScopeStrings map[FilterScopeEnum]string = map[FilterScopeEnum]string{
+var filterScopeStrings = map[FilterScopeEnum]string{
 	ScopeUndefinedEn:    "Undefined",
 	ScopeRootEn:         "Root",
 	ScopeTopEn:          "Top",

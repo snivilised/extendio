@@ -9,44 +9,12 @@ import (
 
 var _ = Describe("TraverseOptions", Ordered, func() {
 
-	var o *nav.TraverseOptions
+	var (
+		o *nav.TraverseOptions
+	)
 
 	BeforeEach(func() {
-		o = &nav.TraverseOptions{
-			Subscription: nav.SubscribeAny,
-			DoExtend:     false,
-			Notify: nav.Notifications{
-				OnBegin:   func(root string) {},
-				OnEnd:     func(result *nav.TraverseResult) {},
-				OnDescend: func(item *nav.TraverseItem) {},
-				OnAscend:  func(item *nav.TraverseItem) {},
-			},
-			Hooks: nav.TraverseHooks{
-				QueryStatus:   nav.LstatHookFn,
-				ReadDirectory: nav.ReadEntries,
-				FolderSubPath: nav.RootParentSubPath,
-				FileSubPath:   nav.RootParentSubPath,
-				Filter:        nav.InitFilter,
-			},
-			Behaviours: nav.NavigationBehaviours{
-				SubPath: nav.SubPathBehaviour{
-					KeepTrailingSep: true,
-				},
-				Sort: nav.SortBehaviour{
-					IsCaseSensitive:     false,
-					DirectoryEntryOrder: nav.DirectoryEntryOrderFoldersFirstEn,
-				},
-				Listen: nav.ListenBehaviour{
-					InclusiveStart: true,
-					InclusiveStop:  false,
-				},
-			},
-			Listen: nav.ListenOptions{
-				Start: nil,
-				Stop:  nil,
-			},
-			Filters: nav.NavigationFilters{},
-		}
+		o = nav.GetDefaultOptions()
 	})
 
 	Context("clone", func() {
