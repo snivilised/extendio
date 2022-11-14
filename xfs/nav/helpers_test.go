@@ -104,9 +104,9 @@ func reason(name string) string {
 }
 
 func begin(em string) nav.BeginHandler {
-	return func(root string) {
+	return func(state *nav.NavigationState) {
 		GinkgoWriter.Printf(
-			"---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, root,
+			"---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, state.Root,
 		)
 	}
 }

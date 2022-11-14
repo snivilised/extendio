@@ -34,14 +34,13 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Subscription = entry.subscription
-				o.Filters.Current = &nav.GlobFilter{
-					Filter: nav.Filter{
-						Name:            entry.name,
-						RequiredScope:   entry.scope,
-						Pattern:         entry.pattern,
-						Negate:          entry.negate,
-						IfNotApplicable: entry.ifNotApplicable,
-					},
+				o.FilterDefs.Current = nav.FilterDef{
+					Type:            nav.FilterTypeGlobEn,
+					Description:     entry.name,
+					Source:          entry.pattern,
+					Scope:           entry.scope,
+					Negate:          entry.negate,
+					IfNotApplicable: entry.ifNotApplicable,
 				}
 				o.Behaviours.Sort.DirectoryEntryOrder = entry.order
 				o.DoExtend = true

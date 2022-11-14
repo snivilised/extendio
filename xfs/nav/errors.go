@@ -25,6 +25,3 @@ var MISSING_CALLBACK_FN_L_ERR = LocalisableError{Inner: MISSING_CALLBACK_FN_ERR}
 
 var MISSING_RESTORER_FN_ERR = errors.New("missing restorer function")
 var MISSING_RESTORER_FN_L_ERR = LocalisableError{Inner: MISSING_RESTORER_FN_ERR}
-
-var PATTERN_NOT_DEFINED_ERR = errors.New("pattern not defined")
-var PATTERN_NOT_DEFINED_L_ERR = LocalisableError{Inner: PATTERN_NOT_DEFINED_ERR}

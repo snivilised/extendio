@@ -1,16 +1,19 @@
 package nav_test
 
 import (
+	"fmt"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/samber/lo"
 
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
-var _ = Describe("TraverseOptionsIo", Ordered, func() {
+var _ = Describe("TraverseOptionsMarshal", Ordered, func() {
 	var (
 		o            *nav.TraverseOptions
 		root         string
@@ -83,6 +86,33 @@ var _ = Describe("TraverseOptionsIo", Ordered, func() {
 				err := o.Unmarshal(fromJsonPath)
 				Expect(err).To(BeNil())
 			})
+		})
+	})
+
+	Context("given: TraverseOptionsAsJSON", func() {
+		It("🧪 should: be in sync with TraverseOptions", func() {
+			target := new(nav.TraverseOptions)
+			refElemStruct := reflect.ValueOf(target).Elem()
+			refTypeOfStruct := refElemStruct.Type()
+			exclusions := nav.GetMarshalOptionsExclusions()
+
+			if reflect.TypeOf(*target).Kind() == reflect.Struct {
+				sync := new(nav.TraverseOptionsAsJSON)
+				syncStruct := reflect.ValueOf(sync).Elem().Type()
+
+				for i, n := 0, refElemStruct.NumField(); i < n; i++ {
+					name := refTypeOfStruct.Field(i).Name
+
+					if lo.Contains(exclusions, name) {
+						continue
+					}
+
+					_, found := syncStruct.FieldByName(name)
+					Expect(found).To(BeTrue(),
+						fmt.Sprintf("❌ property '%v' missing from TraverseOptionsAsJSON", name),
+					)
+				}
+			}
 		})
 	})
 })

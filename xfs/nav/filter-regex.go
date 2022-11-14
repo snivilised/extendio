@@ -17,9 +17,6 @@ type RegexFilter struct {
 
 func (f *RegexFilter) Validate() {
 	f.Filter.Validate()
-	if f.Pattern == "" {
-		panic(PATTERN_NOT_DEFINED_L_ERR)
-	}
 	f.rex = regexp.MustCompile(f.Pattern)
 }
 
@@ -39,9 +36,6 @@ type CompoundRegexFilter struct {
 }
 
 func (f *CompoundRegexFilter) Validate() {
-	if f.Pattern == "" {
-		panic(PATTERN_NOT_DEFINED_L_ERR)
-	}
 	f.rex = regexp.MustCompile(f.Pattern)
 }
 

@@ -23,7 +23,7 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 
 				cloneCount, sourceCount := 0, 0
 
-				o.Notify.OnBegin = func(root string) {
+				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					sourceCount++
 				}
 				clone := o.Clone()
@@ -35,19 +35,18 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 				clone.Behaviours.SubPath.KeepTrailingSep = false
 				Expect(o.Behaviours.SubPath.KeepTrailingSep).To(BeTrue())
 
-				clone.Filters.Current = &nav.RegexFilter{
-					Filter: nav.Filter{
-						Name:    "test filter",
-						Pattern: "foo bar",
-					},
+				clone.FilterDefs.Current = nav.FilterDef{
+					Type:        nav.FilterTypeRegexEn,
+					Description: "test filter",
+					Source:      "foo bar",
 				}
-				Expect(o.Filters.Current).To(BeNil())
-				o.Notify.OnBegin("/foo-bar")
+				state := &nav.NavigationState{Root: "/foo-bar"}
+				o.Notify.OnBegin(state)
 
-				clone.Notify.OnBegin = func(root string) {
+				clone.Notify.OnBegin = func(state *nav.NavigationState) {
 					cloneCount++
 				}
-				clone.Notify.OnBegin("/foo-bar")
+				clone.Notify.OnBegin(state)
 
 				Expect(sourceCount).To(Equal(1), "")
 				Expect(cloneCount).To(Equal(1))

@@ -5,6 +5,7 @@ type navigationFrame struct {
 	Depth    uint
 	listener *navigationListener
 	client   TraverseCallback
+	filters  NavigationFilters
 }
 
 func (f *navigationFrame) decorate(label string, decorator TraverseCallback) {

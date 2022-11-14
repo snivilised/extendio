@@ -33,11 +33,11 @@ type SubPathHookFn func(info *SubPathInfo) string
 type TraverseHooks struct {
 	QueryStatus   QueryStatusHookFn
 	ReadDirectory ReadDirectoryHookFn
-	Sort          SortEntriesHookFn
-	Filter        FilterInitHookFn
-	Extend        ExtendHookFn
 	FolderSubPath SubPathHookFn
 	FileSubPath   SubPathHookFn
+	InitFilters   FilterInitHookFn
+	Sort          SortEntriesHookFn
+	Extend        ExtendHookFn
 }
 
 // Lstat is the default Query Status hook function

@@ -228,12 +228,11 @@ var _ = Describe("Listener", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Subscription = nav.SubscribeFolders
-					o.Filters.Current = &nav.RegexFilter{
-						Filter: nav.Filter{
-							Name:          "Contains 'o'",
-							RequiredScope: nav.ScopeAllEn,
-							Pattern:       "(i?)o",
-						},
+					o.FilterDefs.Current = nav.FilterDef{
+						Type:        nav.FilterTypeRegexEn,
+						Description: "Contains 'o'",
+						Scope:       nav.ScopeAllEn,
+						Source:      "(i?)o",
 					}
 					o.Listen.Start = &nav.ListenBy{
 						Name: "Name: Orbital",
@@ -260,10 +259,10 @@ var _ = Describe("Listener", Ordered, func() {
 						)
 						GinkgoWriter.Printf(
 							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-							o.Filters.Current.Description(), o.Filters.Current.Source(), item.Extension.Name,
-							item.Extension.NodeScope, o.Filters.Current.Scope(),
+							o.FilterDefs.Current.Description, o.FilterDefs.Current.Source, item.Extension.Name,
+							item.Extension.NodeScope, o.FilterDefs.Current.Scope,
 						)
-						Expect(o.Filters.Current.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
+						Expect(item.Extension.Name).To(MatchRegexp(o.FilterDefs.Current.Source), reason(item.Extension.Name))
 						return nil
 					}
 				})

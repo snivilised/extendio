@@ -21,27 +21,38 @@ var _ = Describe("FilterRegex", Ordered, func() {
 	DescribeTable("RegexFilter",
 		func(entry *filterTE) {
 			recording := recordingMap{}
+			filterDef := nav.FilterDef{
+				Type:            nav.FilterTypeRegexEn,
+				Description:     entry.name,
+				Source:          entry.pattern,
+				Scope:           entry.scope,
+				Negate:          entry.negate,
+				IfNotApplicable: entry.ifNotApplicable,
+			}
+			var filter nav.TraverseFilter
 
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = entry.subscription
-				o.Filters.Current = &nav.RegexFilter{
-					Filter: nav.Filter{
-						Name:            entry.name,
-						RequiredScope:   entry.scope,
-						Pattern:         entry.pattern,
-						Negate:          entry.negate,
-						IfNotApplicable: entry.ifNotApplicable,
-					},
+				o.Notify.OnBegin = func(state *nav.NavigationState) {
+					GinkgoWriter.Printf(
+						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
+					)
+					filter = state.Filters.Current
 				}
+
+				o.Subscription = entry.subscription
+				o.FilterDefs.Current = filterDef
 				o.DoExtend = true
 				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 					GinkgoWriter.Printf(
 						"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-						o.Filters.Current.Description(), o.Filters.Current.Source(), item.Extension.Name,
-						item.Extension.NodeScope, o.Filters.Current.Scope(),
+						filter.Description(),
+						filter.Source(),
+						item.Extension.Name,
+						item.Extension.NodeScope,
+						filter.Scope(),
 					)
-					Expect(o.Filters.Current.IsMatch(item)).To(BeTrue(), reason(item.Extension.Name))
+					Expect(item).Should(MatchCurrentRegexFilter(filter))
+
 					recording[item.Extension.Name] = len(item.Children)
 					return nil
 				}
@@ -166,25 +177,35 @@ var _ = Describe("FilterRegex", Ordered, func() {
 	DescribeTable("Filter Children (regex)",
 		func(entry *filterTE) {
 			recording := recordingMap{}
+			filterDef := nav.CompoundFilterDef{
+				Type:        nav.FilterTypeRegexEn,
+				Description: entry.name,
+				Source:      entry.pattern,
+				Negate:      entry.negate,
+			}
+			var filter nav.CompoundTraverseFilter
 
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = entry.subscription
-				o.Filters.Children = &nav.CompoundRegexFilter{
-					CompoundFilter: nav.CompoundFilter{
-						Name:    entry.name,
-						Pattern: entry.pattern,
-						Negate:  entry.negate,
-					},
+				o.Notify.OnBegin = func(state *nav.NavigationState) {
+					GinkgoWriter.Printf(
+						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
+					)
+					filter = state.Filters.Compound
 				}
+				o.Subscription = entry.subscription
+				o.FilterDefs.Children = filterDef
 				o.DoExtend = true
 				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 					actualNoChildren := len(item.Children)
 					GinkgoWriter.Printf(
 						"===> 💠 Regex Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
-						o.Filters.Children.Description(), actualNoChildren, o.Filters.Children.Source(),
-						item.Extension.Name, item.Extension.NodeScope,
+						filter.Description(),
+						actualNoChildren,
+						filter.Source(),
+						item.Extension.Name,
+						item.Extension.NodeScope,
 					)
+
 					recording[item.Extension.Name] = len(item.Children)
 					return nil
 				}
@@ -262,11 +283,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Subscription = nav.SubscribeFolders
-				o.Filters.Current = &nav.RegexFilter{
-					Filter: nav.Filter{
-						Name:    entry.name,
-						Pattern: entry.pattern,
-					},
+				o.FilterDefs.Current = nav.FilterDef{
+					Type:        nav.FilterTypeRegexEn,
+					Description: entry.name,
+					Source:      entry.pattern,
 				}
 				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 					return nil
@@ -282,11 +302,6 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			return fmt.Sprintf("🧪 ===> '%v'", entry.message)
 		},
 
-		Entry(nil, &filterTE{
-			naviTE:      naviTE{message: "regex missing pattern"},
-			name:        "missing pattern test",
-			expectedErr: nav.PATTERN_NOT_DEFINED_L_ERR,
-		}),
 		Entry(nil, &filterTE{
 			naviTE:        naviTE{message: "bad regex pattern"},
 			name:          "bad regex pattern test",
@@ -311,12 +326,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Subscription = nav.SubscribeFoldersWithFiles
-				o.Filters.Children = &nav.CompoundRegexFilter{
-					CompoundFilter: nav.CompoundFilter{
-						Name:    entry.name,
-						Pattern: entry.pattern,
-						Negate:  entry.negate,
-					},
+				o.FilterDefs.Children = nav.CompoundFilterDef{
+					Type:        nav.FilterTypeRegexEn,
+					Description: entry.name,
+					Source:      entry.pattern,
+					Negate:      entry.negate,
 				}
 				o.DoExtend = true
 				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
@@ -333,11 +347,6 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			return fmt.Sprintf("🧪 ===> '%v'", entry.message)
 		},
 
-		Entry(nil, &filterTE{
-			naviTE:      naviTE{message: "regex missing pattern"},
-			name:        "missing pattern test",
-			expectedErr: nav.PATTERN_NOT_DEFINED_L_ERR,
-		}),
 		Entry(nil, &filterTE{
 			naviTE:        naviTE{message: "bad regex pattern"},
 			name:          "bad regex pattern test",
