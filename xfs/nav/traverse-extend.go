@@ -66,13 +66,17 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 		NodeScope: scope,
 	}
 
-	spInfo := &SubPathInfo{Root: navi.Frame.Root, Item: navi.Item, Behaviour: &navi.Options.Behaviours.SubPath}
+	spInfo := &SubPathInfo{
+		Root:      navi.Frame.Root,
+		Item:      navi.Item,
+		Behaviour: &navi.Options.Store.Behaviours.SubPath,
+	}
 	subpath := lo.TernaryF(navi.Item.IsDir(),
 		func() string { return navi.Options.Hooks.FolderSubPath(spInfo) },
 		func() string { return navi.Options.Hooks.FileSubPath(spInfo) },
 	)
 
-	subpath = lo.TernaryF(navi.Options.Behaviours.SubPath.KeepTrailingSep,
+	subpath = lo.TernaryF(navi.Options.Store.Behaviours.SubPath.KeepTrailingSep,
 		func() string { return subpath },
 		func() string {
 			result := subpath

@@ -26,14 +26,14 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigation
 	navi := &NavigationInfo{Options: n.o, Item: currentItem, Frame: frame}
 	n.descend(navi)
 	// for the folders navigator, we ignore the user defined setting in
-	// n.o.Behaviours.Sort.DirectoryEntryOrder, as we're only interested in
+	// n.o.Store.Behaviours.Sort.DirectoryEntryOrder, as we're only interested in
 	// folders and therefore force to use DirectoryEntryOrderFoldersFirstEn instead
 	//
 	entries, readErr := n.agent.read(currentItem, DirectoryEntryOrderFoldersFirstEn)
 	folders := entries.Folders
 	entries.sort(&folders)
 
-	if n.o.Subscription == SubscribeFoldersWithFiles {
+	if n.o.Store.Subscription == SubscribeFoldersWithFiles {
 		files := lo.TernaryF(frame.filters.Compound == nil,
 			func() []fs.DirEntry { return entries.Files },
 			func() []fs.DirEntry { return frame.filters.Compound.Matching(entries.Files) },

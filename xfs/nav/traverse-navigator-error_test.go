@@ -15,7 +15,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = cwd()
+		root = origin()
 	})
 
 	Context("new-navigator", func() {
@@ -28,7 +28,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 				nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
-					o.Subscription = nav.SubscribeAny
+					o.Store.Subscription = nav.SubscribeAny
 				})
 
 				Fail("❌ expected panic due to missing callback")
@@ -46,14 +46,14 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
-					o.Subscription = nav.SubscribeFolders
+					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.Extend = func(navi *nav.NavigationInfo, descendants []fs.DirEntry) {
 						navi.Item.Extension = &nav.ExtendedItem{
 							Name: "dummy",
 						}
 						nav.DefaultExtendHookFn(navi, descendants)
 					}
-					o.DoExtend = true
+					o.Store.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						return nil
 					}
@@ -74,9 +74,9 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				recording := []error{}
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
-					o.Subscription = nav.SubscribeFolders
+					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.DoExtend = true
+					o.Store.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 							item.Path, item.Error,
@@ -99,10 +99,10 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			It("🧪 should: invoke callback with immediate read error", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
-					o.Subscription = nav.SubscribeFiles
+					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.DoExtend = true
-					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.DoExtend, false)
+					o.Store.DoExtend = true
+					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.Store.DoExtend, false)
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -112,10 +112,10 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			It("🧪 should: invoke callback with error at ...", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
-					o.Subscription = nav.SubscribeFiles
+					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
-					o.DoExtend = true
-					o.Callback = errorCallback("(FILES):ERR-AT", o.DoExtend, false)
+					o.Store.DoExtend = true
+					o.Callback = errorCallback("(FILES):ERR-AT", o.Store.DoExtend, false)
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)
@@ -132,13 +132,13 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
-				o.Subscription = entry.subscription
+				o.Store.Subscription = entry.subscription
 				o.Hooks.Sort = func(entries []fs.DirEntry, custom ...any) error {
 
 					return errors.New("fake sort error")
 				}
-				o.DoExtend = true
-				o.Callback = errorCallback("SORT-ERR", o.DoExtend, false)
+				o.Store.DoExtend = true
+				o.Callback = errorCallback("SORT-ERR", o.Store.DoExtend, false)
 			})
 			const relative = "RETRO-WAVE"
 			path := path(root, relative)
@@ -158,9 +158,9 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		func(entry *errorTE) {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
-				o.Subscription = entry.subscription
-				o.DoExtend = true
-				o.Callback = errorCallback("ROOT-NOT-FOLDER-ERR", o.DoExtend, true)
+				o.Store.Subscription = entry.subscription
+				o.Store.DoExtend = true
+				o.Callback = errorCallback("ROOT-NOT-FOLDER-ERR", o.Store.DoExtend, true)
 			})
 			const relative = "RETRO-WAVE/Electric Youth/Innerworld/A2 - Runaway.flac"
 			path := path(root, relative)
@@ -180,11 +180,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			It("🧪 should: halt traversal", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
-					o.Subscription = nav.SubscribeFolders
+					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
-					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.DoExtend, true)
+					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.Store.DoExtend, true)
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)

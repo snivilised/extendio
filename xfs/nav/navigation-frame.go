@@ -14,6 +14,5 @@ func (f *navigationFrame) decorate(label string, decorator TraverseCallback) {
 	// stack overflow due to infinite recursion. Its easy to search when decoration is
 	// occurring in the code base, just search for decorate or go to references.
 	//
-	// fmt.Printf(">>>> decorate: '%v'\n", label)
 	f.client = decorator
 }

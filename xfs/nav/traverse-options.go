@@ -108,12 +108,13 @@ type NavigationState struct {
 
 // PersistOptions contains options for persisting traverse options
 type PersistOptions struct {
-	Format   PersistenceFormatEnum
-	Restorer OptionsRestorer `json:"-"`
+	Format  PersistenceFormatEnum
+	Restore PersistenceRestorer `json:"-"`
 }
 
-// TraverseOptions customise the way a directory tree is traversed
-type TraverseOptions struct {
+// OptionsStore represents that part of options that is directly
+// persist-able.
+type OptionsStore struct {
 	// Subscription defines which node types are visited
 	//
 	Subscription TraverseSubscription
@@ -125,6 +126,21 @@ type TraverseOptions struct {
 	// WithMetrics request metrics in TraversalResult.
 	//
 	WithMetrics bool
+
+	// Behaviours collection of behaviours that adjust the way navigation occurs,
+	// that can be tweaked by the client.
+	//
+	Behaviours NavigationBehaviours
+
+	// FilterDefs definitions of filters that restricts for which file system nodes the
+	// Callback is invoked for.
+	//
+	FilterDefs FilterDefinitions
+}
+
+// TraverseOptions customise the way a directory tree is traversed
+type TraverseOptions struct {
+	Store OptionsStore
 
 	// Callback function to invoke for every item visited in the file system.
 	//
@@ -138,27 +154,13 @@ type TraverseOptions struct {
 	//
 	Hooks TraverseHooks `json:"-"`
 
-	// Behaviours collection of behaviours that adjust the way navigation occurs,
-	// that can be tweaked by the client.
-	//
-	Behaviours NavigationBehaviours
-
 	// Listen options that control when listening state starts and finishes.
 	//
 	Listen ListenOptions `json:"-"`
 
-	// FilterDefs definitions of filters that restricts for which file system nodes the
-	// Callback is invoked for.
-	//
-	FilterDefs FilterDefinitions
-
 	// Persist contains options for persisting traverse options
 	//
-	Persist PersistOptions
-}
-
-func GetMarshalOptionsExclusions() []string {
-	return []string{"Callback", "Notify", "Hooks", "Listen", "Persist"}
+	Persist PersistOptions `json:"-"`
 }
 
 // TraverseOptionFn functional traverse options
@@ -172,13 +174,13 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	}
 
 	if o.Hooks.Sort == nil {
-		o.Hooks.Sort = lo.Ternary(o.Behaviours.Sort.IsCaseSensitive,
+		o.Hooks.Sort = lo.Ternary(o.Store.Behaviours.Sort.IsCaseSensitive,
 			CaseSensitiveSortHookFn, CaseInSensitiveSortHookFn,
 		)
 	}
 
 	if o.Hooks.Extend == nil {
-		o.Hooks.Extend = lo.Ternary(o.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
+		o.Hooks.Extend = lo.Ternary(o.Store.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
 	}
 
 	return o
@@ -191,8 +193,24 @@ func (o *TraverseOptions) Clone() *TraverseOptions {
 
 func GetDefaultOptions() *TraverseOptions {
 	return &TraverseOptions{
-		Subscription: SubscribeAny,
-		DoExtend:     false,
+		Store: OptionsStore{
+			Subscription: SubscribeAny,
+			DoExtend:     false,
+			Behaviours: NavigationBehaviours{
+				SubPath: SubPathBehaviour{
+					KeepTrailingSep: true,
+				},
+				Sort: SortBehaviour{
+					IsCaseSensitive:     false,
+					DirectoryEntryOrder: DirectoryEntryOrderFoldersFirstEn,
+				},
+				Listen: ListenBehaviour{
+					InclusiveStart: true,
+					InclusiveStop:  false,
+				},
+			},
+			FilterDefs: FilterDefinitions{},
+		},
 		Notify: Notifications{
 			OnBegin:   func(state *NavigationState) {},
 			OnEnd:     func(result *TraverseResult) {},
@@ -206,24 +224,10 @@ func GetDefaultOptions() *TraverseOptions {
 			FileSubPath:   RootParentSubPath,
 			InitFilters:   InitFiltersHookFn,
 		},
-		Behaviours: NavigationBehaviours{
-			SubPath: SubPathBehaviour{
-				KeepTrailingSep: true,
-			},
-			Sort: SortBehaviour{
-				IsCaseSensitive:     false,
-				DirectoryEntryOrder: DirectoryEntryOrderFoldersFirstEn,
-			},
-			Listen: ListenBehaviour{
-				InclusiveStart: true,
-				InclusiveStop:  false,
-			},
-		},
 		Listen: ListenOptions{
 			Start: nil,
 			Stop:  nil,
 		},
-		FilterDefs: FilterDefinitions{},
 		Persist: PersistOptions{
 			Format: PersistInJSONEn,
 		},

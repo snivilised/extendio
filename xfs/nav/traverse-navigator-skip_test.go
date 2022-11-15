@@ -11,15 +11,15 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = cwd()
+		root = origin()
 	})
 
 	When("folder is skipped", func() {
 		Context("folder navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Subscription = nav.SubscribeFolders
-					o.DoExtend = true
+					o.Store.Subscription = nav.SubscribeFolders
+					o.Store.DoExtend = true
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
 				})
@@ -31,8 +31,8 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 		Context("universal navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Subscription = nav.SubscribeAny
-					o.DoExtend = true
+					o.Store.Subscription = nav.SubscribeAny
+					o.Store.DoExtend = true
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
 				})
@@ -45,7 +45,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 	DescribeTable("skip",
 		func(entry *skipTE) {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-				o.Subscription = entry.subscription
+				o.Store.Subscription = entry.subscription
 				o.Callback = skipFolderCallback("College", "Northern Council")
 				o.Notify.OnBegin = begin("🛡️")
 			})

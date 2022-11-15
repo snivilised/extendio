@@ -80,6 +80,7 @@ type TraverseResult struct {
 // TraverseNavigator interface to the main traverse instance.
 type TraverseNavigator interface {
 	Walk(root string) *TraverseResult
+	Save(path string) error
 }
 
 type navigatorImpl interface {

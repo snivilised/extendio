@@ -11,7 +11,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = cwd()
+		root = origin()
 	})
 
 	Context("sub-path", func() {
@@ -26,9 +26,9 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 				}
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
-					o.Subscription = nav.SubscribeAny
-					o.Behaviours.SubPath.KeepTrailingSep = true
-					o.DoExtend = true
+					o.Store.Subscription = nav.SubscribeAny
+					o.Store.Behaviours.SubPath.KeepTrailingSep = true
+					o.Store.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						if expected, ok := expectations[item.Extension.Name]; ok {
 							Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
@@ -55,11 +55,11 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					}
 					navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 						o.Notify.OnBegin = begin("🛡️")
-						o.Subscription = nav.SubscribeAny
+						o.Store.Subscription = nav.SubscribeAny
 						o.Hooks.FolderSubPath = nav.RootItemSubPath
 						o.Hooks.FileSubPath = nav.RootItemSubPath
-						o.Behaviours.SubPath.KeepTrailingSep = true
-						o.DoExtend = true
+						o.Store.Behaviours.SubPath.KeepTrailingSep = true
+						o.Store.DoExtend = true
 						o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 							if expected, ok := expectations[item.Extension.Name]; ok {
 								Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
@@ -87,9 +87,9 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 				}
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
-					o.Behaviours.SubPath.KeepTrailingSep = false
-					o.Subscription = nav.SubscribeAny
-					o.DoExtend = true
+					o.Store.Behaviours.SubPath.KeepTrailingSep = false
+					o.Store.Subscription = nav.SubscribeAny
+					o.Store.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 						if expected, ok := expectations[item.Extension.Name]; ok {
 							Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))

@@ -59,6 +59,13 @@ type filterTE struct {
 	ifNotApplicable bool
 }
 
+type marshalTE struct {
+	naviTE
+	errorContains string
+	format        nav.PersistenceFormatEnum
+	restore       bool
+}
+
 type scopeTE struct {
 	naviTE
 	expectedScopes recordingScopeMap
@@ -70,7 +77,7 @@ type sortTE struct {
 	order         nav.DirectoryEntryOrderEnum
 }
 
-func cwd() string { // oops, this is a bad name for the function, cwd is incorrect
+func origin() string {
 	if current, err := os.Getwd(); err == nil {
 		parent, _ := filepath.Split(current)
 		grand := filepath.Dir(parent)

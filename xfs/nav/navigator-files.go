@@ -28,7 +28,7 @@ func (n *filesNavigator) traverse(currentItem *TraverseItem, frame *navigationFr
 	}()
 	navi := &NavigationInfo{Options: n.o, Item: currentItem, Frame: frame}
 	n.descend(navi)
-	entries, readErr := n.agent.read(currentItem, n.o.Behaviours.Sort.DirectoryEntryOrder)
+	entries, readErr := n.agent.read(currentItem, n.o.Store.Behaviours.Sort.DirectoryEntryOrder)
 	// Files and Folders need to be sorted independently to preserve the navigation order
 	// stipulated by .Behaviours.Sort.DirectoryEntryOrder
 	//

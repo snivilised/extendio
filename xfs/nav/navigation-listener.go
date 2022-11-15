@@ -44,10 +44,11 @@ type ListenBehaviour struct {
 type ListeningState uint
 
 const (
-	ListenDefault ListeningState = iota
-	ListenPending                // denotes conditional listening is awaiting activation
-	ListenActive                 // denotes conditional listening is active (callback is invoked)
-	ListenRetired                // denoted conditional listening is now deactivated
+	ListenUndefined ListeningState = iota
+	ListenDefault
+	ListenPending // denotes conditional listening is awaiting activation
+	ListenActive  // denotes conditional listening is active (callback is invoked)
+	ListenRetired // denoted conditional listening is now deactivated
 )
 
 type navigationListeningStates map[ListeningState]TraverseCallback
@@ -135,7 +136,7 @@ func listenStates(params *listenStatesParams) *navigationListeningStates {
 				params.frame.listener.transition(ListenActive)
 				params.o.Notify.OnStart(params.o.Listen.Start.Description())
 
-				if params.o.Behaviours.Listen.InclusiveStart {
+				if params.o.Store.Behaviours.Listen.InclusiveStart {
 					return params.decorated(item)
 				}
 				return nil
@@ -150,7 +151,7 @@ func listenStates(params *listenStatesParams) *navigationListeningStates {
 				params.frame.listener.transition(ListenRetired)
 				params.o.Notify.OnStop(params.o.Listen.Stop.Description())
 
-				if params.o.Behaviours.Listen.InclusiveStop {
+				if params.o.Store.Behaviours.Listen.InclusiveStop {
 					return params.decorated(item)
 				}
 				return nil
