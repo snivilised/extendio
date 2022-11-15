@@ -16,10 +16,10 @@ import (
 // sure the DoExtend value is set to true in the options, otherwise a panic will occur due to the
 // filter attempting to de-reference the Extension on the TraverseItem.
 func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
-	if o.FilterDefs.Current.Source != "" {
-		frame.filters.Current = NewCurrentFilter(&o.FilterDefs.Current)
+	if o.Store.FilterDefs.Current.Source != "" {
+		frame.filters.Current = NewCurrentFilter(&o.Store.FilterDefs.Current)
 		frame.filters.Current.Validate()
-		o.DoExtend = true
+		o.Store.DoExtend = true
 		decorated := frame.client
 		decorator := func(item *TraverseItem) *LocalisableError {
 			if frame.filters.Current.IsMatch(item) {
@@ -30,10 +30,10 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 		frame.decorate("init-current-filter 🎁", decorator)
 	}
 
-	if o.FilterDefs.Children.Source != "" {
-		frame.filters.Compound = NewCompoundFilter(&o.FilterDefs.Children)
+	if o.Store.FilterDefs.Children.Source != "" {
+		frame.filters.Compound = NewCompoundFilter(&o.Store.FilterDefs.Children)
 		frame.filters.Compound.Validate()
-		o.DoExtend = true
+		o.Store.DoExtend = true
 	}
 }
 

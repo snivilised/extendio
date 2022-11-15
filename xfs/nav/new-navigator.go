@@ -11,7 +11,7 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 
 	var impl navigatorImpl
 
-	switch o.Subscription {
+	switch o.Store.Subscription {
 	case SubscribeAny:
 		impl = &universalNavigator{
 			navigator: navigator{o: o, agent: &agent{

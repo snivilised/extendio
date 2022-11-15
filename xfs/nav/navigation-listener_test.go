@@ -16,16 +16,16 @@ var _ = Describe("Listener", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = cwd()
+		root = origin()
 	})
 
 	DescribeTable("Listener",
 		func(entry *listenTE) {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = entry.subscription
-				o.Behaviours.Listen.InclusiveStart = entry.incStart
-				o.Behaviours.Listen.InclusiveStop = entry.incStop
+				o.Store.Subscription = entry.subscription
+				o.Store.Behaviours.Listen.InclusiveStart = entry.incStart
+				o.Store.Behaviours.Listen.InclusiveStop = entry.incStop
 				o.Listen.Start = entry.start
 				o.Listen.Stop = entry.stop
 				if !entry.mute {
@@ -36,7 +36,7 @@ var _ = Describe("Listener", Ordered, func() {
 						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 					}
 				}
-				o.DoExtend = entry.extended
+				o.Store.DoExtend = entry.extended
 				o.Callback = func(item *nav.TraverseItem) *LocalisableError {
 					GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
 						item.Extension.Name,
@@ -184,7 +184,7 @@ var _ = Describe("Listener", Ordered, func() {
 		It("should: exit early (folders)", func() {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = nav.SubscribeFolders
+				o.Store.Subscription = nav.SubscribeFolders
 				o.Listen.Stop = &nav.ListenBy{
 					Name: "Name: DREAM-POP",
 					Fn: func(item *nav.TraverseItem) bool {
@@ -194,8 +194,8 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Notify.OnStop = func(description string) {
 					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 				}
-				o.DoExtend = true
-				o.Callback = foldersCallback("EARLY-EXIT-😴", o.DoExtend)
+				o.Store.DoExtend = true
+				o.Callback = foldersCallback("EARLY-EXIT-😴", o.Store.DoExtend)
 			})
 			path := path(root, "")
 			navigator.Walk(path)
@@ -204,7 +204,7 @@ var _ = Describe("Listener", Ordered, func() {
 		It("should: exit early (files)", func() {
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = nav.SubscribeFiles
+				o.Store.Subscription = nav.SubscribeFiles
 				o.Listen.Stop = &nav.ListenBy{
 					Name: "Name(contains): Captain",
 					Fn: func(item *nav.TraverseItem) bool {
@@ -214,8 +214,8 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Notify.OnStop = func(description string) {
 					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 				}
-				o.DoExtend = true
-				o.Callback = filesCallback("EARLY-EXIT-😴", o.DoExtend)
+				o.Store.DoExtend = true
+				o.Callback = filesCallback("EARLY-EXIT-😴", o.Store.DoExtend)
 			})
 			path := path(root, "")
 			navigator.Walk(path)
@@ -227,8 +227,8 @@ var _ = Describe("Listener", Ordered, func() {
 			It("🧪 should: apply filter within the listen range", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
-					o.Subscription = nav.SubscribeFolders
-					o.FilterDefs.Current = nav.FilterDef{
+					o.Store.Subscription = nav.SubscribeFolders
+					o.Store.FilterDefs.Current = nav.FilterDef{
 						Type:        nav.FilterTypeRegexEn,
 						Description: "Contains 'o'",
 						Scope:       nav.ScopeAllEn,
@@ -252,17 +252,17 @@ var _ = Describe("Listener", Ordered, func() {
 					o.Notify.OnStop = func(description string) {
 						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 					}
-					o.DoExtend = true
+					o.Store.DoExtend = true
 					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
 							item.Extension.Name,
 						)
 						GinkgoWriter.Printf(
 							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-							o.FilterDefs.Current.Description, o.FilterDefs.Current.Source, item.Extension.Name,
-							item.Extension.NodeScope, o.FilterDefs.Current.Scope,
+							o.Store.FilterDefs.Current.Description, o.Store.FilterDefs.Current.Source, item.Extension.Name,
+							item.Extension.NodeScope, o.Store.FilterDefs.Current.Scope,
 						)
-						Expect(item.Extension.Name).To(MatchRegexp(o.FilterDefs.Current.Source), reason(item.Extension.Name))
+						Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Current.Source), reason(item.Extension.Name))
 						return nil
 					}
 				})

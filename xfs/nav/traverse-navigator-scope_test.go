@@ -13,7 +13,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = cwd()
+		root = origin()
 	})
 
 	DescribeTable("scope",
@@ -31,8 +31,8 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = entry.subscription
-				o.DoExtend = true
+				o.Store.Subscription = entry.subscription
+				o.Store.DoExtend = true
 				o.Callback = scopeRecorder
 			})
 

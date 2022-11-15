@@ -22,3 +22,4 @@ ginkgo.report
 .env
 
 test-options*.json
+test-state*.json

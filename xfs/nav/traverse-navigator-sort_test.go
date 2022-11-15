@@ -13,7 +13,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = cwd()
+		root = origin()
 	})
 
 	DescribeTable("sort",
@@ -33,8 +33,8 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = entry.subscription
-				o.FilterDefs.Current = nav.FilterDef{
+				o.Store.Subscription = entry.subscription
+				o.Store.FilterDefs.Current = nav.FilterDef{
 					Type:            nav.FilterTypeGlobEn,
 					Description:     entry.name,
 					Source:          entry.pattern,
@@ -42,8 +42,8 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 					Negate:          entry.negate,
 					IfNotApplicable: entry.ifNotApplicable,
 				}
-				o.Behaviours.Sort.DirectoryEntryOrder = entry.order
-				o.DoExtend = true
+				o.Store.Behaviours.Sort.DirectoryEntryOrder = entry.order
+				o.Store.DoExtend = true
 				o.Callback = recorder
 			})
 

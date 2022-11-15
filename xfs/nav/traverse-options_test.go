@@ -29,13 +29,13 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 				clone := o.Clone()
 				Expect(clone).NotTo(BeNil())
 
-				clone.Subscription = nav.SubscribeFiles
-				Expect(o.Subscription).To(Equal(nav.SubscribeAny))
+				clone.Store.Subscription = nav.SubscribeFiles
+				Expect(o.Store.Subscription).To(Equal(nav.SubscribeAny))
 
-				clone.Behaviours.SubPath.KeepTrailingSep = false
-				Expect(o.Behaviours.SubPath.KeepTrailingSep).To(BeTrue())
+				clone.Store.Behaviours.SubPath.KeepTrailingSep = false
+				Expect(o.Store.Behaviours.SubPath.KeepTrailingSep).To(BeTrue())
 
-				clone.FilterDefs.Current = nav.FilterDef{
+				clone.Store.FilterDefs.Current = nav.FilterDef{
 					Type:        nav.FilterTypeRegexEn,
 					Description: "test filter",
 					Source:      "foo bar",

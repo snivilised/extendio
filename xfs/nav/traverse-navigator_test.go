@@ -17,7 +17,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = cwd()
+		root = origin()
 	})
 
 	Context("Navigator", func() {
@@ -44,9 +44,9 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				path := path(root, entry.relative)
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
-					o.Subscription = entry.subscription
-					o.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
-					o.DoExtend = entry.extended
+					o.Store.Subscription = entry.subscription
+					o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
+					o.Store.DoExtend = entry.extended
 					o.Callback = callback
 				})
 
@@ -220,9 +220,9 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 			path := path(root, entry.relative)
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
-				o.Subscription = entry.subscription
-				o.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
-				o.DoExtend = entry.extended
+				o.Store.Subscription = entry.subscription
+				o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
+				o.Store.DoExtend = entry.extended
 				o.Callback = once
 			})
 
