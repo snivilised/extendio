@@ -6,7 +6,7 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/onsi/ginkgo/v2 v2.5.0
 	github.com/onsi/gomega v1.24.1
-	github.com/samber/lo v1.33.0
+	github.com/samber/lo v1.34.0
 )
 
 require (
