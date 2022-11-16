@@ -46,9 +46,10 @@ type ListeningState uint
 const (
 	ListenUndefined ListeningState = iota
 	ListenDefault
-	ListenPending // denotes conditional listening is awaiting activation
-	ListenActive  // denotes conditional listening is active (callback is invoked)
-	ListenRetired // denoted conditional listening is now deactivated
+	ListenFastward // resume fast-forwarding
+	ListenPending  // denotes conditional listening is awaiting activation
+	ListenActive   // denotes conditional listening is active (callback is invoked)
+	ListenRetired  // denoted conditional listening is now deactivated
 )
 
 type navigationListeningStates map[ListeningState]TraverseCallback
@@ -129,6 +130,13 @@ type listenStatesParams struct {
 func listenStates(params *listenStatesParams) *navigationListeningStates {
 
 	return &navigationListeningStates{
+
+		ListenFastward: func(item *TraverseItem) *LocalisableError {
+			// fast forwarding to resume point
+			//
+			return nil
+		},
+
 		ListenPending: func(item *TraverseItem) *LocalisableError {
 			// listening not yet started
 			//

@@ -2,7 +2,7 @@ package nav
 
 import "reflect"
 
-func isNil(i interface{}) bool {
+func IsNil(i interface{}) bool {
 	return i == nil || reflect.ValueOf(i).IsNil()
 }
 
@@ -34,7 +34,7 @@ func NewCurrentFilter(info *FilterDef) TraverseFilter {
 		}
 
 	case FilterTypeCustomEn:
-		if isNil(info.Custom) {
+		if IsNil(info.Custom) {
 			panic("missing custom filter")
 		}
 
@@ -68,7 +68,7 @@ func NewCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 		}
 
 	case FilterTypeCustomEn:
-		if isNil(def.Custom) {
+		if IsNil(def.Custom) {
 			panic("missing custom compound filter")
 		}
 

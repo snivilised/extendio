@@ -7,25 +7,58 @@ import (
 
 type navigatorController struct {
 	impl  navigatorImpl
-	frame navigationFrame
+	frame *navigationFrame
 	ns    NavigationState
 }
 
-func (c *navigatorController) Walk(root string) *TraverseResult {
+func (c *navigatorController) init(root string) {
 	o := c.impl.options()
-	c.frame = navigationFrame{
+	c.frame = &navigationFrame{
 		Root:   root,
 		client: o.Callback,
 	}
 
-	bootstrapFilter(o, &c.frame)
-	bootstrapListener(o, &c.frame)
+	bootstrapFilter(o, c.frame)
+	bootstrapListener(o, c.frame)
 
 	c.ns = NavigationState{Root: root, Filters: c.frame.filters}
 	o.Notify.OnBegin(&c.ns)
+}
+
+func (c *navigatorController) resume(ps *persistState, initialiser resumeInit) {
+
+	if ps.Active.Listen != ListenUndefined {
+		if ps.Active.Listen == ListenDefault {
+			// TODO: what do we do here?
+			//
+		} else {
+			if c.frame.listener == nil {
+				panic("navigatorController: 🔥 listener has not been set!")
+			}
+			// this state transition is the default, but can be overridden
+			// by the resume initialiser
+			//
+			c.frame.listener.transition(ps.Active.Listen)
+			// TODO: don't take this seriously, its speculative at the
+			// moment and wont be fixed in this issue (#59)
+			//
+			initialiser(&listenerInitParams{
+				state:    ps.Active.Listen,
+				listener: c.frame.listener,
+			})
+		}
+	}
+}
+
+func (c *navigatorController) Walk(root string) *TraverseResult {
+	o := c.impl.options()
+
+	if c.frame == nil {
+		c.init(root)
+	}
 
 	result := &TraverseResult{
-		Error: c.impl.top(&c.frame),
+		Error: c.impl.top(c.frame),
 	}
 	o.Notify.OnEnd(result)
 
@@ -46,7 +79,8 @@ func (c *navigatorController) Save(path string) error {
 
 	state := &persistState{
 		Store: &o.Store,
-		Active: activeState{
+		Active: &activeState{
+			Root:   c.frame.Root,
 			Listen: listen,
 		},
 	}

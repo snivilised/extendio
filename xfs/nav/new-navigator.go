@@ -9,6 +9,15 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 		panic(MISSING_CALLBACK_FN_L_ERR)
 	}
 
+	impl := newImpl(o)
+	ctrl := &navigatorController{
+		impl: impl,
+	}
+
+	return ctrl
+}
+
+func newImpl(o *TraverseOptions) navigatorImpl {
 	var impl navigatorImpl
 
 	switch o.Store.Subscription {
@@ -33,9 +42,6 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 			}},
 		}
 	}
-	ctrl := &navigatorController{
-		impl: impl,
-	}
 
-	return ctrl
+	return impl
 }

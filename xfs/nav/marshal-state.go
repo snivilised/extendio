@@ -6,8 +6,9 @@ import (
 )
 
 type stateMarshallerJSON struct {
-	o  *TraverseOptions
-	ps *persistState
+	o       *TraverseOptions
+	ps      *persistState
+	restore PersistenceRestorer
 }
 
 func (m *stateMarshallerJSON) marshal(path string) error {
@@ -28,12 +29,11 @@ func (m *stateMarshallerJSON) marshal(path string) error {
 // state into the listener. (requires resume)
 func (m *stateMarshallerJSON) unmarshal(path string) error {
 	if bytes, err := os.ReadFile(path); err == nil {
-		restore := m.o.Persist.Restore
 		m.o = GetDefaultOptions()
 		m.ps = new(persistState)
 		if err = json.Unmarshal(bytes, &m.ps); err == nil {
 			m.o.Store = *m.ps.Store
-			restore(m.o)
+			m.restore(m.o)
 			return nil
 
 		} else {
