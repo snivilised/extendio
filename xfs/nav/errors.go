@@ -22,6 +22,3 @@ var SORT_L_ERR = LocalisableError{Inner: SORT_ERR}
 
 var MISSING_CALLBACK_FN_ERR = errors.New("missing callback function")
 var MISSING_CALLBACK_FN_L_ERR = LocalisableError{Inner: MISSING_CALLBACK_FN_ERR}
-
-var MISSING_RESTORER_FN_ERR = errors.New("missing restorer function")
-var MISSING_RESTORER_FN_L_ERR = LocalisableError{Inner: MISSING_RESTORER_FN_ERR}

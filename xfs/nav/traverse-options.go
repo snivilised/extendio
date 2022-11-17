@@ -108,8 +108,8 @@ type NavigationState struct {
 
 // PersistOptions contains options for persisting traverse options
 type PersistOptions struct {
-	Format  PersistenceFormatEnum
-	Restore PersistenceRestorer `json:"-"`
+	Format PersistenceFormatEnum
+	// Restore PersistenceRestorer `json:"-"`
 }
 
 // OptionsStore represents that part of options that is directly

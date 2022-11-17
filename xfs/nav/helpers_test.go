@@ -63,7 +63,6 @@ type marshalTE struct {
 	naviTE
 	errorContains string
 	format        nav.PersistenceFormatEnum
-	restore       bool
 }
 
 type scopeTE struct {

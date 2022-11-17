@@ -7,7 +7,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/samber/lo"
 
 	"github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -55,7 +54,6 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 		Context("given: correct config", func() {
 			It("🧪 should: write options in JSON", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Persist.Restore = func(o *nav.TraverseOptions) {}
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = filterDefs
 					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
@@ -82,9 +80,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					}
 				}()
 
-				restore := lo.Ternary(entry.restore, func(o *nav.TraverseOptions) {}, nil)
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
-					o.Persist.Restore = restore
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = filterDefs
@@ -103,18 +99,9 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 			},
 			Entry(nil, &marshalTE{
 				naviTE: naviTE{
-					message:  "missing restorer function",
-					relative: "RETRO-WAVE/Chromatics/Night Drive",
-				},
-				format:        nav.PersistInJSONEn,
-				errorContains: "missing restorer function",
-			}),
-			Entry(nil, &marshalTE{
-				naviTE: naviTE{
 					message:  "unknown marshal format",
 					relative: "RETRO-WAVE/Chromatics/Night Drive",
 				},
-				restore:       true,
 				errorContains: "unknown marshal format",
 			}),
 		)
@@ -124,9 +111,10 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 		Context("given: correct config", func() {
 			It("🧪 should: write options in JSON", func() {
 				Skip("needs resume function")
-				o.Persist.Restore = func(o *nav.TraverseOptions) {
+				restore := func(o *nav.TraverseOptions) {
 					GinkgoWriter.Printf("---> marshaller ...\n")
 				}
+				restore(o)
 				_ = fromJsonPath
 
 				// err := o.UnmarshalDefunct(fromJsonPath)

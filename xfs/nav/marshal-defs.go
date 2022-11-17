@@ -31,12 +31,13 @@ type PersistFilters struct {
 type PersistenceRestorer func(o *TraverseOptions)
 
 type activeState struct {
+	Root   string
 	Listen ListeningState
 }
 
 type persistState struct {
 	Store  *OptionsStore
-	Active activeState
+	Active *activeState
 }
 
 type stateMarshaller interface {
