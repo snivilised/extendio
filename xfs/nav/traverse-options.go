@@ -135,7 +135,7 @@ type OptionsStore struct {
 	// FilterDefs definitions of filters that restricts for which file system nodes the
 	// Callback is invoked for.
 	//
-	FilterDefs FilterDefinitions
+	FilterDefs *FilterDefinitions
 }
 
 // TraverseOptions customise the way a directory tree is traversed
@@ -209,7 +209,6 @@ func GetDefaultOptions() *TraverseOptions {
 					InclusiveStop:  false,
 				},
 			},
-			FilterDefs: FilterDefinitions{},
 		},
 		Notify: Notifications{
 			OnBegin:   func(state *NavigationState) {},

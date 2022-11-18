@@ -20,13 +20,15 @@ var _ = Describe("FilterGlob", Ordered, func() {
 	DescribeTable("GlobFilter",
 		func(entry *filterTE) {
 			recording := recordingMap{}
-			filterDef := nav.FilterDef{
-				Type:            nav.FilterTypeGlobEn,
-				Description:     entry.name,
-				Source:          entry.pattern,
-				Scope:           entry.scope,
-				Negate:          entry.negate,
-				IfNotApplicable: entry.ifNotApplicable,
+			filterDefs := &nav.FilterDefinitions{
+				Current: nav.FilterDef{
+					Type:            nav.FilterTypeGlobEn,
+					Description:     entry.name,
+					Source:          entry.pattern,
+					Scope:           entry.scope,
+					Negate:          entry.negate,
+					IfNotApplicable: entry.ifNotApplicable,
+				},
 			}
 			var filter nav.TraverseFilter
 
@@ -39,7 +41,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				}
 
 				o.Store.Subscription = entry.subscription
-				o.Store.FilterDefs.Current = filterDef
+				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
 				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 					GinkgoWriter.Printf(
@@ -141,11 +143,13 @@ var _ = Describe("FilterGlob", Ordered, func() {
 	DescribeTable("Filter Children (glob)",
 		func(entry *filterTE) {
 			recording := recordingMap{}
-			filterDef := nav.CompoundFilterDef{
-				Type:        nav.FilterTypeGlobEn,
-				Description: entry.name,
-				Source:      entry.pattern,
-				Negate:      entry.negate,
+			filterDefs := &nav.FilterDefinitions{
+				Children: nav.CompoundFilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: entry.name,
+					Source:      entry.pattern,
+					Negate:      entry.negate,
+				},
 			}
 			var filter nav.CompoundTraverseFilter
 
@@ -157,7 +161,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					filter = state.Filters.Compound
 				}
 				o.Store.Subscription = entry.subscription
-				o.Store.FilterDefs.Children = filterDef
+				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
 				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 					actualNoChildren := len(item.Children)

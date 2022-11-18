@@ -35,10 +35,12 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 				clone.Store.Behaviours.SubPath.KeepTrailingSep = false
 				Expect(o.Store.Behaviours.SubPath.KeepTrailingSep).To(BeTrue())
 
-				clone.Store.FilterDefs.Current = nav.FilterDef{
-					Type:        nav.FilterTypeRegexEn,
-					Description: "test filter",
-					Source:      "foo bar",
+				clone.Store.FilterDefs = &nav.FilterDefinitions{
+					Current: nav.FilterDef{
+						Type:        nav.FilterTypeRegexEn,
+						Description: "test filter",
+						Source:      "foo bar",
+					},
 				}
 				state := &nav.NavigationState{Root: "/foo-bar"}
 				o.Notify.OnBegin(state)

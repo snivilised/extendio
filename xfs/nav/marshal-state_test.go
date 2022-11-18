@@ -55,7 +55,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 			It("🧪 should: write options in JSON", func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Store.DoExtend = true
-					o.Store.FilterDefs = filterDefs
+					o.Store.FilterDefs = &filterDefs
 					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 						return nil
 					}
@@ -83,7 +83,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
-					o.Store.FilterDefs = filterDefs
+					o.Store.FilterDefs = &filterDefs
 					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
 						return nil
 					}
