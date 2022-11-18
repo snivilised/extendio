@@ -228,11 +228,13 @@ var _ = Describe("Listener", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeFolders
-					o.Store.FilterDefs.Current = nav.FilterDef{
-						Type:        nav.FilterTypeRegexEn,
-						Description: "Contains 'o'",
-						Scope:       nav.ScopeAllEn,
-						Source:      "(i?)o",
+					o.Store.FilterDefs = &nav.FilterDefinitions{
+						Current: nav.FilterDef{
+							Type:        nav.FilterTypeRegexEn,
+							Description: "Contains 'o'",
+							Scope:       nav.ScopeAllEn,
+							Source:      "(i?)o",
+						},
 					}
 					o.Listen.Start = &nav.ListenBy{
 						Name: "Name: Orbital",

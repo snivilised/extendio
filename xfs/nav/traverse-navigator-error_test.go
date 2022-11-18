@@ -205,7 +205,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
-					o.Store.FilterDefs = nav.FilterDefinitions{
+					o.Store.FilterDefs = &nav.FilterDefinitions{
 						Current: filterDef,
 					}
 					o.Notify.OnBegin = begin("🧲")
