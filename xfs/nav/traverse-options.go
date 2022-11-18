@@ -233,3 +233,8 @@ func GetDefaultOptions() *TraverseOptions {
 		},
 	}
 }
+
+func (o *TraverseOptions) useExtendHook() {
+	o.Store.DoExtend = true
+	o.Hooks.Extend = lo.Ternary(o.Store.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
+}

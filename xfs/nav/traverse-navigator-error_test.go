@@ -7,6 +7,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/snivilised/extendio/translate"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -185,6 +186,33 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						return nil, errors.New("fake Lstat error")
 					}
 					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.Store.DoExtend, true)
+				})
+				const relative = "RETRO-WAVE"
+				path := path(root, relative)
+				_ = navigator.Walk(path)
+			})
+		})
+	})
+
+	Context("Extension error", func() {
+		When("filter defined without setting DoExtend=true", func() {
+			It("should: not panic", func() {
+				filterDef := nav.FilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: "flac files",
+					Source:      "*.flac",
+					Scope:       nav.ScopeLeafEn,
+				}
+				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					o.Store.Subscription = nav.SubscribeAny
+					o.Store.FilterDefs = nav.FilterDefinitions{
+						Current: filterDef,
+					}
+					o.Notify.OnBegin = begin("🧲")
+					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
+						GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
+						return nil
+					}
 				})
 				const relative = "RETRO-WAVE"
 				path := path(root, relative)

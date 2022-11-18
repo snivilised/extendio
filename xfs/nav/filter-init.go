@@ -17,9 +17,9 @@ import (
 // filter attempting to de-reference the Extension on the TraverseItem.
 func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 	if o.Store.FilterDefs.Current.Source != "" {
+		o.useExtendHook()
 		frame.filters.Current = NewCurrentFilter(&o.Store.FilterDefs.Current)
 		frame.filters.Current.Validate()
-		o.Store.DoExtend = true
 		decorated := frame.client
 		decorator := func(item *TraverseItem) *LocalisableError {
 			if frame.filters.Current.IsMatch(item) {
@@ -31,9 +31,9 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 	}
 
 	if o.Store.FilterDefs.Children.Source != "" {
+		o.useExtendHook()
 		frame.filters.Compound = NewCompoundFilter(&o.Store.FilterDefs.Children)
 		frame.filters.Compound.Validate()
-		o.Store.DoExtend = true
 	}
 }
 

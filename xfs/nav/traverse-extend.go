@@ -33,7 +33,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 		})
 		isLeaf = len(grouped[true]) == 0
 
-		// eventually, the scope/depth designation will be put into an abstraction,
+		// TODO: eventually, the scope/depth designation will be put into an abstraction,
 		// perhaps a scope->depth map. This will support resume, where these designations
 		// will have to be adjusted
 		//
