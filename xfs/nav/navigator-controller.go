@@ -25,7 +25,7 @@ func (c *navigatorController) init(root string) {
 	o.Notify.OnBegin(&c.ns)
 }
 
-func (c *navigatorController) resume(ps *persistState, initialiser resumeInit) {
+func (c *navigatorController) resume(ps *persistState, strategy resumeStrategy) {
 
 	if ps.Active.Listen != ListenUndefined {
 		if ps.Active.Listen == ListenDefault {
@@ -42,7 +42,7 @@ func (c *navigatorController) resume(ps *persistState, initialiser resumeInit) {
 			// TODO: don't take this seriously, its speculative at the
 			// moment and wont be fixed in this issue (#59)
 			//
-			initialiser(&listenerInitParams{
+			strategy.init(&listenerInitParams{
 				state:    ps.Active.Listen,
 				listener: c.frame.listener,
 			})
@@ -73,7 +73,7 @@ func (c *navigatorController) Save(path string) error {
 			return ListenUndefined
 		},
 		func() ListeningState {
-			return c.frame.listener.listen
+			return c.frame.listener.state
 		},
 	)
 
