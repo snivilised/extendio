@@ -3,10 +3,11 @@ package nav
 type resumeController struct {
 	navigator *navigatorController
 	ps        *persistState
+	strategy  resumeStrategy
 }
 
-func (c *resumeController) init(initialiser resumeInit) {
-	c.navigator.resume(c.ps, initialiser)
+func (c *resumeController) init() {
+	c.navigator.resume(c.ps, c.strategy)
 }
 
 func (c *resumeController) Walk() *TraverseResult {

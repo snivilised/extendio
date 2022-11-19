@@ -1,6 +1,7 @@
 package nav
 
 import (
+	"github.com/snivilised/extendio/collections"
 	. "github.com/snivilised/extendio/translate"
 )
 
@@ -60,6 +61,7 @@ func bootstrapListener(o *TraverseOptions, frame *navigationFrame) {
 		return
 	}
 	frame.listener = newListener(o, frame)
+	frame.listener.attach(&o.Listen)
 }
 
 func newListener(o *TraverseOptions, frame *navigationFrame) *navigationListener {
@@ -67,7 +69,8 @@ func newListener(o *TraverseOptions, frame *navigationFrame) *navigationListener
 	initialState := backfillListenState(&o.Listen)
 
 	listener := &navigationListener{
-		listen: initialState,
+		state:       initialState,
+		resumeStack: collections.NewStack[*ListenOptions](),
 	}
 
 	decorated := frame.client
@@ -92,25 +95,25 @@ func newListener(o *TraverseOptions, frame *navigationFrame) *navigationListener
 	return listener
 }
 
-func backfillListenState(o *ListenOptions) ListeningState {
+func backfillListenState(lo *ListenOptions) ListeningState {
 	initialState := ListenDefault
 
 	switch {
-	case (o.Start != nil) && (o.Stop != nil):
+	case (lo.Start != nil) && (lo.Stop != nil):
 		initialState = ListenPending
 
-	case o.Start != nil:
+	case lo.Start != nil:
 		initialState = ListenPending
-		o.Stop = &ListenBy{
+		lo.Stop = &ListenBy{
 			Name: "run to completion (don't stop early)",
 			Fn: func(item *TraverseItem) bool {
 				return false
 			},
 		}
 
-	case o.Stop != nil:
+	case lo.Stop != nil:
 		initialState = ListenActive
-		o.Start = &ListenBy{
+		lo.Start = &ListenBy{
 			Name: "start listening straight away",
 			Fn: func(item *TraverseItem) bool {
 				return true
@@ -140,9 +143,9 @@ func listenStates(params *listenStatesParams) *navigationListeningStates {
 		ListenPending: func(item *TraverseItem) *LocalisableError {
 			// listening not yet started
 			//
-			if params.o.Listen.Start.IsMatch(item) {
+			if params.frame.listener.lo.Start.IsMatch(item) {
 				params.frame.listener.transition(ListenActive)
-				params.o.Notify.OnStart(params.o.Listen.Start.Description())
+				params.o.Notify.OnStart(params.frame.listener.lo.Start.Description())
 
 				if params.o.Store.Behaviours.Listen.InclusiveStart {
 					return params.decorated(item)
@@ -155,9 +158,9 @@ func listenStates(params *listenStatesParams) *navigationListeningStates {
 		ListenActive: func(item *TraverseItem) *LocalisableError {
 			// listening
 			//
-			if params.o.Listen.Stop.IsMatch(item) {
+			if params.frame.listener.lo.Stop.IsMatch(item) {
 				params.frame.listener.transition(ListenRetired)
-				params.o.Notify.OnStop(params.o.Listen.Stop.Description())
+				params.o.Notify.OnStop(params.frame.listener.lo.Stop.Description())
 
 				if params.o.Store.Behaviours.Listen.InclusiveStop {
 					return params.decorated(item)
@@ -174,16 +177,30 @@ func listenStates(params *listenStatesParams) *navigationListeningStates {
 }
 
 type navigationListener struct {
-	listen  ListeningState
-	states  navigationListeningStates
-	current TraverseCallback
+	state       ListeningState
+	states      navigationListeningStates
+	current     TraverseCallback
+	resumeStack *collections.Stack[*ListenOptions]
+	lo          *ListenOptions
 }
 
 func (l *navigationListener) init() {
-	l.transition(l.listen)
+	l.transition(l.state)
 }
 
 func (l *navigationListener) transition(state ListeningState) {
-	l.listen = state
+	l.state = state
 	l.current = l.states[state]
 }
+
+func (l *navigationListener) attach(options *ListenOptions) {
+	l.lo = options
+	l.resumeStack.Push(options)
+}
+
+// to be called by ListenFastward state:
+//
+// func (l *navigationListener) detach() {
+// 	_, _ = l.resumeStack.Pop()
+// 	l.currentLo, _ = l.resumeStack.Current()
+// }

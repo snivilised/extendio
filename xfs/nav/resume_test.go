@@ -30,7 +30,12 @@ var _ = Describe("Resume", Ordered, func() {
 			restore := func(o *nav.TraverseOptions) {
 				GinkgoWriter.Printf("===> 🐚 restoring ...\n")
 			}
-			_, err := nav.NewResumer(fromJsonPath, restore)
+			info := nav.NewResumerInfo{
+				Path:     fromJsonPath,
+				Restore:  restore,
+				Strategy: nav.ResumeStrategyFastwardEn,
+			}
+			_, err := nav.NewResumer(info)
 			Expect(err).To(BeNil())
 		})
 	})

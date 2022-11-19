@@ -1,20 +1,28 @@
 package nav
 
-func NewResumer(path string, restore PersistenceRestorer) (Resumer, error) {
+type NewResumerInfo struct {
+	Path     string
+	Restore  PersistenceRestorer
+	Strategy ResumeStrategyEnum
+}
+
+func NewResumer(info NewResumerInfo) (Resumer, error) {
 	marshaller := stateMarshallerJSON{
-		restore: restore,
+		restore: info.Restore,
 	}
 
-	if err := marshaller.unmarshal(path); err == nil {
+	if err := marshaller.unmarshal(info.Path); err == nil {
 
 		impl := newImpl(marshaller.o)
+		strategy := &dummyResumeStrategy{}
 		ctrl := &resumeController{
 			navigator: &navigatorController{
 				impl: impl,
 			},
-			ps: marshaller.ps,
+			ps:       marshaller.ps,
+			strategy: strategy,
 		}
-		ctrl.init(func(params *listenerInitParams) {})
+		ctrl.init()
 
 		return ctrl, nil
 	} else {
