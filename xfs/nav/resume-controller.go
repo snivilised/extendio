@@ -11,9 +11,6 @@ func (c *resumeController) init() {
 }
 
 func (c *resumeController) Walk() *TraverseResult {
-	if c.navigator.frame.Root == "" {
-		panic("resumeController:Walk 'Root' not set")
-	}
 	return c.navigator.Walk(c.navigator.frame.Root)
 }
 

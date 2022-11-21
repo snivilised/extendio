@@ -2,6 +2,9 @@ package nav
 
 type ResumeStrategyEnum uint
 
+// If these enum definitions change, the data (eg, resume-fastward.json) also needs
+// to be updated.
+
 const (
 	ResumeStrategyUndefinedEn ResumeStrategyEnum = iota
 	ResumeStrategySpawnEn
@@ -9,8 +12,10 @@ const (
 )
 
 type listenerInitParams struct {
+	o        *TraverseOptions
 	state    ListeningState
 	listener *navigationListener
+	frame    *navigationFrame
 }
 
 type Resumer interface {
@@ -20,12 +25,4 @@ type Resumer interface {
 
 type resumeStrategy interface {
 	init(params *listenerInitParams)
-}
-
-type dummyResumeStrategy struct {
-	// to be replaced with spawn/fastward
-}
-
-func (s *dummyResumeStrategy) init(params *listenerInitParams) {
-
 }

@@ -11,51 +11,48 @@ type navigatorController struct {
 	ns    NavigationState
 }
 
-func (c *navigatorController) init(root string) {
+func (c *navigatorController) init() {
 	o := c.impl.options()
 	c.frame = &navigationFrame{
-		Root:   root,
 		client: o.Callback,
 	}
-
 	bootstrapFilter(o, c.frame)
 	bootstrapListener(o, c.frame)
 
-	c.ns = NavigationState{Root: root, Filters: c.frame.filters}
-	o.Notify.OnBegin(&c.ns)
+	c.ns = NavigationState{Filters: c.frame.filters}
 }
 
 func (c *navigatorController) resume(ps *persistState, strategy resumeStrategy) {
-
 	if ps.Active.Listen != ListenUndefined {
-		if ps.Active.Listen == ListenDefault {
-			// TODO: what do we do here?
-			//
-		} else {
-			if c.frame.listener == nil {
-				panic("navigatorController: 🔥 listener has not been set!")
-			}
-			// this state transition is the default, but can be overridden
-			// by the resume initialiser
-			//
-			c.frame.listener.transition(ps.Active.Listen)
-			// TODO: don't take this seriously, its speculative at the
-			// moment and wont be fixed in this issue (#59)
-			//
-			strategy.init(&listenerInitParams{
-				state:    ps.Active.Listen,
-				listener: c.frame.listener,
-			})
+		c.setRoot(ps.Active.Root)
+		initParams := &listenerInitParams{
+			o:     c.impl.options(),
+			state: ps.Active.Listen,
+			// listener: c.frame.listener,
+			frame: c.frame,
 		}
+
+		if ps.Active.Listen == ListenDefault {
+			// TODO: what else do we do here?
+			//
+			strategy.init(initParams)
+		} else {
+			// if c.frame.listener == nil {
+			// 	panic("navigatorController.resume: 🔥 listener has not been set!")
+			// }
+			strategy.init(initParams)
+			c.frame.listener.transition(ps.Active.Listen)
+		}
+	} else {
+		panic("navigatorController.resume: 🔥 listen state invalid (undefined)")
 	}
 }
 
 func (c *navigatorController) Walk(root string) *TraverseResult {
 	o := c.impl.options()
 
-	if c.frame == nil {
-		c.init(root)
-	}
+	c.setRoot(root)
+	o.Notify.OnBegin(&c.ns)
 
 	result := &TraverseResult{
 		Error: c.impl.top(c.frame),
@@ -79,11 +76,16 @@ func (c *navigatorController) Save(path string) error {
 
 	state := &persistState{
 		Store: &o.Store,
-		Active: &activeState{
+		Active: &ActiveState{
 			Root:   c.frame.Root,
 			Listen: listen,
 		},
 	}
 	marshaller := newStateMarshaler(o, state)
 	return marshaller.marshal(path)
+}
+
+func (c *navigatorController) setRoot(root string) {
+	c.ns.Root = root
+	c.frame.Root = root
 }
