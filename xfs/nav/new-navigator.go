@@ -13,6 +13,7 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	ctrl := &navigatorController{
 		impl: impl,
 	}
+	ctrl.init()
 
 	return ctrl
 }

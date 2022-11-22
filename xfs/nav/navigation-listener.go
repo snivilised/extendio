@@ -95,6 +95,11 @@ func newListener(o *TraverseOptions, frame *navigationFrame) *navigationListener
 	return listener
 }
 
+func resumeListener(o *TraverseOptions, frame *navigationFrame) *navigationListener {
+
+	return nil
+}
+
 func backfillListenState(lo *ListenOptions) ListeningState {
 	initialState := ListenDefault
 

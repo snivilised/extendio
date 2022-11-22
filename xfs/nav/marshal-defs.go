@@ -28,16 +28,16 @@ type PersistFilters struct {
 	Children *PersistCompoundFilterDef
 }
 
-type PersistenceRestorer func(o *TraverseOptions)
+type PersistenceRestorer func(o *TraverseOptions, active *ActiveState)
 
-type activeState struct {
+type ActiveState struct {
 	Root   string
 	Listen ListeningState
 }
 
 type persistState struct {
 	Store  *OptionsStore
-	Active *activeState
+	Active *ActiveState
 }
 
 type stateMarshaller interface {
