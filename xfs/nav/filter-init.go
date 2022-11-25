@@ -18,17 +18,23 @@ import (
 func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 
 	if o.Store.FilterDefs != nil {
+		frame.filters = &NavigationFilters{}
+
 		if o.Store.FilterDefs.Current.Source != "" || o.Store.FilterDefs.Current.Custom != nil {
 			o.useExtendHook()
 			frame.filters.Current = NewCurrentFilter(&o.Store.FilterDefs.Current)
 			frame.filters.Current.Validate()
 			decorated := frame.client
-			decorator := func(item *TraverseItem) *LocalisableError {
-				if frame.filters.Current.IsMatch(item) {
-					return decorated(item)
-				}
-				return nil
+			decorator := LabelledTraverseCallback{
+				Label: "filter decorator",
+				Fn: func(item *TraverseItem) *LocalisableError {
+					if frame.filters.Current.IsMatch(item) {
+						return decorated.Fn(item)
+					}
+					return nil
+				},
 			}
+			frame.raw = decorator
 			frame.decorate("init-current-filter 🎁", decorator)
 		}
 
@@ -38,8 +44,4 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 			frame.filters.Compound.Validate()
 		}
 	}
-}
-
-func bootstrapFilter(o *TraverseOptions, frame *navigationFrame) {
-	o.Hooks.InitFilters(o, frame)
 }

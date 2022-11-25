@@ -31,8 +31,9 @@ type PersistFilters struct {
 type PersistenceRestorer func(o *TraverseOptions, active *ActiveState)
 
 type ActiveState struct {
-	Root   string
-	Listen ListeningState
+	Root     string
+	Listen   ListeningState
+	NodePath string
 }
 
 type persistState struct {

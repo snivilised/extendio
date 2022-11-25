@@ -26,18 +26,23 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				recording := recordingMap{}
 				visited := []string{}
 
-				once := func(item *nav.TraverseItem) *LocalisableError {
-					_, found := recording[item.Path]
-					Expect(found).To(BeFalse())
-					recording[item.Path] = len(item.Children)
+				once := nav.LabelledTraverseCallback{
+					Label: "test once decorator",
+					Fn: func(item *nav.TraverseItem) *LocalisableError {
+						_, found := recording[item.Path]
+						Expect(found).To(BeFalse())
+						recording[item.Path] = len(item.Children)
 
-					return entry.callback(item)
+						return entry.callback.Fn(item)
+					},
 				}
 
-				visitor := func(item *nav.TraverseItem) *LocalisableError {
-					// just kept to enable visitor specific debug activity
-					//
-					return once(item)
+				visitor := nav.LabelledTraverseCallback{
+					Fn: func(item *nav.TraverseItem) *LocalisableError {
+						// just kept to enable visitor specific debug activity
+						//
+						return once.Fn(item)
+					},
 				}
 				callback := lo.Ternary(entry.once, once, lo.Ternary(entry.visit, visitor, entry.callback))
 
@@ -209,12 +214,15 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 			recording := recordingMap{}
 			visited := []string{}
 
-			once := func(item *nav.TraverseItem) *LocalisableError {
-				_, found := recording[item.Extension.Name]
-				Expect(found).To(BeFalse())
-				recording[item.Extension.Name] = len(item.Children)
+			once := nav.LabelledTraverseCallback{
+				Label: "test once callback",
+				Fn: func(item *nav.TraverseItem) *LocalisableError {
+					_, found := recording[item.Extension.Name]
+					Expect(found).To(BeFalse())
+					recording[item.Extension.Name] = len(item.Children)
 
-				return entry.callback(item)
+					return entry.callback.Fn(item)
+				},
 			}
 
 			path := path(root, entry.relative)

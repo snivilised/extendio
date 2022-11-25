@@ -29,15 +29,18 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.Behaviours.SubPath.KeepTrailingSep = true
 					o.Store.DoExtend = true
-					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-						if expected, ok := expectations[item.Extension.Name]; ok {
-							Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
-							GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
-								item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
-							)
-						}
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test sub-path callback",
+						Fn: func(item *nav.TraverseItem) *LocalisableError {
+							if expected, ok := expectations[item.Extension.Name]; ok {
+								Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
+								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
+									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
+								)
+							}
 
-						return nil
+							return nil
+						},
 					}
 				})
 				path := path(root, "RETRO-WAVE")
@@ -60,15 +63,18 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						o.Hooks.FileSubPath = nav.RootItemSubPath
 						o.Store.Behaviours.SubPath.KeepTrailingSep = true
 						o.Store.DoExtend = true
-						o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-							if expected, ok := expectations[item.Extension.Name]; ok {
-								Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
-								GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
-									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
-								)
-							}
+						o.Callback = nav.LabelledTraverseCallback{
+							Label: "test sub-path callback",
+							Fn: func(item *nav.TraverseItem) *LocalisableError {
+								if expected, ok := expectations[item.Extension.Name]; ok {
+									Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
+									GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
+										item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
+									)
+								}
 
-							return nil
+								return nil
+							},
 						}
 					})
 					path := path(root, "edm")
@@ -90,15 +96,18 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Store.Behaviours.SubPath.KeepTrailingSep = false
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.DoExtend = true
-					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-						if expected, ok := expectations[item.Extension.Name]; ok {
-							Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
-							GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
-								item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
-							)
-						}
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test sub-path callback",
+						Fn: func(item *nav.TraverseItem) *LocalisableError {
+							if expected, ok := expectations[item.Extension.Name]; ok {
+								Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
+								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
+									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
+								)
+							}
 
-						return nil
+							return nil
+						},
 					}
 				})
 				path := path(root, "RETRO-WAVE")

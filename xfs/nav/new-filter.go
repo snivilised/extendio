@@ -7,38 +7,38 @@ func IsNil(i interface{}) bool {
 }
 
 // NewCurrentFilter exported for testing purposes only (do not use)
-func NewCurrentFilter(info *FilterDef) TraverseFilter {
+func NewCurrentFilter(def *FilterDef) TraverseFilter {
 
 	var filter TraverseFilter
-	switch info.Type {
+	switch def.Type {
 	case FilterTypeRegexEn:
 		filter = &RegexFilter{
 			Filter: Filter{
-				Name:            info.Description,
-				RequiredScope:   info.Scope,
-				Pattern:         info.Source,
-				Negate:          info.Negate,
-				IfNotApplicable: info.IfNotApplicable,
+				Name:            def.Description,
+				RequiredScope:   def.Scope,
+				Pattern:         def.Source,
+				Negate:          def.Negate,
+				IfNotApplicable: def.IfNotApplicable,
 			},
 		}
 
 	case FilterTypeGlobEn:
 		filter = &GlobFilter{
 			Filter: Filter{
-				Name:            info.Description,
-				RequiredScope:   info.Scope,
-				Pattern:         info.Source,
-				Negate:          info.Negate,
-				IfNotApplicable: info.IfNotApplicable,
+				Name:            def.Description,
+				RequiredScope:   def.Scope,
+				Pattern:         def.Source,
+				Negate:          def.Negate,
+				IfNotApplicable: def.IfNotApplicable,
 			},
 		}
 
 	case FilterTypeCustomEn:
-		if IsNil(info.Custom) {
+		if IsNil(def.Custom) {
 			panic("missing custom filter")
 		}
 
-		filter = info.Custom
+		filter = def.Custom
 	}
 
 	return filter

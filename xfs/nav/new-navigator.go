@@ -5,7 +5,7 @@ package nav
 func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 
-	if o.Callback == nil {
+	if o.Callback.Fn == nil {
 		panic(MISSING_CALLBACK_FN_L_ERR)
 	}
 
@@ -13,7 +13,12 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	ctrl := &navigatorController{
 		impl: impl,
 	}
-	ctrl.init()
+
+	booter := bootstrapper{
+		o:  o,
+		nc: ctrl,
+	}
+	booter.init()
 
 	return ctrl
 }

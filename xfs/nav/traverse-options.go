@@ -5,17 +5,6 @@ import (
 	"github.com/samber/lo"
 )
 
-// A note about TraverseOptions/MARSHAL_EXCLUSIONS:
-// TraverseOptionsAsJSON needs to be kept in sync with TraverseOptions,
-// so when the former changes, then so should the latter. The only exception
-// to this rule is if the new option is not serialisable, eg it is a function
-// or an interface. A unit test (traverse-options-marshall) has been defined
-// to enforce this so if an addition is made to TraverseOptions without the
-// corresponding change to TraverseOptionsAsJSON, then the test should fail.
-// If a non serialisable option is being added, then its name should be added
-// to GetMarshalOptionsExclusions.
-//
-
 // SubPathBehaviour
 type SubPathBehaviour struct {
 	KeepTrailingSep bool
@@ -86,6 +75,9 @@ type FilterDefinitions struct {
 	Children CompoundFilterDef
 }
 
+// TODO: rename Current to Node
+// TODO: Current(Node) / Compound need to be pointers
+
 type NavigationFilters struct {
 	// Current denotes the filter object that represents the Current file system item
 	// being visited.
@@ -103,7 +95,7 @@ type NavigationFilters struct {
 // which is meant for internal purposes only.
 type NavigationState struct {
 	Root    string
-	Filters NavigationFilters
+	Filters *NavigationFilters
 }
 
 // PersistOptions contains options for persisting traverse options
@@ -144,7 +136,7 @@ type TraverseOptions struct {
 
 	// Callback function to invoke for every item visited in the file system.
 	//
-	Callback TraverseCallback `json:"-"`
+	Callback LabelledTraverseCallback `json:"-"`
 
 	// Notify collection of notification function.
 	//

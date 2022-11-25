@@ -10,40 +10,52 @@ type NewResumerInfo struct {
 	Strategy ResumeStrategyEnum
 }
 
-func NewResumer(info NewResumerInfo) (Resumer, error) {
+func NewResumer(info *NewResumerInfo) (Resumer, error) {
 	marshaller := stateMarshallerJSON{
 		restore: info.Restore,
 	}
+	err := marshaller.unmarshal(info.Path)
 
-	if err := marshaller.unmarshal(info.Path); err == nil {
-
-		impl := newImpl(marshaller.o)
-		strategy := newResumeStrategy(info.Strategy)
-		navigator := &navigatorController{
-			impl: impl,
-		}
-		navigator.init()
-
-		resumerCtrl := &resumeController{
-			navigator: navigator,
-			ps:        marshaller.ps,
-			strategy:  strategy,
-		}
-		resumerCtrl.init()
-
-		return resumerCtrl, nil
-	} else {
+	if err != nil {
 		return nil, err
 	}
+	o := marshaller.o
+
+	impl := newImpl(o)
+	strategy := newResumeStrategy(o, info.Strategy, marshaller.ps.Active)
+	navigator := &navigatorController{
+		impl: impl,
+	}
+
+	resumerCtrl := &resumeController{
+		navigator: navigator,
+		ps:        marshaller.ps,
+		strategy:  strategy,
+	}
+
+	booter := bootstrapper{
+		o:  o,
+		nc: navigator,
+		rc: resumerCtrl,
+	}
+	booter.init()
+	booter.resume(o, marshaller.ps)
+
+	return resumerCtrl, nil
 }
 
-func newResumeStrategy(strategyEn ResumeStrategyEnum) resumeStrategy {
+func newResumeStrategy(o *TraverseOptions, strategyEn ResumeStrategyEnum, active *ActiveState) resumeStrategy {
 
 	var strategy resumeStrategy
 
 	switch strategyEn {
 	case ResumeStrategyFastwardEn:
-		strategy = &fastwardStrategy{}
+		strategy = &fastwardStrategy{
+			baseStrategy: baseStrategy{
+				o:      o,
+				active: active,
+			},
+		}
 	default:
 		panic(fmt.Errorf("*** newResumeStrategy: unsupported strategy: '%v'", strategyEn))
 	}

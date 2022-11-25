@@ -1,39 +1,45 @@
 package nav
 
-// o.Store.Behaviours.Listen
+import "fmt"
+
+type fastwardListener struct {
+	target string
+}
+
+func (l *fastwardListener) Description() string {
+	return fmt.Sprintf(">>> fast forwarding >>> to: '%v'", l.target)
+}
+
+func (l *fastwardListener) IsMatch(item *TraverseItem) bool {
+	return item.Path == l.target
+}
+
 type fastwardStrategy struct {
+	baseStrategy
 	client struct {
 		state      ListeningState
 		behaviours ListenBehaviour
 	}
 	lo *ListenOptions
-
-	// to be replaced with spawn/fastward
 }
 
-func (s *fastwardStrategy) init(params *listenerInitParams) {
+func (s *fastwardStrategy) init(params *strategyInitParams) {
 	s.client.state = params.state
-	s.client.behaviours = params.o.Store.Behaviours.Listen
+	s.client.behaviours = s.o.Store.Behaviours.Listen
 
-	if params.listener == nil {
-
-		// resumeListener()
-
-		// &navigationListener{
-		// 	state:       initialState,
-		// 	resumeStack: collections.NewStack[*ListenOptions](),
-		// }
-
-		s.lo = &ListenOptions{}
-	} else {
-		s.lo = &ListenOptions{}
+	listener := &fastwardListener{
+		target: s.active.NodePath,
 	}
 	s.lo = &ListenOptions{
-		Start: params.listener.lo.Start,
-		Stop:  params.listener.lo.Stop,
+		Start: nil,      // we want to start listening immediately
+		Stop:  listener, // stop when we get the the resume point
 	}
 
+	// force the state into fast forward
+	//
 	params.state = ListenFastward
+}
 
-	// now set up synthetic listener
+func (s *fastwardStrategy) listenOptions() *ListenOptions {
+	return s.lo
 }
