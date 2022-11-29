@@ -34,10 +34,16 @@ func (n *foldersNavigator) traverse(currentItem *TraverseItem, frame *navigation
 	entries.sort(&folders)
 
 	if n.o.Store.Subscription == SubscribeFoldersWithFiles {
-		files := lo.TernaryF(frame.filters.Compound == nil,
-			func() []fs.DirEntry { return entries.Files },
-			func() []fs.DirEntry { return frame.filters.Compound.Matching(entries.Files) },
-		)
+
+		var files []fs.DirEntry
+		if frame.filters == nil {
+			files = entries.Files
+		} else {
+			files = lo.TernaryF(frame.filters.Compound == nil,
+				func() []fs.DirEntry { return entries.Files },
+				func() []fs.DirEntry { return frame.filters.Compound.Matching(entries.Files) },
+			)
+		}
 
 		entries.sort(&files)
 		currentItem.Children = files

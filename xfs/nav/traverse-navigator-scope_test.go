@@ -20,13 +20,16 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 		func(entry *scopeTE) {
 			recording := recordingScopeMap{}
 
-			scopeRecorder := func(item *nav.TraverseItem) *LocalisableError {
-				_, found := recording[item.Extension.Name]
+			scopeRecorder := nav.LabelledTraverseCallback{
+				Label: "test callback",
+				Fn: func(item *nav.TraverseItem) *LocalisableError {
+					_, found := recording[item.Extension.Name]
 
-				if !found {
-					recording[item.Extension.Name] = item.Extension.NodeScope
-				}
-				return entry.callback(item)
+					if !found {
+						recording[item.Extension.Name] = item.Extension.NodeScope
+					}
+					return entry.callback.Fn(item)
+				},
 			}
 
 			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {

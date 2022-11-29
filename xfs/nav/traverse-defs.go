@@ -63,6 +63,11 @@ const (
 // TraverseCallback defines traversal callback function signature.
 type TraverseCallback func(item *TraverseItem) *LocalisableError
 
+type LabelledTraverseCallback struct {
+	Label string
+	Fn    TraverseCallback
+}
+
 // AscendancyHandler defines the signatures of ascend/descend handlers
 type AscendancyHandler func(item *TraverseItem)
 

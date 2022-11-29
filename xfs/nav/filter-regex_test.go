@@ -6,6 +6,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/samber/lo"
 
 	"github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -44,19 +45,24 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
-				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					GinkgoWriter.Printf(
-						"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-						filter.Description(),
-						filter.Source(),
-						item.Extension.Name,
-						item.Extension.NodeScope,
-						filter.Scope(),
-					)
-					Expect(item).Should(MatchCurrentRegexFilter(filter))
+				o.Callback = nav.LabelledTraverseCallback{
+					Label: "test regex filter callback",
+					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						GinkgoWriter.Printf(
+							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							filter.Description(),
+							filter.Source(),
+							item.Extension.Name,
+							item.Extension.NodeScope,
+							filter.Scope(),
+						)
+						if lo.Contains(entry.mandatory, item.Extension.Name) {
+							Expect(item).Should(MatchCurrentRegexFilter(filter))
+						}
 
-					recording[item.Extension.Name] = len(item.Children)
-					return nil
+						recording[item.Extension.Name] = len(item.Children)
+						return nil
+					},
 				}
 			})
 			path := path(root, entry.relative)
@@ -199,19 +205,22 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
-				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					actualNoChildren := len(item.Children)
-					GinkgoWriter.Printf(
-						"===> 💠 Regex Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
-						filter.Description(),
-						actualNoChildren,
-						filter.Source(),
-						item.Extension.Name,
-						item.Extension.NodeScope,
-					)
+				o.Callback = nav.LabelledTraverseCallback{
+					Label: "test regex filter callback",
+					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						actualNoChildren := len(item.Children)
+						GinkgoWriter.Printf(
+							"===> 💠 Regex Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
+							filter.Description(),
+							actualNoChildren,
+							filter.Source(),
+							item.Extension.Name,
+							item.Extension.NodeScope,
+						)
 
-					recording[item.Extension.Name] = len(item.Children)
-					return nil
+						recording[item.Extension.Name] = len(item.Children)
+						return nil
+					},
 				}
 			})
 			path := path(root, entry.relative)
@@ -296,8 +305,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = nav.SubscribeFolders
 				o.Store.FilterDefs = filterDefs
-				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					return nil
+				o.Callback = nav.LabelledTraverseCallback{
+					Label: "test regex filter callback",
+					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						return nil
+					},
 				}
 			})
 			const relative = "RETRO-WAVE"
@@ -345,8 +357,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.Subscription = nav.SubscribeFoldersWithFiles
 				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
-				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					return nil
+				o.Callback = nav.LabelledTraverseCallback{
+					Label: "test regex filter callback",
+					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						return nil
+					},
 				}
 			})
 			const relative = "RETRO-WAVE"

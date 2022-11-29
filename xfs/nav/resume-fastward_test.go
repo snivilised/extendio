@@ -34,12 +34,12 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 
 				relative := "RETRO-WAVE"
 				active.Root = path(root, relative)
-				active.Listen = nav.ListenDefault
+				active.Listen = nav.ListenDeaf
 
 				o.Notify.OnBegin = begin("🛡️")
 				GinkgoWriter.Printf("===> 🐚 restoring ...\n")
 			}
-			info := nav.NewResumerInfo{
+			info := &nav.NewResumerInfo{
 				Path:     fromJsonPath,
 				Restore:  restore,
 				Strategy: nav.ResumeStrategyFastwardEn,
@@ -47,7 +47,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 			resumer, err := nav.NewResumer(info)
 			Expect(err).To(BeNil())
 
-			resumer.Walk()
+			resumer.Continue()
 		})
 	})
 
@@ -66,7 +66,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				o.Notify.OnBegin = begin("🛡️")
 				GinkgoWriter.Printf("===> 🐚 restoring ...\n")
 			}
-			info := nav.NewResumerInfo{
+			info := &nav.NewResumerInfo{
 				Path:     fromJsonPath,
 				Restore:  restore,
 				Strategy: nav.ResumeStrategyFastwardEn,
@@ -74,7 +74,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 			resumer, err := nav.NewResumer(info)
 			Expect(err).To(BeNil())
 
-			resumer.Walk()
+			resumer.Continue()
 		})
 	})
 })

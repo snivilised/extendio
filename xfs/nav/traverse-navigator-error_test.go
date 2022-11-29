@@ -55,8 +55,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						nav.DefaultExtendHookFn(navi, descendants)
 					}
 					o.Store.DoExtend = true
-					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-						return nil
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test callback",
+						Fn: func(item *nav.TraverseItem) *LocalisableError {
+							return nil
+						},
 					}
 				})
 				const relative = "RETRO-WAVE"
@@ -78,12 +81,15 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
 					o.Store.DoExtend = true
-					o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-						GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
-							item.Path, item.Error,
-						)
-						recording = append(recording, item.Error)
-						return item.Error
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test callback",
+						Fn: func(item *nav.TraverseItem) *LocalisableError {
+							GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
+								item.Path, item.Error,
+							)
+							recording = append(recording, item.Error)
+							return item.Error
+						},
 					}
 				})
 				const relative = "RETRO-WAVE"
@@ -209,9 +215,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						Current: filterDef,
 					}
 					o.Notify.OnBegin = begin("🧲")
-					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-						GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
-						return nil
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test callback",
+						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+							GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
+							return nil
+						},
 					}
 				})
 				const relative = "RETRO-WAVE"

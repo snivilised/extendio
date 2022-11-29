@@ -37,22 +37,27 @@ var _ = Describe("Listener", Ordered, func() {
 					}
 				}
 				o.Store.DoExtend = entry.extended
-				o.Callback = func(item *nav.TraverseItem) *LocalisableError {
-					GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
-						item.Extension.Name,
-					)
+				o.Callback = nav.LabelledTraverseCallback{
+					Label: "test listener callback",
+					Fn: func(item *nav.TraverseItem) *LocalisableError {
+						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
+							item.Extension.Name,
+						)
 
-					Expect(lo.Contains(entry.prohibited, item.Extension.Name)).To(
-						BeFalse(), reason(item.Extension.Name),
-					)
-					Expect(lo.Contains(entry.mandatory, item.Extension.Name)).To(
-						BeTrue(), reason(item.Extension.Name),
-					)
+						prohibited := fmt.Sprintf("%v, was invoked, but should NOT have been", reason(item.Extension.Name))
+						Expect(lo.Contains(entry.prohibited, item.Extension.Name)).To(
+							BeFalse(), prohibited,
+						)
+						mandatory := fmt.Sprintf("%v, was not invoked, but should have been", reason(item.Extension.Name))
+						Expect(lo.Contains(entry.mandatory, item.Extension.Name)).To(
+							BeTrue(), mandatory,
+						)
 
-					entry.mandatory = lo.Reject(entry.mandatory, func(s string, _ int) bool {
-						return s == item.Extension.Name
-					})
-					return nil
+						entry.mandatory = lo.Reject(entry.mandatory, func(s string, _ int) bool {
+							return s == item.Extension.Name
+						})
+						return nil
+					},
 				}
 			})
 			path := path(root, entry.relative)
@@ -255,17 +260,20 @@ var _ = Describe("Listener", Ordered, func() {
 						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 					}
 					o.Store.DoExtend = true
-					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
-							item.Extension.Name,
-						)
-						GinkgoWriter.Printf(
-							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-							o.Store.FilterDefs.Current.Description, o.Store.FilterDefs.Current.Source, item.Extension.Name,
-							item.Extension.NodeScope, o.Store.FilterDefs.Current.Scope,
-						)
-						Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Current.Source), reason(item.Extension.Name))
-						return nil
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "Listener Test Callback",
+						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+							GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
+								item.Extension.Name,
+							)
+							GinkgoWriter.Printf(
+								"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+								o.Store.FilterDefs.Current.Description, o.Store.FilterDefs.Current.Source, item.Extension.Name,
+								item.Extension.NodeScope, o.Store.FilterDefs.Current.Scope,
+							)
+							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Current.Source), reason(item.Extension.Name))
+							return nil
+						},
 					}
 				})
 				path := path(root, "edm/ELECTRONICA")

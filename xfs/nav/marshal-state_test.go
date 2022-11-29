@@ -56,8 +56,11 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
-					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-						return nil
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test marshal state callback",
+						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+							return nil
+						},
 					}
 				})
 				path := path(root, "RETRO-WAVE/Chromatics/Night Drive")
@@ -84,8 +87,11 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
-					o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-						return nil
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test marshal state callback",
+						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+							return nil
+						},
 					}
 				})
 				path := path(root, entry.relative)

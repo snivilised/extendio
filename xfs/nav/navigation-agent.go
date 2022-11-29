@@ -138,5 +138,6 @@ func (a *agent) proxy(currentItem *TraverseItem, frame *navigationFrame) *Locali
 	// that the Callback on the options represents the client defined function which
 	// can be decorated. Only the callback on the frame should ever be invoked.
 	//
-	return frame.client(currentItem)
+	frame.NodePath = currentItem.Path
+	return frame.client.Fn(currentItem)
 }

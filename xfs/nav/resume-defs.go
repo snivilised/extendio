@@ -2,7 +2,7 @@ package nav
 
 type ResumeStrategyEnum uint
 
-// If these enum definitions change, the data (eg, resume-fastward.json) also needs
+// If these enum definitions change, the test data (eg, resume-fastward.json) also needs
 // to be updated.
 
 const (
@@ -11,18 +11,29 @@ const (
 	ResumeStrategyFastwardEn
 )
 
-type listenerInitParams struct {
-	o        *TraverseOptions
-	state    ListeningState
-	listener *navigationListener
-	frame    *navigationFrame
+type strategyInitParams struct {
+	state ListeningState
+	frame *navigationFrame
+	pci   *preserveClientInfo
 }
 
 type Resumer interface {
-	Walk() *TraverseResult
+	Continue() *TraverseResult
 	Save(path string) error
 }
 
 type resumeStrategy interface {
-	init(params *listenerInitParams)
+	init(params *strategyInitParams)
+	listenOptions() *ListenOptions
+	preservedClient() *preserveClientInfo
+}
+
+type baseStrategy struct {
+	o      *TraverseOptions
+	active *ActiveState
+	pci    *preserveClientInfo
+}
+
+func (s *baseStrategy) preservedClient() *preserveClientInfo {
+	return s.pci
 }

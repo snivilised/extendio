@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/samber/lo"
 
 	"github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -43,19 +44,24 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
-				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					GinkgoWriter.Printf(
-						"===> 💠 Glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-						filter.Description(),
-						filter.Source(),
-						item.Extension.Name,
-						item.Extension.NodeScope,
-						filter.Scope(),
-					)
-					Expect(item).Should(MatchCurrentGlobFilter(filter))
+				o.Callback = nav.LabelledTraverseCallback{
+					Label: "test glob filter callback",
+					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						GinkgoWriter.Printf(
+							"===> 💠 Glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							filter.Description(),
+							filter.Source(),
+							item.Extension.Name,
+							item.Extension.NodeScope,
+							filter.Scope(),
+						)
+						if lo.Contains(entry.mandatory, item.Extension.Name) {
+							Expect(item).Should(MatchCurrentGlobFilter(filter))
+						}
 
-					recording[item.Extension.Name] = len(item.Children)
-					return nil
+						recording[item.Extension.Name] = len(item.Children)
+						return nil
+					},
 				}
 			})
 			path := path(root, entry.relative)
@@ -113,7 +119,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 
 		// === ifNotApplicable ===============================================
 
-		Entry(nil, &filterTE{
+		Entry(nil, &filterTE{ // THIS MAYBE AN INCORRECT TEST, because ifNotApplicable=true, so re-check mandatory/prohibited
 			naviTE: naviTE{
 				message:      "universal(any scope): glob filter (ifNotApplicable=true)",
 				relative:     "RETRO-WAVE",
@@ -127,7 +133,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 		}),
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
-				message:      "universal(any scope): glob filter (ifNotApplicable=false)",
+				message:      "universal(leaf scope): glob filter (ifNotApplicable=false)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 				mandatory:    []string{"A1 - Can You Kiss Me First.flac"},
@@ -163,19 +169,22 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
-				o.Callback = func(item *nav.TraverseItem) *translate.LocalisableError {
-					actualNoChildren := len(item.Children)
-					GinkgoWriter.Printf(
-						"===> 💠 Glob Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
-						filter.Description(),
-						actualNoChildren,
-						filter.Source(),
-						item.Extension.Name,
-						item.Extension.NodeScope,
-					)
+				o.Callback = nav.LabelledTraverseCallback{
+					Label: "test glob filter callback",
+					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						actualNoChildren := len(item.Children)
+						GinkgoWriter.Printf(
+							"===> 💠 Glob Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
+							filter.Description(),
+							actualNoChildren,
+							filter.Source(),
+							item.Extension.Name,
+							item.Extension.NodeScope,
+						)
 
-					recording[item.Extension.Name] = len(item.Children)
-					return nil
+						recording[item.Extension.Name] = len(item.Children)
+						return nil
+					},
 				}
 			})
 			path := path(root, entry.relative)
