@@ -2,18 +2,26 @@ package nav
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/snivilised/extendio/collections"
 )
 
+type nullDetacher struct{}
+
+func (d *nullDetacher) detach(frame *navigationFrame) {
+	fmt.Println("===> 💥💥💥 null:detach")
+}
+
 type bootstrapper struct {
-	o  *TraverseOptions
-	oi *overrideListenerInfo
-	nc *navigatorController
-	rc *resumeController
+	o        *TraverseOptions
+	nc       *navigatorController
+	rc       *resumeController
+	detacher resumeDetacher
 }
 
 func (b *bootstrapper) init() {
+	b.detacher = &nullDetacher{}
 	b.nc.frame = b.nc.init()
 	b.initFilters()
 	b.initNotifiers()
@@ -35,82 +43,31 @@ func (b *bootstrapper) initNotifiers() {
 	if b.o.Notify.OnStop == nil {
 		b.o.Notify.OnStop = func(description string) {}
 	}
+
+	b.nc.frame.notifiers.init(&b.o.Notify)
 }
 
 func (b *bootstrapper) initListener() {
-	initialState := b.backfill(&b.o.Listen)
+	initialState := backfill(&b.o.Listen)
 
-	listener := &navigationListener{
+	b.nc.frame.listener = &navigationListener{
 		state:       initialState,
 		resumeStack: collections.NewStack[*ListenOptions](),
 	}
-	listener.decorate(&listenStatesParams{
-		o: b.o, lo: &b.o.Listen, frame: b.nc.frame,
+
+	b.nc.frame.listener.buildStates(&listenStatesParams{
+		o: b.o, frame: b.nc.frame,
+		detacher: b,
 	})
-	b.nc.frame.listener = listener
-}
 
-// func (b *bootstrapper) decorate(decorator LabelledTraverseCallback, listener *navigationListener) *LabelledTraverseCallback {
-// 	decorated := &b.nc.frame.client
-// 	b.nc.frame.decorate("listener 🎀", decorator)
-
-// 	listener.composeListenStates(&listenStatesParams{
-// 		decorated: decorated, o: b.o, frame: b.nc.frame,
-// 		detach: func() {
-// 			b.rc.detach()
-// 		},
-// 	})
-
-// 	return decorated
-// }
-
-func (b *bootstrapper) backfill(lo *ListenOptions) ListeningState {
-
-	initialState := ListenDeaf
-
-	start := func(item *TraverseItem) bool {
-		return false
-	}
-	stop := func(item *TraverseItem) bool {
-		return true
-	}
-
-	switch {
-	case (lo.Start != nil) && (lo.Stop != nil):
-		initialState = ListenPending
-
-	case lo.Start != nil:
-		initialState = ListenPending
-		lo.Stop = &ListenBy{
-			Name: "run to completion, don't stop early",
-			Fn:   start,
-		}
-
-	case lo.Stop != nil:
-		initialState = ListenActive
-		lo.Start = &ListenBy{
-			Name: "start listening straight away",
-			Fn:   stop,
-		}
-
-	default:
-		lo.Stop = &ListenBy{
-			Name: "dormant listener, don't stop early",
-			Fn:   start,
-		}
-		lo.Start = &ListenBy{
-			Name: "dormant listener, start listening straight away",
-			Fn:   stop,
-		}
-	}
-
-	return initialState
+	b.nc.frame.listener.decorate(&listenStatesParams{
+		lo: &b.o.Listen, frame: b.nc.frame,
+	})
 }
 
 type preserveClientInfo struct {
 	lo         *ListenOptions
 	behaviours ListenBehaviour
-	notify     Notifications
 }
 
 type overrideClientInfo struct {
@@ -123,41 +80,22 @@ type overrideListenerInfo struct {
 	ps       *persistState
 }
 
-func (b *bootstrapper) resume(o *TraverseOptions, ps *persistState) {
+func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
 
 	if b.rc == nil {
 		panic(errors.New("bootstrapper.resume: resume controller not set"))
 	}
 
-	pci := &preserveClientInfo{
-		lo:         &o.Listen,
-		behaviours: b.o.Store.Behaviours.Listen,
-		notify:     b.o.Notify,
-	}
-
-	initParams := &strategyInitParams{
-		state: ps.Active.Listen,
+	strategyParams := &strategyInitParams{
+		ps:    ps,
 		frame: b.nc.frame,
-		pci:   pci,
+		rc:    b.rc,
 	}
 
-	// the state defaults to the state restored as the persist state,
-	// but the strategy is free to modify it in the params to suit
-	// its needs.
-	//
-	b.rc.strategy.init(initParams)
+	b.rc.strategy.init(strategyParams)
+	b.detacher = b.rc
+}
 
-	b.oi = &overrideListenerInfo{
-		client: pci,
-		override: &overrideClientInfo{
-			lo: b.rc.strategy.listenOptions(),
-		},
-		ps: ps,
-	}
-
-	// we can ignore the returned listen state from backfill, because
-	// the strategy knows the correct initial state.
-	//
-	_ = b.backfill(b.oi.override.lo)
-	b.nc.frame.listener.attach(b.oi.override.lo, initParams.state)
+func (b *bootstrapper) detach(frame *navigationFrame) {
+	b.detacher.detach(b.nc.frame)
 }

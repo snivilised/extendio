@@ -2,13 +2,13 @@ package nav
 
 func Resume(resumeInfo *NewResumerInfo) (*TraverseResult, error) {
 
-	resumer, err := NewResumer(resumeInfo)
+	resumer, err := newResumer(resumeInfo)
 
 	if err != nil {
 		return nil, err
 	}
 	_ = resumer
-	// result := resumer.Continue()
+	result := resumer.Continue()
 
-	return &TraverseResult{}, nil
+	return result, result.Error
 }

@@ -23,7 +23,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 		func(entry *filterTE) {
 			recording := recordingMap{}
 			filterDefs := &nav.FilterDefinitions{
-				Current: nav.FilterDef{
+				Node: nav.FilterDef{
 					Type:            nav.FilterTypeRegexEn,
 					Description:     entry.name,
 					Source:          entry.pattern,
@@ -39,7 +39,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
 					)
-					filter = state.Filters.Current
+					filter = state.Filters.Node
 				}
 
 				o.Store.Subscription = entry.subscription
@@ -294,7 +294,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			}()
 
 			filterDefs := &nav.FilterDefinitions{
-				Current: nav.FilterDef{
+				Node: nav.FilterDef{
 					Type:        nav.FilterTypeRegexEn,
 					Description: entry.name,
 					Source:      entry.pattern,

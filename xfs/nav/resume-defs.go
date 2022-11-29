@@ -12,28 +12,33 @@ const (
 )
 
 type strategyInitParams struct {
-	state ListeningState
+	ps    *persistState
 	frame *navigationFrame
-	pci   *preserveClientInfo
+	rc    *resumeController
 }
 
-type Resumer interface {
+type resumer interface {
 	Continue() *TraverseResult
 	Save(path string) error
 }
 
+type strategyResumeInfo struct {
+	ps *persistState
+	nc *navigatorController
+}
+
 type resumeStrategy interface {
 	init(params *strategyInitParams)
-	listenOptions() *ListenOptions
-	preservedClient() *preserveClientInfo
+	attach(params *resumeAttachParams)
+	detach(frame *navigationFrame)
+	resume(info *strategyResumeInfo) *TraverseResult
 }
 
 type baseStrategy struct {
-	o      *TraverseOptions
-	active *ActiveState
-	pci    *preserveClientInfo
+	o  *TraverseOptions
+	ps *persistState
 }
 
-func (s *baseStrategy) preservedClient() *preserveClientInfo {
-	return s.pci
+type resumeDetacher interface {
+	detach(frame *navigationFrame)
 }

@@ -6,8 +6,8 @@ func IsNil(i interface{}) bool {
 	return i == nil || reflect.ValueOf(i).IsNil()
 }
 
-// NewCurrentFilter exported for testing purposes only (do not use)
-func NewCurrentFilter(def *FilterDef) TraverseFilter {
+// NewNodeFilter exported for testing purposes only (do not use)
+func NewNodeFilter(def *FilterDef) TraverseFilter {
 
 	var filter TraverseFilter
 	switch def.Type {

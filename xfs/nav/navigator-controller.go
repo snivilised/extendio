@@ -2,7 +2,6 @@ package nav
 
 import (
 	"github.com/samber/lo"
-	_ "github.com/snivilised/extendio/translate"
 )
 
 type navigatorController struct {
@@ -14,8 +13,9 @@ type navigatorController struct {
 func (c *navigatorController) init() *navigationFrame {
 	o := c.impl.options()
 	c.frame = &navigationFrame{
-		client: o.Callback,
-		raw:    o.Callback,
+		client:    o.Callback,
+		raw:       o.Callback,
+		notifiers: notificationsSink{},
 	}
 	return c.frame
 }
@@ -29,55 +29,21 @@ func (c *navigatorController) navState(fn ...func() *NavigationState) *Navigatio
 	return nil
 }
 
-// THIS (resume) MAY NOT BE REQUIRED (well not in its current form)
-// Actually, it should probably implement the equivalent of Walk
-// without calling top.
-//
+// func (c *navigatorController) resume(ps *persistState, strategy resumeStrategy) *TraverseResult {
 
-func (c *navigatorController) resume(ps *persistState, strategy resumeStrategy) *TraverseResult {
-	c.root(func() string {
-		return ps.Active.Root
-	})
-
-	// // this functionality is all bogus
-	// if ps.Active.Listen != ListenUndefined {
-	// 	c.setRoot(ps.Active.Root)
-	// 	initParams := &strategyInitParams{
-	// 		state: ps.Active.Listen,
-	// 		// listener: c.frame.listener,
-	// 		frame: c.frame,
-	// 	}
-
-	// 	if ps.Active.Listen == ListenDeaf {
-	// 		// TODO: what else do we do here?
-	// 		//
-	// 		strategy.init(initParams)
-	// 	} else {
-	// 		// if c.frame.listener == nil {
-	// 		// 	panic("navigatorController.resume: 🔥 listener has not been set!")
-	// 		// }
-	// 		strategy.init(initParams)
-	// 		c.frame.listener.transition(ps.Active.Listen)
-	// 	}
-	// } else {
-	// 	panic("navigatorController.resume: 🔥 listen state invalid (undefined)")
-	// }
-
-	return &TraverseResult{}
-}
+// 	return &TraverseResult{}
+// }
 
 func (c *navigatorController) Walk(root string) *TraverseResult {
-	o := c.impl.options()
-
 	c.root(func() string {
 		return root
 	})
-	o.Notify.OnBegin(c.ns)
+	c.frame.notifiers.begin.invoke(c.ns)
 
 	result := &TraverseResult{
 		Error: c.impl.top(c.frame),
 	}
-	o.Notify.OnEnd(result)
+	c.frame.notifiers.end.invoke(result)
 
 	return result
 }
@@ -100,11 +66,19 @@ func (c *navigatorController) Save(path string) error {
 			Root:     c.frame.Root,
 			NodePath: c.frame.NodePath,
 			Listen:   listen,
+			Depth:    c.frame.Depth,
 		},
 	}
 	marshaller := newStateMarshaler(o, state)
 	return marshaller.marshal(path)
 }
+
+// this (restore) will be called be the spawn-strategy
+// func (c *navigatorController) restore(active *ActiveState) {
+// 	c.frame.Root = active.Root
+// 	c.frame.NodePath = active.NodePath
+// 	c.frame.Depth = active.Depth
+// }
 
 func (c *navigatorController) root(fn ...func() string) string {
 	if len(fn) == 0 {
@@ -114,3 +88,12 @@ func (c *navigatorController) root(fn ...func() string) string {
 	c.frame.Root = c.ns.Root
 	return ""
 }
+
+// func (c *navigatorController) node(fn ...func() string) string {
+// 	if len(fn) == 0 {
+// 		return c.frame.NodePath
+// 	}
+// 	c.ns.Root = fn[0]()
+// 	c.frame.NodePath = c.ns.Root
+// 	return ""
+// }

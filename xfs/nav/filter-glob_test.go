@@ -22,7 +22,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 		func(entry *filterTE) {
 			recording := recordingMap{}
 			filterDefs := &nav.FilterDefinitions{
-				Current: nav.FilterDef{
+				Node: nav.FilterDef{
 					Type:            nav.FilterTypeGlobEn,
 					Description:     entry.name,
 					Source:          entry.pattern,
@@ -38,7 +38,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
 					)
-					filter = state.Filters.Current
+					filter = state.Filters.Node
 				}
 
 				o.Store.Subscription = entry.subscription

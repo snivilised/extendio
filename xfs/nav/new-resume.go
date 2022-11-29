@@ -5,16 +5,16 @@ import (
 )
 
 type NewResumerInfo struct {
-	Path     string
-	Restore  PersistenceRestorer
-	Strategy ResumeStrategyEnum
+	RestorePath string
+	Restorer    PersistenceRestorer
+	Strategy    ResumeStrategyEnum
 }
 
-func NewResumer(info *NewResumerInfo) (Resumer, error) {
+func newResumer(info *NewResumerInfo) (resumer, error) {
 	marshaller := stateMarshallerJSON{
-		restore: info.Restore,
+		restore: info.Restorer,
 	}
-	err := marshaller.unmarshal(info.Path)
+	err := marshaller.unmarshal(info.RestorePath)
 
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func NewResumer(info *NewResumerInfo) (Resumer, error) {
 	o := marshaller.o
 
 	impl := newImpl(o)
-	strategy := newResumeStrategy(o, info.Strategy, marshaller.ps.Active)
+	strategy := newStrategy(o, info.Strategy, marshaller.ps)
 	navigator := &navigatorController{
 		impl: impl,
 	}
@@ -39,12 +39,12 @@ func NewResumer(info *NewResumerInfo) (Resumer, error) {
 		rc: resumerCtrl,
 	}
 	booter.init()
-	booter.resume(o, marshaller.ps)
+	booter.initResume(o, marshaller.ps)
 
 	return resumerCtrl, nil
 }
 
-func newResumeStrategy(o *TraverseOptions, strategyEn ResumeStrategyEnum, active *ActiveState) resumeStrategy {
+func newStrategy(o *TraverseOptions, strategyEn ResumeStrategyEnum, ps *persistState) resumeStrategy {
 
 	var strategy resumeStrategy
 
@@ -52,8 +52,8 @@ func newResumeStrategy(o *TraverseOptions, strategyEn ResumeStrategyEnum, active
 	case ResumeStrategyFastwardEn:
 		strategy = &fastwardStrategy{
 			baseStrategy: baseStrategy{
-				o:      o,
-				active: active,
+				o:  o,
+				ps: ps,
 			},
 		}
 	default:
