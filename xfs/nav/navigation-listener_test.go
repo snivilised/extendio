@@ -21,7 +21,7 @@ var _ = Describe("Listener", Ordered, func() {
 
 	DescribeTable("Listener",
 		func(entry *listenTE) {
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Listen.InclusiveStart = entry.incStart
@@ -187,7 +187,7 @@ var _ = Describe("Listener", Ordered, func() {
 
 	Context("given: Early Exit", func() {
 		It("should: exit early (folders)", func() {
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFolders
 				o.Listen.Stop = &nav.ListenBy{
@@ -207,7 +207,7 @@ var _ = Describe("Listener", Ordered, func() {
 		})
 
 		It("should: exit early (files)", func() {
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFiles
 				o.Listen.Stop = &nav.ListenBy{
@@ -230,7 +230,7 @@ var _ = Describe("Listener", Ordered, func() {
 	Context("folders", func() {
 		Context("given: filter and listen both active", func() {
 			It("🧪 should: apply filter within the listen range", func() {
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.FilterDefs = &nav.FilterDefinitions{

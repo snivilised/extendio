@@ -2,7 +2,9 @@ package nav
 
 import "fmt"
 
-func newStateMarshaler(o *TraverseOptions, state *persistState) stateMarshaller {
+type marshallerFactory struct{}
+
+func (m *marshallerFactory) create(o *TraverseOptions, state *persistState) stateMarshaller {
 	var marshaller stateMarshaller
 	switch o.Persist.Format {
 	case PersistInJSONEn:
@@ -16,4 +18,5 @@ func newStateMarshaler(o *TraverseOptions, state *persistState) stateMarshaller 
 	}
 
 	return marshaller
+
 }
