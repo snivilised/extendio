@@ -36,7 +36,7 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 				Expect(o.Store.Behaviours.SubPath.KeepTrailingSep).To(BeTrue())
 
 				clone.Store.FilterDefs = &nav.FilterDefinitions{
-					Current: nav.FilterDef{
+					Node: nav.FilterDef{
 						Type:        nav.FilterTypeRegexEn,
 						Description: "test filter",
 						Source:      "foo bar",

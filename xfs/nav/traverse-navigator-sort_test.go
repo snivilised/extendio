@@ -38,7 +38,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = &nav.FilterDefinitions{
-					Current: nav.FilterDef{
+					Node: nav.FilterDef{
 						Type:            nav.FilterTypeGlobEn,
 						Description:     entry.name,
 						Source:          entry.pattern,

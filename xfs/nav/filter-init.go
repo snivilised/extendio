@@ -20,21 +20,22 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 	if o.Store.FilterDefs != nil {
 		frame.filters = &NavigationFilters{}
 
-		if o.Store.FilterDefs.Current.Source != "" || o.Store.FilterDefs.Current.Custom != nil {
+		if o.Store.FilterDefs.Node.Source != "" || o.Store.FilterDefs.Node.Custom != nil {
 			o.useExtendHook()
-			frame.filters.Current = NewCurrentFilter(&o.Store.FilterDefs.Current)
-			frame.filters.Current.Validate()
+			frame.filters.Node = NewNodeFilter(&o.Store.FilterDefs.Node)
+			frame.filters.Node.Validate()
 			decorated := frame.client
-			decorator := LabelledTraverseCallback{
+			decorator := &LabelledTraverseCallback{
 				Label: "filter decorator",
 				Fn: func(item *TraverseItem) *LocalisableError {
-					if frame.filters.Current.IsMatch(item) {
+					// fmt.Printf(">>> 💚 filter decorator, item: '%s'\n", item.Path)
+					if frame.filters.Node.IsMatch(item) {
 						return decorated.Fn(item)
 					}
 					return nil
 				},
 			}
-			frame.raw = decorator
+			frame.raw = *decorator
 			frame.decorate("init-current-filter 🎁", decorator)
 		}
 
@@ -43,5 +44,7 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 			frame.filters.Compound = NewCompoundFilter(&o.Store.FilterDefs.Children)
 			frame.filters.Compound.Validate()
 		}
+	} else {
+		frame.raw = frame.client
 	}
 }

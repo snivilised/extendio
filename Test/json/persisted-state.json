@@ -17,7 +17,7 @@
       }
     },
     "FilterDefs": {
-      "Current": {
+      "Node": {
         "Type": 2,
         "Description": "items with .flac suffix",
         "Source": "*.flac",

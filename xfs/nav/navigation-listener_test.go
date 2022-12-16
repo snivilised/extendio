@@ -234,7 +234,7 @@ var _ = Describe("Listener", Ordered, func() {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.FilterDefs = &nav.FilterDefinitions{
-						Current: nav.FilterDef{
+						Node: nav.FilterDef{
 							Type:        nav.FilterTypeRegexEn,
 							Description: "Contains 'o'",
 							Scope:       nav.ScopeAllEn,
@@ -268,10 +268,10 @@ var _ = Describe("Listener", Ordered, func() {
 							)
 							GinkgoWriter.Printf(
 								"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-								o.Store.FilterDefs.Current.Description, o.Store.FilterDefs.Current.Source, item.Extension.Name,
-								item.Extension.NodeScope, o.Store.FilterDefs.Current.Scope,
+								o.Store.FilterDefs.Node.Description, o.Store.FilterDefs.Node.Source, item.Extension.Name,
+								item.Extension.NodeScope, o.Store.FilterDefs.Node.Scope,
 							)
-							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Current.Source), reason(item.Extension.Name))
+							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Source), reason(item.Extension.Name))
 							return nil
 						},
 					}

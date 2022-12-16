@@ -31,13 +31,22 @@ func (m *stateMarshallerJSON) unmarshal(path string) error {
 		if err = json.Unmarshal(bytes, &m.ps); err == nil {
 			m.o.Store = *m.ps.Store
 			m.restore(m.o, m.ps.Active)
-			return nil
+			m.o.afterUserOptions()
+			m.validate()
 
+			return nil
 		} else {
 			return err
 		}
 	} else {
 		return err
+	}
+}
+
+func (m *stateMarshallerJSON) validate() {
+
+	if m.o.Callback.Fn == nil {
+		panic(MISSING_CALLBACK_FN_L_ERR)
 	}
 }
 

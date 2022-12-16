@@ -76,6 +76,24 @@ type sortTE struct {
 	order         nav.DirectoryEntryOrderEnum
 }
 
+type activeTE struct {
+	resumeAtPath string
+	listenState  nav.ListeningState
+}
+
+type fastwardTE struct {
+	naviTE
+	active      activeTE
+	listenStart string
+	profile     string
+}
+
+type fastwardTestProfile struct {
+	filtered   bool
+	prohibited map[string]string
+	mandatory  []string
+}
+
 func origin() string {
 	if current, err := os.Getwd(); err == nil {
 		parent, _ := filepath.Split(current)

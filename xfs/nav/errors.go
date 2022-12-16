@@ -22,3 +22,6 @@ var SORT_L_ERR = LocalisableError{Inner: SORT_ERR}
 
 var MISSING_CALLBACK_FN_ERR = errors.New("missing callback function")
 var MISSING_CALLBACK_FN_L_ERR = LocalisableError{Inner: MISSING_CALLBACK_FN_ERR}
+
+var CANT_SAVE_LISTEN_RETIRED_FN_ERR = errors.New("can't save, traversal retired")
+var CANT_SAVE_LISTEN_RETIRED_FN_L_ERR = LocalisableError{Inner: CANT_SAVE_LISTEN_RETIRED_FN_ERR}

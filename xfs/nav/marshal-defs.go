@@ -24,7 +24,7 @@ type PersistCompoundFilterDef struct {
 }
 
 type PersistFilters struct {
-	Current  *PersistFilterDef
+	Node     *PersistFilterDef
 	Children *PersistCompoundFilterDef
 }
 
@@ -34,6 +34,7 @@ type ActiveState struct {
 	Root     string
 	Listen   ListeningState
 	NodePath string
+	Depth    uint
 }
 
 type persistState struct {

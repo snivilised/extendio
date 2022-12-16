@@ -29,7 +29,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 		fromJsonPath = strings.Join([]string{jroot, "persisted-state.json"}, string(filepath.Separator))
 		toJsonPath = strings.Join([]string{jroot, "test-state-marshal.json"}, string(filepath.Separator))
 		filterDefs = nav.FilterDefinitions{
-			Current: nav.FilterDef{
+			Node: nav.FilterDef{
 				Type:            nav.FilterTypeGlobEn,
 				Description:     "items with .flac suffix",
 				Source:          "*.flac",

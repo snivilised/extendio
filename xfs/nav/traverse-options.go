@@ -64,10 +64,10 @@ type Notifications struct {
 }
 
 type FilterDefinitions struct {
-	// Current denotes the filter object that represents the current file system item
+	// Node denotes the filter object that represents the current file system item
 	// being visited.
 	//
-	Current FilterDef
+	Node FilterDef
 
 	// Children denotes the compound filter that is applied to the direct descendants
 	// of the current file system item being visited.
@@ -75,14 +75,11 @@ type FilterDefinitions struct {
 	Children CompoundFilterDef
 }
 
-// TODO: rename Current to Node
-// TODO: Current(Node) / Compound need to be pointers
-
 type NavigationFilters struct {
-	// Current denotes the filter object that represents the Current file system item
+	// Node denotes the filter object that represents the Node file system item
 	// being visited.
 	//
-	Current TraverseFilter
+	Node TraverseFilter
 
 	// Compound denotes the Compound filter that is applied to the direct descendants
 	// of the current file system item being visited.
@@ -164,7 +161,12 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	for _, functionalOption := range fn {
 		functionalOption(o)
 	}
+	o.afterUserOptions()
 
+	return o
+}
+
+func (o *TraverseOptions) afterUserOptions() {
 	if o.Hooks.Sort == nil {
 		o.Hooks.Sort = lo.Ternary(o.Store.Behaviours.Sort.IsCaseSensitive,
 			CaseSensitiveSortHookFn, CaseInSensitiveSortHookFn,
@@ -174,8 +176,6 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	if o.Hooks.Extend == nil {
 		o.Hooks.Extend = lo.Ternary(o.Store.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
 	}
-
-	return o
 }
 
 func (o *TraverseOptions) Clone() *TraverseOptions {
