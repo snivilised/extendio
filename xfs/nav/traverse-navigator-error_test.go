@@ -27,7 +27,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}()
 				_ = root
 
-				nav.NewNavigator(func(o *nav.TraverseOptions) {
+				(&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeAny
 				})
@@ -45,7 +45,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					_ = recover()
 				}()
 
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.Extend = func(navi *nav.NavigationInfo, descendants []fs.DirEntry) {
@@ -76,7 +76,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Context("navigator-folders", func() {
 			It("🧪 should: invoke callback with error", func() {
 				recording := []error{}
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
@@ -104,7 +104,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 		Context("navigator-files", func() {
 			It("🧪 should: invoke callback with immediate read error", func() {
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeError
@@ -117,7 +117,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			})
 
 			It("🧪 should: invoke callback with error at ...", func() {
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
@@ -137,7 +137,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				_ = recover()
 			}()
 
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = entry.subscription
 				o.Hooks.Sort = func(entries []fs.DirEntry, custom ...any) error {
@@ -163,7 +163,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 	DescribeTable("given: root is not a folder",
 		func(entry *errorTE) {
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = entry.subscription
 				o.Store.DoExtend = true
@@ -185,7 +185,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	Context("top level QueryStatus", func() {
 		Context("given: error occurs", func() {
 			It("🧪 should: halt traversal", func() {
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
@@ -209,7 +209,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					Source:      "*.flac",
 					Scope:       nav.ScopeLeafEn,
 				}
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.FilterDefs = &nav.FilterDefinitions{
 						Node: filterDef,

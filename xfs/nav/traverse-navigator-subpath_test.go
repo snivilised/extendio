@@ -24,7 +24,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					"Night Drive":                  normalise("/Chromatics/"),
 					"A1 - The Telephone Call.flac": normalise("/Chromatics/Night Drive/"),
 				}
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.Behaviours.SubPath.KeepTrailingSep = true
@@ -56,7 +56,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						"Orbital 2 (The Brown Album)": normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)"),
 						"03 - Lush 3-1.flac":          normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)/03 - Lush 3-1.flac"),
 					}
-					navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+					navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 						o.Notify.OnBegin = begin("🛡️")
 						o.Store.Subscription = nav.SubscribeAny
 						o.Hooks.FolderSubPath = nav.RootItemSubPath
@@ -91,7 +91,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					"Innerworld":            normalise("/Electric Youth"),
 					"A1 - Before Life.flac": normalise("/Electric Youth/Innerworld"),
 				}
-				navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Behaviours.SubPath.KeepTrailingSep = false
 					o.Store.Subscription = nav.SubscribeAny

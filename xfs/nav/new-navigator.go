@@ -1,15 +1,17 @@
 package nav
 
-// NewNavigator navigator factory function which uses the functional
+type NavigatorFactory struct{}
+
+// Create navigator factory function which uses the functional
 // options pattern.
-func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
+func (f *NavigatorFactory) Create(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 
 	if o.Callback.Fn == nil {
 		panic(MISSING_CALLBACK_FN_L_ERR)
 	}
 
-	impl := newImpl(o)
+	impl := (&navigatorImplFactory{}).create(o)
 	ctrl := &navigatorController{
 		impl: impl,
 	}
@@ -23,7 +25,9 @@ func NewNavigator(fn ...TraverseOptionFn) TraverseNavigator {
 	return ctrl
 }
 
-func newImpl(o *TraverseOptions) navigatorImpl {
+type navigatorImplFactory struct{}
+
+func (f *navigatorImplFactory) create(o *TraverseOptions) navigatorImpl {
 	var impl navigatorImpl
 
 	switch o.Store.Subscription {

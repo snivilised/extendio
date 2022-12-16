@@ -33,7 +33,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			}
 			var filter nav.TraverseFilter
 
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -64,6 +64,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					},
 				}
 			})
+
 			path := path(root, entry.relative)
 			_ = navigator.Walk(path)
 
@@ -159,7 +160,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			}
 			var filter nav.CompoundTraverseFilter
 
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -187,6 +188,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					},
 				}
 			})
+
 			path := path(root, entry.relative)
 			_ = navigator.Walk(path)
 

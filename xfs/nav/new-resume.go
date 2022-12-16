@@ -10,7 +10,9 @@ type NewResumerInfo struct {
 	Strategy    ResumeStrategyEnum
 }
 
-func newResumer(info *NewResumerInfo) (resumer, error) {
+type resumerFactory struct{}
+
+func (f *resumerFactory) create(info *NewResumerInfo) (resumer, error) {
 	marshaller := stateMarshallerJSON{
 		restore: info.Restorer,
 	}
@@ -21,8 +23,9 @@ func newResumer(info *NewResumerInfo) (resumer, error) {
 	}
 	o := marshaller.o
 
-	impl := newImpl(o)
-	strategy := newStrategy(o, info.Strategy, marshaller.ps)
+	impl := (&navigatorImplFactory{}).create(o)
+	strategy := (&strategyFactory{}).create(o, info.Strategy, marshaller.ps)
+
 	navigator := &navigatorController{
 		impl: impl,
 	}
@@ -44,8 +47,9 @@ func newResumer(info *NewResumerInfo) (resumer, error) {
 	return resumerCtrl, nil
 }
 
-func newStrategy(o *TraverseOptions, strategyEn ResumeStrategyEnum, ps *persistState) resumeStrategy {
+type strategyFactory struct{}
 
+func (f *strategyFactory) create(o *TraverseOptions, strategyEn ResumeStrategyEnum, ps *persistState) resumeStrategy {
 	var strategy resumeStrategy
 
 	switch strategyEn {

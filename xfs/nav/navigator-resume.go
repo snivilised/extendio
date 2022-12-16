@@ -2,7 +2,7 @@ package nav
 
 func Resume(resumeInfo *NewResumerInfo) (*TraverseResult, error) {
 
-	resumer, err := newResumer(resumeInfo)
+	resumer, err := (&resumerFactory{}).create(resumeInfo)
 
 	if err != nil {
 		return nil, err

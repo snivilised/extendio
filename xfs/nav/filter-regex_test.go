@@ -34,7 +34,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			}
 			var filter nav.TraverseFilter
 
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -195,7 +195,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			}
 			var filter nav.CompoundTraverseFilter
 
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -301,7 +301,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				},
 			}
 
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = nav.SubscribeFolders
 				o.Store.FilterDefs = filterDefs
@@ -352,7 +352,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				},
 			}
 
-			navigator := nav.NewNavigator(func(o *nav.TraverseOptions) {
+			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = nav.SubscribeFoldersWithFiles
 				o.Store.FilterDefs = filterDefs

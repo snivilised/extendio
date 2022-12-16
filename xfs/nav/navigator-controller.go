@@ -69,7 +69,8 @@ func (c *navigatorController) Save(path string) error {
 			Depth:    c.frame.Depth,
 		},
 	}
-	marshaller := newStateMarshaler(o, state)
+
+	marshaller := (&marshallerFactory{}).create(o, state)
 	return marshaller.marshal(path)
 }
 
