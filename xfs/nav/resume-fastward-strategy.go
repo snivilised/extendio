@@ -30,10 +30,6 @@ func (s *fastwardStrategy) init(params *strategyInitParams) {
 	//
 	s.client.state = params.ps.Active.Listen
 
-	stopAt := &fastwardListener{
-		target: s.ps.Active.NodePath,
-	}
-
 	pci := &preserveClientInfo{
 		lo:         &s.o.Listen,
 		behaviours: s.o.Store.Behaviours.Listen,
@@ -43,8 +39,9 @@ func (s *fastwardStrategy) init(params *strategyInitParams) {
 		client: pci,
 		override: &overrideClientInfo{
 			lo: &ListenOptions{
-				Start: nil,    // we want to start listening immediately
-				Stop:  stopAt, // stop when we get the the resume point
+				Stop: &fastwardListener{
+					target: s.ps.Active.NodePath,
+				},
 			},
 		},
 		ps: params.ps,

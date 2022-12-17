@@ -27,6 +27,12 @@ type strategyResumeInfo struct {
 	nc *navigatorController
 }
 
+type resumeAttachParams struct {
+	o     *TraverseOptions
+	frame *navigationFrame
+	lo    *ListenOptions
+}
+
 type resumeStrategy interface {
 	init(params *strategyInitParams)
 	attach(params *resumeAttachParams)

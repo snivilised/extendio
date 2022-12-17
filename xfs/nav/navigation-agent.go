@@ -19,18 +19,18 @@ type agentTopParams struct {
 }
 
 func (a *agent) top(params *agentTopParams) *LocalisableError {
-	info, err := a.o.Hooks.QueryStatus(params.frame.Root)
+	info, err := a.o.Hooks.QueryStatus(params.frame.root)
 	var le *LocalisableError = nil
 	if err != nil {
 		item := &TraverseItem{
-			Path: params.frame.Root, Info: info, Error: &LocalisableError{Inner: err},
+			Path: params.frame.root, Info: info, Error: &LocalisableError{Inner: err},
 			Children: []fs.DirEntry{},
 		}
 		le = a.proxy(item, params.frame)
 	} else {
 		if info.IsDir() {
 			item := &TraverseItem{
-				Path: params.frame.Root, Info: info,
+				Path: params.frame.root, Info: info,
 				Children: []fs.DirEntry{},
 			}
 			le = params.impl.traverse(item, params.frame)
@@ -38,7 +38,7 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 
 			if a.DO_INVOKE {
 				item := &TraverseItem{
-					Path: params.frame.Root, Info: info, Error: &NOT_DIRECTORY_L_ERR,
+					Path: params.frame.root, Info: info, Error: &NOT_DIRECTORY_L_ERR,
 					Children: []fs.DirEntry{},
 				}
 				params.impl.options().Hooks.Extend(&NavigationInfo{
@@ -138,6 +138,6 @@ func (a *agent) proxy(currentItem *TraverseItem, frame *navigationFrame) *Locali
 	// that the Callback on the options represents the client defined function which
 	// can be decorated. Only the callback on the frame should ever be invoked.
 	//
-	frame.NodePath = currentItem.Path
+	frame.nodePath = currentItem.Path
 	return frame.client.Fn(currentItem)
 }
