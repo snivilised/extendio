@@ -22,7 +22,7 @@ var _ = Describe("NavigatorResume", Ordered, func() {
 		root = origin()
 		jroot = joinCwd("Test", "json")
 		fromJsonPath = strings.Join(
-			[]string{jroot, "fastward-state.json"},
+			[]string{jroot, "resume-state.json"},
 			string(filepath.Separator),
 		)
 	})

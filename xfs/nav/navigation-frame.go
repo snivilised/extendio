@@ -1,9 +1,9 @@
 package nav
 
 type navigationFrame struct {
-	Root      string
-	NodePath  string
-	Depth     uint
+	root      string
+	nodePath  string
+	depth     uint
 	listener  *navigationListener
 	raw       LabelledTraverseCallback // un-decorated (except for filter) client callback
 	client    LabelledTraverseCallback // decorate-able client callback

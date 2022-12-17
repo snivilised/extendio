@@ -53,6 +53,14 @@ func (f *strategyFactory) create(o *TraverseOptions, strategyEn ResumeStrategyEn
 	var strategy resumeStrategy
 
 	switch strategyEn {
+
+	case ResumeStrategySpawnEn:
+		strategy = &spawnStrategy{
+			baseStrategy: baseStrategy{
+				o:  o,
+				ps: ps,
+			},
+		}
 	case ResumeStrategyFastwardEn:
 		strategy = &fastwardStrategy{
 			baseStrategy: baseStrategy{
@@ -60,6 +68,7 @@ func (f *strategyFactory) create(o *TraverseOptions, strategyEn ResumeStrategyEn
 				ps: ps,
 			},
 		}
+
 	default:
 		panic(fmt.Errorf("*** newResumeStrategy: unsupported strategy: '%v'", strategyEn))
 	}

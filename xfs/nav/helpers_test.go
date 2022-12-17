@@ -88,6 +88,11 @@ type fastwardTE struct {
 	profile     string
 }
 
+type spawnTE struct {
+	naviTE
+	active activeTE
+}
+
 type fastwardTestProfile struct {
 	filtered   bool
 	prohibited map[string]string

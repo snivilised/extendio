@@ -63,10 +63,10 @@ func (c *navigatorController) Save(path string) error {
 	state := &persistState{
 		Store: &o.Store,
 		Active: &ActiveState{
-			Root:     c.frame.Root,
-			NodePath: c.frame.NodePath,
+			Root:     c.frame.root,
+			NodePath: c.frame.nodePath,
 			Listen:   listen,
-			Depth:    c.frame.Depth,
+			Depth:    c.frame.depth,
 		},
 	}
 
@@ -83,10 +83,10 @@ func (c *navigatorController) Save(path string) error {
 
 func (c *navigatorController) root(fn ...func() string) string {
 	if len(fn) == 0 {
-		return c.frame.Root
+		return c.frame.root
 	}
 	c.ns.Root = fn[0]()
-	c.frame.Root = c.ns.Root
+	c.frame.root = c.ns.Root
 	return ""
 }
 

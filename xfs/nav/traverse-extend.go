@@ -42,13 +42,13 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 		//
 
 		switch {
-		case isLeaf && navi.Frame.Depth == 1:
+		case isLeaf && navi.Frame.depth == 1:
 			scope = ScopeRootEn | ScopeLeafEn
-		case navi.Frame.Depth == 1:
+		case navi.Frame.depth == 1:
 			scope = ScopeRootEn
-		case isLeaf && navi.Frame.Depth == 2:
+		case isLeaf && navi.Frame.depth == 2:
 			scope = ScopeTopEn | ScopeLeafEn
-		case navi.Frame.Depth == 2:
+		case navi.Frame.depth == 2:
 			scope = ScopeTopEn
 		case isLeaf:
 			scope = ScopeLeafEn
@@ -59,7 +59,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 
 	parent, name := filepath.Split(navi.Item.Path)
 	navi.Item.Extension = &ExtendedItem{
-		Depth:     navi.Frame.Depth,
+		Depth:     navi.Frame.depth,
 		IsLeaf:    isLeaf,
 		Name:      name,
 		Parent:    parent,
@@ -67,7 +67,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 	}
 
 	spInfo := &SubPathInfo{
-		Root:      navi.Frame.Root,
+		Root:      navi.Frame.root,
 		Item:      navi.Item,
 		Behaviour: &navi.Options.Store.Behaviours.SubPath,
 	}

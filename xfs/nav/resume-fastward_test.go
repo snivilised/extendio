@@ -15,12 +15,20 @@ import (
 
 var _ = Describe("ResumeFastward", Ordered, func() {
 
+	const (
+		NOTHING                         = ""
+		RESUME_AT_TEENAGE_COLOR         = "RETRO-WAVE/College/Teenage Color"
+		RESUME_AT_CAN_YOU_KISS_ME_FIRST = "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac"
+		START_AT_ELECTRIC_YOUTH         = "Electric Youth"
+		START_AT_BEFORE_LIFE            = "A1 - Before Life.flac"
+		START_AT_CLIENT_ALREADY_ACTIVE  = "this value doesn't matter"
+	)
+
 	var (
 		root                string
 		jroot               string
 		fromJsonPath        string
 		prohibited          map[string]string
-		nothing             string
 		filteredListenFlacs []string
 		filteredFlacs       []string
 		textFiles           []string
@@ -31,23 +39,23 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 		root = origin()
 		jroot = joinCwd("Test", "json")
 		fromJsonPath = strings.Join(
-			[]string{jroot, "fastward-state.json"},
+			[]string{jroot, "resume-state.json"},
 			string(filepath.Separator),
 		)
 		prohibited = map[string]string{
-			"RETRO-WAVE":                      nothing,
-			"Chromatics":                      nothing,
-			"Night Drive":                     nothing,
-			"A1 - The Telephone Call.flac":    nothing,
-			"A2 - Night Drive.flac":           nothing,
-			"cover.night-drive.jpg":           nothing,
-			"vinyl-info.night-drive.txt":      nothing,
-			"College":                         nothing,
-			"Northern Council":                nothing,
-			"A1 - Incident.flac":              nothing,
-			"A2 - The Zemlya Expedition.flac": nothing,
-			"cover.northern-council.jpg":      nothing,
-			"vinyl-info.northern-council.txt": nothing,
+			"RETRO-WAVE":                      NOTHING,
+			"Chromatics":                      NOTHING,
+			"Night Drive":                     NOTHING,
+			"A1 - The Telephone Call.flac":    NOTHING,
+			"A2 - Night Drive.flac":           NOTHING,
+			"cover.night-drive.jpg":           NOTHING,
+			"vinyl-info.night-drive.txt":      NOTHING,
+			"College":                         NOTHING,
+			"Northern Council":                NOTHING,
+			"A1 - Incident.flac":              NOTHING,
+			"A2 - The Zemlya Expedition.flac": NOTHING,
+			"cover.northern-council.jpg":      NOTHING,
+			"vinyl-info.northern-council.txt": NOTHING,
 		}
 		filteredListenFlacs = []string{
 			"A1 - Before Life.flac",
@@ -181,7 +189,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				// synthetic assignments: The client should not perform these
 				// types of assignments. Only being done here for testing purposes
 				// to avoid the need to create many restore files
-				// (eg fastward-state.json) for different test cases.
+				// (eg resume-state.json) for different test cases.
 				//
 				active.Root = path(root, entry.relative)
 				active.NodePath = path(root, entry.active.resumeAtPath)
@@ -263,10 +271,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: "Electric Youth",
+			listenStart: START_AT_ELECTRIC_YOUTH,
 			profile:     "-> universal(pending): unfiltered",
 		}),
 
@@ -277,10 +285,17 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: "Electric Youth",
+			// For these scenarios (START_AT_CLIENT_ALREADY_ACTIVE), since
+			// listening is already active, the value of listenStart is irrelevant,
+			// because the client was already listening in the previous session,
+			// which is reflected by the state being active. So in essence, the client
+			// listen value is a historical event, so the value defined here is a moot
+			// point.
+			//
+			listenStart: START_AT_CLIENT_ALREADY_ACTIVE,
 			profile:     "-> universal(active): unfiltered",
 		}),
 
@@ -291,10 +306,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: "Electric Youth",
+			listenStart: START_AT_ELECTRIC_YOUTH,
 			profile:     "-> folders(pending): unfiltered",
 		}),
 
@@ -305,10 +320,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: "Electric Youth",
+			listenStart: START_AT_CLIENT_ALREADY_ACTIVE,
 			profile:     "-> folders(active): unfiltered",
 		}),
 
@@ -319,10 +334,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac",
+				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: "A1 - Before Life.flac",
+			listenStart: START_AT_BEFORE_LIFE,
 			profile:     "-> files(pending): unfiltered",
 		}),
 
@@ -333,10 +348,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac",
+				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: "A1 - Can You Kiss Me First.flac",
+			listenStart: START_AT_CLIENT_ALREADY_ACTIVE,
 			profile:     "-> files(active): unfiltered",
 		}),
 
@@ -349,7 +364,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenDeaf,
 			},
 			profile: "-> universal: filtered",
@@ -362,7 +377,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenDeaf,
 			},
 			profile: "-> folders: filtered",
@@ -375,7 +390,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac",
+				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenDeaf,
 			},
 			profile: "-> files: filtered",
@@ -390,10 +405,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: "Electric Youth",
+			listenStart: START_AT_ELECTRIC_YOUTH,
 			profile:     "-> universal: listen pending and filtered",
 		}),
 
@@ -404,10 +419,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: "Electric Youth",
+			listenStart: START_AT_ELECTRIC_YOUTH,
 			profile:     "-> universal: filtered",
 		}),
 
@@ -418,10 +433,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: "Electric Youth",
+			listenStart: START_AT_ELECTRIC_YOUTH,
 			profile:     "-> folders: listen pending and filtered",
 		}),
 
@@ -432,10 +447,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color",
+				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: "Electric Youth",
+			listenStart: START_AT_ELECTRIC_YOUTH,
 			profile:     "-> folders: filtered",
 		}),
 
@@ -446,10 +461,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac",
+				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: "A1 - Before Life.flac",
+			listenStart: START_AT_BEFORE_LIFE,
 			profile:     "-> files: listen pending and filtered",
 		}),
 
@@ -460,10 +475,10 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac",
+				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: "A1 - Before Life.flac",
+			listenStart: START_AT_BEFORE_LIFE,
 			profile:     "-> files: filtered",
 		}),
 	)
