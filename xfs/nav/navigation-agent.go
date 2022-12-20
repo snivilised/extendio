@@ -8,37 +8,63 @@ import (
 	. "github.com/snivilised/extendio/translate"
 )
 
-type agent struct {
+type agentFactory struct{}
+type agentFactoryParams struct {
+	doInvoke  bool
+	o         *TraverseOptions
+	deFactory *directoryEntriesFactory
+}
+
+func (*agentFactory) construct(params *agentFactoryParams) *navigationAgent {
+	instance := navigationAgent{
+		DO_INVOKE: params.doInvoke,
+		o:         params.o,
+	}
+	instance.deFactory = &directoryEntriesFactory{}
+
+	return &instance
+}
+
+type navigationAgent struct {
 	DO_INVOKE bool // this should be considered const
 	o         *TraverseOptions
+	deFactory *directoryEntriesFactory
 }
 
 type agentTopParams struct {
 	impl  navigatorImpl
 	frame *navigationFrame
+	top   string
 }
 
-func (a *agent) top(params *agentTopParams) *LocalisableError {
-	info, err := a.o.Hooks.QueryStatus(params.frame.root)
+func (a *navigationAgent) top(params *agentTopParams) *LocalisableError {
+	info, err := a.o.Hooks.QueryStatus(params.top)
 	var le *LocalisableError = nil
 	if err != nil {
 		item := &TraverseItem{
-			Path: params.frame.root, Info: info, Error: &LocalisableError{Inner: err},
+			Path: params.top, Info: info, Error: &LocalisableError{Inner: err},
 			Children: []fs.DirEntry{},
 		}
 		le = a.proxy(item, params.frame)
 	} else {
 		if info.IsDir() {
 			item := &TraverseItem{
-				Path: params.frame.root, Info: info,
+				Path: params.top, Info: info,
 				Children: []fs.DirEntry{},
 			}
-			le = params.impl.traverse(item, params.frame)
+
+			le = params.impl.traverse(&traverseParams{
+				currentItem: item,
+				frame:       params.frame,
+			})
 		} else {
 
 			if a.DO_INVOKE {
+				// TODO: this might be a problem. We must not treat the top entity being a file
+				// as an error for spawn-resume scenarios
+				//
 				item := &TraverseItem{
-					Path: params.frame.root, Info: info, Error: &NOT_DIRECTORY_L_ERR,
+					Path: params.top, Info: info, Error: &NOT_DIRECTORY_L_ERR,
 					Children: []fs.DirEntry{},
 				}
 				params.impl.options().Hooks.Extend(&NavigationInfo{
@@ -56,15 +82,15 @@ func (a *agent) top(params *agentTopParams) *LocalisableError {
 	return le
 }
 
-func (a *agent) read(item *TraverseItem, order DirectoryEntryOrderEnum) (*DirectoryEntries, error) {
+func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*directoryEntries, error) {
 	// this method was spun out from notify, as there needs to be a separation
 	// between these pieces of functionality to support 'extension'; ie we
 	// need to read the contents of an items contents to determine the properties
 	// created for the extension.
 	//
-	entries, err := a.o.Hooks.ReadDirectory(item.Path)
+	entries, err := a.o.Hooks.ReadDirectory(path)
 
-	de := DirectoryEntries{
+	de := directoryEntries{
 		Options: a.o,
 		Order:   order,
 	}
@@ -80,7 +106,7 @@ type agentNotifyParams struct {
 	readErr error
 }
 
-func (a *agent) notify(params *agentNotifyParams) (bool, *LocalisableError) {
+func (a *navigationAgent) notify(params *agentNotifyParams) (bool, *LocalisableError) {
 
 	exit := false
 	if params.readErr != nil {
@@ -112,7 +138,7 @@ type agentTraverseParams struct {
 	frame    *navigationFrame
 }
 
-func (a *agent) traverse(params *agentTraverseParams) *LocalisableError {
+func (a *navigationAgent) traverse(params *agentTraverseParams) *LocalisableError {
 	for _, entry := range *params.contents {
 		path := filepath.Join(params.parent.Path, entry.Name())
 		info, err := entry.Info()
@@ -122,7 +148,10 @@ func (a *agent) traverse(params *agentTraverseParams) *LocalisableError {
 			Children: []fs.DirEntry{},
 		}
 
-		if le = params.impl.traverse(&child, params.frame); le != nil {
+		if le = params.impl.traverse(&traverseParams{
+			currentItem: &child,
+			frame:       params.frame,
+		}); le != nil {
 			if le.Inner == fs.SkipDir {
 				break
 			}
@@ -132,7 +161,7 @@ func (a *agent) traverse(params *agentTraverseParams) *LocalisableError {
 	return nil
 }
 
-func (a *agent) proxy(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
+func (a *navigationAgent) proxy(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
 	// proxy is the correct way to invoke the client callback, because it takes into
 	// account any active decorations such as listening and filtering. It should be noted
 	// that the Callback on the options represents the client defined function which
@@ -140,4 +169,30 @@ func (a *agent) proxy(currentItem *TraverseItem, frame *navigationFrame) *Locali
 	//
 	frame.nodePath = currentItem.Path
 	return frame.client.Fn(currentItem)
+}
+
+func (a *navigationAgent) siblingsFollowing(info *followingInfo) (*fractureInfo, error) {
+
+	de, le := a.read(info.parent, info.order)
+
+	if le != nil {
+		return nil, le
+	}
+	// is this subscription dependent? if so then, this functionality needs to be moved
+	// to the navigator-[subscription]
+	//
+	entries := de.all()
+
+	groups := lo.GroupBy(*entries, func(item fs.DirEntry) bool {
+		return item.Name() >= info.anchor
+	})
+	following := groups[true]
+
+	siblingsDe := a.deFactory.construct(&directoryEntriesFactoryParams{
+		o:       a.o,
+		order:   info.order,
+		entries: &following,
+	})
+
+	return &fractureInfo{siblings: siblingsDe}, nil
 }

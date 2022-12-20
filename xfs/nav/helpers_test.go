@@ -90,10 +90,12 @@ type fastwardTE struct {
 
 type spawnTE struct {
 	naviTE
-	active activeTE
+	active   activeTE
+	resumeAt string
+	profile  string
 }
 
-type fastwardTestProfile struct {
+type resumeTestProfile struct {
 	filtered   bool
 	prohibited map[string]string
 	mandatory  []string

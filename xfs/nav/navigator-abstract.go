@@ -2,7 +2,7 @@ package nav
 
 type navigator struct {
 	o     *TraverseOptions
-	agent *agent
+	agent *navigationAgent
 }
 
 func (n *navigator) options() *TraverseOptions {

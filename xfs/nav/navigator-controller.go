@@ -74,12 +74,23 @@ func (c *navigatorController) Save(path string) error {
 	return marshaller.marshal(path)
 }
 
-// this (restore) will be called be the spawn-strategy
-// func (c *navigatorController) restore(active *ActiveState) {
-// 	c.frame.Root = active.Root
-// 	c.frame.NodePath = active.NodePath
-// 	c.frame.Depth = active.Depth
-// }
+// this (spawn) will be called be the spawn-strategy
+func (c *navigatorController) spawn(active *ActiveState) *TraverseResult {
+
+	le := c.impl.spawn(&spawnParams{
+		active: active,
+		frame:  c.frame,
+		anchor: c.frame.nodePath,
+	})
+
+	// c.frame.Root = active.Root
+	// c.frame.NodePath = active.NodePath
+	// c.frame.Depth = active.Depth
+
+	return &TraverseResult{
+		Error: le,
+	}
+}
 
 func (c *navigatorController) root(fn ...func() string) string {
 	if len(fn) == 0 {
