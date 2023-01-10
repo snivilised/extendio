@@ -29,27 +29,29 @@ type navigatorImplFactory struct{}
 
 func (f *navigatorImplFactory) create(o *TraverseOptions) navigatorImpl {
 	var impl navigatorImpl
+	agtFactory := &agentFactory{}
+	deFactory := directoryEntriesFactory{}
+	agent := agtFactory.construct(&agentFactoryParams{
+		o:         o,
+		doInvoke:  true,
+		deFactory: &deFactory,
+	})
 
 	switch o.Store.Subscription {
 	case SubscribeAny:
 		impl = &universalNavigator{
-			navigator: navigator{o: o, agent: &agent{
-				o: o, DO_INVOKE: true,
-			}},
+			navigator: navigator{o: o, agent: agent},
 		}
 
 	case SubscribeFolders, SubscribeFoldersWithFiles:
 		impl = &foldersNavigator{
-			navigator: navigator{o: o, agent: &agent{
-				o: o, DO_INVOKE: true,
-			}},
+			navigator: navigator{o: o, agent: agent},
 		}
 
 	case SubscribeFiles:
+		agent.DO_INVOKE = false
 		impl = &filesNavigator{
-			navigator: navigator{o: o, agent: &agent{
-				o: o, DO_INVOKE: false,
-			}},
+			navigator: navigator{o: o, agent: agent},
 		}
 	}
 

@@ -13,26 +13,158 @@ import (
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
+const (
+	NOTHING                         = ""
+	RESUME_AT_TEENAGE_COLOR         = "RETRO-WAVE/College/Teenage Color"
+	RESUME_AT_CAN_YOU_KISS_ME_FIRST = "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac"
+	START_AT_ELECTRIC_YOUTH         = "Electric Youth"
+	START_AT_BEFORE_LIFE            = "A1 - Before Life.flac"
+	START_AT_CLIENT_ALREADY_ACTIVE  = "this value doesn't matter"
+)
+
+var (
+	prohibited = map[string]string{
+		"RETRO-WAVE":                      NOTHING,
+		"Chromatics":                      NOTHING,
+		"Night Drive":                     NOTHING,
+		"A1 - The Telephone Call.flac":    NOTHING,
+		"A2 - Night Drive.flac":           NOTHING,
+		"cover.night-drive.jpg":           NOTHING,
+		"vinyl-info.night-drive.txt":      NOTHING,
+		"College":                         NOTHING,
+		"Northern Council":                NOTHING,
+		"A1 - Incident.flac":              NOTHING,
+		"A2 - The Zemlya Expedition.flac": NOTHING,
+		"cover.northern-council.jpg":      NOTHING,
+		"vinyl-info.northern-council.txt": NOTHING,
+	}
+	filteredListenFlacs = []string{
+		"A1 - Before Life.flac",
+		"A2 - Runaway.flac",
+	}
+	filteredFlacs = []string{
+		"A1 - Can You Kiss Me First.flac",
+		"A2 - Teenage Color.flac",
+		"A1 - Before Life.flac",
+		"A2 - Runaway.flac",
+	}
+	textFiles = []string{
+		"vinyl-info.teenage-color.txt",
+		"vinyl-info.innerworld.txt",
+	}
+
+	profiles = map[string]resumeTestProfile{
+		// === Listening (uni/folder/file) (pend/active)
+
+		"-> universal(pending): unfiltered": {
+			filtered: false,
+			// state here?
+			prohibited: prohibited,
+			mandatory: append(append([]string{
+				"Electric Youth",
+				"Innerworld",
+			}, filteredListenFlacs...), "vinyl-info.innerworld.txt"),
+		},
+
+		"-> universal(active): unfiltered": {
+			filtered:   false,
+			prohibited: prohibited,
+			mandatory: append(append([]string{
+				"Electric Youth",
+				"Innerworld",
+			}, filteredFlacs...), textFiles...),
+		},
+
+		"-> folders(pending): unfiltered": {
+			filtered:   false,
+			prohibited: prohibited,
+			mandatory: []string{
+				"Electric Youth",
+				"Innerworld",
+			},
+		},
+
+		"-> folders(active): unfiltered": {
+			filtered:   false,
+			prohibited: prohibited,
+			mandatory: []string{
+				"Teenage Color",
+				"Electric Youth",
+				"Innerworld",
+			},
+		},
+
+		"-> files(pending): unfiltered": {
+			filtered:   false,
+			prohibited: prohibited,
+			mandatory: []string{
+				"A1 - Before Life.flac",
+				"A2 - Runaway.flac",
+				"vinyl-info.innerworld.txt",
+			},
+		},
+
+		"-> files(active): unfiltered": {
+			filtered:   false,
+			prohibited: prohibited,
+			mandatory:  append(filteredFlacs, textFiles...),
+		},
+
+		// === Filtering (uni/folder/file)
+
+		"-> universal: filtered": {
+			filtered:   true,
+			prohibited: prohibited,
+			mandatory: append([]string{
+				"Electric Youth",
+			}, filteredFlacs...),
+		},
+
+		"-> folders: filtered": {
+			filtered:   true,
+			prohibited: prohibited,
+			mandatory: []string{
+				"Electric Youth",
+			},
+		},
+
+		"-> files: filtered": {
+			filtered:   true,
+			prohibited: prohibited,
+			mandatory:  filteredFlacs,
+		},
+
+		// Listening and filtering (uni/folder/file)
+
+		"-> universal: listen pending and filtered": {
+			filtered:   true,
+			prohibited: prohibited,
+			mandatory: append([]string{
+				"Electric Youth"}, filteredListenFlacs...),
+		},
+
+		"-> folders: listen pending and filtered": {
+			filtered:   true,
+			prohibited: prohibited,
+			mandatory: []string{
+				"Electric Youth",
+			},
+		},
+
+		"-> files: listen pending and filtered": {
+			filtered:   true,
+			prohibited: prohibited,
+			mandatory:  filteredListenFlacs,
+		},
+	}
+)
+
 var _ = Describe("ResumeFastward", Ordered, func() {
 
-	const (
-		NOTHING                         = ""
-		RESUME_AT_TEENAGE_COLOR         = "RETRO-WAVE/College/Teenage Color"
-		RESUME_AT_CAN_YOU_KISS_ME_FIRST = "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac"
-		START_AT_ELECTRIC_YOUTH         = "Electric Youth"
-		START_AT_BEFORE_LIFE            = "A1 - Before Life.flac"
-		START_AT_CLIENT_ALREADY_ACTIVE  = "this value doesn't matter"
-	)
-
 	var (
-		root                string
-		jroot               string
-		fromJsonPath        string
-		prohibited          map[string]string
-		filteredListenFlacs []string
-		filteredFlacs       []string
-		textFiles           []string
-		profiles            map[string]fastwardTestProfile
+		root         string
+		jroot        string
+		fromJsonPath string
 	)
 
 	BeforeAll(func() {
@@ -42,139 +174,6 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 			[]string{jroot, "resume-state.json"},
 			string(filepath.Separator),
 		)
-		prohibited = map[string]string{
-			"RETRO-WAVE":                      NOTHING,
-			"Chromatics":                      NOTHING,
-			"Night Drive":                     NOTHING,
-			"A1 - The Telephone Call.flac":    NOTHING,
-			"A2 - Night Drive.flac":           NOTHING,
-			"cover.night-drive.jpg":           NOTHING,
-			"vinyl-info.night-drive.txt":      NOTHING,
-			"College":                         NOTHING,
-			"Northern Council":                NOTHING,
-			"A1 - Incident.flac":              NOTHING,
-			"A2 - The Zemlya Expedition.flac": NOTHING,
-			"cover.northern-council.jpg":      NOTHING,
-			"vinyl-info.northern-council.txt": NOTHING,
-		}
-		filteredListenFlacs = []string{
-			"A1 - Before Life.flac",
-			"A2 - Runaway.flac",
-		}
-		filteredFlacs = []string{
-			"A1 - Can You Kiss Me First.flac",
-			"A2 - Teenage Color.flac",
-			"A1 - Before Life.flac",
-			"A2 - Runaway.flac",
-		}
-		textFiles = []string{
-			"vinyl-info.teenage-color.txt",
-			"vinyl-info.innerworld.txt",
-		}
-		profiles = map[string]fastwardTestProfile{
-			// === Listening (uni/folder/file) (pend/active)
-
-			"-> universal(pending): unfiltered": {
-				filtered: false,
-				// state here?
-				prohibited: prohibited,
-				mandatory: append(append([]string{
-					"Electric Youth",
-					"Innerworld",
-				}, filteredListenFlacs...), "vinyl-info.innerworld.txt"),
-			},
-
-			"-> universal(active): unfiltered": {
-				filtered:   false,
-				prohibited: prohibited,
-				mandatory: append(append([]string{
-					"Electric Youth",
-					"Innerworld",
-				}, filteredFlacs...), textFiles...),
-			},
-
-			"-> folders(pending): unfiltered": {
-				filtered:   false,
-				prohibited: prohibited,
-				mandatory: []string{
-					"Electric Youth",
-					"Innerworld",
-				},
-			},
-
-			"-> folders(active): unfiltered": {
-				filtered:   false,
-				prohibited: prohibited,
-				mandatory: []string{
-					"Teenage Color",
-					"Electric Youth",
-					"Innerworld",
-				},
-			},
-
-			"-> files(pending): unfiltered": {
-				filtered:   false,
-				prohibited: prohibited,
-				mandatory: []string{
-					"A1 - Before Life.flac",
-					"A2 - Runaway.flac",
-					"vinyl-info.innerworld.txt",
-				},
-			},
-
-			"-> files(active): unfiltered": {
-				filtered:   false,
-				prohibited: prohibited,
-				mandatory:  append(filteredFlacs, textFiles...),
-			},
-
-			// === Filtering (uni/folder/file)
-
-			"-> universal: filtered": {
-				filtered:   true,
-				prohibited: prohibited,
-				mandatory: append([]string{
-					"Electric Youth",
-				}, filteredFlacs...),
-			},
-
-			"-> folders: filtered": {
-				filtered:   true,
-				prohibited: prohibited,
-				mandatory: []string{
-					"Electric Youth",
-				},
-			},
-
-			"-> files: filtered": {
-				filtered:   true,
-				prohibited: prohibited,
-				mandatory:  filteredFlacs,
-			},
-
-			// Listening and filtering (uni/folder/file)
-
-			"-> universal: listen pending and filtered": {
-				filtered:   true,
-				prohibited: prohibited,
-				mandatory: append([]string{
-					"Electric Youth"}, filteredListenFlacs...),
-			},
-
-			"-> folders: listen pending and filtered": {
-				filtered:   true,
-				prohibited: prohibited,
-				mandatory: []string{
-					"Electric Youth",
-				},
-			},
-
-			"-> files: listen pending and filtered": {
-				filtered:   true,
-				prohibited: prohibited,
-				mandatory:  filteredListenFlacs,
-			},
-		}
 	})
 
 	DescribeTable("fastward",

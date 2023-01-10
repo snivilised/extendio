@@ -88,10 +88,29 @@ type TraverseNavigator interface {
 	Save(path string) error
 }
 
+type traverseParams struct {
+	currentItem *TraverseItem
+	frame       *navigationFrame
+}
+
+type spawnParams struct {
+	active *ActiveState
+	frame  *navigationFrame
+	anchor string
+}
+
+type seedParams struct {
+	active *ActiveState
+	frame  *navigationFrame
+	anchor string
+}
+
 type navigatorImpl interface {
 	options() *TraverseOptions
 	top(frame *navigationFrame) *LocalisableError
-	traverse(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError
+	traverse(params *traverseParams) *LocalisableError
+	spawn(params *spawnParams) *LocalisableError
+	seed(params *seedParams) *LocalisableError
 }
 
 type NavigationInfo struct {

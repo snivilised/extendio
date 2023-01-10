@@ -13,7 +13,10 @@ func (s *spawnStrategy) init(params *strategyInitParams) {
 func (s *spawnStrategy) attach(params *resumeAttachParams) {}
 func (s *spawnStrategy) detach(frame *navigationFrame)     {}
 func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
-	// Implementing spawning here
+	info.nc.root(func() string {
+		return info.ps.Active.Root
+	})
+	// Implement spawning here
 	//
-	return nil
+	return info.nc.spawn(info.ps.Active)
 }

@@ -23,6 +23,21 @@ func (f *resumerFactory) create(info *NewResumerInfo) (resumer, error) {
 	}
 	o := marshaller.o
 
+	/*
+		impl := lo.TernaryF(info.Strategy == ResumeStrategySpawnEn,
+			func() navigatorImpl {
+				return &spawnerImpl{
+					navigator: navigator{o: o, agent: &agent{
+						o: o, DO_INVOKE: true,
+					}},
+					ps: marshaller.ps,
+				}
+			},
+			func() navigatorImpl {
+				return (&navigatorImplFactory{}).create(o)
+			},
+		)
+	*/
 	impl := (&navigatorImplFactory{}).create(o)
 	strategy := (&strategyFactory{}).create(o, info.Strategy, marshaller.ps)
 
