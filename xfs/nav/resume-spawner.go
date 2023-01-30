@@ -13,7 +13,7 @@ import (
 type executionSequence []func() *LocalisableError
 
 // behaves like the universal navigator with a few exceptions
-type spawnerImpl struct {
+type spawnerImpl struct { // rename to spawnNavigator
 	navigator
 	ps *persistState
 }
@@ -87,23 +87,24 @@ func (s *spawnerImpl) files(params *topSpawnParams) *LocalisableError {
 	}
 	return nil
 }
-func (s *spawnerImpl) folders(params *topSpawnParams) *LocalisableError {
-	for _, entry := range *params.entries {
-		if entry.IsDir() {
-			topPath := filepath.Join(params.parent, entry.Name())
-			le := s.agent.top(&agentTopParams{
-				impl:  s,
-				frame: params.frame,
-				top:   topPath,
-			})
 
-			if le != nil {
-				return le
-			}
-		}
-	}
-	return nil
-}
+// func (s *spawnerImpl) folders(params *topSpawnParams) *LocalisableError {
+// 	for _, entry := range *params.entries {
+// 		if entry.IsDir() {
+// 			topPath := filepath.Join(params.parent, entry.Name())
+// 			le := s.agent.top(&agentTopParams{
+// 				impl:  s,
+// 				frame: params.frame,
+// 				top:   topPath,
+// 			})
+
+// 			if le != nil {
+// 				return le
+// 			}
+// 		}
+// 	}
+// 	return nil
+// }
 
 func (s *spawnerImpl) traverse(params *traverseParams) *LocalisableError {
 	fmt.Printf(">>> spawnerImpl:traverse ✈️ \n")

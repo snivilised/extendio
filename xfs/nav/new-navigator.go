@@ -37,21 +37,28 @@ func (f *navigatorImplFactory) create(o *TraverseOptions) navigatorImpl {
 		deFactory: &deFactory,
 	})
 
-	switch o.Store.Subscription {
-	case SubscribeAny:
-		impl = &universalNavigator{
+	if o.Resume.Spawn {
+		// TODO: check that "agent.DO_INVOKE" is ok
+		impl = &spawnerImpl{
 			navigator: navigator{o: o, agent: agent},
 		}
+	} else {
+		switch o.Store.Subscription {
+		case SubscribeAny:
+			impl = &universalNavigator{
+				navigator: navigator{o: o, agent: agent},
+			}
 
-	case SubscribeFolders, SubscribeFoldersWithFiles:
-		impl = &foldersNavigator{
-			navigator: navigator{o: o, agent: agent},
-		}
+		case SubscribeFolders, SubscribeFoldersWithFiles:
+			impl = &foldersNavigator{
+				navigator: navigator{o: o, agent: agent},
+			}
 
-	case SubscribeFiles:
-		agent.DO_INVOKE = false
-		impl = &filesNavigator{
-			navigator: navigator{o: o, agent: agent},
+		case SubscribeFiles:
+			agent.DO_INVOKE = false
+			impl = &filesNavigator{
+				navigator: navigator{o: o, agent: agent},
+			}
 		}
 	}
 
