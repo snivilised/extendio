@@ -100,9 +100,9 @@ type spawnParams struct {
 }
 
 type seedParams struct {
-	active *ActiveState
-	frame  *navigationFrame
-	anchor string
+	// active *ActiveState
+	// frame  *navigationFrame
+	// anchor string
 }
 
 type navigatorImpl interface {
