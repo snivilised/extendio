@@ -81,14 +81,7 @@ type activeTE struct {
 	listenState  nav.ListeningState
 }
 
-type fastwardTE struct {
-	naviTE
-	active      activeTE
-	listenStart string
-	profile     string
-}
-
-type spawnTE struct {
+type resumeTE struct {
 	naviTE
 	active   activeTE
 	resumeAt string

@@ -29,11 +29,6 @@ func (c *navigatorController) navState(fn ...func() *NavigationState) *Navigatio
 	return nil
 }
 
-// func (c *navigatorController) resume(ps *persistState, strategy resumeStrategy) *TraverseResult {
-
-// 	return &TraverseResult{}
-// }
-
 func (c *navigatorController) Walk(root string) *TraverseResult {
 	c.root(func() string {
 		return root
@@ -41,7 +36,7 @@ func (c *navigatorController) Walk(root string) *TraverseResult {
 	c.frame.notifiers.begin.invoke(c.ns)
 
 	result := &TraverseResult{
-		Error: c.impl.top(c.frame),
+		Error: c.impl.top(c.frame, root),
 	}
 	c.frame.notifiers.end.invoke(result)
 
@@ -74,24 +69,6 @@ func (c *navigatorController) Save(path string) error {
 	return marshaller.marshal(path)
 }
 
-// this (spawn) will be called be the spawn-strategy
-func (c *navigatorController) spawn(active *ActiveState) *TraverseResult {
-
-	le := c.impl.spawn(&spawnParams{
-		active: active,
-		frame:  c.frame,
-		anchor: c.frame.nodePath,
-	})
-
-	// c.frame.Root = active.Root
-	// c.frame.NodePath = active.NodePath
-	// c.frame.Depth = active.Depth
-
-	return &TraverseResult{
-		Error: le,
-	}
-}
-
 func (c *navigatorController) root(fn ...func() string) string {
 	if len(fn) == 0 {
 		return c.frame.root
@@ -100,12 +77,3 @@ func (c *navigatorController) root(fn ...func() string) string {
 	c.frame.root = c.ns.Root
 	return ""
 }
-
-// func (c *navigatorController) node(fn ...func() string) string {
-// 	if len(fn) == 0 {
-// 		return c.frame.NodePath
-// 	}
-// 	c.ns.Root = fn[0]()
-// 	c.frame.NodePath = c.ns.Root
-// 	return ""
-// }

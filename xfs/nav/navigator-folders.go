@@ -11,12 +11,12 @@ type foldersNavigator struct {
 	navigator
 }
 
-func (n *foldersNavigator) top(frame *navigationFrame) *LocalisableError {
+func (n *foldersNavigator) top(frame *navigationFrame, root string) *LocalisableError {
 
 	return n.agent.top(&agentTopParams{
 		impl:  n,
 		frame: frame,
-		top:   frame.root,
+		top:   root,
 	})
 }
 
@@ -75,13 +75,4 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 			frame:    params.frame,
 		})
 	}
-}
-
-func (n *foldersNavigator) spawn(params *spawnParams) *LocalisableError {
-
-	return nil
-}
-
-func (n *foldersNavigator) seed(params *seedParams) *LocalisableError {
-	return nil
 }

@@ -93,24 +93,10 @@ type traverseParams struct {
 	frame       *navigationFrame
 }
 
-type spawnParams struct {
-	active *ActiveState
-	frame  *navigationFrame
-	anchor string
-}
-
-type seedParams struct {
-	// active *ActiveState
-	// frame  *navigationFrame
-	// anchor string
-}
-
 type navigatorImpl interface {
 	options() *TraverseOptions
-	top(frame *navigationFrame) *LocalisableError
+	top(frame *navigationFrame, root string) *LocalisableError
 	traverse(params *traverseParams) *LocalisableError
-	spawn(params *spawnParams) *LocalisableError
-	seed(params *seedParams) *LocalisableError
 }
 
 type NavigationInfo struct {

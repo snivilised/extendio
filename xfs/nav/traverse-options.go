@@ -127,10 +127,6 @@ type OptionsStore struct {
 	FilterDefs *FilterDefinitions
 }
 
-type ResumeOptions struct {
-	Spawn bool
-}
-
 // TraverseOptions customise the way a directory tree is traversed
 type TraverseOptions struct {
 	Store OptionsStore
@@ -154,10 +150,6 @@ type TraverseOptions struct {
 	// Persist contains options for persisting traverse options
 	//
 	Persist PersistOptions `json:"-"`
-
-	// Resume Options
-	//
-	Resume ResumeOptions `json:"-"`
 }
 
 // TraverseOptionFn functional traverse options

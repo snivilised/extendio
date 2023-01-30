@@ -28,37 +28,31 @@ func (f *NavigatorFactory) Create(fn ...TraverseOptionFn) TraverseNavigator {
 type navigatorImplFactory struct{}
 
 func (f *navigatorImplFactory) create(o *TraverseOptions) navigatorImpl {
+	doInvoke := o.Store.Subscription != SubscribeFiles
+
 	var impl navigatorImpl
 	agtFactory := &agentFactory{}
 	deFactory := directoryEntriesFactory{}
 	agent := agtFactory.construct(&agentFactoryParams{
 		o:         o,
-		doInvoke:  true,
+		doInvoke:  doInvoke,
 		deFactory: &deFactory,
 	})
 
-	if o.Resume.Spawn {
-		// TODO: check that "agent.DO_INVOKE" is ok
-		impl = &spawnerImpl{
+	switch o.Store.Subscription {
+	case SubscribeAny:
+		impl = &universalNavigator{
 			navigator: navigator{o: o, agent: agent},
 		}
-	} else {
-		switch o.Store.Subscription {
-		case SubscribeAny:
-			impl = &universalNavigator{
-				navigator: navigator{o: o, agent: agent},
-			}
 
-		case SubscribeFolders, SubscribeFoldersWithFiles:
-			impl = &foldersNavigator{
-				navigator: navigator{o: o, agent: agent},
-			}
+	case SubscribeFolders, SubscribeFoldersWithFiles:
+		impl = &foldersNavigator{
+			navigator: navigator{o: o, agent: agent},
+		}
 
-		case SubscribeFiles:
-			agent.DO_INVOKE = false
-			impl = &filesNavigator{
-				navigator: navigator{o: o, agent: agent},
-			}
+	case SubscribeFiles:
+		impl = &filesNavigator{
+			navigator: navigator{o: o, agent: agent},
 		}
 	}
 
