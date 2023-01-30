@@ -23,6 +23,10 @@ func (f *resumerFactory) create(info *NewResumerInfo) (resumer, error) {
 	}
 	o := marshaller.o
 
+	if info.Strategy == ResumeStrategySpawnEn {
+		o.Resume.Spawn = true
+	}
+
 	/*
 		impl := lo.TernaryF(info.Strategy == ResumeStrategySpawnEn,
 			func() navigatorImpl {
