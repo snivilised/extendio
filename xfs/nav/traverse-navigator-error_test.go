@@ -161,27 +161,6 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Entry(nil, &errorTE{naviTE{message: "files", subscription: nav.SubscribeFiles}}),
 	)
 
-	DescribeTable("given: root is not a folder",
-		func(entry *errorTE) {
-			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
-				o.Notify.OnBegin = begin("🧲")
-				o.Store.Subscription = entry.subscription
-				o.Store.DoExtend = true
-				o.Callback = errorCallback("ROOT-NOT-FOLDER-ERR", o.Store.DoExtend, true)
-			})
-			const relative = "RETRO-WAVE/Electric Youth/Innerworld/A2 - Runaway.flac"
-			path := path(root, relative)
-			_ = navigator.Walk(path)
-		},
-
-		func(entry *errorTE) string {
-			return fmt.Sprintf("🧪 ===> ('%v') should return error", entry.message)
-		},
-		Entry(nil, &errorTE{naviTE{message: "universal", subscription: nav.SubscribeAny}}),
-		Entry(nil, &errorTE{naviTE{message: "folders", subscription: nav.SubscribeFolders}}),
-		Entry(nil, &errorTE{naviTE{message: "files", subscription: nav.SubscribeFiles}}),
-	)
-
 	Context("top level QueryStatus", func() {
 		Context("given: error occurs", func() {
 			It("🧪 should: halt traversal", func() {

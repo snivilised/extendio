@@ -13,6 +13,10 @@ import (
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
+type strategyTheme struct {
+	label string
+}
+
 const (
 	NOTHING                         = ""
 	RESUME_AT_TEENAGE_COLOR         = "RETRO-WAVE/College/Teenage Color"
@@ -52,13 +56,20 @@ var (
 		"vinyl-info.teenage-color.txt",
 		"vinyl-info.innerworld.txt",
 	}
+	strategies = []nav.ResumeStrategyEnum{
+		nav.ResumeStrategyFastwardEn,
+		nav.ResumeStrategySpawnEn,
+	}
+	themes = map[nav.ResumeStrategyEnum]strategyTheme{
+		nav.ResumeStrategyFastwardEn: {label: "FASTWARD"},
+		nav.ResumeStrategySpawnEn:    {label: "SPAWN"},
+	}
 
 	profiles = map[string]resumeTestProfile{
 		// === Listening (uni/folder/file) (pend/active)
 
 		"-> universal(pending): unfiltered": {
-			filtered: false,
-			// state here?
+			filtered:   false,
 			prohibited: prohibited,
 			mandatory: append(append([]string{
 				"Electric Youth",
@@ -176,83 +187,92 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 		)
 	})
 
-	DescribeTable("fastward",
-		func(entry *fastwardTE) {
-			recording := recordingMap{}
-			profile, ok := profiles[entry.profile]
-			if !ok {
-				Fail(fmt.Sprintf("bad test, missing profile for '%v'", entry.profile))
-			}
+	DescribeTable("resume",
+		func(entry *resumeTE) {
 
-			restore := func(o *nav.TraverseOptions, active *nav.ActiveState) {
-				// synthetic assignments: The client should not perform these
-				// types of assignments. Only being done here for testing purposes
-				// to avoid the need to create many restore files
-				// (eg resume-state.json) for different test cases.
-				//
-				active.Root = path(root, entry.relative)
-				active.NodePath = path(root, entry.active.resumeAtPath)
-				active.Listen = entry.active.listenState
-				o.Store.Subscription = entry.subscription
-
-				if !profile.filtered {
-					o.Store.FilterDefs = nil
+			for _, strategyEn := range strategies {
+				recording := recordingMap{}
+				profile, ok := profiles[entry.profile]
+				if !ok {
+					Fail(fmt.Sprintf("bad test, missing profile for '%v'", entry.profile))
 				}
-				//
-				// end of synthetic assignments
 
-				o.Notify.OnBegin = func(state *nav.NavigationState) {
-					panic("begin handler should not be invoked because begin notification muted")
-				}
-				GinkgoWriter.Printf("===> 🐚 restoring ...\n")
+				restore := func(o *nav.TraverseOptions, active *nav.ActiveState) {
+					// synthetic assignments: The client should not perform these
+					// types of assignments. Only being done here for testing purposes
+					// to avoid the need to create many restore files
+					// (eg resume-state.json) for different test cases.
+					//
+					active.Root = path(root, entry.relative)
+					active.NodePath = path(root, entry.active.resumeAtPath)
+					active.Listen = entry.active.listenState
+					o.Store.Subscription = entry.subscription
 
-				o.Callback = nav.LabelledTraverseCallback{
-					Label: "unit test callback for resume",
-					Fn: func(item *nav.TraverseItem) *LocalisableError {
-						depth := lo.TernaryF(o.Store.DoExtend,
-							func() uint { return item.Extension.Depth },
-							func() uint { return 9999 },
-						)
-						GinkgoWriter.Printf(
-							"---> ⏩ FASTWARD: (depth:%v) '%v'\n", depth, item.Path,
-						)
+					if !profile.filtered {
+						o.Store.FilterDefs = nil
+					}
+					//
+					// end of synthetic assignments
 
-						segments := strings.Split(item.Path, string(filepath.Separator))
-						last := segments[len(segments)-1]
-						if _, found := prohibited[last]; found {
-							Fail(fmt.Sprintf("item: '%v' should have been fast forwarded over", item.Path))
+					if strategyEn == nav.ResumeStrategyFastwardEn {
+						o.Notify.OnBegin = func(state *nav.NavigationState) {
+							panic("begin handler should not be invoked because begin notification muted")
 						}
-						recording[item.Extension.Name] = len(item.Children)
-						return nil
-					},
-				}
-				if entry.listenStart != "" {
-					o.Listen = nav.ListenOptions{
-						Start: &nav.ListenBy{
-							Fn: func(item *nav.TraverseItem) bool {
-								return item.Extension.Name == entry.listenStart
-							},
+					}
+					GinkgoWriter.Printf("===> 🐚 restoring ...\n")
+
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "unit test callback for resume",
+						Fn: func(item *nav.TraverseItem) *LocalisableError {
+							depth := lo.TernaryF(o.Store.DoExtend,
+								func() uint { return item.Extension.Depth },
+								func() uint { return 9999 },
+							)
+							GinkgoWriter.Printf(
+								"---> ⏩ %v: (depth:%v) '%v'\n", themes[strategyEn].label, depth, item.Path,
+							)
+
+							if strategyEn == nav.ResumeStrategyFastwardEn {
+								segments := strings.Split(item.Path, string(filepath.Separator))
+								last := segments[len(segments)-1]
+								if _, found := prohibited[last]; found {
+									Fail(fmt.Sprintf("item: '%v' should have been fast forwarded over", item.Path))
+								}
+							}
+							recording[item.Extension.Name] = len(item.Children)
+							return nil
 						},
+					}
+					if strategyEn == nav.ResumeStrategyFastwardEn {
+						if entry.resumeAt != "" {
+							o.Listen = nav.ListenOptions{
+								Start: &nav.ListenBy{
+									Fn: func(item *nav.TraverseItem) bool {
+										return item.Extension.Name == entry.resumeAt
+									},
+								},
+							}
+						}
+					}
+				}
+				info := &nav.NewResumerInfo{
+					RestorePath: fromJsonPath,
+					Restorer:    restore,
+					Strategy:    strategyEn,
+				}
+				result, err := nav.Resume(info)
+				Expect(err).To(BeNil())
+				Expect(result).ToNot(BeNil())
+
+				if profile.mandatory != nil {
+					for _, name := range profile.mandatory {
+						_, found := recording[name]
+						Expect(found).To(BeTrue(), fmt.Sprintf("mandatory item failure -> %v", reason(name)))
 					}
 				}
 			}
-			info := &nav.NewResumerInfo{
-				RestorePath: fromJsonPath,
-				Restorer:    restore,
-				Strategy:    nav.ResumeStrategyFastwardEn,
-			}
-			result, err := nav.Resume(info)
-			Expect(err).To(BeNil())
-			Expect(result).ToNot(BeNil())
-
-			if profile.mandatory != nil {
-				for _, name := range profile.mandatory {
-					_, found := recording[name]
-					Expect(found).To(BeTrue(), fmt.Sprintf("mandatory item failure -> %v", reason(name)))
-				}
-			}
 		},
-		func(entry *fastwardTE) string {
+		func(entry *resumeTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
 		},
 
@@ -263,9 +283,9 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 		// still has to be set because that is what would happen in the real world.
 		//
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "universal(fastward): listen pending",
+				message:      "universal: listen pending",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 			},
@@ -273,13 +293,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: START_AT_ELECTRIC_YOUTH,
-			profile:     "-> universal(pending): unfiltered",
+			resumeAt: START_AT_ELECTRIC_YOUTH,
+			profile:  "-> universal(pending): unfiltered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "universal(fastward): listen active",
+				message:      "universal: listen active",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 			},
@@ -294,13 +314,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 			// listen value is a historical event, so the value defined here is a moot
 			// point.
 			//
-			listenStart: START_AT_CLIENT_ALREADY_ACTIVE,
-			profile:     "-> universal(active): unfiltered",
+			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			profile:  "-> universal(active): unfiltered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "folders(fastward): listen pending",
+				message:      "folders: listen pending",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
 			},
@@ -308,13 +328,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: START_AT_ELECTRIC_YOUTH,
-			profile:     "-> folders(pending): unfiltered",
+			resumeAt: START_AT_ELECTRIC_YOUTH,
+			profile:  "-> folders(pending): unfiltered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "folders(fastward): listen active",
+				message:      "folders: listen active",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
 			},
@@ -322,13 +342,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: START_AT_CLIENT_ALREADY_ACTIVE,
-			profile:     "-> folders(active): unfiltered",
+			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			profile:  "-> folders(active): unfiltered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "files(fastward): listen pending",
+				message:      "files: listen pending",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
 			},
@@ -336,13 +356,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: START_AT_BEFORE_LIFE,
-			profile:     "-> files(pending): unfiltered",
+			resumeAt: START_AT_BEFORE_LIFE,
+			profile:  "-> files(pending): unfiltered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "files(fastward): listen active",
+				message:      "files: listen active",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
 			},
@@ -350,15 +370,15 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: START_AT_CLIENT_ALREADY_ACTIVE,
-			profile:     "-> files(active): unfiltered",
+			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			profile:  "-> files(active): unfiltered",
 		}),
 
 		// === Filtering (uni/folder/file)
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "universal(fastward): listen not active/deaf",
+				message:      "universal: listen not active/deaf",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 			},
@@ -369,9 +389,9 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 			profile: "-> universal: filtered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "folders(fastward): listen not active/deaf",
+				message:      "folders: listen not active/deaf",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
 			},
@@ -382,9 +402,9 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 			profile: "-> folders: filtered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "files(fastward): listen not active/deaf",
+				message:      "files: listen not active/deaf",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
 			},
@@ -395,11 +415,11 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 			profile: "-> files: filtered",
 		}),
 
-		// Listening and filtering (uni/folder/file)
+		// === Listening and filtering (uni/folder/file)
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "universal(fastward): listen pending and filtered",
+				message:      "universal: listen pending and filtered",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 			},
@@ -407,13 +427,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: START_AT_ELECTRIC_YOUTH,
-			profile:     "-> universal: listen pending and filtered",
+			resumeAt: START_AT_ELECTRIC_YOUTH,
+			profile:  "-> universal: listen pending and filtered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "universal(fastward): listen active and filtered",
+				message:      "universal: listen active and filtered",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 			},
@@ -421,13 +441,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: START_AT_ELECTRIC_YOUTH,
-			profile:     "-> universal: filtered",
+			resumeAt: START_AT_ELECTRIC_YOUTH,
+			profile:  "-> universal: filtered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "folders(fastward): listen pending and filtered",
+				message:      "folders: listen pending and filtered",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
 			},
@@ -435,13 +455,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: START_AT_ELECTRIC_YOUTH,
-			profile:     "-> folders: listen pending and filtered",
+			resumeAt: START_AT_ELECTRIC_YOUTH,
+			profile:  "-> folders: listen pending and filtered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "folders(fastward): listen active and filtered",
+				message:      "folders: listen active and filtered",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
 			},
@@ -449,13 +469,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: START_AT_ELECTRIC_YOUTH,
-			profile:     "-> folders: filtered",
+			resumeAt: START_AT_ELECTRIC_YOUTH,
+			profile:  "-> folders: filtered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "files(fastward): listen pending and filtered",
+				message:      "files: listen pending and filtered",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
 			},
@@ -463,13 +483,13 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenPending,
 			},
-			listenStart: START_AT_BEFORE_LIFE,
-			profile:     "-> files: listen pending and filtered",
+			resumeAt: START_AT_BEFORE_LIFE,
+			profile:  "-> files: listen pending and filtered",
 		}),
 
-		Entry(nil, &fastwardTE{
+		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "files(fastward): listen active and filtered",
+				message:      "files: listen active and filtered",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
 			},
@@ -477,8 +497,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState:  nav.ListenActive,
 			},
-			listenStart: START_AT_BEFORE_LIFE,
-			profile:     "-> files: filtered",
+			resumeAt: START_AT_BEFORE_LIFE,
+			profile:  "-> files: filtered",
 		}),
 	)
 })

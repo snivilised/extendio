@@ -17,8 +17,8 @@ type agentFactoryParams struct {
 
 func (*agentFactory) construct(params *agentFactoryParams) *navigationAgent {
 	instance := navigationAgent{
-		DO_INVOKE: params.doInvoke,
-		o:         params.o,
+		_DO_INVOKE: params.doInvoke,
+		o:          params.o,
 	}
 	instance.deFactory = &directoryEntriesFactory{}
 
@@ -26,9 +26,9 @@ func (*agentFactory) construct(params *agentFactoryParams) *navigationAgent {
 }
 
 type navigationAgent struct {
-	DO_INVOKE bool // this should be considered const
-	o         *TraverseOptions
-	deFactory *directoryEntriesFactory
+	_DO_INVOKE bool // this should be considered const
+	o          *TraverseOptions
+	deFactory  *directoryEntriesFactory
 }
 
 type agentTopParams struct {
@@ -47,34 +47,16 @@ func (a *navigationAgent) top(params *agentTopParams) *LocalisableError {
 		}
 		le = a.proxy(item, params.frame)
 	} else {
-		if info.IsDir() {
-			item := &TraverseItem{
-				Path: params.top, Info: info,
-				Children: []fs.DirEntry{},
-			}
 
-			le = params.impl.traverse(&traverseParams{
-				currentItem: item,
-				frame:       params.frame,
-			})
-		} else {
-
-			if a.DO_INVOKE {
-				// TODO: this might be a problem. We must not treat the top entity being a file
-				// as an error for spawn-resume scenarios
-				//
-				item := &TraverseItem{
-					Path: params.top, Info: info, Error: &NOT_DIRECTORY_L_ERR,
-					Children: []fs.DirEntry{},
-				}
-				params.impl.options().Hooks.Extend(&NavigationInfo{
-					Options: params.impl.options(), Item: item, Frame: params.frame,
-				}, []fs.DirEntry{})
-				le = a.proxy(item, params.frame)
-			} else {
-				le = &NOT_DIRECTORY_L_ERR
-			}
+		item := &TraverseItem{
+			Path: params.top, Info: info,
+			Children: []fs.DirEntry{},
 		}
+
+		le = params.impl.traverse(&traverseParams{
+			currentItem: item,
+			frame:       params.frame,
+		})
 	}
 	if (le != nil) && (le.Inner == fs.SkipDir) {
 		return nil
@@ -111,7 +93,7 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (bool, *LocalisableE
 	exit := false
 	if params.readErr != nil {
 
-		if a.DO_INVOKE {
+		if a._DO_INVOKE {
 			item2 := params.item.Clone()
 			item2.Error = &LocalisableError{Inner: params.readErr}
 
@@ -169,30 +151,4 @@ func (a *navigationAgent) proxy(currentItem *TraverseItem, frame *navigationFram
 	//
 	frame.nodePath = currentItem.Path
 	return frame.client.Fn(currentItem)
-}
-
-func (a *navigationAgent) siblingsFollowing(info *followingInfo) (*fractureInfo, error) {
-
-	de, le := a.read(info.parent, info.order)
-
-	if le != nil {
-		return nil, le
-	}
-	// is this subscription dependent? if so then, this functionality needs to be moved
-	// to the navigator-[subscription]
-	//
-	entries := de.all()
-
-	groups := lo.GroupBy(*entries, func(item fs.DirEntry) bool {
-		return item.Name() >= info.anchor
-	})
-	following := groups[true]
-
-	siblingsDe := a.deFactory.construct(&directoryEntriesFactoryParams{
-		o:       a.o,
-		order:   info.order,
-		entries: &following,
-	})
-
-	return &fractureInfo{siblings: siblingsDe}, nil
 }

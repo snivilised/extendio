@@ -8,12 +8,12 @@ type filesNavigator struct {
 	navigator
 }
 
-func (n *filesNavigator) top(frame *navigationFrame) *LocalisableError {
+func (n *filesNavigator) top(frame *navigationFrame, root string) *LocalisableError {
 
 	return n.agent.top(&agentTopParams{
 		impl:  n,
 		frame: frame,
-		top:   frame.root,
+		top:   root,
 	})
 }
 
@@ -29,15 +29,28 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 	}()
 	navi := &NavigationInfo{Options: n.o, Item: params.currentItem, Frame: params.frame}
 	n.descend(navi)
-	entries, readErr := n.agent.read(params.currentItem.Path, n.o.Store.Behaviours.Sort.DirectoryEntryOrder)
-	// Files and Folders need to be sorted independently to preserve the navigation order
-	// stipulated by .Behaviours.Sort.DirectoryEntryOrder
-	//
-	entries.sort(&entries.Files)
-	entries.sort(&entries.Folders)
+
+	var (
+		entries *directoryEntries
+		readErr error
+	)
+
+	if params.currentItem.Info.IsDir() {
+		entries, readErr = n.agent.read(
+			params.currentItem.Path, n.o.Store.Behaviours.Sort.DirectoryEntryOrder,
+		)
+
+		// Files and Folders need to be sorted independently to preserve the navigation order
+		// stipulated by .Behaviours.Sort.DirectoryEntryOrder
+		//
+		entries.sort(&entries.Files)
+		entries.sort(&entries.Folders)
+	} else {
+		entries = &directoryEntries{}
+	}
 	sorted := entries.all()
 
-	if (params.currentItem.Entry != nil) && !(params.currentItem.Entry.IsDir()) {
+	if (params.currentItem.Entry != nil) && !(params.currentItem.Info.IsDir()) {
 		n.o.Hooks.Extend(navi, *sorted)
 
 		// Effectively, this is the file only filter
@@ -58,13 +71,4 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 			frame:    params.frame,
 		})
 	}
-}
-
-func (n *filesNavigator) spawn(params *spawnParams) *LocalisableError {
-
-	return nil
-}
-
-func (n *filesNavigator) seed(params *seedParams) *LocalisableError {
-	return nil
 }

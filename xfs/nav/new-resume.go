@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// TODO: I don't like the name NewResumerInfo, it would be better called
+// just ResumerInfo
 type NewResumerInfo struct {
 	RestorePath string
 	Restorer    PersistenceRestorer
@@ -23,31 +25,17 @@ func (f *resumerFactory) create(info *NewResumerInfo) (resumer, error) {
 	}
 	o := marshaller.o
 
-	if info.Strategy == ResumeStrategySpawnEn {
-		o.Resume.Spawn = true
-	}
-
-	/*
-		impl := lo.TernaryF(info.Strategy == ResumeStrategySpawnEn,
-			func() navigatorImpl {
-				return &spawnerImpl{
-					navigator: navigator{o: o, agent: &agent{
-						o: o, DO_INVOKE: true,
-					}},
-					ps: marshaller.ps,
-				}
-			},
-			func() navigatorImpl {
-				return (&navigatorImplFactory{}).create(o)
-			},
-		)
-	*/
 	impl := (&navigatorImplFactory{}).create(o)
-	strategy := (&strategyFactory{}).create(o, info.Strategy, marshaller.ps)
-
 	navigator := &navigatorController{
 		impl: impl,
 	}
+
+	strategy := (&strategyFactory{}).create(&createStrategyParams{
+		o:          o,
+		strategyEn: info.Strategy,
+		ps:         marshaller.ps,
+		nc:         navigator,
+	})
 
 	resumerCtrl := &resumeController{
 		navigator: navigator,
@@ -68,28 +56,37 @@ func (f *resumerFactory) create(info *NewResumerInfo) (resumer, error) {
 
 type strategyFactory struct{}
 
-func (f *strategyFactory) create(o *TraverseOptions, strategyEn ResumeStrategyEnum, ps *persistState) resumeStrategy {
+type createStrategyParams struct {
+	o          *TraverseOptions
+	strategyEn ResumeStrategyEnum
+	ps         *persistState
+	nc         *navigatorController
+}
+
+func (f *strategyFactory) create(params *createStrategyParams) resumeStrategy {
 	var strategy resumeStrategy
 
-	switch strategyEn {
+	switch params.strategyEn {
 
 	case ResumeStrategySpawnEn:
 		strategy = &spawnStrategy{
 			baseStrategy: baseStrategy{
-				o:  o,
-				ps: ps,
+				o:  params.o,
+				ps: params.ps,
+				nc: params.nc,
 			},
 		}
 	case ResumeStrategyFastwardEn:
 		strategy = &fastwardStrategy{
 			baseStrategy: baseStrategy{
-				o:  o,
-				ps: ps,
+				o:  params.o,
+				ps: params.ps,
+				nc: params.nc,
 			},
 		}
 
 	default:
-		panic(fmt.Errorf("*** newResumeStrategy: unsupported strategy: '%v'", strategyEn))
+		panic(fmt.Errorf("*** newResumeStrategy: unsupported strategy: '%v'", params.strategyEn))
 	}
 
 	return strategy

@@ -15,13 +15,6 @@ const (
 
 type directoryEntriesFactory struct{}
 
-/*
-directoryEntries{
-		Options: a.o,
-		Order:   info.order,
-	}
-*/
-
 type directoryEntriesFactoryParams struct {
 	o       *TraverseOptions
 	order   DirectoryEntryOrderEnum
