@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.4
+          go-version: 1.19.5
       - uses: actions/checkout@v3
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
@@ -20,35 +20,35 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.18.4]
+        go-version: [1.19.5]
         platform: [ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.platform }}
-    
+
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: ${{ matrix.go-version }}
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
 
-    - name: Install goveralls
-      run: go install github.com/mattn/goveralls@latest
+      - name: Install goveralls
+        run: go install github.com/mattn/goveralls@latest
 
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: Create Coverage Directory
-      shell: bash
-      run: |
-        mkdir -p ./coverage
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - run: go test -v -coverprofile=./coverage/coverage.out ./...
+      - name: Create Coverage Directory
+        shell: bash
+        run: |
+          mkdir -p ./coverage
 
-    - uses: shogo82148/actions-goveralls@v1
-      with:
-        path-to-profile: ./coverage/coverage.out
+      - run: go test -v -coverprofile=./coverage/coverage.out ./...
 
-    - name: Send coverage
-      env:
-        COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: goveralls -coverprofile=./coverage/coverage.out -service=github
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: ./coverage/coverage.out
+
+      - name: Send coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: goveralls -coverprofile=./coverage/coverage.out -service=github
