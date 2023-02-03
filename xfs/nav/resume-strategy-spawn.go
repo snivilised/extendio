@@ -157,15 +157,17 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 	groups := lo.GroupBy(entries, func(item fs.DirEntry) bool {
 		return item.Name() >= params.anchor
 	})
-
 	siblings := groups[_FOLLOWING_SIBLINGS]
-	de := directoryEntries{
-		Options: s.o,
-		Order:   params.order,
-	}
-	de.arrange(&siblings)
 
-	return &shard{siblings: &de}
+	de := s.deFactory.construct(
+		&directoryEntriesFactoryParams{
+			o:       s.o,
+			order:   params.order,
+			entries: &siblings,
+		},
+	)
+
+	return &shard{siblings: de}
 }
 
 type coreSequence []func() *LocalisableError

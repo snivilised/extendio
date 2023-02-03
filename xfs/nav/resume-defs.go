@@ -41,13 +41,12 @@ type resumeStrategy interface {
 }
 
 type baseStrategy struct {
-	o  *TraverseOptions
-	ps *persistState
-	nc *navigatorController
+	o         *TraverseOptions
+	ps        *persistState
+	nc        *navigatorController
+	deFactory *directoryEntriesFactory
 }
 
-// TODO: code smell, the functionality of fastward strategy should not
-// leak into spawn strategy.
 func (s *baseStrategy) attach(params *resumeAttachParams) {}
 func (s *baseStrategy) detach(frame *navigationFrame)     {}
 

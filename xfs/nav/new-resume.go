@@ -65,23 +65,26 @@ type createStrategyParams struct {
 
 func (f *strategyFactory) create(params *createStrategyParams) resumeStrategy {
 	var strategy resumeStrategy
+	deFactory := &directoryEntriesFactory{}
 
 	switch params.strategyEn {
 
 	case ResumeStrategySpawnEn:
 		strategy = &spawnStrategy{
 			baseStrategy: baseStrategy{
-				o:  params.o,
-				ps: params.ps,
-				nc: params.nc,
+				o:         params.o,
+				ps:        params.ps,
+				nc:        params.nc,
+				deFactory: deFactory,
 			},
 		}
 	case ResumeStrategyFastwardEn:
 		strategy = &fastwardStrategy{
 			baseStrategy: baseStrategy{
-				o:  params.o,
-				ps: params.ps,
-				nc: params.nc,
+				o:         params.o,
+				ps:        params.ps,
+				nc:        params.nc,
+				deFactory: deFactory,
 			},
 		}
 
