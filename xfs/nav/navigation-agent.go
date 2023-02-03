@@ -72,13 +72,13 @@ func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*dir
 	//
 	entries, err := a.o.Hooks.ReadDirectory(path)
 
-	de := directoryEntries{
-		Options: a.o,
-		Order:   order,
-	}
-	de.arrange(&entries)
+	de := a.deFactory.construct(&directoryEntriesFactoryParams{
+		o:       a.o,
+		order:   order,
+		entries: &entries,
+	})
 
-	return &de, err
+	return de, err
 }
 
 type agentNotifyParams struct {
