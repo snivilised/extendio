@@ -11,7 +11,7 @@ type foldersNavigator struct {
 	navigator
 }
 
-func (n *foldersNavigator) top(frame *navigationFrame, root string) *LocalisableError {
+func (n *foldersNavigator) top(frame *navigationFrame, root string) *TraverseResult {
 
 	return n.agent.top(&agentTopParams{
 		impl:  n,

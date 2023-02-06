@@ -12,11 +12,13 @@ type navigatorController struct {
 
 func (c *navigatorController) makeFrame() *navigationFrame {
 	o := c.impl.options()
+	mf := navigationMetricsFactory{}
 	c.frame = &navigationFrame{
 		client:    o.Callback,
 		raw:       o.Callback,
 		notifiers: notificationsSink{},
 		periscope: &navigationPeriscope{},
+		metrics:   mf.construct(),
 	}
 	return c.frame
 }
@@ -36,9 +38,7 @@ func (c *navigatorController) Walk(root string) *TraverseResult {
 	})
 	c.frame.notifiers.begin.invoke(c.ns)
 
-	result := &TraverseResult{
-		Error: c.impl.top(c.frame, root),
-	}
+	result := c.impl.top(c.frame, root)
 	c.frame.notifiers.end.invoke(result)
 
 	return result

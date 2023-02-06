@@ -35,6 +35,7 @@ type ActiveState struct {
 	Listen   ListeningState
 	NodePath string
 	Depth    uint
+	Metrics  *MetricCollection
 }
 
 type persistState struct {

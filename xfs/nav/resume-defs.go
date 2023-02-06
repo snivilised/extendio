@@ -49,6 +49,7 @@ type baseStrategy struct {
 
 func (s *baseStrategy) attach(params *resumeAttachParams) {}
 func (s *baseStrategy) detach(frame *navigationFrame)     {}
+func (s *baseStrategy) init(params *strategyInitParams)   {}
 
 type resumeDetacher interface {
 	detach(frame *navigationFrame)

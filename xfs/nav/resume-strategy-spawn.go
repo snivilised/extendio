@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
-	"reflect"
 
 	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
@@ -18,8 +17,6 @@ const (
 type spawnStrategy struct {
 	baseStrategy
 }
-
-func (s *spawnStrategy) init(params *strategyInitParams) {}
 
 func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 	info.nc.root(func() string {
@@ -57,17 +54,9 @@ type concludeInfo struct {
 	current string
 }
 
-type seedParams struct {
-	frame      *navigationFrame
-	parent     string
-	entries    *[]fs.DirEntry
-	conclusion *concludeInfo
-}
-
 func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 	fmt.Printf("   👾 conclude: '%v' \n", conclusion.current)
 
-	result := &TraverseResult{}
 	if conclusion.current == conclusion.active.Root {
 		// TODO: need to make sure that the term active in 'resume' scenarios
 		// is a legacy item from the previous session, not the current
@@ -78,7 +67,7 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 		//
 		fmt.Printf("   👽 conclude - completed at: 🧿'%v' \n", conclusion.current)
 
-		return result
+		return &TraverseResult{}
 	}
 
 	parent, child := utils.SplitParent(conclusion.current)
@@ -93,30 +82,30 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 	following.siblings.sort(&following.siblings.Files)
 	following.siblings.sort(&following.siblings.Folders)
 
-	seedsFn := func() *LocalisableError {
-
-		return s.seed(&seedParams{
-			frame:      s.nc.frame,
-			parent:     parent,
-			entries:    following.siblings.all(),
-			conclusion: conclusion,
-		})
-	}
-
-	result.Error = s.run(&coreSequence{
-		seedsFn,
+	compoundResult := s.seed(&seedParams{
+		frame:      s.nc.frame,
+		parent:     parent,
+		entries:    following.siblings.all(),
+		conclusion: conclusion,
 	})
 	fmt.Println("   =====================================")
 
-	if !reflect.ValueOf(result.Error).IsNil() {
-		return result
+	if !utils.IsNil(compoundResult.Error) {
+		return compoundResult
 	}
 	conclusion.current = parent
 
-	return s.conclude(conclusion)
+	return compoundResult.merge(s.conclude(conclusion))
 }
 
-func (s *spawnStrategy) seed(params *seedParams) *LocalisableError {
+type seedParams struct {
+	frame      *navigationFrame
+	parent     string
+	entries    *[]fs.DirEntry
+	conclusion *concludeInfo
+}
+
+func (s *spawnStrategy) seed(params *seedParams) *TraverseResult {
 	fmt.Print("   🎈seeds: ")
 	for _, entry := range *params.entries {
 		fmt.Printf("'%v', ", entry.Name())
@@ -128,15 +117,17 @@ func (s *spawnStrategy) seed(params *seedParams) *LocalisableError {
 		current: params.conclusion.current,
 	})
 
+	compoundResult := &TraverseResult{}
 	for _, entry := range *params.entries {
 		topPath := filepath.Join(params.parent, entry.Name())
-		le := s.nc.impl.top(params.frame, topPath)
+		result := s.nc.impl.top(params.frame, topPath)
+		compoundResult.merge(result)
 
-		if le != nil {
-			return le
+		if result.Error != nil {
+			return compoundResult
 		}
 	}
-	return nil
+	return compoundResult
 }
 
 type shard struct {
@@ -173,17 +164,4 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 	)
 
 	return &shard{siblings: de}
-}
-
-type coreSequence []func() *LocalisableError
-
-func (s *spawnStrategy) run(sequence *coreSequence) *LocalisableError {
-	var le *LocalisableError
-	for _, fn := range *sequence {
-		if le = fn(); le != nil {
-			break
-		}
-	}
-
-	return le
 }

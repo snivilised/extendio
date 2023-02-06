@@ -9,6 +9,7 @@ type navigationFrame struct {
 	filters   *NavigationFilters
 	notifiers notificationsSink
 	periscope *navigationPeriscope
+	metrics   *navigationMetrics
 }
 
 // attach/decorate
@@ -56,8 +57,24 @@ func (f *navigationFrame) save(active *ActiveState) {
 	active.Root = f.root
 	active.NodePath = f.nodePath
 	active.Depth = f.periscope.depth()
+	f.metrics.save(active)
+}
+
+func (f *navigationFrame) collate() *TraverseResult {
+
+	return &TraverseResult{
+		Metrics: &f.metrics._metrics,
+	}
 }
 
 func (f *navigationFrame) link(params *linkParams) {
+	// Combines information gleaned from the previous traversal that was
+	// interrupted, into the resume traversal.
+	//
 	f.periscope.difference(params.root, params.current)
+}
+
+func (f *navigationFrame) reset() {
+	mf := navigationMetricsFactory{}
+	f.metrics = mf.construct()
 }

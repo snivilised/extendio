@@ -5,6 +5,7 @@ import (
 
 	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
+	"github.com/snivilised/extendio/xfs/utils"
 )
 
 // ExtendedItem provides extended information if the client requests
@@ -79,7 +80,25 @@ type EndHandler func(result *TraverseResult)
 
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
-	Error error
+	Metrics *MetricCollection
+	Error   error
+}
+
+func (r *TraverseResult) merge(other *TraverseResult) *TraverseResult {
+	if !utils.IsNil(other.Error) {
+		r.Error = other.Error
+	}
+
+	if other.Metrics != nil {
+		if r.Metrics == nil {
+			r.Metrics = other.Metrics
+		} else {
+			for k, v := range *other.Metrics {
+				(*r.Metrics)[k].Count += v.Count
+			}
+		}
+	}
+	return r
 }
 
 // TraverseNavigator interface to the main traverse instance.
@@ -95,7 +114,7 @@ type traverseParams struct {
 
 type navigatorImpl interface {
 	options() *TraverseOptions
-	top(frame *navigationFrame, root string) *LocalisableError
+	top(frame *navigationFrame, root string) *TraverseResult
 	traverse(params *traverseParams) *LocalisableError
 }
 

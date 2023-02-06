@@ -37,7 +37,9 @@ type agentTopParams struct {
 	top   string
 }
 
-func (a *navigationAgent) top(params *agentTopParams) *LocalisableError {
+func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
+	params.frame.reset()
+
 	info, err := a.o.Hooks.QueryStatus(params.top)
 	var le *LocalisableError = nil
 	if err != nil {
@@ -58,10 +60,13 @@ func (a *navigationAgent) top(params *agentTopParams) *LocalisableError {
 			frame:       params.frame,
 		})
 	}
+
+	result := params.frame.collate()
 	if (le != nil) && (le.Inner == fs.SkipDir) {
-		return nil
+		result.Error = le
 	}
-	return le
+
+	return result
 }
 
 func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*directoryEntries, error) {
@@ -150,5 +155,12 @@ func (a *navigationAgent) proxy(currentItem *TraverseItem, frame *navigationFram
 	// can be decorated. Only the callback on the frame should ever be invoked.
 	//
 	frame.nodePath = currentItem.Path
-	return frame.client.Fn(currentItem)
+	result := frame.client.Fn(currentItem)
+
+	if currentItem.Entry != nil {
+		metricEn := lo.Ternary(currentItem.Entry.IsDir(), MetricNoFoldersEn, MetricNoFilesEn)
+		frame.metrics.tick(metricEn)
+	}
+
+	return result
 }
