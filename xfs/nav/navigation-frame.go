@@ -3,12 +3,12 @@ package nav
 type navigationFrame struct {
 	root      string
 	nodePath  string
-	depth     uint
 	listener  *navigationListener
 	raw       LabelledTraverseCallback // un-decorated (except for filter) client callback
 	client    LabelledTraverseCallback // decorate-able client callback
 	filters   *NavigationFilters
 	notifiers notificationsSink
+	periscope *navigationPeriscope
 }
 
 // attach/decorate
@@ -44,4 +44,20 @@ func (f *navigationFrame) decorate(label string, decorator *LabelledTraverseCall
 	f.client = *decorator
 
 	return &previous
+}
+
+type linkParams struct {
+	root    string
+	current string
+}
+
+func (f *navigationFrame) save(active *ActiveState) {
+
+	active.Root = f.root
+	active.NodePath = f.nodePath
+	active.Depth = f.periscope.depth()
+}
+
+func (f *navigationFrame) link(params *linkParams) {
+	f.periscope.difference(params.root, params.current)
 }

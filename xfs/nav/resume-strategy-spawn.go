@@ -19,11 +19,7 @@ type spawnStrategy struct {
 	baseStrategy
 }
 
-func (s *spawnStrategy) init(params *strategyInitParams) {
-	// TODO: set the depth and other appropriate properties on the frame
-	//
-	params.frame.depth = params.ps.Active.Depth
-}
+func (s *spawnStrategy) init(params *strategyInitParams) {}
 
 func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 	info.nc.root(func() string {
@@ -49,27 +45,30 @@ func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 	// TODO: ensure that child is related to parent and also, not the / path
 	//
 	return s.conclude(&concludeInfo{
-		active:      info.ps.Active,
-		currentPath: resumeAt,
+		active:  info.ps.Active,
+		root:    info.ps.Active.Root,
+		current: resumeAt,
 	})
 }
 
-type seedParams struct {
-	frame   *navigationFrame
-	parent  string
-	entries *[]fs.DirEntry
+type concludeInfo struct {
+	active  *ActiveState
+	root    string
+	current string
 }
 
-type concludeInfo struct {
-	active      *ActiveState
-	currentPath string
+type seedParams struct {
+	frame      *navigationFrame
+	parent     string
+	entries    *[]fs.DirEntry
+	conclusion *concludeInfo
 }
 
 func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
-	fmt.Printf("   👾 conclude: '%v' \n", conclusion.currentPath)
+	fmt.Printf("   👾 conclude: '%v' \n", conclusion.current)
 
 	result := &TraverseResult{}
-	if conclusion.currentPath == conclusion.active.Root {
+	if conclusion.current == conclusion.active.Root {
 		// TODO: need to make sure that the term active in 'resume' scenarios
 		// is a legacy item from the previous session, not the current
 		// session. Perhaps, whenever active is legacy, it should be wrapped
@@ -77,12 +76,12 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 		//
 		// reach the top, so we're done
 		//
-		fmt.Printf("   👽 conclude - completed at: 🧿'%v' \n", conclusion.currentPath)
+		fmt.Printf("   👽 conclude - completed at: 🧿'%v' \n", conclusion.current)
 
 		return result
 	}
 
-	parent, child := utils.SplitParent(conclusion.currentPath)
+	parent, child := utils.SplitParent(conclusion.current)
 	fmt.Printf("   💥 - parent: 🧿'%v' \n", parent)
 	fmt.Printf("   💥 - child: 🧿'%v' \n", child)
 
@@ -97,9 +96,10 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 	seedsFn := func() *LocalisableError {
 
 		return s.seed(&seedParams{
-			frame:   s.nc.frame,
-			parent:  parent,
-			entries: following.siblings.all(),
+			frame:      s.nc.frame,
+			parent:     parent,
+			entries:    following.siblings.all(),
+			conclusion: conclusion,
 		})
 	}
 
@@ -111,7 +111,7 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 	if !reflect.ValueOf(result.Error).IsNil() {
 		return result
 	}
-	conclusion.currentPath = parent
+	conclusion.current = parent
 
 	return s.conclude(conclusion)
 }
@@ -122,6 +122,11 @@ func (s *spawnStrategy) seed(params *seedParams) *LocalisableError {
 		fmt.Printf("'%v', ", entry.Name())
 	}
 	fmt.Println("")
+
+	params.frame.link(&linkParams{
+		root:    params.conclusion.root,
+		current: params.conclusion.current,
+	})
 
 	for _, entry := range *params.entries {
 		topPath := filepath.Join(params.parent, entry.Name())

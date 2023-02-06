@@ -10,12 +10,13 @@ type navigatorController struct {
 	ns    *NavigationState
 }
 
-func (c *navigatorController) init() *navigationFrame {
+func (c *navigatorController) makeFrame() *navigationFrame {
 	o := c.impl.options()
 	c.frame = &navigationFrame{
 		client:    o.Callback,
 		raw:       o.Callback,
 		notifiers: notificationsSink{},
+		periscope: &navigationPeriscope{},
 	}
 	return c.frame
 }
@@ -55,14 +56,14 @@ func (c *navigatorController) Save(path string) error {
 		},
 	)
 
+	active := &ActiveState{
+		Listen: listen,
+	}
+	c.frame.save(active)
+
 	state := &persistState{
-		Store: &o.Store,
-		Active: &ActiveState{
-			Root:     c.frame.root,
-			NodePath: c.frame.nodePath,
-			Listen:   listen,
-			Depth:    c.frame.depth,
-		},
+		Store:  &o.Store,
+		Active: active,
 	}
 
 	marshaller := (&marshallerFactory{}).create(o, state)

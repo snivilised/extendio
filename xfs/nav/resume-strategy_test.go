@@ -170,7 +170,7 @@ var (
 	}
 )
 
-var _ = Describe("ResumeFastward", Ordered, func() {
+var _ = Describe("Resume", Ordered, func() {
 
 	var (
 		root         string
@@ -204,7 +204,7 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 					// (eg resume-state.json) for different test cases.
 					//
 					active.Root = path(root, entry.relative)
-					active.NodePath = path(root, entry.active.resumeAtPath)
+					active.NodePath = path(root, entry.active.resumeAt)
 					active.Listen = entry.active.listenState
 					o.Store.Subscription = entry.subscription
 
@@ -278,8 +278,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 
 		// === Listening (uni/folder/file) (pend/active)
 		//
-		// for the active cases, it doesn't really matter what the listenStart is set
-		// to, because the listener is already in the active listening state. But listenStart
+		// for the active cases, it doesn't really matter what the resumeAt is set
+		// to, because the listener is already in the active listening state. But resumeAt
 		// still has to be set because that is what would happen in the real world.
 		//
 
@@ -290,8 +290,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenPending,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenPending,
 			},
 			resumeAt: START_AT_ELECTRIC_YOUTH,
 			profile:  "-> universal(pending): unfiltered",
@@ -304,11 +304,11 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenActive,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenActive,
 			},
 			// For these scenarios (START_AT_CLIENT_ALREADY_ACTIVE), since
-			// listening is already active, the value of listenStart is irrelevant,
+			// listening is already active, the value of resumeAt is irrelevant,
 			// because the client was already listening in the previous session,
 			// which is reflected by the state being active. So in essence, the client
 			// listen value is a historical event, so the value defined here is a moot
@@ -325,8 +325,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenPending,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenPending,
 			},
 			resumeAt: START_AT_ELECTRIC_YOUTH,
 			profile:  "-> folders(pending): unfiltered",
@@ -339,8 +339,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenActive,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenActive,
 			},
 			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
 			profile:  "-> folders(active): unfiltered",
@@ -353,8 +353,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
-				listenState:  nav.ListenPending,
+				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				listenState: nav.ListenPending,
 			},
 			resumeAt: START_AT_BEFORE_LIFE,
 			profile:  "-> files(pending): unfiltered",
@@ -367,8 +367,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
-				listenState:  nav.ListenActive,
+				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				listenState: nav.ListenActive,
 			},
 			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
 			profile:  "-> files(active): unfiltered",
@@ -383,8 +383,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenDeaf,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenDeaf,
 			},
 			profile: "-> universal: filtered",
 		}),
@@ -396,8 +396,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenDeaf,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenDeaf,
 			},
 			profile: "-> folders: filtered",
 		}),
@@ -409,8 +409,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
-				listenState:  nav.ListenDeaf,
+				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				listenState: nav.ListenDeaf,
 			},
 			profile: "-> files: filtered",
 		}),
@@ -424,8 +424,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenPending,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenPending,
 			},
 			resumeAt: START_AT_ELECTRIC_YOUTH,
 			profile:  "-> universal: listen pending and filtered",
@@ -438,8 +438,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenActive,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenActive,
 			},
 			resumeAt: START_AT_ELECTRIC_YOUTH,
 			profile:  "-> universal: filtered",
@@ -452,8 +452,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenPending,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenPending,
 			},
 			resumeAt: START_AT_ELECTRIC_YOUTH,
 			profile:  "-> folders: listen pending and filtered",
@@ -466,8 +466,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_TEENAGE_COLOR,
-				listenState:  nav.ListenActive,
+				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				listenState: nav.ListenActive,
 			},
 			resumeAt: START_AT_ELECTRIC_YOUTH,
 			profile:  "-> folders: filtered",
@@ -480,8 +480,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
-				listenState:  nav.ListenPending,
+				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				listenState: nav.ListenPending,
 			},
 			resumeAt: START_AT_BEFORE_LIFE,
 			profile:  "-> files: listen pending and filtered",
@@ -494,8 +494,8 @@ var _ = Describe("ResumeFastward", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAtPath: RESUME_AT_CAN_YOU_KISS_ME_FIRST,
-				listenState:  nav.ListenActive,
+				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				listenState: nav.ListenActive,
 			},
 			resumeAt: START_AT_BEFORE_LIFE,
 			profile:  "-> files: filtered",
