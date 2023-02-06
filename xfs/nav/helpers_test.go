@@ -77,8 +77,8 @@ type sortTE struct {
 }
 
 type activeTE struct {
-	resumeAtPath string
-	listenState  nav.ListeningState
+	resumeAt    string
+	listenState nav.ListeningState
 }
 
 type resumeTE struct {

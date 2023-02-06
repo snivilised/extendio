@@ -22,7 +22,7 @@ type bootstrapper struct {
 
 func (b *bootstrapper) init() {
 	b.detacher = &nullDetacher{}
-	b.nc.frame = b.nc.init()
+	b.nc.frame = b.nc.makeFrame()
 	b.initFilters()
 	b.initNotifiers()
 	b.initListener()

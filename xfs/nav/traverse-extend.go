@@ -22,7 +22,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 		})
 	}
 	isLeaf := false
-	scope := ScopeIntermediateEn
+	var scope FilterScopeEnum
 
 	if navi.Item.IsDir() {
 		// TODO: you shouldn't have to work this out again as it has already been performed:
@@ -32,34 +32,14 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 			return item.IsDir()
 		})
 		isLeaf = len(grouped[true]) == 0
-
-		// TODO: eventually, the scope/depth designation will be put into an abstraction,
-		// perhaps a scope->depth map. This will support resume, where these designations
-		// will have to be adjusted
-		//
-		// Root=1
-		// Top=2
-		//
-
-		switch {
-		case isLeaf && navi.Frame.depth == 1:
-			scope = ScopeRootEn | ScopeLeafEn
-		case navi.Frame.depth == 1:
-			scope = ScopeRootEn
-		case isLeaf && navi.Frame.depth == 2:
-			scope = ScopeTopEn | ScopeLeafEn
-		case navi.Frame.depth == 2:
-			scope = ScopeTopEn
-		case isLeaf:
-			scope = ScopeLeafEn
-		}
+		scope = navi.Frame.periscope.scope(isLeaf)
 	} else {
 		scope = ScopeLeafEn
 	}
 
 	parent, name := filepath.Split(navi.Item.Path)
 	navi.Item.Extension = &ExtendedItem{
-		Depth:     navi.Frame.depth,
+		Depth:     navi.Frame.periscope.depth(),
 		IsLeaf:    isLeaf,
 		Name:      name,
 		Parent:    parent,
