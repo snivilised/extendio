@@ -35,6 +35,16 @@
   },
   "Active": {
     "Root": "fake-path-override-me-in-test/",
-    "Listen": 1
+    "Listen": 1,
+    "Metrics": {
+      "0": {
+        "Name": "files",
+        "Count": 4
+      },
+      "1": {
+        "Name": "folders",
+        "Count": 0
+      }
+    }
   }
 }

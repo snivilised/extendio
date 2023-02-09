@@ -1,10 +1,8 @@
 package nav
 
-import "reflect"
-
-func IsNil(i interface{}) bool {
-	return i == nil || reflect.ValueOf(i).IsNil()
-}
+import (
+	"github.com/snivilised/extendio/xfs/utils"
+)
 
 // NewNodeFilter exported for testing purposes only (do not use)
 func NewNodeFilter(def *FilterDef) TraverseFilter {
@@ -34,7 +32,7 @@ func NewNodeFilter(def *FilterDef) TraverseFilter {
 		}
 
 	case FilterTypeCustomEn:
-		if IsNil(def.Custom) {
+		if utils.IsNil(def.Custom) {
 			panic("missing custom filter")
 		}
 
@@ -68,7 +66,7 @@ func NewCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 		}
 
 	case FilterTypeCustomEn:
-		if IsNil(def.Custom) {
+		if utils.IsNil(def.Custom) {
 			panic("missing custom compound filter")
 		}
 

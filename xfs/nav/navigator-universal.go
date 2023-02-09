@@ -10,10 +10,8 @@ type universalNavigator struct {
 	navigator
 }
 
-func (n *universalNavigator) top(frame *navigationFrame, root string) *LocalisableError {
+func (n *universalNavigator) top(frame *navigationFrame, root string) *TraverseResult {
 
-	// TODO: should we remove root from frame?
-	//
 	return n.agent.top(&agentTopParams{
 		impl:  n,
 		frame: frame,

@@ -91,6 +91,7 @@ func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
 		frame: b.nc.frame,
 		rc:    b.rc,
 	}
+	b.nc.frame.metrics.load(ps.Active)
 
 	b.rc.strategy.init(strategyParams)
 	b.detacher = b.rc

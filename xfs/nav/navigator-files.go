@@ -8,7 +8,7 @@ type filesNavigator struct {
 	navigator
 }
 
-func (n *filesNavigator) top(frame *navigationFrame, root string) *LocalisableError {
+func (n *filesNavigator) top(frame *navigationFrame, root string) *TraverseResult {
 
 	return n.agent.top(&agentTopParams{
 		impl:  n,

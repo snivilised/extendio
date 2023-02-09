@@ -17,6 +17,11 @@ type strategyTheme struct {
 	label string
 }
 
+type strategyInvokeInfo struct {
+	files   uint
+	folders uint
+}
+
 const (
 	NOTHING                         = ""
 	RESUME_AT_TEENAGE_COLOR         = "RETRO-WAVE/College/Teenage Color"
@@ -190,6 +195,8 @@ var _ = Describe("Resume", Ordered, func() {
 	DescribeTable("resume",
 		func(entry *resumeTE) {
 
+			invocations := map[nav.ResumeStrategyEnum]*strategyInvokeInfo{}
+
 			for _, strategyEn := range strategies {
 				recording := recordingMap{}
 				profile, ok := profiles[entry.profile]
@@ -270,6 +277,19 @@ var _ = Describe("Resume", Ordered, func() {
 						Expect(found).To(BeTrue(), fmt.Sprintf("mandatory item failure -> %v", reason(name)))
 					}
 				}
+
+				invocations[strategyEn] = &strategyInvokeInfo{
+					files:   (*result.Metrics)[nav.MetricNoFilesEn].Count,
+					folders: (*result.Metrics)[nav.MetricNoFoldersEn].Count,
+				}
+			}
+
+			for _, strategyEn := range strategies {
+				GinkgoWriter.Printf("💡💡 invocations(%v) - files:%v, folders:%v\n",
+					themes[strategyEn].label,
+					invocations[strategyEn].files,
+					invocations[strategyEn].folders,
+				)
 			}
 		},
 		func(entry *resumeTE) string {
@@ -284,6 +304,10 @@ var _ = Describe("Resume", Ordered, func() {
 		//
 
 		Entry(nil, &resumeTE{
+			// !!! when an error occurs, particularly when checking for error, this is the
+			// test that tends to fail in isolation, but why just this case?
+			//
+
 			naviTE: naviTE{
 				message:      "universal: listen pending",
 				relative:     "RETRO-WAVE",
