@@ -154,7 +154,7 @@ func (a *navigationAgent) proxy(currentItem *TraverseItem, frame *navigationFram
 	// that the Callback on the options represents the client defined function which
 	// can be decorated. Only the callback on the frame should ever be invoked.
 	//
-	frame.nodePath = currentItem.Path
+	frame.currentPath.Set(currentItem.Path)
 	result := frame.client.Fn(currentItem)
 
 	if currentItem.Entry != nil {

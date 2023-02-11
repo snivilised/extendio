@@ -87,9 +87,6 @@ func (s *fastwardStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 	// fast-forward doesn't need to restore the entire state, eg, the
 	// Depth can begin as per usual, without being restored.
 	//
-	info.nc.root(func() string {
-		return info.ps.Active.Root
-	})
 
 	return info.nc.Walk(info.ps.Active.Root)
 }

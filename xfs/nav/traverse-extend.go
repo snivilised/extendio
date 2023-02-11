@@ -47,7 +47,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 	}
 
 	spInfo := &SubPathInfo{
-		Root:      navi.Frame.root,
+		Root:      navi.Frame.root.Get(),
 		Item:      navi.Item,
 		Behaviour: &navi.Options.Store.Behaviours.SubPath,
 	}

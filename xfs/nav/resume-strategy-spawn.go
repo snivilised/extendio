@@ -19,9 +19,7 @@ type spawnStrategy struct {
 }
 
 func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
-	info.nc.root(func() string {
-		return info.ps.Active.Root
-	})
+	s.nc.frame.root.Set(info.ps.Active.Root)
 	resumeAt := s.ps.Active.NodePath
 
 	statusInfo, err := s.o.Hooks.QueryStatus(resumeAt)

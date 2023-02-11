@@ -42,7 +42,7 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 						Source:      "foo bar",
 					},
 				}
-				state := &nav.NavigationState{Root: "/foo-bar"}
+				state := &nav.NavigationState{}
 				o.Notify.OnBegin(state)
 
 				clone.Notify.OnBegin = func(state *nav.NavigationState) {

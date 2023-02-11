@@ -3,6 +3,7 @@ package nav
 import (
 	"github.com/mohae/deepcopy"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/xfs/utils"
 )
 
 // SubPathBehaviour
@@ -91,14 +92,13 @@ type NavigationFilters struct {
 // interested in and permitted to access, as opposed to the navigationFrame
 // which is meant for internal purposes only.
 type NavigationState struct {
-	Root    string
+	Root    *utils.VarProp[string]
 	Filters *NavigationFilters
 }
 
 // PersistOptions contains options for persisting traverse options
 type PersistOptions struct {
 	Format PersistenceFormatEnum
-	// Restore PersistenceRestorer `json:"-"`
 }
 
 // OptionsStore represents that part of options that is directly
