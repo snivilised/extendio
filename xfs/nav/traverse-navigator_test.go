@@ -64,6 +64,8 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					})
 				}
 
+				// TODO: check that the metric counts from the result are as expected
+				//
 				_ = navigator.Walk(path)
 
 				if entry.visit {

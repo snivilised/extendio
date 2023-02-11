@@ -2,6 +2,7 @@ package nav
 
 import (
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/xfs/utils"
 )
 
 type navigatorController struct {
@@ -11,14 +12,17 @@ type navigatorController struct {
 }
 
 func (c *navigatorController) makeFrame() *navigationFrame {
+
 	o := c.impl.options()
 	mf := navigationMetricsFactory{}
 	c.frame = &navigationFrame{
-		client:    o.Callback,
-		raw:       o.Callback,
-		notifiers: notificationsSink{},
-		periscope: &navigationPeriscope{},
-		metrics:   mf.construct(),
+		root:        utils.VarProp[string]{},
+		currentPath: utils.VarProp[string]{},
+		client:      o.Callback,
+		raw:         o.Callback,
+		notifiers:   notificationsSink{},
+		periscope:   &navigationPeriscope{},
+		metrics:     mf.construct(),
 	}
 	return c.frame
 }
@@ -33,9 +37,7 @@ func (c *navigatorController) navState(fn ...func() *NavigationState) *Navigatio
 }
 
 func (c *navigatorController) Walk(root string) *TraverseResult {
-	c.root(func() string {
-		return root
-	})
+	c.frame.root.Set(root)
 	c.frame.notifiers.begin.invoke(c.ns)
 
 	result := c.impl.top(c.frame, root)
@@ -68,13 +70,4 @@ func (c *navigatorController) Save(path string) error {
 
 	marshaller := (&marshallerFactory{}).create(o, state)
 	return marshaller.marshal(path)
-}
-
-func (c *navigatorController) root(fn ...func() string) string {
-	if len(fn) == 0 {
-		return c.frame.root
-	}
-	c.ns.Root = fn[0]()
-	c.frame.root = c.ns.Root
-	return ""
 }

@@ -27,7 +27,7 @@ func (b *bootstrapper) init() {
 	b.initNotifiers()
 	b.initListener()
 	b.nc.navState(func() *NavigationState {
-		return &NavigationState{Filters: b.nc.frame.filters}
+		return &NavigationState{Filters: b.nc.frame.filters, Root: &b.nc.frame.root}
 	})
 }
 

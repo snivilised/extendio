@@ -285,7 +285,7 @@ var _ = Describe("Resume", Ordered, func() {
 			}
 
 			for _, strategyEn := range strategies {
-				GinkgoWriter.Printf("💡💡 invocations(%v) - files:%v, folders:%v\n",
+				fmt.Printf("💡💡 invocations(%v) - files:%v, folders:%v\n",
 					themes[strategyEn].label,
 					invocations[strategyEn].files,
 					invocations[strategyEn].folders,

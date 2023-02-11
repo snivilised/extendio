@@ -1,15 +1,17 @@
 package nav
 
+import "github.com/snivilised/extendio/xfs/utils"
+
 type navigationFrame struct {
-	root      string
-	nodePath  string
-	listener  *navigationListener
-	raw       LabelledTraverseCallback // un-decorated (except for filter) client callback
-	client    LabelledTraverseCallback // decorate-able client callback
-	filters   *NavigationFilters
-	notifiers notificationsSink
-	periscope *navigationPeriscope
-	metrics   *navigationMetrics
+	root        utils.VarProp[string]
+	currentPath utils.VarProp[string]
+	listener    *navigationListener
+	raw         LabelledTraverseCallback // un-decorated (except for filter) client callback
+	client      LabelledTraverseCallback // decorate-able client callback
+	filters     *NavigationFilters
+	notifiers   notificationsSink
+	periscope   *navigationPeriscope
+	metrics     *navigationMetrics
 }
 
 // attach/decorate
@@ -47,15 +49,10 @@ func (f *navigationFrame) decorate(label string, decorator *LabelledTraverseCall
 	return &previous
 }
 
-type linkParams struct {
-	root    string
-	current string
-}
-
 func (f *navigationFrame) save(active *ActiveState) {
 
-	active.Root = f.root
-	active.NodePath = f.nodePath
+	active.Root = f.root.Get()
+	active.NodePath = f.currentPath.Get()
 	active.Depth = f.periscope.depth()
 	f.metrics.save(active)
 }
@@ -65,6 +62,11 @@ func (f *navigationFrame) collate() *TraverseResult {
 	return &TraverseResult{
 		Metrics: &f.metrics._metrics,
 	}
+}
+
+type linkParams struct {
+	root    string
+	current string
 }
 
 func (f *navigationFrame) link(params *linkParams) {
