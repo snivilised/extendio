@@ -15,6 +15,7 @@ type RwProp[T any] interface {
 	RoProp[T]
 	Set(value T)
 	IsZeroable() bool
+	ConstRef() RoProp[T]
 }
 
 // PutProp putter variable property interface. The putter allows
@@ -140,6 +141,10 @@ func (p *VarProp[T]) IsNone() bool {
 // IsZeroable indicates whether a zero value is a valid value for this property
 func (p *VarProp[T]) IsZeroable() bool {
 	return p.zeroable
+}
+
+func (p *VarProp[T]) ConstRef() RoProp[T] {
+	return p
 }
 
 // ============================================================== putVarProp ===
