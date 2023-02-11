@@ -103,6 +103,19 @@ var _ = Describe("Property", func() {
 					})
 				})
 			})
+
+			Context("ConstRef", func() {
+				It("should: get read only interface", func() {
+					w := &widget{
+						colour: utils.VarProp[string]{Field: "red"},
+					}
+					constRef := w.colour.ConstRef()
+					Expect(constRef.Get()).To(Equal("red"))
+
+					w.colour.Set("blue")
+					Expect(constRef.Get()).To(Equal("blue"))
+				})
+			})
 		})
 
 		Context("ConstProp", func() {
