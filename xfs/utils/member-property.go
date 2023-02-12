@@ -30,7 +30,7 @@ type PutProp[T any] interface {
 
 // NewRoProp create const property
 func NewRoProp[T any](value T) RoProp[T] {
-	return &constProp[T]{Field: value}
+	return &constProp[T]{field: value}
 }
 
 // NewRwProp create variable property
@@ -68,7 +68,7 @@ type RoPropFactory[T any] struct {
 
 // Construct const property constructor
 func (f RoPropFactory[T]) Construct(value T) RoProp[T] {
-	return &constProp[T]{Field: value}
+	return &constProp[T]{field: value}
 }
 
 // RwPropFactory variable property factory
@@ -102,17 +102,17 @@ type constProp[T any] struct {
 	// of no practical use as it can't be set later on.
 	// The client should use either RoPropFactory or NewRoProp.
 	//
-	Field T
+	field T
 }
 
 // Get property value getter
 func (p *constProp[T]) Get() T {
-	return p.Field
+	return p.field
 }
 
 // IsNone determines whether the property has a value set
 func (p *constProp[T]) IsNone() bool {
-	return isPropNil(p.Field, false)
+	return isPropNil(p.field, false)
 }
 
 // ================================================================= VarProp ===
@@ -143,6 +143,7 @@ func (p *VarProp[T]) IsZeroable() bool {
 	return p.zeroable
 }
 
+// ConstRef returns a read only reference to this property
 func (p *VarProp[T]) ConstRef() RoProp[T] {
 	return p
 }
@@ -154,6 +155,7 @@ type putVarProp[T any] struct {
 	putter func(value T)
 }
 
+// Put set the value of the property and invoke the putter function
 func (p *putVarProp[T]) Put(value T) {
 	p.Set(value)
 	p.putter(value)
