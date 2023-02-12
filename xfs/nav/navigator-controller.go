@@ -27,13 +27,8 @@ func (c *navigatorController) makeFrame() *navigationFrame {
 	return c.frame
 }
 
-func (c *navigatorController) navState(fn ...func() *NavigationState) *NavigationState {
-
-	if len(fn) == 0 {
-		return c.ns
-	}
-	c.ns = fn[0]()
-	return nil
+func (c *navigatorController) init() {
+	c.ns = &NavigationState{Filters: c.frame.filters, Root: &c.frame.root}
 }
 
 func (c *navigatorController) Walk(root string) *TraverseResult {

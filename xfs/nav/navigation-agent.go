@@ -6,6 +6,7 @@ import (
 
 	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
+	"github.com/snivilised/extendio/xfs/utils"
 )
 
 type agentFactory struct{}
@@ -17,8 +18,8 @@ type agentFactoryParams struct {
 
 func (*agentFactory) construct(params *agentFactoryParams) *navigationAgent {
 	instance := navigationAgent{
-		_DO_INVOKE: params.doInvoke,
-		o:          params.o,
+		doInvoke: utils.NewRoProp(params.doInvoke),
+		o:        params.o,
 	}
 	instance.deFactory = &directoryEntriesFactory{}
 
@@ -26,9 +27,9 @@ func (*agentFactory) construct(params *agentFactoryParams) *navigationAgent {
 }
 
 type navigationAgent struct {
-	_DO_INVOKE bool // this should be considered const
-	o          *TraverseOptions
-	deFactory  *directoryEntriesFactory
+	doInvoke  utils.RoProp[bool]
+	o         *TraverseOptions
+	deFactory *directoryEntriesFactory
 }
 
 type agentTopParams struct {
@@ -98,7 +99,7 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (bool, *LocalisableE
 	exit := false
 	if params.readErr != nil {
 
-		if a._DO_INVOKE {
+		if a.doInvoke.Get() {
 			item2 := params.item.Clone()
 			item2.Error = &LocalisableError{Inner: params.readErr}
 
