@@ -14,7 +14,7 @@ type NewResumerInfo struct {
 
 type resumerFactory struct{}
 
-func (f *resumerFactory) create(info *NewResumerInfo) (resumer, error) {
+func (f resumerFactory) create(info *NewResumerInfo) (resumer, error) {
 	marshaller := stateMarshallerJSON{
 		restore: info.Restorer,
 	}
@@ -25,12 +25,12 @@ func (f *resumerFactory) create(info *NewResumerInfo) (resumer, error) {
 	}
 	o := marshaller.o
 
-	impl := (&navigatorImplFactory{}).create(o)
+	impl := navigatorImplFactory{}.construct(o)
 	navigator := &navigatorController{
 		impl: impl,
 	}
 
-	strategy := (&strategyFactory{}).create(&createStrategyParams{
+	strategy := strategyFactory{}.construct(&createStrategyParams{
 		o:          o,
 		strategyEn: info.Strategy,
 		ps:         marshaller.ps,
@@ -63,7 +63,7 @@ type createStrategyParams struct {
 	nc         *navigatorController
 }
 
-func (f *strategyFactory) create(params *createStrategyParams) resumeStrategy {
+func (f strategyFactory) construct(params *createStrategyParams) resumeStrategy {
 	var strategy resumeStrategy
 	deFactory := &directoryEntriesFactory{}
 

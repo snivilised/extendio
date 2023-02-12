@@ -47,7 +47,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				callback := lo.Ternary(entry.once, once, lo.Ternary(entry.visit, visitor, entry.callback))
 
 				path := path(root, entry.relative)
-				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
+				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = entry.subscription
 					o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
@@ -228,7 +228,7 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 			}
 
 			path := path(root, entry.relative)
-			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
+			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive

@@ -13,15 +13,14 @@ type agentFactory struct{}
 type agentFactoryParams struct {
 	doInvoke  bool
 	o         *TraverseOptions
-	deFactory *directoryEntriesFactory
+	deFactory directoryEntriesFactory
 }
 
-func (*agentFactory) construct(params *agentFactoryParams) *navigationAgent {
+func (agentFactory) construct(params *agentFactoryParams) *navigationAgent {
 	instance := navigationAgent{
 		doInvoke: utils.NewRoProp(params.doInvoke),
 		o:        params.o,
 	}
-	instance.deFactory = &directoryEntriesFactory{}
 
 	return &instance
 }
@@ -29,7 +28,7 @@ func (*agentFactory) construct(params *agentFactoryParams) *navigationAgent {
 type navigationAgent struct {
 	doInvoke  utils.RoProp[bool]
 	o         *TraverseOptions
-	deFactory *directoryEntriesFactory
+	deFactory directoryEntriesFactory
 }
 
 type agentTopParams struct {

@@ -53,7 +53,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	Context("Marshal", func() {
 		Context("given: correct config", func() {
 			It("🧪 should: write options in JSON", func() {
-				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
+				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = nav.LabelledTraverseCallback{
@@ -83,7 +83,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					}
 				}()
 
-				navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
+				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
