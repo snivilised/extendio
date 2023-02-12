@@ -32,7 +32,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				},
 			}
 
-			navigator := (&nav.NavigatorFactory{}).Create(func(o *nav.TraverseOptions) {
+			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.DoExtend = true

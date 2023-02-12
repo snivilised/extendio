@@ -14,7 +14,6 @@ type navigatorController struct {
 func (c *navigatorController) makeFrame() *navigationFrame {
 
 	o := c.impl.options()
-	mf := navigationMetricsFactory{}
 	c.frame = &navigationFrame{
 		root:        utils.VarProp[string]{},
 		currentPath: utils.VarProp[string]{},
@@ -22,7 +21,7 @@ func (c *navigatorController) makeFrame() *navigationFrame {
 		raw:         o.Callback,
 		notifiers:   notificationsSink{},
 		periscope:   &navigationPeriscope{},
-		metrics:     mf.construct(),
+		metrics:     navigationMetricsFactory{}.construct(),
 	}
 	return c.frame
 }

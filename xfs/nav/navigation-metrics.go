@@ -39,7 +39,7 @@ func (m *navigationMetrics) load(active *ActiveState) {
 
 type navigationMetricsFactory struct{}
 
-func (f *navigationMetricsFactory) construct() *navigationMetrics {
+func (f navigationMetricsFactory) construct() *navigationMetrics {
 	instance := &navigationMetrics{
 		_metrics: make(MetricCollection),
 	}
