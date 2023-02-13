@@ -228,6 +228,19 @@ var _ = Describe("Resume", Ordered, func() {
 					}
 					GinkgoWriter.Printf("===> 🐚 restoring ...\n")
 
+					once := nav.LabelledTraverseCallback{
+						Label: "test once callback",
+						Fn: func(item *nav.TraverseItem) *LocalisableError {
+							_, found := recording[item.Extension.Name]
+
+							Expect(found).To(BeFalse(), fmt.Sprintf("once only invoke failure -> %v",
+								reason(item.Extension.Name)))
+
+							recording[item.Extension.Name] = len(item.Children)
+							return nil
+						},
+					}
+
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "unit test callback for resume",
 						Fn: func(item *nav.TraverseItem) *LocalisableError {
@@ -246,16 +259,15 @@ var _ = Describe("Resume", Ordered, func() {
 									Fail(fmt.Sprintf("item: '%v' should have been fast forwarded over", item.Path))
 								}
 							}
-							recording[item.Extension.Name] = len(item.Children)
-							return nil
+							return once.Fn(item)
 						},
 					}
 					if strategyEn == nav.ResumeStrategyFastwardEn {
-						if entry.resumeAt != "" {
+						if entry.clientListenAt != "" {
 							o.Listen = nav.ListenOptions{
 								Start: &nav.ListenBy{
 									Fn: func(item *nav.TraverseItem) bool {
-										return item.Extension.Name == entry.resumeAt
+										return item.Extension.Name == entry.clientListenAt
 									},
 								},
 							}
@@ -291,6 +303,16 @@ var _ = Describe("Resume", Ordered, func() {
 					invocations[strategyEn].folders,
 				)
 			}
+
+			if len(strategies) == 2 {
+				Expect(invocations[nav.ResumeStrategyFastwardEn].files).To(
+					Equal(invocations[nav.ResumeStrategySpawnEn].files),
+					"Both strategies should invoke same no of files")
+
+				Expect(invocations[nav.ResumeStrategyFastwardEn].folders).To(
+					Equal(invocations[nav.ResumeStrategySpawnEn].folders),
+					"Both strategies should invoke same no of folders")
+			}
 		},
 		func(entry *resumeTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -317,8 +339,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_TEENAGE_COLOR,
 				listenState: nav.ListenPending,
 			},
-			resumeAt: START_AT_ELECTRIC_YOUTH,
-			profile:  "-> universal(pending): unfiltered",
+			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			profile:        "-> universal(pending): unfiltered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -338,8 +360,8 @@ var _ = Describe("Resume", Ordered, func() {
 			// listen value is a historical event, so the value defined here is a moot
 			// point.
 			//
-			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
-			profile:  "-> universal(active): unfiltered",
+			clientListenAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			profile:        "-> universal(active): unfiltered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -352,8 +374,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_TEENAGE_COLOR,
 				listenState: nav.ListenPending,
 			},
-			resumeAt: START_AT_ELECTRIC_YOUTH,
-			profile:  "-> folders(pending): unfiltered",
+			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			profile:        "-> folders(pending): unfiltered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -366,8 +388,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_TEENAGE_COLOR,
 				listenState: nav.ListenActive,
 			},
-			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
-			profile:  "-> folders(active): unfiltered",
+			clientListenAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			profile:        "-> folders(active): unfiltered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -380,8 +402,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState: nav.ListenPending,
 			},
-			resumeAt: START_AT_BEFORE_LIFE,
-			profile:  "-> files(pending): unfiltered",
+			clientListenAt: START_AT_BEFORE_LIFE,
+			profile:        "-> files(pending): unfiltered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -394,8 +416,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState: nav.ListenActive,
 			},
-			resumeAt: START_AT_CLIENT_ALREADY_ACTIVE,
-			profile:  "-> files(active): unfiltered",
+			clientListenAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			profile:        "-> files(active): unfiltered",
 		}),
 
 		// === Filtering (uni/folder/file)
@@ -451,8 +473,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_TEENAGE_COLOR,
 				listenState: nav.ListenPending,
 			},
-			resumeAt: START_AT_ELECTRIC_YOUTH,
-			profile:  "-> universal: listen pending and filtered",
+			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			profile:        "-> universal: listen pending and filtered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -465,8 +487,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_TEENAGE_COLOR,
 				listenState: nav.ListenActive,
 			},
-			resumeAt: START_AT_ELECTRIC_YOUTH,
-			profile:  "-> universal: filtered",
+			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			profile:        "-> universal: filtered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -479,8 +501,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_TEENAGE_COLOR,
 				listenState: nav.ListenPending,
 			},
-			resumeAt: START_AT_ELECTRIC_YOUTH,
-			profile:  "-> folders: listen pending and filtered",
+			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			profile:        "-> folders: listen pending and filtered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -493,8 +515,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_TEENAGE_COLOR,
 				listenState: nav.ListenActive,
 			},
-			resumeAt: START_AT_ELECTRIC_YOUTH,
-			profile:  "-> folders: filtered",
+			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			profile:        "-> folders: filtered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -507,8 +529,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState: nav.ListenPending,
 			},
-			resumeAt: START_AT_BEFORE_LIFE,
-			profile:  "-> files: listen pending and filtered",
+			clientListenAt: START_AT_BEFORE_LIFE,
+			profile:        "-> files: listen pending and filtered",
 		}),
 
 		Entry(nil, &resumeTE{
@@ -521,8 +543,8 @@ var _ = Describe("Resume", Ordered, func() {
 				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
 				listenState: nav.ListenActive,
 			},
-			resumeAt: START_AT_BEFORE_LIFE,
-			profile:  "-> files: filtered",
+			clientListenAt: START_AT_BEFORE_LIFE,
+			profile:        "-> files: filtered",
 		}),
 	)
 })

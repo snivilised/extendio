@@ -119,6 +119,8 @@ func (l *navigationListener) buildStates(params *listenStatesParams) {
 					} else {
 						panic("listen-state(fastward): missing detacher function from listenStatesParams")
 					}
+				} else {
+					item.skip = true
 				}
 				return nil
 			},

@@ -50,7 +50,7 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 	}
 	sorted := entries.all()
 
-	if (params.currentItem.Entry != nil) && !(params.currentItem.Info.IsDir()) {
+	if (params.currentItem.Info != nil) && !(params.currentItem.Info.IsDir()) {
 		n.o.Hooks.Extend(navi, *sorted)
 
 		// Effectively, this is the file only filter

@@ -38,6 +38,7 @@ type agentTopParams struct {
 }
 
 func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
+	// fmt.Printf("🍉TOP: '%v'\n", params.top)
 	params.frame.reset()
 
 	info, err := a.o.Hooks.QueryStatus(params.top)
@@ -157,8 +158,8 @@ func (a *navigationAgent) proxy(currentItem *TraverseItem, frame *navigationFram
 	frame.currentPath.Set(currentItem.Path)
 	result := frame.client.Fn(currentItem)
 
-	if currentItem.Entry != nil {
-		metricEn := lo.Ternary(currentItem.Entry.IsDir(), MetricNoFoldersEn, MetricNoFilesEn)
+	if !currentItem.skip {
+		metricEn := lo.Ternary(currentItem.IsDir(), MetricNoFoldersEn, MetricNoFilesEn)
 		frame.metrics.tick(metricEn)
 	}
 

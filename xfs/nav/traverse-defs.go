@@ -3,7 +3,6 @@ package nav
 import (
 	"io/fs"
 
-	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/utils"
 )
@@ -32,6 +31,7 @@ type TraverseItem struct {
 	Extension *ExtendedItem // extended information about the file system node, if requested
 	Error     *LocalisableError
 	Children  []fs.DirEntry
+	skip      bool
 }
 
 // Clone makes shallow copy of TraverseItem (except the error).
@@ -43,10 +43,14 @@ func (ti *TraverseItem) Clone() *TraverseItem {
 }
 
 func (ti *TraverseItem) IsDir() bool {
-	return lo.TernaryF(ti.Entry != nil,
-		func() bool { return ti.Entry.IsDir() },
-		func() bool { return ti.Info.IsDir() },
-	)
+	if !utils.IsNil(ti.Entry) {
+		return ti.Entry.IsDir()
+	} else if !utils.IsNil(ti.Info) {
+		return ti.Info.IsDir()
+	}
+	// only get here in error scenario, because neither Entry or Info is set
+	//
+	return false
 }
 
 // TraverseSubscription type to define traversal subscription (for which file system

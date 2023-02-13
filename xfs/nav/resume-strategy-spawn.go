@@ -37,30 +37,25 @@ func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 	fmt.Printf("   🧿 resume-at(%v): '%v' \n", indicator, resumeAt)
 	fmt.Println("   =====================================")
 
-	// TODO: ensure that child is related to parent and also, not the / path
-	//
 	return s.conclude(&concludeInfo{
-		active:  info.ps.Active,
-		root:    info.ps.Active.Root,
-		current: resumeAt,
+		active:    info.ps.Active,
+		root:      info.ps.Active.Root,
+		current:   resumeAt,
+		inclusive: true,
 	})
 }
 
 type concludeInfo struct {
-	active  *ActiveState
-	root    string
-	current string
+	active    *ActiveState
+	root      string
+	current   string
+	inclusive bool
 }
 
 func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 	fmt.Printf("   👾 conclude: '%v' \n", conclusion.current)
 
 	if conclusion.current == conclusion.active.Root {
-		// TODO: need to make sure that the term active in 'resume' scenarios
-		// is a legacy item from the previous session, not the current
-		// session. Perhaps, whenever active is legacy, it should be wrapped
-		// in a container struct called 'legacy'.
-		//
 		// reach the top, so we're done
 		//
 		fmt.Printf("   👽 conclude - completed at: 🧿'%v' \n", conclusion.current)
@@ -73,9 +68,10 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 	fmt.Printf("   💥 - child: 🧿'%v' \n", child)
 
 	following := s.following(&followingParams{
-		parent: parent,
-		anchor: child,
-		order:  s.o.Store.Behaviours.Sort.DirectoryEntryOrder,
+		parent:    parent,
+		anchor:    child,
+		order:     s.o.Store.Behaviours.Sort.DirectoryEntryOrder,
+		inclusive: conclusion.inclusive,
 	})
 	following.siblings.sort(&following.siblings.Files)
 	following.siblings.sort(&following.siblings.Folders)
@@ -92,6 +88,7 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 		return compoundResult
 	}
 	conclusion.current = parent
+	conclusion.inclusive = false
 
 	return compoundResult.merge(s.conclude(conclusion))
 }
@@ -133,23 +130,30 @@ type shard struct {
 }
 
 type followingParams struct {
-	parent string
-	anchor string
-	order  DirectoryEntryOrderEnum
+	parent    string
+	anchor    string
+	order     DirectoryEntryOrderEnum
+	inclusive bool
 }
 
 func (s *spawnStrategy) following(params *followingParams) *shard {
 
 	entries, err := s.o.Hooks.ReadDirectory(params.parent)
 
+	// TODO: This should not be a panic
+	//
 	if err != nil {
-		panic(fmt.Sprintf("siblingsFollowing failed to read contents of directory: '%v'",
+		panic(fmt.Sprintf("following failed to read contents of directory: '%v'",
 			params.parent),
 		)
 	}
 
 	groups := lo.GroupBy(entries, func(item fs.DirEntry) bool {
-		return item.Name() >= params.anchor
+
+		if params.inclusive {
+			return item.Name() >= params.anchor
+		}
+		return item.Name() > params.anchor
 	})
 	siblings := groups[_FOLLOWING_SIBLINGS]
 
