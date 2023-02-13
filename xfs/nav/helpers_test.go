@@ -83,9 +83,9 @@ type activeTE struct {
 
 type resumeTE struct {
 	naviTE
-	active   activeTE
-	resumeAt string
-	profile  string
+	active         activeTE
+	clientListenAt string
+	profile        string
 }
 
 type resumeTestProfile struct {
