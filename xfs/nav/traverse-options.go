@@ -1,6 +1,8 @@
 package nav
 
 import (
+	"path/filepath"
+
 	"github.com/mohae/deepcopy"
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/xfs/utils"
@@ -101,6 +103,11 @@ type PersistOptions struct {
 	Format PersistenceFormatEnum
 }
 
+type LoggingOptions struct {
+	Enabled bool
+	Path    string
+}
+
 // OptionsStore represents that part of options that is directly
 // persist-able.
 type OptionsStore struct {
@@ -125,6 +132,10 @@ type OptionsStore struct {
 	// Callback is invoked for.
 	//
 	FilterDefs *FilterDefinitions
+
+	// Logging options
+	//
+	Logging LoggingOptions
 }
 
 // TraverseOptions customise the way a directory tree is traversed
@@ -200,6 +211,9 @@ func GetDefaultOptions() *TraverseOptions {
 					InclusiveStart: true,
 					InclusiveStop:  false,
 				},
+			},
+			Logging: LoggingOptions{
+				Path: filepath.Join("~", "snivilised.extendio.nav.log"),
 			},
 		},
 		Notify: Notifications{
