@@ -53,7 +53,12 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	Context("Marshal", func() {
 		Context("given: correct config", func() {
 			It("🧪 should: write options in JSON", func() {
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				path := path(root, "RETRO-WAVE/Chromatics/Night Drive")
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = nav.LabelledTraverseCallback{
@@ -63,10 +68,8 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 						},
 					}
 				})
-				path := path(root, "RETRO-WAVE/Chromatics/Night Drive")
-				_ = navigator.Walk(path)
 
-				err := navigator.Save(toJsonPath)
+				err := session.Save(toJsonPath)
 				Expect(err).To(BeNil())
 			})
 		})
@@ -83,7 +86,12 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					}
 				}()
 
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				path := path(root, entry.relative)
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
@@ -93,10 +101,9 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 							return nil
 						},
 					}
-				})
-				path := path(root, entry.relative)
-				_ = navigator.Walk(path)
-				_ = navigator.Save(toJsonPath)
+				}).Run()
+
+				_ = session.Save(toJsonPath)
 
 				Fail(fmt.Sprintf("❌ expected panic due to %v", entry.errorContains))
 			},

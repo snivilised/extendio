@@ -25,9 +25,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				defer func() {
 					_ = recover()
 				}()
-				_ = root
 
-				nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				session := &nav.PrimarySession{
+					Path: root,
+				}
+				session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeAny
 				})
@@ -45,7 +47,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					_ = recover()
 				}()
 
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				const relative = "RETRO-WAVE"
+				path := path(root, relative)
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+				session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.Extend = func(navi *nav.NavigationInfo, descendants []fs.DirEntry) {
@@ -61,10 +68,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							return nil
 						},
 					}
-				})
-				const relative = "RETRO-WAVE"
-				path := path(root, relative)
-				_ = navigator.Walk(path)
+				}).Run()
 
 				Fail("❌ expected panic due to item already being extended")
 			})
@@ -76,7 +80,13 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Context("navigator-folders", func() {
 			It("🧪 should: invoke callback with error", func() {
 				recording := []error{}
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+
+				const relative = "RETRO-WAVE"
+				path := path(root, relative)
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+				session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
@@ -91,10 +101,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							return item.Error
 						},
 					}
-				})
-				const relative = "RETRO-WAVE"
-				path := path(root, relative)
-				_ = navigator.Walk(path)
+				}).Run()
 
 				Expect(len(recording)).To(Equal(2))
 				Expect(recording[0]).To(BeNil())
@@ -104,29 +111,33 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 		Context("navigator-files", func() {
 			It("🧪 should: invoke callback with immediate read error", func() {
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				const relative = "RETRO-WAVE"
+				path := path(root, relative)
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+				session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeError
 					o.Store.DoExtend = true
 					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.Store.DoExtend, false)
-				})
-				const relative = "RETRO-WAVE"
-				path := path(root, relative)
-				_ = navigator.Walk(path)
+				}).Run()
 			})
 
 			It("🧪 should: invoke callback with error at ...", func() {
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				const relative = "RETRO-WAVE"
+				path := path(root, relative)
+				session := nav.PrimarySession{
+					Path: path,
+				}
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
 					o.Store.DoExtend = true
 					o.Callback = errorCallback("(FILES):ERR-AT", o.Store.DoExtend, false)
-				})
-				const relative = "RETRO-WAVE"
-				path := path(root, relative)
-				_ = navigator.Walk(path)
+				}).Run()
 			})
 		})
 	})
@@ -137,7 +148,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				_ = recover()
 			}()
 
-			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+			const relative = "RETRO-WAVE"
+			path := path(root, relative)
+			session := &nav.PrimarySession{
+				Path: path,
+			}
+			session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = entry.subscription
 				o.Hooks.Sort = func(entries []fs.DirEntry, custom ...any) error {
@@ -146,10 +162,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}
 				o.Store.DoExtend = true
 				o.Callback = errorCallback("SORT-ERR", o.Store.DoExtend, false)
-			})
-			const relative = "RETRO-WAVE"
-			path := path(root, relative)
-			_ = navigator.Walk(path)
+			}).Run()
 
 			Fail("❌ expected panic due to sort error")
 		},
@@ -164,17 +177,19 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	Context("top level QueryStatus", func() {
 		Context("given: error occurs", func() {
 			It("🧪 should: halt traversal", func() {
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				const relative = "RETRO-WAVE"
+				path := path(root, relative)
+				session := nav.PrimarySession{
+					Path: path,
+				}
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
 					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.Store.DoExtend, true)
-				})
-				const relative = "RETRO-WAVE"
-				path := path(root, relative)
-				_ = navigator.Walk(path)
+				}).Run()
 			})
 		})
 	})
@@ -188,7 +203,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					Source:      "*.flac",
 					Scope:       nav.ScopeLeafEn,
 				}
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				const relative = "RETRO-WAVE"
+				path := path(root, relative)
+				session := nav.PrimarySession{
+					Path: path,
+				}
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.FilterDefs = &nav.FilterDefinitions{
 						Node: filterDef,
@@ -201,10 +221,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							return nil
 						},
 					}
-				})
-				const relative = "RETRO-WAVE"
-				path := path(root, relative)
-				_ = navigator.Walk(path)
+				}).Run()
 			})
 		})
 	})

@@ -17,11 +17,6 @@ type strategyInitParams struct {
 	rc    *resumeController
 }
 
-type resumer interface {
-	Continue() *TraverseResult
-	Save(path string) error
-}
-
 type strategyResumeInfo struct {
 	ps *persistState
 	nc *navigatorController

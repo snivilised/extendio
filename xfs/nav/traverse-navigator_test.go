@@ -47,13 +47,19 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 				callback := lo.Ternary(entry.once, once, lo.Ternary(entry.visit, visitor, entry.callback))
 
 				path := path(root, entry.relative)
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+
+				// TODO: check that the metric counts from the result are as expected
+				//
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = entry.subscription
 					o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
 					o.Store.DoExtend = entry.extended
 					o.Callback = callback
-				})
+				}).Run()
 
 				if entry.visit {
 					_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
@@ -63,10 +69,6 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 						return nil
 					})
 				}
-
-				// TODO: check that the metric counts from the result are as expected
-				//
-				_ = navigator.Walk(path)
 
 				if entry.visit {
 					every := lo.EveryBy(visited, func(p string) bool {
@@ -228,13 +230,16 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 			}
 
 			path := path(root, entry.relative)
-			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+			session := nav.PrimarySession{
+				Path: path,
+			}
+			_ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
 				o.Store.DoExtend = entry.extended
 				o.Callback = once
-			})
+			}).Run()
 
 			if entry.visit {
 				_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
@@ -244,7 +249,6 @@ var _ = Describe("TraverseNavigator", Ordered, func() {
 					return nil
 				})
 			}
-			_ = navigator.Walk(path)
 
 			if entry.visit {
 				every := lo.EveryBy(visited, func(p string) bool {

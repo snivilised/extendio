@@ -4,9 +4,8 @@ import (
 	"fmt"
 )
 
-// TODO: I don't like the name NewResumerInfo, it would be better called
-// just ResumerInfo
-type NewResumerInfo struct {
+// ResumerInfo
+type ResumerInfo struct {
 	RestorePath string
 	Restorer    PersistenceRestorer
 	Strategy    ResumeStrategyEnum
@@ -14,7 +13,7 @@ type NewResumerInfo struct {
 
 type resumerFactory struct{}
 
-func (f resumerFactory) create(info *NewResumerInfo) (resumer, error) {
+func (f resumerFactory) construct(info *ResumerInfo) (*resumeController, error) {
 	marshaller := stateMarshallerJSON{
 		restore: info.Restorer,
 	}

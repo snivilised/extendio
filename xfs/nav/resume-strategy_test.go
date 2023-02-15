@@ -274,15 +274,23 @@ var _ = Describe("Resume", Ordered, func() {
 						}
 					}
 				}
-				info := &nav.NewResumerInfo{
-					RestorePath: fromJsonPath,
-					Restorer:    restore,
-					Strategy:    strategyEn,
-				}
-				result, err := nav.Resume(info)
-				Expect(err).To(BeNil())
-				Expect(result).ToNot(BeNil())
+				// info := &nav.ResumerInfo{
+				// 	RestorePath: fromJsonPath,
+				// 	Restorer:    restore,
+				// 	Strategy:    strategyEn,
+				// }
 
+				session := &nav.ResumeSession{
+					Path:     fromJsonPath,
+					Strategy: strategyEn,
+				}
+				result := session.Configure(restore).Run()
+
+				/*
+					result, err := nav.ResumeLegacy(info)
+					Expect(err).To(BeNil())
+					Expect(result).ToNot(BeNil())
+				*/
 				if profile.mandatory != nil {
 					for _, name := range profile.mandatory {
 						_, found := recording[name]

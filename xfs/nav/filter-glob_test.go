@@ -33,7 +33,11 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			}
 			var filter nav.TraverseFilter
 
-			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+			path := path(root, entry.relative)
+			session := nav.PrimarySession{
+				Path: path,
+			}
+			_ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -63,10 +67,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 						return nil
 					},
 				}
-			})
-
-			path := path(root, entry.relative)
-			_ = navigator.Walk(path)
+			}).Run()
 
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
@@ -160,7 +161,11 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			}
 			var filter nav.CompoundTraverseFilter
 
-			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+			path := path(root, entry.relative)
+			session := nav.PrimarySession{
+				Path: path,
+			}
+			_ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -187,10 +192,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 						return nil
 					},
 				}
-			})
-
-			path := path(root, entry.relative)
-			_ = navigator.Walk(path)
+			}).Run()
 
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
