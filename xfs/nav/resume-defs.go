@@ -33,6 +33,7 @@ type resumeStrategy interface {
 	attach(params *resumeAttachParams)
 	detach(frame *navigationFrame)
 	resume(info *strategyResumeInfo) *TraverseResult
+	finish() error
 }
 
 type baseStrategy struct {
@@ -44,7 +45,9 @@ type baseStrategy struct {
 
 func (s *baseStrategy) attach(params *resumeAttachParams) {}
 func (s *baseStrategy) detach(frame *navigationFrame)     {}
-func (s *baseStrategy) init(params *strategyInitParams)   {}
+func (s *baseStrategy) finish() error {
+	return s.nc.finish()
+}
 
 type resumeDetacher interface {
 	detach(frame *navigationFrame)

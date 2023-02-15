@@ -6,6 +6,7 @@ import (
 	"github.com/mohae/deepcopy"
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/xfs/utils"
+	"go.uber.org/zap/zapcore"
 )
 
 // SubPathBehaviour
@@ -103,9 +104,21 @@ type PersistOptions struct {
 	Format PersistenceFormatEnum
 }
 
+type LogRotationOptions struct {
+	// Max size of a log file, before it is re-cycled
+	MaxSizeInMb int
+
+	// Max number of legacy log files that can exist before being deleted
+	MaxNoOfBackups int
+	MaxAgeInDays   int
+}
+
 type LoggingOptions struct {
-	Enabled bool
-	Path    string
+	Enabled         bool
+	Path            string
+	TimeStampFormat string
+	Level           zapcore.Level
+	Rotation        LogRotationOptions
 }
 
 // OptionsStore represents that part of options that is directly
@@ -213,7 +226,14 @@ func GetDefaultOptions() *TraverseOptions {
 				},
 			},
 			Logging: LoggingOptions{
-				Path: filepath.Join("~", "snivilised.extendio.nav.log"),
+				Path:            filepath.Join("~", "snivilised.extendio.nav.log"),
+				TimeStampFormat: "2006-01-02 15:04:05",
+				Level:           zapcore.InfoLevel,
+				Rotation: LogRotationOptions{
+					MaxSizeInMb:    50,
+					MaxNoOfBackups: 3,
+					MaxAgeInDays:   28,
+				},
 			},
 		},
 		Notify: Notifications{

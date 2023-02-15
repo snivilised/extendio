@@ -38,7 +38,6 @@ type agentTopParams struct {
 }
 
 func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
-	// fmt.Printf("🍉TOP: '%v'\n", params.top)
 	params.frame.reset()
 
 	info, err := a.o.Hooks.QueryStatus(params.top)

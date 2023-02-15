@@ -5,6 +5,7 @@ import (
 
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/utils"
+	"go.uber.org/zap"
 )
 
 // ExtendedItem provides extended information if the client requests
@@ -109,6 +110,7 @@ func (r *TraverseResult) merge(other *TraverseResult) *TraverseResult {
 type TraverseNavigator interface {
 	Walk(root string) *TraverseResult
 	Save(path string) error
+	finish() error
 }
 
 type traverseParams struct {
@@ -118,8 +120,10 @@ type traverseParams struct {
 
 type navigatorImpl interface {
 	options() *TraverseOptions
+	logger() *zap.Logger
 	top(frame *navigationFrame, root string) *TraverseResult
 	traverse(params *traverseParams) *LocalisableError
+	finish() error
 }
 
 type NavigationInfo struct {

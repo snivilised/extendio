@@ -4,12 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/samber/lo"
 	"github.com/snivilised/extendio/collections"
-	"github.com/snivilised/extendio/xfs/utils"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type nullDetacher struct{}
@@ -23,43 +18,17 @@ type bootstrapper struct {
 	nc       *navigatorController
 	rc       *resumeController
 	detacher resumeDetacher
-	logger   utils.RoProp[*zap.Logger]
 }
 
 func (b *bootstrapper) init() {
 	b.detacher = &nullDetacher{}
-	b.logger = b.makeLogger()
-	b.logger.Get().Log(zapcore.InfoLevel, "HELLO")
+
 	b.nc.frame = b.nc.makeFrame()
 	b.initFilters()
 	b.initNotifiers()
 	b.initListener()
 	b.nc.init()
 	b.nc.ns = &NavigationState{Filters: b.nc.frame.filters, Root: &b.nc.frame.root}
-}
-
-func (b *bootstrapper) makeLogger() utils.RoProp[*zap.Logger] {
-
-	return utils.NewRoProp(lo.TernaryF(b.o.Store.Logging.Enabled,
-		func() *zap.Logger {
-			if b.o.Store.Logging.Path == "" {
-				panic("log file name missing from options at 'Store.Logging.Path'")
-			}
-			ws := zapcore.AddSync(&lumberjack.Logger{
-				Filename:   b.o.Store.Logging.Path,
-				MaxSize:    500, // megabytes
-				MaxBackups: 3,
-				MaxAge:     28, // days
-			})
-			core := zapcore.NewCore(
-				zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
-				ws,
-				zap.InfoLevel,
-			)
-			return zap.New(core)
-		}, func() *zap.Logger {
-			return zap.NewNop()
-		}))
 }
 
 func (b *bootstrapper) initFilters() {
@@ -114,7 +83,8 @@ type overrideListenerInfo struct {
 func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
 
 	if b.rc == nil {
-		panic(errors.New("bootstrapper.resume: resume controller not set"))
+		b.nc.impl.logger().Error("bootstrapper.initResume: resume controller not set")
+		panic(errors.New("bootstrapper.initResume: resume controller not set"))
 	}
 
 	strategyParams := &strategyInitParams{
