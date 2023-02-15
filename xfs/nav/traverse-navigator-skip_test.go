@@ -17,40 +17,46 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 	When("folder is skipped", func() {
 		Context("folder navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				path := path(root, "RETRO-WAVE")
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+				session.Configure(func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.DoExtend = true
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
-				})
-				path := path(root, "RETRO-WAVE")
-				navigator.Walk(path)
+				}).Run()
 			})
 		})
 
 		Context("universal navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
-				navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+				path := path(root, "RETRO-WAVE")
+				session := &nav.PrimarySession{
+					Path: path,
+				}
+				session.Configure(func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.DoExtend = true
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
-				})
-				path := path(root, "RETRO-WAVE")
-				navigator.Walk(path)
+				}).Run()
 			})
 		})
 	})
 
 	DescribeTable("skip",
 		func(entry *skipTE) {
-			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+			path := path(root, "RETRO-WAVE")
+			session := &nav.PrimarySession{
+				Path: path,
+			}
+			session.Configure(func(o *nav.TraverseOptions) {
 				o.Store.Subscription = entry.subscription
 				o.Callback = skipFolderCallback("College", "Northern Council")
 				o.Notify.OnBegin = begin("🛡️")
-			})
-			path := path(root, "RETRO-WAVE")
-			navigator.Walk(path)
+			}).Run()
 		},
 		func(entry *skipTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

@@ -34,7 +34,11 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				},
 			}
 
-			navigator := nav.NavigatorFactory{}.Construct(func(o *nav.TraverseOptions) {
+			path := path(root, entry.relative)
+			session := &nav.PrimarySession{
+				Path: path,
+			}
+			_ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = &nav.FilterDefinitions{
@@ -50,10 +54,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				o.Store.Behaviours.Sort.DirectoryEntryOrder = entry.order
 				o.Store.DoExtend = true
 				o.Callback = recorder
-			})
-
-			path := path(root, entry.relative)
-			_ = navigator.Walk(path)
+			}).Run()
 
 			sequence := -1
 			for _, n := range entry.expectedOrder {

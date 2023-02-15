@@ -1,10 +1,8 @@
 package nav
 
-type NavigatorFactory struct{}
+type navigatorFactory struct{}
 
-// Construct navigator factory function which uses the functional
-// options pattern.
-func (f NavigatorFactory) Construct(fn ...TraverseOptionFn) TraverseNavigator {
+func (f navigatorFactory) construct(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 
 	if o.Callback.Fn == nil {

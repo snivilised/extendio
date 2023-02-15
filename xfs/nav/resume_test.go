@@ -32,12 +32,12 @@ var _ = Describe("Resume", Ordered, func() {
 			restore := func(o *nav.TraverseOptions, as *nav.ActiveState) {
 				GinkgoWriter.Printf("===> 🐚 restoring ...\n")
 			}
-			info := &nav.NewResumerInfo{
+			info := &nav.ResumerInfo{
 				RestorePath: fromJsonPath,
 				Restorer:    restore,
 				Strategy:    nav.ResumeStrategyFastwardEn,
 			}
-			result, err := nav.Resume(info)
+			result, err := nav.ResumeLegacy(info)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
 		})
@@ -56,13 +56,13 @@ var _ = Describe("Resume", Ordered, func() {
 					},
 				}
 			}
-			info := &nav.NewResumerInfo{
+			info := &nav.ResumerInfo{
 				RestorePath: fromJsonPath,
 				Restorer:    restore,
 				Strategy:    nav.ResumeStrategyFastwardEn,
 			}
 			// panic: callback is not set
-			result, err := nav.Resume(info)
+			result, err := nav.ResumeLegacy(info)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
 		})
