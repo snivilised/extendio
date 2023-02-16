@@ -34,7 +34,7 @@ type ActiveState struct {
 	Root     string
 	Listen   ListeningState
 	NodePath string
-	Depth    uint
+	Depth    int
 	Metrics  *MetricCollection
 }
 

@@ -25,19 +25,27 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 	// return SkipDir from there.
 
 	defer func() {
-		n.ascend(&NavigationInfo{Options: n.o, Item: params.currentItem, Frame: params.frame})
+		n.ascend(&NavigationInfo{
+			Options: n.o,
+			Item:    params.currentItem,
+			Frame:   params.frame},
+		)
 	}()
-	navi := &NavigationInfo{Options: n.o, Item: params.currentItem, Frame: params.frame}
-	n.descend(navi)
+	navi := &NavigationInfo{
+		Options: n.o,
+		Item:    params.currentItem,
+		Frame:   params.frame,
+	}
 
 	var (
-		entries *directoryEntries
+		entries *DirectoryEntries
 		readErr error
 	)
 
 	if params.currentItem.Info.IsDir() {
 		entries, readErr = n.agent.read(
-			params.currentItem.Path, n.o.Store.Behaviours.Sort.DirectoryEntryOrder,
+			params.currentItem.Path,
+			n.o.Store.Behaviours.Sort.DirectoryEntryOrder,
 		)
 
 		// Files and Folders need to be sorted independently to preserve the navigation order
@@ -46,12 +54,12 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 		entries.sort(&entries.Files)
 		entries.sort(&entries.Folders)
 	} else {
-		entries = &directoryEntries{}
+		entries = &DirectoryEntries{}
 	}
 	sorted := entries.all()
 
 	if (params.currentItem.Info != nil) && !(params.currentItem.Info.IsDir()) {
-		n.o.Hooks.Extend(navi, *sorted)
+		n.o.Hooks.Extend(navi, entries)
 
 		// Effectively, this is the file only filter
 		//
@@ -59,7 +67,10 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
-		frame: params.frame, item: params.currentItem, entries: *sorted, readErr: readErr,
+		frame:   params.frame,
+		item:    params.currentItem,
+		entries: *sorted,
+		readErr: readErr,
 	}); exit || err != nil {
 		return err
 	} else {

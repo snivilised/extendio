@@ -21,7 +21,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				session.Configure(func(o *nav.TraverseOptions) {
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.DoExtend = true
 					o.Callback = skipFolderCallback("College", "Northern Council")
@@ -52,7 +52,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			session.Configure(func(o *nav.TraverseOptions) {
+			_ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Store.Subscription = entry.subscription
 				o.Callback = skipFolderCallback("College", "Northern Council")
 				o.Notify.OnBegin = begin("🛡️")

@@ -43,8 +43,8 @@ func (c *navigatorController) Walk(root string) *TraverseResult {
 	result := c.impl.top(c.frame, root)
 
 	fields := []zapcore.Field{}
-	for _, v := range *result.Metrics {
-		fields = append(fields, zap.Uint(v.Name, v.Count))
+	for _, m := range *result.Metrics {
+		fields = append(fields, zap.Uint(m.Name, m.Count))
 	}
 
 	c.impl.logger().Info("Result", fields...)
@@ -75,7 +75,7 @@ func (c *navigatorController) Save(path string) error {
 		Active: active,
 	}
 
-	marshaller := (&marshallerFactory{}).create(o, state)
+	marshaller := (&marshallerFactory{}).construct(o, state)
 	return marshaller.marshal(path)
 }
 

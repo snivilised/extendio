@@ -1,8 +1,6 @@
 package nav
 
 func ResumeLegacy(resumeInfo *ResumerInfo) (*TraverseResult, error) {
-	// TODO: should only return a result with error embedded as member
-	//
 	resumer, err := resumerFactory{}.construct(resumeInfo)
 
 	if err != nil {

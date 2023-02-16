@@ -207,7 +207,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					Expect(found).To(BeFalse(), reason(name))
 				}
 			}
-			for n, actualNoChildren := range entry.expectedNoChildren {
+			for n, actualNoChildren := range entry.expectedNoOf.children {
 				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
 			}
 		},
@@ -219,11 +219,13 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "folder(with files): glob filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
-				expectedNoChildren: map[string]int{
-					"Night Drive":      2,
-					"Northern Council": 2,
-					"Teenage Color":    2,
-					"Innerworld":       2,
+				expectedNoOf: expectedNo{
+					children: map[string]int{
+						"Night Drive":      2,
+						"Northern Council": 2,
+						"Teenage Color":    2,
+						"Innerworld":       2,
+					},
 				},
 			},
 			name:    "items with '.flac' suffix",
@@ -235,11 +237,13 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "folder(with files): glob filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
-				expectedNoChildren: map[string]int{
-					"Night Drive":      3,
-					"Northern Council": 3,
-					"Teenage Color":    2,
-					"Innerworld":       2,
+				expectedNoOf: expectedNo{
+					children: map[string]int{
+						"Night Drive":      3,
+						"Northern Council": 3,
+						"Teenage Color":    2,
+						"Innerworld":       2,
+					},
 				},
 			},
 			name:    "items without '.txt' suffix",

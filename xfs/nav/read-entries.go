@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// ReadEntries readds the contents of a directory. The resulting
+// ReadEntries reads the contents of a directory. The resulting
 // slice is left un-sorted
 func ReadEntries(dirname string) ([]fs.DirEntry, error) {
 	f, err := os.Open(dirname)

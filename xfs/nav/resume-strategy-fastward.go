@@ -71,7 +71,6 @@ func (s *fastwardStrategy) attach(params *resumeAttachParams) {
 
 func (s *fastwardStrategy) detach(frame *navigationFrame) {
 	frame.listener.dispose()
-	fmt.Printf("==>⚠️⚠️⚠️ fastwardStrategy: detach\n")
 
 	// now restore the client state (preserveClientInfo)
 	//

@@ -28,7 +28,6 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 			decorator := &LabelledTraverseCallback{
 				Label: "filter decorator",
 				Fn: func(item *TraverseItem) *LocalisableError {
-					// fmt.Printf(">>> 💚 filter decorator, item: '%s'\n", item.Path)
 					if frame.filters.Node.IsMatch(item) {
 						return decorated.Fn(item)
 					}

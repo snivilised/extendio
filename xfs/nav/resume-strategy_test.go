@@ -245,8 +245,8 @@ var _ = Describe("Resume", Ordered, func() {
 						Label: "unit test callback for resume",
 						Fn: func(item *nav.TraverseItem) *LocalisableError {
 							depth := lo.TernaryF(o.Store.DoExtend,
-								func() uint { return item.Extension.Depth },
-								func() uint { return 9999 },
+								func() int { return item.Extension.Depth },
+								func() int { return 9999 },
 							)
 							GinkgoWriter.Printf(
 								"---> ⏩ %v: (depth:%v) '%v'\n", themes[strategyEn].label, depth, item.Path,

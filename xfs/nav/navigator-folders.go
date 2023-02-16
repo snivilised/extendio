@@ -22,15 +22,25 @@ func (n *foldersNavigator) top(frame *navigationFrame, root string) *TraverseRes
 
 func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 	defer func() {
-		n.ascend(&NavigationInfo{Options: n.o, Item: params.currentItem, Frame: params.frame})
+		n.ascend(&NavigationInfo{
+			Options: n.o,
+			Item:    params.currentItem,
+			Frame:   params.frame},
+		)
 	}()
-	navi := &NavigationInfo{Options: n.o, Item: params.currentItem, Frame: params.frame}
+	navi := &NavigationInfo{
+		Options: n.o,
+		Item:    params.currentItem,
+		Frame:   params.frame,
+	}
 	n.descend(navi)
 	// for the folders navigator, we ignore the user defined setting in
 	// n.o.Store.Behaviours.Sort.DirectoryEntryOrder, as we're only interested in
 	// folders and therefore force to use DirectoryEntryOrderFoldersFirstEn instead
 	//
-	entries, readErr := n.agent.read(params.currentItem.Path, DirectoryEntryOrderFoldersFirstEn)
+	entries, readErr := n.agent.read(params.currentItem.Path,
+		DirectoryEntryOrderFoldersFirstEn,
+	)
 	folders := entries.Folders
 	entries.sort(&folders)
 
@@ -50,7 +60,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 		params.currentItem.Children = files
 	}
 
-	n.o.Hooks.Extend(navi, folders)
+	n.o.Hooks.Extend(navi, entries)
 
 	if le := n.agent.proxy(params.currentItem, params.frame); le != nil ||
 		(params.currentItem.Entry != nil && !params.currentItem.Entry.IsDir()) {
@@ -63,7 +73,10 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
-		frame: params.frame, item: params.currentItem, entries: folders, readErr: readErr,
+		frame:   params.frame,
+		item:    params.currentItem,
+		entries: folders,
+		readErr: readErr,
 	}); exit {
 		return err
 	} else {

@@ -20,7 +20,6 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 	Context("clone", func() {
 		When("given: options", func() {
 			It("should: return a deep copy", func() {
-
 				cloneCount, sourceCount := 0, 0
 
 				o.Notify.OnBegin = func(state *nav.NavigationState) {

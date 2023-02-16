@@ -99,7 +99,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				session.Configure(func(o *nav.TraverseOptions) {
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Behaviours.SubPath.KeepTrailingSep = false
 					o.Store.Subscription = nav.SubscribeAny

@@ -69,7 +69,6 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					},
 				}
 			}).Run()
-			// _ = navigator.Walk(path)
 
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
@@ -84,6 +83,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					Expect(found).To(BeFalse(), reason(name))
 				}
 			}
+
+			// TODO: fix metrics for filtering
+			//
+			// Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files))
+			// Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders))
 		},
 		func(entry *filterTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -96,6 +100,13 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "files(any scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
+				expectedNoOf: expectedNo{
+					files:   4, // (error: actual: 14)
+					folders: 0,
+					children: map[string]int{
+						"Night Drive": 4,
+					},
+				},
 			},
 			name:    "items that start with 'vinyl'",
 			pattern: "^vinyl",
@@ -244,7 +255,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					Expect(found).To(BeFalse(), reason(name))
 				}
 			}
-			for n, actualNoChildren := range entry.expectedNoChildren {
+			for n, actualNoChildren := range entry.expectedNoOf.children {
 				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
 			}
 		},
@@ -256,11 +267,13 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folder(with files): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
-				expectedNoChildren: map[string]int{
-					"Night Drive":      2,
-					"Northern Council": 2,
-					"Teenage Color":    2,
-					"Innerworld":       2,
+				expectedNoOf: expectedNo{
+					children: map[string]int{
+						"Night Drive":      2,
+						"Northern Council": 2,
+						"Teenage Color":    2,
+						"Innerworld":       2,
+					},
 				},
 			},
 			name:    "items with '.flac' suffix",
@@ -272,11 +285,13 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folder(with files): regex filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
-				expectedNoChildren: map[string]int{
-					"Night Drive":      3,
-					"Northern Council": 3,
-					"Teenage Color":    2,
-					"Innerworld":       2,
+				expectedNoOf: expectedNo{
+					children: map[string]int{
+						"Night Drive":      3,
+						"Northern Council": 3,
+						"Teenage Color":    2,
+						"Innerworld":       2,
+					},
 				},
 			},
 			name:    "items without '.txt' suffix",
