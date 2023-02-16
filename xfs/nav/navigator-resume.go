@@ -1,7 +1,7 @@
 package nav
 
 func ResumeLegacy(resumeInfo *ResumerInfo) (*TraverseResult, error) {
-	resumer, err := resumerFactory{}.construct(resumeInfo)
+	resumer, err := resumerFactory{}.new(resumeInfo)
 
 	if err != nil {
 		return &TraverseResult{

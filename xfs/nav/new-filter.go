@@ -14,7 +14,7 @@ func NewNodeFilter(def *FilterDef) TraverseFilter {
 			Filter: Filter{
 				Name:            def.Description,
 				RequiredScope:   def.Scope,
-				Pattern:         def.Source,
+				Pattern:         def.Pattern,
 				Negate:          def.Negate,
 				IfNotApplicable: def.IfNotApplicable,
 			},
@@ -25,7 +25,7 @@ func NewNodeFilter(def *FilterDef) TraverseFilter {
 			Filter: Filter{
 				Name:            def.Description,
 				RequiredScope:   def.Scope,
-				Pattern:         def.Source,
+				Pattern:         def.Pattern,
 				Negate:          def.Negate,
 				IfNotApplicable: def.IfNotApplicable,
 			},
@@ -51,7 +51,7 @@ func NewCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 		filter = &CompoundRegexFilter{
 			CompoundFilter: CompoundFilter{
 				Name:    def.Description,
-				Pattern: def.Source,
+				Pattern: def.Pattern,
 				Negate:  def.Negate,
 			},
 		}
@@ -60,7 +60,7 @@ func NewCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 		filter = &CompoundGlobFilter{
 			CompoundFilter: CompoundFilter{
 				Name:    def.Description,
-				Pattern: def.Source,
+				Pattern: def.Pattern,
 				Negate:  def.Negate,
 			},
 		}

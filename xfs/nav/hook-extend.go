@@ -21,7 +21,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 		})
 	}
 	isLeaf := false
-	var scope FilterScopeEnum
+	var scope FilterScopeBiEnum
 
 	if navi.Item.IsDir() {
 		isLeaf = len(entries.Folders) == 0

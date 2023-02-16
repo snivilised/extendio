@@ -56,7 +56,7 @@ const (
 type navigationListeningStates map[ListeningState]LabelledTraverseCallback
 
 type listenStatesParams struct {
-	// currently used for buildStates and listener.decorate
+	// currently used for makeStates and listener.decorate
 	//
 	lo       *ListenOptions
 	o        *TraverseOptions
@@ -76,7 +76,7 @@ func (l *navigationListener) init() {
 	l.transition(l.state)
 }
 
-func (l *navigationListener) buildStates(params *listenStatesParams) {
+func (l *navigationListener) makeStates(params *listenStatesParams) {
 
 	// The listen states are aware of the raw callback, because frame.client
 	// denotes the decorated client which may incorporate the listener callback.

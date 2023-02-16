@@ -23,13 +23,13 @@ func (n *universalNavigator) traverse(params *traverseParams) *LocalisableError 
 	defer func() {
 		n.ascend(&NavigationInfo{
 			Options: n.o,
-			Item:    params.currentItem,
+			Item:    params.item,
 			Frame:   params.frame},
 		)
 	}()
 	navi := &NavigationInfo{
 		Options: n.o,
-		Item:    params.currentItem,
+		Item:    params.item,
 		Frame:   params.frame,
 	}
 	n.descend(navi)
@@ -39,9 +39,9 @@ func (n *universalNavigator) traverse(params *traverseParams) *LocalisableError 
 		readErr error
 	)
 
-	if params.currentItem.Info.IsDir() {
+	if params.item.Info.IsDir() {
 		entries, readErr = n.agent.read(
-			params.currentItem.Path,
+			params.item.Path,
 			n.o.Store.Behaviours.Sort.DirectoryEntryOrder,
 		)
 
@@ -57,9 +57,9 @@ func (n *universalNavigator) traverse(params *traverseParams) *LocalisableError 
 
 	n.o.Hooks.Extend(navi, entries)
 
-	if le := n.agent.proxy(params.currentItem, params.frame); le != nil ||
-		(params.currentItem.Entry != nil && !params.currentItem.Entry.IsDir()) {
-		if le != nil && le.Inner == fs.SkipDir && params.currentItem.Entry.IsDir() {
+	if le := n.agent.proxy(params.item, params.frame); le != nil ||
+		(params.item.Entry != nil && !params.item.Entry.IsDir()) {
+		if le != nil && le.Inner == fs.SkipDir && params.item.Entry.IsDir() {
 			// Successfully skipped directory
 			//
 			le = nil
@@ -69,7 +69,7 @@ func (n *universalNavigator) traverse(params *traverseParams) *LocalisableError 
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
 		frame:   params.frame,
-		item:    params.currentItem,
+		item:    params.item,
 		entries: *sorted,
 		readErr: readErr,
 	}); exit {
@@ -79,7 +79,7 @@ func (n *universalNavigator) traverse(params *traverseParams) *LocalisableError 
 		return n.agent.traverse(&agentTraverseParams{
 			impl:     n,
 			contents: sorted,
-			parent:   params.currentItem,
+			parent:   params.item,
 			frame:    params.frame,
 		})
 	}

@@ -11,7 +11,7 @@ type navigationPeriscope struct {
 	_depth  int
 }
 
-func (p *navigationPeriscope) scope(isLeaf bool) FilterScopeEnum {
+func (p *navigationPeriscope) scope(isLeaf bool) FilterScopeBiEnum {
 
 	result := ScopeIntermediateEn
 

@@ -21,7 +21,7 @@ type directoryEntriesFactoryParams struct {
 	entries *[]fs.DirEntry
 }
 
-func (directoryEntriesFactory) construct(params *directoryEntriesFactoryParams) *DirectoryEntries {
+func (directoryEntriesFactory) new(params *directoryEntriesFactoryParams) *DirectoryEntries {
 
 	instance := DirectoryEntries{
 		Options: params.o,

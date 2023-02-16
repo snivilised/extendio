@@ -45,7 +45,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 					Node: nav.FilterDef{
 						Type:            nav.FilterTypeGlobEn,
 						Description:     entry.name,
-						Source:          entry.pattern,
+						Pattern:         entry.pattern,
 						Scope:           entry.scope,
 						Negate:          entry.negate,
 						IfNotApplicable: entry.ifNotApplicable,
