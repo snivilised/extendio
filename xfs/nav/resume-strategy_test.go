@@ -273,12 +273,10 @@ var _ = Describe("Resume", Ordered, func() {
 							}
 						}
 					}
+					if entry.log {
+						o.Store.Logging = logo()
+					}
 				}
-				// info := &nav.ResumerInfo{
-				// 	RestorePath: fromJsonPath,
-				// 	Restorer:    restore,
-				// 	Strategy:    strategyEn,
-				// }
 
 				session := &nav.ResumeSession{
 					Path:     fromJsonPath,
@@ -286,11 +284,6 @@ var _ = Describe("Resume", Ordered, func() {
 				}
 				result := session.Configure(restore).Run()
 
-				/*
-					result, err := nav.ResumeLegacy(info)
-					Expect(err).To(BeNil())
-					Expect(result).ToNot(BeNil())
-				*/
 				if profile.mandatory != nil {
 					for _, name := range profile.mandatory {
 						_, found := recording[name]
@@ -334,12 +327,8 @@ var _ = Describe("Resume", Ordered, func() {
 		//
 
 		Entry(nil, &resumeTE{
-			// !!! when an error occurs, particularly when checking for error, this is the
-			// test that tends to fail in isolation, but why just this case?
-			//
-
 			naviTE: naviTE{
-				message:      "universal: listen pending",
+				message:      "universal: listen pending(logged)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 			},
@@ -349,6 +338,7 @@ var _ = Describe("Resume", Ordered, func() {
 			},
 			clientListenAt: START_AT_ELECTRIC_YOUTH,
 			profile:        "-> universal(pending): unfiltered",
+			log:            true,
 		}),
 
 		Entry(nil, &resumeTE{

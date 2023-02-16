@@ -2,6 +2,8 @@ package nav
 
 import (
 	"fmt"
+
+	"go.uber.org/zap"
 )
 
 type fastwardListener struct {
@@ -25,7 +27,7 @@ type fastwardStrategy struct {
 }
 
 func (s *fastwardStrategy) init(params *strategyInitParams) {
-
+	s.nc.logger().Info("fastward resume", zap.String("path", params.ps.Active.Root))
 	// this is the start we revert back to when we get back to the resume point
 	//
 	s.client.state = params.ps.Active.Listen
@@ -84,6 +86,11 @@ func (s *fastwardStrategy) detach(frame *navigationFrame) {
 }
 
 func (s *fastwardStrategy) resume(info *strategyResumeInfo) *TraverseResult {
+	resumeAt := info.ps.Active.NodePath
+	s.nc.logger().Info("fastward resume",
+		zap.String("root-path", info.ps.Active.Root),
+		zap.String("resume-at-path", resumeAt),
+	)
 	// fast-forward doesn't need to restore the entire state, eg, the
 	// Depth can begin as per usual, without being restored.
 	//

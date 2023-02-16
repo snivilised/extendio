@@ -13,7 +13,7 @@ import (
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
-var _ = Describe("TraverseNavigator", Ordered, func() {
+var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {

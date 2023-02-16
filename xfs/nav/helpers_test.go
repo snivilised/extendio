@@ -86,6 +86,7 @@ type resumeTE struct {
 	active         activeTE
 	clientListenAt string
 	profile        string
+	log            bool
 }
 
 type resumeTestProfile struct {
@@ -102,6 +103,30 @@ func origin() string {
 		return filepath.Join(great, "Test", "data", "MUSICO")
 	}
 	panic("could not get root path")
+}
+
+func log() string {
+	if current, err := os.Getwd(); err == nil {
+		parent, _ := filepath.Split(current)
+		grand := filepath.Dir(parent)
+		great := filepath.Dir(grand)
+		return filepath.Join(great, "Test", "test.log")
+	}
+	panic("could not get root path")
+}
+
+func logo() nav.LoggingOptions {
+
+	return nav.LoggingOptions{
+		Enabled:         true,
+		Path:            log(),
+		TimeStampFormat: "2006-01-02 15:04:05",
+		Rotation: nav.LogRotationOptions{
+			MaxSizeInMb:    5,
+			MaxNoOfBackups: 1,
+			MaxAgeInDays:   7,
+		},
+	}
 }
 
 func joinCwd(segments ...string) string {

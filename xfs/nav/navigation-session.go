@@ -2,7 +2,6 @@ package nav
 
 import (
 	"errors"
-	"fmt"
 )
 
 type traverseSession interface {
@@ -23,8 +22,6 @@ type primaryRunner struct {
 
 // Run invokes the traversal run for a primary session
 func (r *primaryRunner) Run() *TraverseResult {
-	fmt.Println("🧊🧊 Primary: Run 🧊🧊")
-
 	return r.session.run()
 }
 
@@ -34,31 +31,18 @@ type resumeRunner struct {
 
 // Run invokes the traversal run for a resume session
 func (r *resumeRunner) Run() *TraverseResult {
-	fmt.Println("🧊🧊 Resume: Run 🧊🧊")
-
 	return r.session.run()
 }
 
-type session struct {
-	// Path string not defined here because that would mean the client
-	// would have to use go's awkward embedding syntax for specifying literal
-	// struct.
-}
-
-func (s *session) finish() {
-	fmt.Println("🍧🍧 finish 🍧🍧")
-}
-
 type PrimarySession struct {
-	session
 	Path      string
 	navigator TraverseNavigator
 }
 
 // Configure is the pre run stage for a primary session
 func (s *PrimarySession) Configure(fn ...TraverseOptionFn) NavigationRunner {
-
 	s.navigator = navigatorFactory{}.construct(fn...)
+
 	return &primaryRunner{
 		sessionRunner: sessionRunner{
 			session: s,
@@ -78,8 +62,11 @@ func (s *PrimarySession) run() *TraverseResult {
 	return s.navigator.Walk(s.Path)
 }
 
+func (s *PrimarySession) finish() {
+	_ = s.navigator.finish()
+}
+
 type ResumeSession struct {
-	session
 	Path     string
 	Strategy ResumeStrategyEnum
 	resumer  *resumeController
@@ -115,4 +102,8 @@ func (s *ResumeSession) run() *TraverseResult {
 	defer s.finish()
 
 	return s.resumer.Continue()
+}
+
+func (s *ResumeSession) finish() {
+	_ = s.resumer.finish()
 }

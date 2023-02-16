@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/utils"
+	"go.uber.org/zap"
 )
 
 const (
@@ -16,6 +17,10 @@ const (
 
 type spawnStrategy struct {
 	baseStrategy
+}
+
+func (s *spawnStrategy) init(params *strategyInitParams) {
+
 }
 
 func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
@@ -31,6 +36,11 @@ func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 			},
 		}
 	}
+
+	s.nc.logger().Info("spawn resume",
+		zap.String("root-path", info.ps.Active.Root),
+		zap.String("resume-at-path", resumeAt),
+	)
 
 	indicator := lo.Ternary(statusInfo.IsDir(), "📁 DIRECTORY", "📜 FILE")
 	fmt.Printf("   🧿 root: '%v' \n", info.ps.Active.Root)

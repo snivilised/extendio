@@ -3,6 +3,8 @@ package nav
 import (
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/xfs/utils"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type navigatorController struct {
@@ -30,11 +32,22 @@ func (c *navigatorController) init() {
 	c.ns = &NavigationState{Filters: c.frame.filters, Root: &c.frame.root}
 }
 
+func (c *navigatorController) logger() *zap.Logger {
+	return c.impl.logger()
+}
+
 func (c *navigatorController) Walk(root string) *TraverseResult {
 	c.frame.root.Set(root)
+	c.impl.logger().Info("Walk", zap.String("root", root))
 	c.frame.notifiers.begin.invoke(c.ns)
-
 	result := c.impl.top(c.frame, root)
+
+	fields := []zapcore.Field{}
+	for _, v := range *result.Metrics {
+		fields = append(fields, zap.Uint(v.Name, v.Count))
+	}
+
+	c.impl.logger().Info("Result", fields...)
 	c.frame.notifiers.end.invoke(result)
 
 	return result
@@ -64,4 +77,8 @@ func (c *navigatorController) Save(path string) error {
 
 	marshaller := (&marshallerFactory{}).create(o, state)
 	return marshaller.marshal(path)
+}
+
+func (c *navigatorController) finish() error {
+	return c.impl.finish()
 }

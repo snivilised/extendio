@@ -21,3 +21,7 @@ func (c *resumeController) Save(path string) error {
 func (c *resumeController) detach(frame *navigationFrame) {
 	c.strategy.detach(frame)
 }
+
+func (c *resumeController) finish() error {
+	return c.strategy.finish()
+}

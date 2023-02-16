@@ -1,5 +1,13 @@
 package nav
 
+import (
+	"github.com/samber/lo"
+	"github.com/snivilised/extendio/xfs/utils"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
+)
+
 type navigatorFactory struct{}
 
 func (f navigatorFactory) construct(fn ...TraverseOptionFn) TraverseNavigator {
@@ -35,23 +43,59 @@ func (f navigatorImplFactory) construct(o *TraverseOptions) navigatorImpl {
 		doInvoke:  doInvoke,
 		deFactory: deFactory,
 	})
+	logger := f.makeLogger(o)
 
 	switch o.Store.Subscription {
 	case SubscribeAny:
 		impl = &universalNavigator{
-			navigator: navigator{o: o, agent: agent},
+			navigator: navigator{o: o,
+				agent: agent,
+				log:   logger,
+			},
 		}
 
 	case SubscribeFolders, SubscribeFoldersWithFiles:
 		impl = &foldersNavigator{
-			navigator: navigator{o: o, agent: agent},
+			navigator: navigator{o: o,
+				agent: agent,
+				log:   logger,
+			},
 		}
 
 	case SubscribeFiles:
 		impl = &filesNavigator{
-			navigator: navigator{o: o, agent: agent},
+			navigator: navigator{o: o,
+				agent: agent,
+				log:   logger,
+			},
 		}
 	}
 
 	return impl
+}
+
+func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[*zap.Logger] {
+
+	return utils.NewRoProp(lo.TernaryF(o.Store.Logging.Enabled,
+		func() *zap.Logger {
+			if o.Store.Logging.Path == "" {
+				panic("log file name missing from options at 'Store.Logging.Path'")
+			}
+			ws := zapcore.AddSync(&lumberjack.Logger{
+				Filename:   o.Store.Logging.Path,
+				MaxSize:    o.Store.Logging.Rotation.MaxSizeInMb,
+				MaxBackups: o.Store.Logging.Rotation.MaxNoOfBackups,
+				MaxAge:     o.Store.Logging.Rotation.MaxAgeInDays,
+			})
+			config := zap.NewProductionEncoderConfig()
+			config.EncodeTime = zapcore.TimeEncoderOfLayout(o.Store.Logging.TimeStampFormat)
+			core := zapcore.NewCore(
+				zapcore.NewJSONEncoder(config),
+				ws,
+				o.Store.Logging.Level,
+			)
+			return zap.New(core)
+		}, func() *zap.Logger {
+			return zap.NewNop()
+		}))
 }
