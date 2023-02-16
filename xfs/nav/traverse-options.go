@@ -85,10 +85,10 @@ type NavigationFilters struct {
 	//
 	Node TraverseFilter
 
-	// Compound denotes the Compound filter that is applied to the direct descendants
+	// Children denotes the Compound filter that is applied to the direct descendants
 	// of the current file system item being visited.
 	//
-	Compound CompoundTraverseFilter
+	Children CompoundTraverseFilter
 }
 
 // NavigationState carries information about navigation that client may be

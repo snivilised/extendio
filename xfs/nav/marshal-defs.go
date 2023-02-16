@@ -15,7 +15,7 @@ const (
 type PersistFilterDef struct {
 	Description string
 	Source      string
-	Scope       FilterScopeEnum
+	Scope       FilterScopeBiEnum
 }
 
 type PersistCompoundFilterDef struct {

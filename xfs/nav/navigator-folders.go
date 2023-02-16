@@ -24,13 +24,13 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 	defer func() {
 		n.ascend(&NavigationInfo{
 			Options: n.o,
-			Item:    params.currentItem,
+			Item:    params.item,
 			Frame:   params.frame},
 		)
 	}()
 	navi := &NavigationInfo{
 		Options: n.o,
-		Item:    params.currentItem,
+		Item:    params.item,
 		Frame:   params.frame,
 	}
 	n.descend(navi)
@@ -38,7 +38,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 	// n.o.Store.Behaviours.Sort.DirectoryEntryOrder, as we're only interested in
 	// folders and therefore force to use DirectoryEntryOrderFoldersFirstEn instead
 	//
-	entries, readErr := n.agent.read(params.currentItem.Path,
+	entries, readErr := n.agent.read(params.item.Path,
 		DirectoryEntryOrderFoldersFirstEn,
 	)
 	folders := entries.Folders
@@ -50,21 +50,21 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 		if params.frame.filters == nil {
 			files = entries.Files
 		} else {
-			files = lo.TernaryF(params.frame.filters.Compound == nil,
+			files = lo.TernaryF(params.frame.filters.Children == nil,
 				func() []fs.DirEntry { return entries.Files },
-				func() []fs.DirEntry { return params.frame.filters.Compound.Matching(entries.Files) },
+				func() []fs.DirEntry { return params.frame.filters.Children.Matching(entries.Files) },
 			)
 		}
 
 		entries.sort(&files)
-		params.currentItem.Children = files
+		params.item.Children = files
 	}
 
 	n.o.Hooks.Extend(navi, entries)
 
-	if le := n.agent.proxy(params.currentItem, params.frame); le != nil ||
-		(params.currentItem.Entry != nil && !params.currentItem.Entry.IsDir()) {
-		if le != nil && le.Inner == fs.SkipDir && params.currentItem.Entry.IsDir() {
+	if le := n.agent.proxy(params.item, params.frame); le != nil ||
+		(params.item.Entry != nil && !params.item.Entry.IsDir()) {
+		if le != nil && le.Inner == fs.SkipDir && params.item.Entry.IsDir() {
 			// Successfully skipped directory
 			//
 			le = nil
@@ -74,7 +74,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
 		frame:   params.frame,
-		item:    params.currentItem,
+		item:    params.item,
 		entries: folders,
 		readErr: readErr,
 	}); exit {
@@ -84,7 +84,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) *LocalisableError {
 		return n.agent.traverse(&agentTraverseParams{
 			impl:     n,
 			contents: &folders,
-			parent:   params.currentItem,
+			parent:   params.item,
 			frame:    params.frame,
 		})
 	}

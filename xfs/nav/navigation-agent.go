@@ -16,7 +16,7 @@ type agentFactoryParams struct {
 	deFactory directoryEntriesFactory
 }
 
-func (agentFactory) construct(params *agentFactoryParams) *navigationAgent {
+func (agentFactory) new(params *agentFactoryParams) *navigationAgent {
 	instance := navigationAgent{
 		doInvoke: utils.NewRoProp(params.doInvoke),
 		o:        params.o,
@@ -56,8 +56,8 @@ func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
 		}
 
 		le = params.impl.traverse(&traverseParams{
-			currentItem: item,
-			frame:       params.frame,
+			item:  item,
+			frame: params.frame,
 		})
 	}
 
@@ -77,7 +77,7 @@ func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*Dir
 	//
 	entries, err := a.o.Hooks.ReadDirectory(path)
 
-	de := a.deFactory.construct(&directoryEntriesFactoryParams{
+	de := a.deFactory.new(&directoryEntriesFactoryParams{
 		o:       a.o,
 		order:   order,
 		entries: &entries,
@@ -136,8 +136,8 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) *LocalisableErro
 		}
 
 		if le = params.impl.traverse(&traverseParams{
-			currentItem: &child,
-			frame:       params.frame,
+			item:  &child,
+			frame: params.frame,
 		}); le != nil {
 			if le.Inner == fs.SkipDir {
 				break
@@ -148,17 +148,17 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) *LocalisableErro
 	return nil
 }
 
-func (a *navigationAgent) proxy(currentItem *TraverseItem, frame *navigationFrame) *LocalisableError {
+func (a *navigationAgent) proxy(item *TraverseItem, frame *navigationFrame) *LocalisableError {
 	// proxy is the correct way to invoke the client callback, because it takes into
 	// account any active decorations such as listening and filtering. It should be noted
 	// that the Callback on the options represents the client defined function which
 	// can be decorated. Only the callback on the frame should ever be invoked.
 	//
-	frame.currentPath.Set(currentItem.Path)
-	result := frame.client.Fn(currentItem)
+	frame.currentPath.Set(item.Path)
+	result := frame.client.Fn(item)
 
-	if !currentItem.skip {
-		metricEn := lo.Ternary(currentItem.IsDir(), MetricNoFoldersEn, MetricNoFilesEn)
+	if !item.skip {
+		metricEn := lo.Ternary(item.IsDir(), MetricNoFoldersEn, MetricNoFilesEn)
 		frame.metrics.tick(metricEn)
 	}
 

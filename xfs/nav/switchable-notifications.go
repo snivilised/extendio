@@ -7,11 +7,11 @@ import (
 	"github.com/samber/lo"
 )
 
-type notificationEnum uint32
+type notificationBiEnum uint32
 
 const (
-	notificationUndefinedEn notificationEnum = 0
-	notificationBeginEn                      = 1 << (iota - 1)
+	notificationUndefinedEn notificationBiEnum = 0
+	notificationBeginEn                        = 1 << (iota - 1)
 	notificationEndEn
 	notificationDescendEn
 	notificationAscendEn
@@ -72,7 +72,7 @@ func (s *switchableListen) invoke(description string) {
 	}
 }
 
-type switchable map[notificationEnum]*switchableBase
+type switchable map[notificationBiEnum]*switchableBase
 
 type notificationsSink struct {
 	begin   switchableBegin
@@ -113,7 +113,7 @@ func (n *notificationsSink) init(notifications *Notifications) {
 	}
 }
 
-func (n *notificationsSink) mute(notifyEn notificationEnum, values ...bool) {
+func (n *notificationsSink) mute(notifyEn notificationBiEnum, values ...bool) {
 
 	if notifyEn == notificationUndefinedEn {
 		panic(fmt.Errorf("invalid mute requested (undefined)"))
@@ -137,8 +137,8 @@ func (n *notificationsSink) mute(notifyEn notificationEnum, values ...bool) {
 }
 
 type muzzleParams struct {
-	notifyEn    notificationEnum
-	referenceEn notificationEnum
+	notifyEn    notificationBiEnum
+	referenceEn notificationBiEnum
 	value       bool
 }
 

@@ -38,7 +38,7 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 					Node: nav.FilterDef{
 						Type:        nav.FilterTypeRegexEn,
 						Description: "test filter",
-						Source:      "foo bar",
+						Pattern:     "foo bar",
 					},
 				}
 				state := &nav.NavigationState{}

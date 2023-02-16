@@ -10,14 +10,14 @@ import (
 
 type navigatorFactory struct{}
 
-func (f navigatorFactory) construct(fn ...TraverseOptionFn) TraverseNavigator {
+func (f navigatorFactory) new(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 
 	if o.Callback.Fn == nil {
 		panic(MISSING_CALLBACK_FN_L_ERR)
 	}
 
-	impl := navigatorImplFactory{}.construct(o)
+	impl := navigatorImplFactory{}.new(o)
 	ctrl := &navigatorController{
 		impl: impl,
 	}
@@ -33,12 +33,12 @@ func (f navigatorFactory) construct(fn ...TraverseOptionFn) TraverseNavigator {
 
 type navigatorImplFactory struct{}
 
-func (f navigatorImplFactory) construct(o *TraverseOptions) navigatorImpl {
+func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 	doInvoke := o.Store.Subscription != SubscribeFiles
 
 	var impl navigatorImpl
 	deFactory := directoryEntriesFactory{}
-	agent := agentFactory{}.construct(&agentFactoryParams{
+	agent := agentFactory{}.new(&agentFactoryParams{
 		o:         o,
 		doInvoke:  doInvoke,
 		deFactory: deFactory,

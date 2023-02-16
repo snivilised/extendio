@@ -27,13 +27,13 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 	defer func() {
 		n.ascend(&NavigationInfo{
 			Options: n.o,
-			Item:    params.currentItem,
+			Item:    params.item,
 			Frame:   params.frame},
 		)
 	}()
 	navi := &NavigationInfo{
 		Options: n.o,
-		Item:    params.currentItem,
+		Item:    params.item,
 		Frame:   params.frame,
 	}
 
@@ -42,9 +42,9 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 		readErr error
 	)
 
-	if params.currentItem.Info.IsDir() {
+	if params.item.Info.IsDir() {
 		entries, readErr = n.agent.read(
-			params.currentItem.Path,
+			params.item.Path,
 			n.o.Store.Behaviours.Sort.DirectoryEntryOrder,
 		)
 
@@ -58,17 +58,17 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 	}
 	sorted := entries.all()
 
-	if (params.currentItem.Info != nil) && !(params.currentItem.Info.IsDir()) {
+	if (params.item.Info != nil) && !(params.item.Info.IsDir()) {
 		n.o.Hooks.Extend(navi, entries)
 
 		// Effectively, this is the file only filter
 		//
-		return n.agent.proxy(params.currentItem, params.frame)
+		return n.agent.proxy(params.item, params.frame)
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{
 		frame:   params.frame,
-		item:    params.currentItem,
+		item:    params.item,
 		entries: *sorted,
 		readErr: readErr,
 	}); exit || err != nil {
@@ -78,7 +78,7 @@ func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
 		return n.agent.traverse(&agentTraverseParams{
 			impl:     n,
 			contents: sorted,
-			parent:   params.currentItem,
+			parent:   params.item,
 			frame:    params.frame,
 		})
 	}

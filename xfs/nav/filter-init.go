@@ -20,7 +20,7 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 	if o.Store.FilterDefs != nil {
 		frame.filters = &NavigationFilters{}
 
-		if o.Store.FilterDefs.Node.Source != "" || o.Store.FilterDefs.Node.Custom != nil {
+		if o.Store.FilterDefs.Node.Pattern != "" || o.Store.FilterDefs.Node.Custom != nil {
 			o.useExtendHook()
 			frame.filters.Node = NewNodeFilter(&o.Store.FilterDefs.Node)
 			frame.filters.Node.Validate()
@@ -30,6 +30,8 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 				Fn: func(item *TraverseItem) *LocalisableError {
 					if frame.filters.Node.IsMatch(item) {
 						return decorated.Fn(item)
+					} else {
+						item.skip = true
 					}
 					return nil
 				},
@@ -38,10 +40,10 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 			frame.decorate("init-current-filter 🎁", decorator)
 		}
 
-		if o.Store.FilterDefs.Children.Source != "" || o.Store.FilterDefs.Children.Custom != nil {
+		if o.Store.FilterDefs.Children.Pattern != "" || o.Store.FilterDefs.Children.Custom != nil {
 			o.useExtendHook()
-			frame.filters.Compound = NewCompoundFilter(&o.Store.FilterDefs.Children)
-			frame.filters.Compound.Validate()
+			frame.filters.Children = NewCompoundFilter(&o.Store.FilterDefs.Children)
+			frame.filters.Children.Validate()
 		}
 	} else {
 		frame.raw = frame.client

@@ -7,21 +7,21 @@ import (
 	"github.com/samber/lo"
 )
 
-// FilterScopeEnum allows client to define which node types should be filtered.
+// FilterScopeBiEnum allows client to define which node types should be filtered.
 // Filters can be applied to multiple node types by bitwise or-ing the XXXNodes
 // definitions. A node may have multiple scope designations, eg a node may be top
 // level and leaf if the top level directory does not itself contain further
 // sub-directories thereby making it also a leaf.
 // It should be noted a file is only a leaf node all of its siblings are all files
 // only
-type FilterScopeEnum uint32
+type FilterScopeBiEnum uint32
 
 const (
-	ScopeUndefinedEn FilterScopeEnum = 0
+	ScopeUndefinedEn FilterScopeBiEnum = 0
 
 	// ScopeRootEn, the Root scope
 	//
-	ScopeRootEn FilterScopeEnum = 1 << (iota - 1)
+	ScopeRootEn FilterScopeBiEnum = 1 << (iota - 1)
 
 	// ScopeTopEn, any node that is a direct descendent of the root node
 	//
@@ -54,7 +54,7 @@ const (
 	FilterTypeCustomEn
 )
 
-var filterScopeStrings = map[FilterScopeEnum]string{
+var filterScopeStrings = map[FilterScopeBiEnum]string{
 	ScopeUndefinedEn:    "Undefined",
 	ScopeRootEn:         "Root",
 	ScopeTopEn:          "Top",
@@ -65,7 +65,7 @@ var filterScopeStrings = map[FilterScopeEnum]string{
 }
 
 // String
-func (f FilterScopeEnum) String() string {
+func (f FilterScopeBiEnum) String() string {
 	result := filterScopeStrings[f]
 	return lo.Ternary(result == "", "[multi]", result)
 }
@@ -78,14 +78,14 @@ type TraverseFilter interface {
 	Source() string
 	IsMatch(item *TraverseItem) bool
 	IsApplicable(item *TraverseItem) bool
-	Scope() FilterScopeEnum
+	Scope() FilterScopeBiEnum
 }
 
 type FilterDef struct {
 	Type            FilterTypeEnum
 	Description     string
-	Source          string
-	Scope           FilterScopeEnum
+	Pattern         string
+	Scope           FilterScopeBiEnum
 	Negate          bool
 	IfNotApplicable bool
 	Custom          TraverseFilter `json:"-"`
@@ -103,7 +103,7 @@ type CompoundTraverseFilter interface {
 type CompoundFilterDef struct {
 	Type        FilterTypeEnum
 	Description string
-	Source      string
+	Pattern     string
 	Negate      bool
 	Custom      CompoundTraverseFilter `json:"-"`
 }

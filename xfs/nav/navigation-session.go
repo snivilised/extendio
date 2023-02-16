@@ -41,7 +41,7 @@ type PrimarySession struct {
 
 // Configure is the pre run stage for a primary session
 func (s *PrimarySession) Configure(fn ...TraverseOptionFn) NavigationRunner {
-	s.navigator = navigatorFactory{}.construct(fn...)
+	s.navigator = navigatorFactory{}.new(fn...)
 
 	return &primaryRunner{
 		sessionRunner: sessionRunner{
@@ -82,7 +82,7 @@ func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *Activ
 	}
 
 	var err error
-	s.resumer, err = resumerFactory{}.construct(info)
+	s.resumer, err = resumerFactory{}.new(info)
 
 	if err != nil {
 		panic(fmt.Errorf("failed to restore resume file: '%v' (%v)", s.Path, err))

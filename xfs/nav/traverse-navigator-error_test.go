@@ -200,7 +200,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				filterDef := nav.FilterDef{
 					Type:        nav.FilterTypeGlobEn,
 					Description: "flac files",
-					Source:      "*.flac",
+					Pattern:     "*.flac",
 					Scope:       nav.ScopeLeafEn,
 				}
 				const relative = "RETRO-WAVE"

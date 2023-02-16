@@ -32,7 +32,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 			Node: nav.FilterDef{
 				Type:            nav.FilterTypeGlobEn,
 				Description:     "items with .flac suffix",
-				Source:          "*.flac",
+				Pattern:         "*.flac",
 				Scope:           nav.ScopeLeafEn,
 				Negate:          false,
 				IfNotApplicable: true,
@@ -40,7 +40,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 			Children: nav.CompoundFilterDef{
 				Type:        nav.FilterTypeRegexEn,
 				Description: "jpg files",
-				Source:      "\\.jpg$",
+				Pattern:     "\\.jpg$",
 				Negate:      true,
 			},
 		}
