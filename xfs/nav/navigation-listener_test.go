@@ -64,7 +64,6 @@ var _ = Describe("Listener", Ordered, func() {
 					},
 				}
 			}).Run()
-			// navigator.Walk(path)
 
 			reason := fmt.Sprintf("❌ remaining: '%v'", strings.Join(entry.mandatory, ", "))
 			Expect(len(entry.mandatory)).To(Equal(0), reason)
@@ -194,7 +193,7 @@ var _ = Describe("Listener", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			session.Configure(func(o *nav.TraverseOptions) {
+			_ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFolders
 				o.Listen.Stop = &nav.ListenBy{
@@ -209,7 +208,6 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = foldersCallback("EARLY-EXIT-😴", o.Store.DoExtend)
 			}).Run()
-			// navigator.Walk(path)
 		})
 
 		It("should: exit early (files)", func() {
@@ -217,7 +215,7 @@ var _ = Describe("Listener", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			session.Configure(func(o *nav.TraverseOptions) {
+			_ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFiles
 				o.Listen.Stop = &nav.ListenBy{
@@ -242,7 +240,7 @@ var _ = Describe("Listener", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				session.Configure(func(o *nav.TraverseOptions) {
+				result := session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.FilterDefs = &nav.FilterDefinitions{
@@ -280,8 +278,11 @@ var _ = Describe("Listener", Ordered, func() {
 							)
 							GinkgoWriter.Printf(
 								"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-								o.Store.FilterDefs.Node.Description, o.Store.FilterDefs.Node.Source, item.Extension.Name,
-								item.Extension.NodeScope, o.Store.FilterDefs.Node.Scope,
+								o.Store.FilterDefs.Node.Description,
+								o.Store.FilterDefs.Node.Source,
+								item.Extension.Name,
+								item.Extension.NodeScope,
+								o.Store.FilterDefs.Node.Scope,
 							)
 							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Source), reason(item.Extension.Name))
 							return nil
@@ -289,6 +290,14 @@ var _ = Describe("Listener", Ordered, func() {
 					}
 					o.Store.Logging = logo()
 				}).Run()
+
+				files := (*result.Metrics)[nav.MetricNoFilesEn].Count
+				folders := (*result.Metrics)[nav.MetricNoFoldersEn].Count
+
+				// metrics failure
+				GinkgoWriter.Printf("---> 🍕🍕 Metrics, files:'%v', folders:'%v'\n",
+					files, folders,
+				)
 			})
 		})
 	})

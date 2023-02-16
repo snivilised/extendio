@@ -7,8 +7,8 @@ import (
 
 // navigationPeriscope: depth and scope manager
 type navigationPeriscope struct {
-	_offset uint
-	_depth  uint
+	_offset int
+	_depth  int
 }
 
 func (p *navigationPeriscope) scope(isLeaf bool) FilterScopeEnum {
@@ -36,8 +36,8 @@ func (p *navigationPeriscope) scope(isLeaf bool) FilterScopeEnum {
 	return result
 }
 
-func (p *navigationPeriscope) depth() uint {
-	return p._offset + p._depth - uint(1)
+func (p *navigationPeriscope) depth() int {
+	return p._offset + p._depth - 1
 }
 
 func (p *navigationPeriscope) difference(root, current string) {
@@ -48,7 +48,7 @@ func (p *navigationPeriscope) difference(root, current string) {
 		panic("navigationPeriscope: internal error, root path can't be longer than current path")
 	}
 
-	p._offset = uint(currentSize) - uint(rootSize)
+	p._offset = currentSize - rootSize
 }
 
 func (p *navigationPeriscope) descend() {

@@ -39,8 +39,6 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 
 				visitor := nav.LabelledTraverseCallback{
 					Fn: func(item *nav.TraverseItem) *LocalisableError {
-						// just kept to enable visitor specific debug activity
-						//
 						return once.Fn(item)
 					},
 				}
@@ -51,9 +49,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					Path: path,
 				}
 
-				// TODO: check that the metric counts from the result are as expected
-				//
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				result := session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = entry.subscription
 					o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
@@ -77,6 +73,9 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					})
 					Expect(every).To(BeTrue())
 				}
+
+				Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files))
+				Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders))
 			},
 			func(entry *naviTE) string {
 				return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -90,6 +89,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     IsExtended,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("LEAF-PATH", IsExtended),
+				expectedNoOf: expectedNo{
+					files:   4,
+					folders: 1,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders",
@@ -97,6 +100,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   14,
+					folders: 8,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders",
@@ -105,6 +112,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				visit:        true,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("VISIT-CONTAINS-FOLDERS", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   14,
+					folders: 8,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders (large)",
@@ -112,6 +123,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS (large)", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   657,
+					folders: 178,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "universal: Path contains folders (large, ensure single invoke)",
@@ -120,6 +135,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				once:         true,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   657,
+					folders: 178,
+				},
 			}),
 
 			// === folders =======================================================
@@ -130,6 +149,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("LEAF-PATH", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 1,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders",
@@ -137,6 +160,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     IsExtended,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS ", IsExtended),
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 8,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders (check all invoked)",
@@ -145,6 +172,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				visit:        true,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS (check all invoked)", IsExtended),
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 8,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders (large)",
@@ -152,6 +183,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS (large)", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 178,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "folders: Path contains folders (large, ensure single invoke)",
@@ -160,8 +195,11 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				once:         true,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 178,
+				},
 			}),
-
 			Entry(nil, &naviTE{
 				message:       "folders: case sensitive sort",
 				relative:      "rock/metal",
@@ -169,6 +207,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				subscription:  nav.SubscribeFolders,
 				caseSensitive: true,
 				callback:      foldersCaseSensitiveCallback("rock/metal/HARD-METAL", "rock/metal/dark"),
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 41,
+				},
 			}),
 
 			// === files =========================================================
@@ -179,6 +221,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("LEAF-PATH", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   4,
+					folders: 0,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders",
@@ -186,6 +232,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   14,
+					folders: 0,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders",
@@ -194,6 +244,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				visit:        true,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("VISIT-CONTAINS-FOLDERS", NotExtended),
+				expectedNoOf: expectedNo{
+					files:   14,
+					folders: 0,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders (large)",
@@ -201,6 +255,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     IsExtended,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS (large)", IsExtended),
+				expectedNoOf: expectedNo{
+					files:   657,
+					folders: 0,
+				},
 			}),
 			Entry(nil, &naviTE{
 				message:      "files: Path contains folders (large, ensure single invoke)",
@@ -209,6 +267,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				once:         true,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS (large, ensure single invoke)", IsExtended),
+				expectedNoOf: expectedNo{
+					files:   657,
+					folders: 0,
+				},
 			}),
 		)
 	})
@@ -233,7 +295,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			result := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
@@ -265,9 +327,12 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				Expect(every).To(BeTrue())
 			}
 
-			for n, actualNoChildren := range entry.expectedNoChildren {
+			for n, actualNoChildren := range entry.expectedNoOf.children {
 				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
 			}
+
+			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files))
+			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders))
 		},
 		func(entry *naviTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -280,8 +345,12 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			extended:     IsExtended,
 			subscription: nav.SubscribeFoldersWithFiles,
 			callback:     foldersCallback("LEAF-PATH", IsExtended),
-			expectedNoChildren: map[string]int{
-				"Night Drive": 4,
+			expectedNoOf: expectedNo{
+				files:   0,
+				folders: 1,
+				children: map[string]int{
+					"Night Drive": 4,
+				},
 			},
 		}),
 
@@ -291,13 +360,17 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			extended:     IsExtended,
 			visit:        true,
 			subscription: nav.SubscribeFoldersWithFiles,
-			callback:     foldersCallback("CONTAINS-FOLDERS (check all invoked)", IsExtended),
-			expectedNoChildren: map[string]int{
-				"Night Drive":      4,
-				"Northern Council": 4,
-				"Teenage Color":    3,
-				"Innerworld":       3,
+			expectedNoOf: expectedNo{
+				files:   0,
+				folders: 8,
+				children: map[string]int{
+					"Night Drive":      4,
+					"Northern Council": 4,
+					"Teenage Color":    3,
+					"Innerworld":       3,
+				},
 			},
+			callback: foldersCallback("CONTAINS-FOLDERS (check all invoked)", IsExtended),
 		}),
 	)
 })

@@ -1,8 +1,6 @@
 package nav
 
 import (
-	"fmt"
-
 	"github.com/snivilised/extendio/collections"
 	. "github.com/snivilised/extendio/translate"
 )
@@ -102,11 +100,9 @@ func (l *navigationListener) buildStates(params *listenStatesParams) {
 		ListenFastward: LabelledTraverseCallback{
 			Label: "ListenFastward decorator",
 			Fn: func(item *TraverseItem) *LocalisableError {
-				fmt.Printf(">>> 🤎 ListenFastward decorator, item: '%s'\n", item.Path)
 				// fast forwarding to resume point
 				//
 				if params.frame.listener.lo.Stop.IsMatch(item) {
-					fmt.Printf(">>> 🤎🤎🤎 DETACHING-AT: ListenFastward decorator, item: '%s'\n", item.Path)
 					if params.detacher != nil {
 						// detach performs state transition
 						//
@@ -129,7 +125,6 @@ func (l *navigationListener) buildStates(params *listenStatesParams) {
 		ListenPending: LabelledTraverseCallback{
 			Label: "ListenPending decorator",
 			Fn: func(item *TraverseItem) *LocalisableError {
-				fmt.Printf(">>> 💙 ListenPending decorator, item: '%s'\n", item.Path)
 				// listening not yet started
 				//
 				if params.frame.listener.lo.Start.IsMatch(item) {
@@ -148,7 +143,6 @@ func (l *navigationListener) buildStates(params *listenStatesParams) {
 		ListenActive: LabelledTraverseCallback{
 			Label: "ListenActive decorator",
 			Fn: func(item *TraverseItem) *LocalisableError {
-				fmt.Printf(">>> 💜ListenActive decorator, item: '%s'\n", item.Path)
 				// listening
 				//
 				if params.frame.listener.lo.Stop.IsMatch(item) {
@@ -181,15 +175,13 @@ func (l *navigationListener) transition(state ListeningState) {
 func (l *navigationListener) decorate(params *listenStatesParams) {
 	// decorator: is the listen state machine, ie l.current.
 	// decorated: is frame.client, what is returned from frame.decorate.
-	// TODO: Since we know these, listenStatesParams does not have to include
-	// the decorated member. (TODO: may be we should not repurpose
-	// listenStatesParams for multiple scenarios)
+	// Since we know these, listenStatesParams does not have to include
+	// the decorated member.
 	//
 
 	decorator := &LabelledTraverseCallback{
 		Label: "listener decorator",
 		Fn: func(item *TraverseItem) *LocalisableError {
-			// fmt.Printf(">>> ❤️ listener decorator, item: '%s'\n", item.Path)
 			return l.current.Fn(item)
 		},
 	}

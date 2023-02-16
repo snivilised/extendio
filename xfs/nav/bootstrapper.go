@@ -2,7 +2,6 @@ package nav
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/snivilised/extendio/collections"
 )
@@ -10,7 +9,7 @@ import (
 type nullDetacher struct{}
 
 func (d *nullDetacher) detach(frame *navigationFrame) {
-	fmt.Println("===> 💥💥💥 null:detach")
+
 }
 
 type bootstrapper struct {

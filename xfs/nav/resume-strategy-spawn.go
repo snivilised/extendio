@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/samber/lo"
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/utils"
 	"go.uber.org/zap"
 )
@@ -27,25 +26,10 @@ func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 	s.nc.frame.root.Set(info.ps.Active.Root)
 	resumeAt := s.ps.Active.NodePath
 
-	statusInfo, err := s.o.Hooks.QueryStatus(resumeAt)
-
-	if err != nil {
-		return &TraverseResult{
-			Error: LocalisableError{
-				Inner: err,
-			},
-		}
-	}
-
 	s.nc.logger().Info("spawn resume",
 		zap.String("root-path", info.ps.Active.Root),
 		zap.String("resume-at-path", resumeAt),
 	)
-
-	indicator := lo.Ternary(statusInfo.IsDir(), "📁 DIRECTORY", "📜 FILE")
-	fmt.Printf("   🧿 root: '%v' \n", info.ps.Active.Root)
-	fmt.Printf("   🧿 resume-at(%v): '%v' \n", indicator, resumeAt)
-	fmt.Println("   =====================================")
 
 	return s.conclude(&concludeInfo{
 		active:    info.ps.Active,
@@ -63,19 +47,12 @@ type concludeInfo struct {
 }
 
 func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
-	fmt.Printf("   👾 conclude: '%v' \n", conclusion.current)
-
 	if conclusion.current == conclusion.active.Root {
 		// reach the top, so we're done
 		//
-		fmt.Printf("   👽 conclude - completed at: 🧿'%v' \n", conclusion.current)
-
 		return &TraverseResult{}
 	}
-
 	parent, child := utils.SplitParent(conclusion.current)
-	fmt.Printf("   💥 - parent: 🧿'%v' \n", parent)
-	fmt.Printf("   💥 - child: 🧿'%v' \n", child)
 
 	following := s.following(&followingParams{
 		parent:    parent,
@@ -92,7 +69,6 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 		entries:    following.siblings.all(),
 		conclusion: conclusion,
 	})
-	fmt.Println("   =====================================")
 
 	if !utils.IsNil(compoundResult.Error) {
 		return compoundResult
@@ -111,12 +87,6 @@ type seedParams struct {
 }
 
 func (s *spawnStrategy) seed(params *seedParams) *TraverseResult {
-	fmt.Print("   🎈seeds: ")
-	for _, entry := range *params.entries {
-		fmt.Printf("'%v', ", entry.Name())
-	}
-	fmt.Println("")
-
 	params.frame.link(&linkParams{
 		root:    params.conclusion.root,
 		current: params.conclusion.current,
@@ -136,7 +106,7 @@ func (s *spawnStrategy) seed(params *seedParams) *TraverseResult {
 }
 
 type shard struct {
-	siblings *directoryEntries
+	siblings *DirectoryEntries
 }
 
 type followingParams struct {
@@ -150,8 +120,6 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 
 	entries, err := s.o.Hooks.ReadDirectory(params.parent)
 
-	// TODO: This should not be a panic
-	//
 	if err != nil {
 		panic(fmt.Sprintf("following failed to read contents of directory: '%v'",
 			params.parent),

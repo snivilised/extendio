@@ -19,18 +19,24 @@ type recordingMap map[string]int
 type recordingScopeMap map[string]nav.FilterScopeEnum
 type recordingOrderMap map[string]int
 
+type expectedNo struct {
+	files    uint
+	folders  uint
+	children map[string]int
+}
+
 type naviTE struct {
-	message            string
-	relative           string
-	extended           bool
-	once               bool
-	visit              bool
-	caseSensitive      bool
-	subscription       nav.TraverseSubscription
-	callback           nav.LabelledTraverseCallback
-	mandatory          []string
-	prohibited         []string
-	expectedNoChildren map[string]int
+	message       string
+	relative      string
+	extended      bool
+	once          bool
+	visit         bool
+	caseSensitive bool
+	subscription  nav.TraverseSubscription
+	callback      nav.LabelledTraverseCallback
+	mandatory     []string
+	prohibited    []string
+	expectedNoOf  expectedNo
 }
 
 type skipTE struct {
@@ -172,8 +178,8 @@ func universalCallback(name string, extended bool) nav.LabelledTraverseCallback 
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) *LocalisableError {
 			depth := lo.TernaryF(extended,
-				func() uint { return item.Extension.Depth },
-				func() uint { return 9999 },
+				func() int { return item.Extension.Depth },
+				func() int { return 9999 },
 			)
 			GinkgoWriter.Printf(
 				"---> 🌊 UNIVERSAL//%v-CALLBACK%v: (depth:%v) '%v'\n", name, ex, depth, item.Path,
@@ -196,8 +202,8 @@ func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
 		Label: "folders callback",
 		Fn: func(item *nav.TraverseItem) *LocalisableError {
 			depth := lo.TernaryF(extended,
-				func() uint { return item.Extension.Depth },
-				func() uint { return 9999 },
+				func() int { return item.Extension.Depth },
+				func() int { return 9999 },
 			)
 			actualNoChildren := len(item.Children)
 			GinkgoWriter.Printf(
@@ -327,7 +333,7 @@ func filesSortCallback(name string) nav.LabelledTraverseCallback {
 	}
 }
 
-func universalDepthCallback(name string, maxDepth uint) nav.LabelledTraverseCallback {
+func universalDepthCallback(name string, maxDepth int) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test universal depth callback",

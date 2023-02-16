@@ -69,7 +69,7 @@ func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
 	return result
 }
 
-func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*directoryEntries, error) {
+func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*DirectoryEntries, error) {
 	// this method was spun out from notify, as there needs to be a separation
 	// between these pieces of functionality to support 'extension'; ie we
 	// need to read the contents of an items contents to determine the properties
@@ -99,7 +99,7 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (bool, *LocalisableE
 	if params.readErr != nil {
 
 		if a.doInvoke.Get() {
-			item2 := params.item.Clone()
+			item2 := params.item.clone()
 			item2.Error = &LocalisableError{Inner: params.readErr}
 
 			// Second call, to report ReadDir error

@@ -21,9 +21,9 @@ type directoryEntriesFactoryParams struct {
 	entries *[]fs.DirEntry
 }
 
-func (directoryEntriesFactory) construct(params *directoryEntriesFactoryParams) *directoryEntries {
+func (directoryEntriesFactory) construct(params *directoryEntriesFactoryParams) *DirectoryEntries {
 
-	instance := directoryEntries{
+	instance := DirectoryEntries{
 		Options: params.o,
 		Order:   params.order,
 	}
@@ -31,14 +31,15 @@ func (directoryEntriesFactory) construct(params *directoryEntriesFactoryParams) 
 	return &instance
 }
 
-type directoryEntries struct {
+// DirectoryEntries
+type DirectoryEntries struct {
 	Options *TraverseOptions
 	Order   DirectoryEntryOrderEnum
 	Folders []fs.DirEntry
 	Files   []fs.DirEntry
 }
 
-func (e *directoryEntries) arrange(entries *[]fs.DirEntry) {
+func (e *DirectoryEntries) arrange(entries *[]fs.DirEntry) {
 	grouped := lo.GroupBy(*entries, func(item fs.DirEntry) bool {
 		return item.IsDir()
 	})
@@ -54,7 +55,7 @@ func (e *directoryEntries) arrange(entries *[]fs.DirEntry) {
 	}
 }
 
-func (e *directoryEntries) all() *[]fs.DirEntry {
+func (e *DirectoryEntries) all() *[]fs.DirEntry {
 
 	result := []fs.DirEntry{}
 	switch e.Order {
@@ -67,7 +68,7 @@ func (e *directoryEntries) all() *[]fs.DirEntry {
 	return &result
 }
 
-func (e *directoryEntries) sort(entries *[]fs.DirEntry) {
+func (e *DirectoryEntries) sort(entries *[]fs.DirEntry) {
 	if err := e.Options.Hooks.Sort(*entries); err != nil {
 		panic(SORT_L_ERR)
 	}

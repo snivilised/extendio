@@ -2,7 +2,6 @@ package nav
 
 import (
 	"fmt"
-	"io/fs"
 	"path/filepath"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 // override this by setting the custom function on options.Hooks.Extend. If the client
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
-func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
+func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 
 	if navi.Item.Extension != nil {
 		panic(LocalisableError{
@@ -25,13 +24,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 	var scope FilterScopeEnum
 
 	if navi.Item.IsDir() {
-		// TODO: you shouldn't have to work this out again as it has already been performed:
-		// the descendent passed in should be replaced with an Entries instance
-		//
-		grouped := lo.GroupBy(descendants, func(item fs.DirEntry) bool {
-			return item.IsDir()
-		})
-		isLeaf = len(grouped[true]) == 0
+		isLeaf = len(entries.Folders) == 0
 		scope = navi.Frame.periscope.scope(isLeaf)
 	} else {
 		scope = ScopeLeafEn
@@ -71,4 +64,4 @@ func DefaultExtendHookFn(navi *NavigationInfo, descendants []fs.DirEntry) {
 	navi.Item.Extension.SubPath = subpath
 }
 
-func nullExtendHookFn(params *NavigationInfo, descendants []fs.DirEntry) {}
+func nullExtendHookFn(params *NavigationInfo, entries *DirectoryEntries) {}

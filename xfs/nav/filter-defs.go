@@ -13,7 +13,7 @@ import (
 // level and leaf if the top level directory does not itself contain further
 // sub-directories thereby making it also a leaf.
 // It should be noted a file is only a leaf node all of its siblings are all files
-// only (TODO: write tests to ensure this characteristic).
+// only
 type FilterScopeEnum uint32
 
 const (

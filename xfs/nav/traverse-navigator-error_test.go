@@ -29,7 +29,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: root,
 				}
-				session.Configure(func(o *nav.TraverseOptions) {
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeAny
 				})
@@ -52,14 +52,14 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				session.Configure(func(o *nav.TraverseOptions) {
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
-					o.Hooks.Extend = func(navi *nav.NavigationInfo, descendants []fs.DirEntry) {
+					o.Hooks.Extend = func(navi *nav.NavigationInfo, entries *nav.DirectoryEntries) {
 						navi.Item.Extension = &nav.ExtendedItem{
 							Name: "dummy",
 						}
-						nav.DefaultExtendHookFn(navi, descendants)
+						nav.DefaultExtendHookFn(navi, entries)
 					}
 					o.Store.DoExtend = true
 					o.Callback = nav.LabelledTraverseCallback{
@@ -86,7 +86,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				session.Configure(func(o *nav.TraverseOptions) {
+				_ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError

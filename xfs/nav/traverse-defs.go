@@ -11,7 +11,7 @@ import (
 // ExtendedItem provides extended information if the client requests
 // it by setting the DoExtend boolean in the traverse options.
 type ExtendedItem struct {
-	Depth     uint            // traversal depth relative to the root
+	Depth     int             // traversal depth relative to the root
 	IsLeaf    bool            // defines whether this node a leaf node
 	Name      string          // derived as the leaf segment from filepath.Split
 	Parent    string          // derived as the directory from filepath.Split
@@ -35,8 +35,8 @@ type TraverseItem struct {
 	skip      bool
 }
 
-// Clone makes shallow copy of TraverseItem (except the error).
-func (ti *TraverseItem) Clone() *TraverseItem {
+// clone makes shallow copy of TraverseItem (except the error).
+func (ti *TraverseItem) clone() *TraverseItem {
 
 	return &TraverseItem{
 		Path: ti.Path, Entry: ti.Entry, Info: ti.Info, Extension: ti.Extension, Children: ti.Children,

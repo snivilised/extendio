@@ -1,7 +1,7 @@
 package nav
 
 import (
-	"errors"
+	"fmt"
 )
 
 type traverseSession interface {
@@ -81,10 +81,12 @@ func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *Activ
 		Strategy:    s.Strategy,
 	}
 
-	// TODO: resolve the ignored error _
-	//
-	s.resumer, _ = resumerFactory{}.construct(info)
+	var err error
+	s.resumer, err = resumerFactory{}.construct(info)
 
+	if err != nil {
+		panic(fmt.Errorf("failed to restore resume file: '%v' (%v)", s.Path, err))
+	}
 	return &resumeRunner{
 		sessionRunner: sessionRunner{
 			session: s,
@@ -95,7 +97,7 @@ func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *Activ
 // Save persists the current state for a resume session, that allows
 // a subsequent run to complete the resume.
 func (s *ResumeSession) Save(path string) error {
-	panic(errors.New("ResumeSession.Save: NOT-IMPL"))
+	return s.resumer.navigator.Save(path)
 }
 
 func (s *ResumeSession) run() *TraverseResult {
