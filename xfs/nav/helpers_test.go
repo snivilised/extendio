@@ -16,7 +16,7 @@ import (
 )
 
 type recordingMap map[string]int
-type recordingScopeMap map[string]nav.FilterScopeEnum
+type recordingScopeMap map[string]nav.FilterScopeBiEnum
 type recordingOrderMap map[string]int
 
 type expectedNo struct {
@@ -58,7 +58,7 @@ type filterTE struct {
 	naviTE
 	name            string
 	pattern         string
-	scope           nav.FilterScopeEnum
+	scope           nav.FilterScopeBiEnum
 	negate          bool
 	expectedErr     error
 	errorContains   string

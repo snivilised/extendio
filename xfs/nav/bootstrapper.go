@@ -54,7 +54,7 @@ func (b *bootstrapper) initListener() {
 		resumeStack: collections.NewStack[*ListenOptions](),
 	}
 
-	b.nc.frame.listener.buildStates(&listenStatesParams{
+	b.nc.frame.listener.makeStates(&listenStatesParams{
 		o: b.o, frame: b.nc.frame,
 		detacher: b,
 	})

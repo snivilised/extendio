@@ -248,7 +248,7 @@ var _ = Describe("Listener", Ordered, func() {
 							Type:        nav.FilterTypeRegexEn,
 							Description: "Contains 'o'",
 							Scope:       nav.ScopeAllEn,
-							Source:      "(i?)o",
+							Pattern:     "(i?)o",
 						},
 					}
 					o.Listen.Start = &nav.ListenBy{
@@ -279,12 +279,12 @@ var _ = Describe("Listener", Ordered, func() {
 							GinkgoWriter.Printf(
 								"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
 								o.Store.FilterDefs.Node.Description,
-								o.Store.FilterDefs.Node.Source,
+								o.Store.FilterDefs.Node.Pattern,
 								item.Extension.Name,
 								item.Extension.NodeScope,
 								o.Store.FilterDefs.Node.Scope,
 							)
-							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Source), reason(item.Extension.Name))
+							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Pattern), reason(item.Extension.Name))
 							return nil
 						},
 					}

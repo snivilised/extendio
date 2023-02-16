@@ -11,13 +11,13 @@ import (
 // ExtendedItem provides extended information if the client requests
 // it by setting the DoExtend boolean in the traverse options.
 type ExtendedItem struct {
-	Depth     int             // traversal depth relative to the root
-	IsLeaf    bool            // defines whether this node a leaf node
-	Name      string          // derived as the leaf segment from filepath.Split
-	Parent    string          // derived as the directory from filepath.Split
-	SubPath   string          // represents the path between the root and the current item
-	NodeScope FilterScopeEnum // type of folder corresponding to the Filter Scope
-	Custom    any             // to be set and used by the client
+	Depth     int               // traversal depth relative to the root
+	IsLeaf    bool              // defines whether this node a leaf node
+	Name      string            // derived as the leaf segment from filepath.Split
+	Parent    string            // derived as the directory from filepath.Split
+	SubPath   string            // represents the path between the root and the current item
+	NodeScope FilterScopeBiEnum // type of folder corresponding to the Filter Scope
+	Custom    any               // to be set and used by the client
 }
 
 // TraverseItem info provided for each file system entity encountered
@@ -114,8 +114,8 @@ type TraverseNavigator interface {
 }
 
 type traverseParams struct {
-	currentItem *TraverseItem
-	frame       *navigationFrame
+	item  *TraverseItem
+	frame *navigationFrame
 }
 
 type navigatorImpl interface {

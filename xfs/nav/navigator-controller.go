@@ -23,7 +23,7 @@ func (c *navigatorController) makeFrame() *navigationFrame {
 		raw:         o.Callback,
 		notifiers:   notificationsSink{},
 		periscope:   &navigationPeriscope{},
-		metrics:     navigationMetricsFactory{}.construct(),
+		metrics:     navigationMetricsFactory{}.new(),
 	}
 	return c.frame
 }
@@ -75,7 +75,7 @@ func (c *navigatorController) Save(path string) error {
 		Active: active,
 	}
 
-	marshaller := (&marshallerFactory{}).construct(o, state)
+	marshaller := (&marshallerFactory{}).new(o, state)
 	return marshaller.marshal(path)
 }
 

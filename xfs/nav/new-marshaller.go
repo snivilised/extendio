@@ -4,7 +4,7 @@ import "fmt"
 
 type marshallerFactory struct{}
 
-func (m *marshallerFactory) construct(o *TraverseOptions, state *persistState) stateMarshaller {
+func (m *marshallerFactory) new(o *TraverseOptions, state *persistState) stateMarshaller {
 	var marshaller stateMarshaller
 	switch o.Persist.Format {
 	case PersistInJSONEn:

@@ -77,5 +77,5 @@ func (f *navigationFrame) link(params *linkParams) {
 }
 
 func (f *navigationFrame) reset() {
-	f.metrics = navigationMetricsFactory{}.construct()
+	f.metrics = navigationMetricsFactory{}.new()
 }

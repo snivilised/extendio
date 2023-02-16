@@ -8,8 +8,8 @@ import "github.com/samber/lo"
 type Filter struct {
 	Name            string
 	Pattern         string
-	RequiredScope   FilterScopeEnum // defines which file system nodes the filter should be applied to
-	Negate          bool            // select to define a negative match
+	RequiredScope   FilterScopeBiEnum // defines which file system nodes the filter should be applied to
+	Negate          bool              // select to define a negative match
 	IfNotApplicable bool
 }
 
@@ -31,7 +31,7 @@ func (f *Filter) IsApplicable(item *TraverseItem) bool {
 	return (f.RequiredScope & item.Extension.NodeScope) > 0
 }
 
-func (f *Filter) Scope() FilterScopeEnum {
+func (f *Filter) Scope() FilterScopeBiEnum {
 	return f.RequiredScope
 }
 

@@ -26,7 +26,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				Node: nav.FilterDef{
 					Type:            nav.FilterTypeRegexEn,
 					Description:     entry.name,
-					Source:          entry.pattern,
+					Pattern:         entry.pattern,
 					Scope:           entry.scope,
 					Negate:          entry.negate,
 					IfNotApplicable: entry.ifNotApplicable,
@@ -203,7 +203,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				Children: nav.CompoundFilterDef{
 					Type:        nav.FilterTypeRegexEn,
 					Description: entry.name,
-					Source:      entry.pattern,
+					Pattern:     entry.pattern,
 					Negate:      entry.negate,
 				},
 			}
@@ -218,7 +218,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
 					)
-					filter = state.Filters.Compound
+					filter = state.Filters.Children
 				}
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
@@ -317,7 +317,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				Node: nav.FilterDef{
 					Type:        nav.FilterTypeRegexEn,
 					Description: entry.name,
-					Source:      entry.pattern,
+					Pattern:     entry.pattern,
 				},
 			}
 
@@ -369,7 +369,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				Children: nav.CompoundFilterDef{
 					Type:        nav.FilterTypeRegexEn,
 					Description: entry.name,
-					Source:      entry.pattern,
+					Pattern:     entry.pattern,
 					Negate:      entry.negate,
 				},
 			}

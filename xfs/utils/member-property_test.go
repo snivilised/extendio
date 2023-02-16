@@ -104,16 +104,16 @@ var _ = Describe("Property", func() {
 				})
 			})
 
-			Context("ConstRef", func() {
+			Context("RoRef", func() {
 				It("should: get read only interface", func() {
 					w := &widget{
 						colour: utils.VarProp[string]{Field: "red"},
 					}
-					constRef := w.colour.ConstRef()
-					Expect(constRef.Get()).To(Equal("red"))
+					RoRef := w.colour.RoRef()
+					Expect(RoRef.Get()).To(Equal("red"))
 
 					w.colour.Set("blue")
-					Expect(constRef.Get()).To(Equal("blue"))
+					Expect(RoRef.Get()).To(Equal("blue"))
 				})
 			})
 		})
@@ -132,7 +132,7 @@ var _ = Describe("Property", func() {
 				When("string value is previously defined", func() {
 					It("should: return false without panic", func() {
 						w := &widget{
-							colourRo: utils.RoPropFactory[string]{}.Construct("red"),
+							colourRo: utils.RoPropFactory[string]{}.New("red"),
 						}
 						Expect(w.colourRo.IsNone()).To(BeFalse())
 					})
@@ -197,7 +197,7 @@ var _ = Describe("Property", func() {
 				It("should: retrieve property value", func() {
 					factory := utils.PutPropFactory[int]{}
 					w := &widget{
-						rank: factory.Construct(77, func(value int) {}),
+						rank: factory.New(77, func(value int) {}),
 					}
 					Expect(w.rank.Get()).To(Equal(77))
 				})
@@ -207,7 +207,7 @@ var _ = Describe("Property", func() {
 				It("should: set property value", func() {
 					factory := utils.PutPropFactory[int]{}
 					w := &widget{
-						rank: factory.Construct(77, func(value int) {}),
+						rank: factory.New(77, func(value int) {}),
 					}
 					w.rank.Set(88)
 					Expect(w.rank.Get()).To(Equal(88))
@@ -219,7 +219,7 @@ var _ = Describe("Property", func() {
 					factory := utils.PutPropFactory[int]{}
 					var another int
 					w := &widget{
-						rank: factory.Construct(77, func(value int) {
+						rank: factory.New(77, func(value int) {
 							another = value
 						}),
 					}
@@ -233,7 +233,7 @@ var _ = Describe("Property", func() {
 					It("should: return false without panic", func() {
 						factory := utils.PutPropFactory[int]{}
 						w := &widget{
-							rank: factory.Construct(77, func(value int) {}),
+							rank: factory.New(77, func(value int) {}),
 						}
 						Expect(w.rank.IsNone()).To(BeFalse())
 					})
@@ -244,7 +244,7 @@ var _ = Describe("Property", func() {
 						It("should: return false without panic", func() {
 							factory := utils.PutPropFactory[int]{Zeroable: true}
 							w := &widget{
-								rank: factory.Construct(0, func(value int) {}),
+								rank: factory.New(0, func(value int) {}),
 							}
 							Expect(w.rank.IsNone()).To(BeFalse())
 						})
@@ -254,7 +254,7 @@ var _ = Describe("Property", func() {
 						It("should: return false without panic", func() {
 							factory := utils.PutPropFactory[int]{}
 							w := &widget{
-								rank: factory.Construct(0, func(value int) {}),
+								rank: factory.New(0, func(value int) {}),
 							}
 							Expect(w.rank.IsNone()).To(BeTrue())
 						})
@@ -281,7 +281,7 @@ var _ = Describe("Property", func() {
 						It("should: return false without panic", func() {
 							factory := utils.RwPropFactory[float64]{Zeroable: true}
 							w := &widget{
-								fraction: factory.Construct(float64(0)),
+								fraction: factory.New(float64(0)),
 							}
 							Expect(w.fraction.IsNone()).To(BeFalse())
 						})
@@ -291,7 +291,7 @@ var _ = Describe("Property", func() {
 						It("should: return false without panic", func() {
 							factory := utils.RwPropFactory[float64]{}
 							w := &widget{
-								fraction: factory.Construct(float64(0)),
+								fraction: factory.New(float64(0)),
 							}
 							Expect(w.fraction.IsNone()).To(BeTrue())
 						})

@@ -15,7 +15,7 @@ type RwProp[T any] interface {
 	RoProp[T]
 	Set(value T)
 	IsZeroable() bool
-	ConstRef() RoProp[T]
+	RoRef() RoProp[T]
 }
 
 // PutProp putter variable property interface. The putter allows
@@ -66,8 +66,8 @@ type RoPropFactory[T any] struct {
 	Zeroable bool
 }
 
-// Construct const property constructor
-func (f RoPropFactory[T]) Construct(value T) RoProp[T] {
+// New const property constructor
+func (f RoPropFactory[T]) New(value T) RoProp[T] {
 	return &constProp[T]{field: value}
 }
 
@@ -76,8 +76,8 @@ type RwPropFactory[T any] struct {
 	Zeroable bool
 }
 
-// Construct variable property constructor
-func (f RwPropFactory[T]) Construct(value T) RwProp[T] {
+// New variable property constructor
+func (f RwPropFactory[T]) New(value T) RwProp[T] {
 	return &VarProp[T]{Field: value, zeroable: f.Zeroable}
 }
 
@@ -86,8 +86,8 @@ type PutPropFactory[T any] struct {
 	Zeroable bool
 }
 
-// Construct putter variable property constructor
-func (f PutPropFactory[T]) Construct(value T, putter func(value T)) PutProp[T] {
+// New putter variable property constructor
+func (f PutPropFactory[T]) New(value T, putter func(value T)) PutProp[T] {
 	return &putVarProp[T]{
 		VarProp[T]{Field: value, zeroable: f.Zeroable},
 		putter,
@@ -143,8 +143,8 @@ func (p *VarProp[T]) IsZeroable() bool {
 	return p.zeroable
 }
 
-// ConstRef returns a read only reference to this property
-func (p *VarProp[T]) ConstRef() RoProp[T] {
+// RoRef returns a read only reference to this property
+func (p *VarProp[T]) RoRef() RoProp[T] {
 	return p
 }
 
