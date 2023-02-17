@@ -37,7 +37,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			result := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -82,6 +82,11 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					Expect(found).To(BeFalse(), reason(name))
 				}
 			}
+
+			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+				"Incorrect no of files")
+			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+				"Incorrect no of folders")
 		},
 		func(entry *filterTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -92,16 +97,25 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "universal(any scope): glob filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
+				expectedNoOf: expectedNo{
+					files:   8,
+					folders: 0,
+				},
 			},
 			name:    "items with '.flac' suffix",
 			pattern: "*.flac",
 			scope:   nav.ScopeAllEn,
 		}),
+
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
 				message:      "universal(any scope): glob filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
+				expectedNoOf: expectedNo{
+					files:   6,
+					folders: 8,
+				},
 			},
 			name:    "items without .flac suffix",
 			pattern: "*.flac",
@@ -114,6 +128,10 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "universal(undefined scope): glob filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
+				expectedNoOf: expectedNo{
+					files:   8,
+					folders: 0,
+				},
 			},
 			name:    "items with '.flac' suffix",
 			pattern: "*.flac",
@@ -121,25 +139,34 @@ var _ = Describe("FilterGlob", Ordered, func() {
 
 		// === ifNotApplicable ===============================================
 
-		Entry(nil, &filterTE{ // THIS MAYBE AN INCORRECT TEST, because ifNotApplicable=true, so re-check mandatory/prohibited
+		Entry(nil, &filterTE{
 			naviTE: naviTE{
 				message:      "universal(any scope): glob filter (ifNotApplicable=true)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
-				mandatory:    []string{"A1 - Can You Kiss Me First.flac"},
+				expectedNoOf: expectedNo{
+					files:   8,
+					folders: 4,
+				},
+				mandatory: []string{"A1 - Can You Kiss Me First.flac"},
 			},
 			name:            "items with '.flac' suffix",
 			pattern:         "*.flac",
 			scope:           nav.ScopeLeafEn,
 			ifNotApplicable: true,
 		}),
+
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
 				message:      "universal(leaf scope): glob filter (ifNotApplicable=false)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
-				mandatory:    []string{"A1 - Can You Kiss Me First.flac"},
-				prohibited:   []string{"vinyl-info.teenage-color"},
+				expectedNoOf: expectedNo{
+					files:   8,
+					folders: 0,
+				},
+				mandatory:  []string{"A1 - Can You Kiss Me First.flac"},
+				prohibited: []string{"vinyl-info.teenage-color"},
 			},
 			name:            "items with '.flac' suffix",
 			pattern:         "*.flac",
@@ -165,7 +192,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			result := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -180,12 +207,13 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
 						actualNoChildren := len(item.Children)
 						GinkgoWriter.Printf(
-							"===> 💠 Glob Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
+							"===> 💠 Compound Glob Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v', depth: '%v'\n",
 							filter.Description(),
 							actualNoChildren,
 							filter.Source(),
 							item.Extension.Name,
 							item.Extension.NodeScope,
+							item.Extension.Depth,
 						)
 
 						recording[item.Extension.Name] = len(item.Children)
@@ -210,16 +238,24 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			for n, actualNoChildren := range entry.expectedNoOf.children {
 				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
 			}
+
+			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+				"Incorrect no of files")
+			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+				"Incorrect no of folders")
 		},
 		func(entry *filterTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
 		},
+
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
 				message:      "folder(with files): glob filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
 				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 8,
 					children: map[string]int{
 						"Night Drive":      2,
 						"Northern Council": 2,
@@ -238,6 +274,8 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
 				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 8,
 					children: map[string]int{
 						"Night Drive":      3,
 						"Northern Council": 3,

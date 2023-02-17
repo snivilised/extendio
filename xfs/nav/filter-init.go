@@ -30,6 +30,8 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 				Fn: func(item *TraverseItem) *LocalisableError {
 					if frame.filters.Node.IsMatch(item) {
 						return decorated.Fn(item)
+					} else {
+						item.skip = true
 					}
 					return nil
 				},

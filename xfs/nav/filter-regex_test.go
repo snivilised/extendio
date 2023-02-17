@@ -38,7 +38,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			result := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -84,10 +84,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				}
 			}
 
-			// TODO: fix metrics for filtering
-			//
-			// Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files))
-			// Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders))
+			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+				"Incorrect no of files")
+			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+				"Incorrect no of folders")
 		},
 		func(entry *filterTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -101,11 +101,8 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
 				expectedNoOf: expectedNo{
-					files:   4, // (error: actual: 14)
+					files:   4,
 					folders: 0,
-					children: map[string]int{
-						"Night Drive": 4,
-					},
 				},
 			},
 			name:    "items that start with 'vinyl'",
@@ -117,6 +114,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "files(any scope): regex filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
+				expectedNoOf: expectedNo{
+					files:   10,
+					folders: 0,
+				},
 			},
 			name:    "items that don't start with 'vinyl'",
 			pattern: "^vinyl",
@@ -128,6 +129,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "files(default to any scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
+				expectedNoOf: expectedNo{
+					files:   4,
+					folders: 0,
+				},
 			},
 			name:    "items that start with 'vinyl'",
 			pattern: "^vinyl",
@@ -140,16 +145,25 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folders(any scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 2,
+				},
 			},
 			name:    "items that start with 'C'",
 			pattern: "^C",
 			scope:   nav.ScopeAllEn,
 		}),
+
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
 				message:      "folders(any scope): regex filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 6,
+				},
 			},
 			name:    "items that don't start with 'C'",
 			pattern: "^C",
@@ -162,6 +176,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folders(undefined scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 2,
+				},
 			},
 			name:    "items that start with 'C'",
 			pattern: "^C",
@@ -174,20 +192,29 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folders(top): regex filter (ifNotApplicable=true)",
 				relative:     "PROGRESSIVE-HOUSE",
 				subscription: nav.SubscribeFolders,
-				mandatory:    []string{"PROGRESSIVE-HOUSE"},
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 10,
+				},
+				mandatory: []string{"PROGRESSIVE-HOUSE"},
 			},
 			name:            "top items that contain 'HOUSE'",
 			pattern:         "HOUSE",
 			scope:           nav.ScopeTopEn,
 			ifNotApplicable: true,
 		}),
+
 		Entry(nil, &filterTE{
 			naviTE: naviTE{
 				message:      "folders(top): regex filter (ifNotApplicable=false)",
 				relative:     "",
 				subscription: nav.SubscribeFolders,
 				mandatory:    []string{"PROGRESSIVE-HOUSE"},
-				prohibited:   []string{"Blue Amazon", "The Javelin"},
+				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 1,
+				},
+				prohibited: []string{"Blue Amazon", "The Javelin"},
 			},
 			name:            "top items that contain 'HOUSE'",
 			pattern:         "HOUSE",
@@ -213,7 +240,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			result := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -228,12 +255,13 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
 						actualNoChildren := len(item.Children)
 						GinkgoWriter.Printf(
-							"===> 💠 Regex Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v'\n",
+							"===> 💠 Compound Regex Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v', depth: '%v'\n",
 							filter.Description(),
 							actualNoChildren,
 							filter.Source(),
 							item.Extension.Name,
 							item.Extension.NodeScope,
+							item.Extension.Depth,
 						)
 
 						recording[item.Extension.Name] = len(item.Children)
@@ -258,6 +286,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			for n, actualNoChildren := range entry.expectedNoOf.children {
 				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
 			}
+
+			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+				"Incorrect no of files")
+			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+				"Incorrect no of folders")
 		},
 		func(entry *filterTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -267,7 +300,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folder(with files): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
+
 				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 8,
 					children: map[string]int{
 						"Night Drive":      2,
 						"Northern Council": 2,
@@ -286,6 +322,8 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
 				expectedNoOf: expectedNo{
+					files:   0,
+					folders: 8,
 					children: map[string]int{
 						"Night Drive":      3,
 						"Northern Council": 3,
@@ -294,9 +332,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					},
 				},
 			},
-			name:    "items without '.txt' suffix",
-			pattern: "\\.txt$",
-			negate:  true,
+			name:            "items without '.txt' suffix",
+			pattern:         "\\.txt$",
+			negate:          true,
+			ifNotApplicable: true,
 		}),
 	)
 

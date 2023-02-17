@@ -74,8 +74,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					Expect(every).To(BeTrue())
 				}
 
-				Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files))
-				Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders))
+				Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+					"Incorrect no of files")
+				Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+					"Incorrect no of folders")
 			},
 			func(entry *naviTE) string {
 				return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -331,8 +333,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
 			}
 
-			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files))
-			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders))
+			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+				"Incorrect no of files")
+			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+				"Incorrect no of folders")
 		},
 		func(entry *naviTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
