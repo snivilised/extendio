@@ -12,6 +12,22 @@ tasks:
     cmds:
       - go test ./...
 
+  tc:
+    cmds:
+      - go test ./collections
+
+  ti:
+    cmds:
+      - go test ./i18n
+
+  tn:
+    cmds:
+      - go test ./xfs/nav
+
+  tu:
+    cmds:
+      - go test ./xfs/utils
+
   dry:
     cmds:
       - ginkgo -v --dry-run ./...
@@ -61,4 +77,3 @@ tasks:
   cover:
     cmds:
       - ginkgo --json-report ./ginkgo.report  -coverpkg=./... -coverprofile=./coverage/coverage.out -r
-

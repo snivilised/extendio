@@ -1,7 +1,7 @@
 package nav
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/snivilised/extendio/collections"
 )
@@ -82,8 +82,9 @@ type overrideListenerInfo struct {
 func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
 
 	if b.rc == nil {
-		b.nc.impl.logger().Error("bootstrapper.initResume: resume controller not set")
-		panic(errors.New("bootstrapper.initResume: resume controller not set"))
+		msg := "bootstrapper.initResume: resume controller not set (internal error)"
+		b.nc.impl.logger().Error(msg)
+		panic(fmt.Errorf(msg))
 	}
 
 	strategyParams := &strategyInitParams{
