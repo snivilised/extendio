@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 
+	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -15,7 +16,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	DescribeTable("GlobFilter",
@@ -33,7 +34,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			}
 			var filter nav.TraverseFilter
 
-			path := path(root, entry.relative)
+			path := helpers.Path(root, entry.relative)
 			session := nav.PrimarySession{
 				Path: path,
 			}
@@ -72,14 +73,14 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
 					_, found := recording[name]
-					Expect(found).To(BeTrue(), reason(name))
+					Expect(found).To(BeTrue(), helpers.Reason(name))
 				}
 			}
 
 			if entry.prohibited != nil {
 				for _, name := range entry.prohibited {
 					_, found := recording[name]
-					Expect(found).To(BeFalse(), reason(name))
+					Expect(found).To(BeFalse(), helpers.Reason(name))
 				}
 			}
 
@@ -188,7 +189,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			}
 			var filter nav.CompoundTraverseFilter
 
-			path := path(root, entry.relative)
+			path := helpers.Path(root, entry.relative)
 			session := nav.PrimarySession{
 				Path: path,
 			}
@@ -225,18 +226,18 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
 					_, found := recording[name]
-					Expect(found).To(BeTrue(), reason(name))
+					Expect(found).To(BeTrue(), helpers.Reason(name))
 				}
 			}
 
 			if entry.prohibited != nil {
 				for _, name := range entry.prohibited {
 					_, found := recording[name]
-					Expect(found).To(BeFalse(), reason(name))
+					Expect(found).To(BeFalse(), helpers.Reason(name))
 				}
 			}
 			for n, actualNoChildren := range entry.expectedNoOf.children {
-				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
+				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(n))
 			}
 
 			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),

@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/snivilised/extendio/internal/helpers"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -13,7 +14,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	DescribeTable("sort",
@@ -34,7 +35,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				},
 			}
 
-			path := path(root, entry.relative)
+			path := helpers.Path(root, entry.relative)
 			session := &nav.PrimarySession{
 				Path: path,
 			}
@@ -58,7 +59,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 
 			sequence := -1
 			for _, n := range entry.expectedOrder {
-				Expect(recording[n] > sequence).To(BeTrue(), reason(n))
+				Expect(recording[n] > sequence).To(BeTrue(), helpers.Reason(n))
 				sequence = recording[n]
 			}
 		},

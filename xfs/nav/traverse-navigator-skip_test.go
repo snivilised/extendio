@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	. "github.com/onsi/ginkgo/v2"
+	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -11,13 +12,13 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	When("folder is skipped", func() {
 		Context("folder navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
-				path := path(root, "RETRO-WAVE")
+				path := helpers.Path(root, "RETRO-WAVE")
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -32,7 +33,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 
 		Context("universal navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
-				path := path(root, "RETRO-WAVE")
+				path := helpers.Path(root, "RETRO-WAVE")
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -48,7 +49,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 
 	DescribeTable("skip",
 		func(entry *skipTE) {
-			path := path(root, "RETRO-WAVE")
+			path := helpers.Path(root, "RETRO-WAVE")
 			session := &nav.PrimarySession{
 				Path: path,
 			}

@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/snivilised/extendio/internal/helpers"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -13,7 +14,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	DescribeTable("scope",
@@ -32,7 +33,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				},
 			}
 
-			path := path(root, entry.relative)
+			path := helpers.Path(root, entry.relative)
 			session := &nav.PrimarySession{
 				Path: path,
 			}
@@ -45,7 +46,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 
 			for name, expected := range entry.expectedScopes {
 				actual := recording[name]
-				Expect(actual).To(Equal(expected), reason(name))
+				Expect(actual).To(Equal(expected), helpers.Reason(name))
 			}
 		},
 		func(entry *scopeTE) string {

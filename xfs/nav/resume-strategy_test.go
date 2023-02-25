@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 
+	"github.com/snivilised/extendio/internal/helpers"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -184,8 +185,8 @@ var _ = Describe("Resume", Ordered, func() {
 	)
 
 	BeforeAll(func() {
-		root = origin()
-		jroot = joinCwd("Test", "json")
+		root = musico()
+		jroot = helpers.JoinCwd("Test", "json")
 		fromJsonPath = strings.Join(
 			[]string{jroot, "resume-state.json"},
 			string(filepath.Separator),
@@ -210,8 +211,8 @@ var _ = Describe("Resume", Ordered, func() {
 					// to avoid the need to create many restore files
 					// (eg resume-state.json) for different test cases.
 					//
-					active.Root = path(root, entry.relative)
-					active.NodePath = path(root, entry.active.resumeAt)
+					active.Root = helpers.Path(root, entry.relative)
+					active.NodePath = helpers.Path(root, entry.active.resumeAt)
 					active.Listen = entry.active.listenState
 					o.Store.Subscription = entry.subscription
 
@@ -234,7 +235,7 @@ var _ = Describe("Resume", Ordered, func() {
 							_, found := recording[item.Extension.Name]
 
 							Expect(found).To(BeFalse(), fmt.Sprintf("once only invoke failure -> %v",
-								reason(item.Extension.Name)))
+								helpers.Reason(item.Extension.Name)))
 
 							recording[item.Extension.Name] = len(item.Children)
 							return nil
@@ -287,7 +288,9 @@ var _ = Describe("Resume", Ordered, func() {
 				if profile.mandatory != nil {
 					for _, name := range profile.mandatory {
 						_, found := recording[name]
-						Expect(found).To(BeTrue(), fmt.Sprintf("mandatory item failure -> %v", reason(name)))
+						Expect(found).To(BeTrue(),
+							fmt.Sprintf("mandatory item failure -> %v", helpers.Reason(name)),
+						)
 					}
 				}
 

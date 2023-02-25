@@ -3,6 +3,7 @@ package nav_test
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/snivilised/extendio/internal/helpers"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -11,7 +12,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	Context("sub-path", func() {
@@ -20,11 +21,11 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 
 				expectations := map[string]string{
 					"RETRO-WAVE":                   "",
-					"Chromatics":                   normalise("/"),
-					"Night Drive":                  normalise("/Chromatics/"),
-					"A1 - The Telephone Call.flac": normalise("/Chromatics/Night Drive/"),
+					"Chromatics":                   helpers.Normalise("/"),
+					"Night Drive":                  helpers.Normalise("/Chromatics/"),
+					"A1 - The Telephone Call.flac": helpers.Normalise("/Chromatics/Night Drive/"),
 				}
-				path := path(root, "RETRO-WAVE")
+				path := helpers.Path(root, "RETRO-WAVE")
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -40,7 +41,9 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 								)
-								Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
+								Expect(item.Extension.SubPath).To(Equal(expected),
+									helpers.Reason(item.Extension.Name),
+								)
 							}
 
 							return nil
@@ -54,11 +57,11 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 
 					expectations := map[string]string{
 						"edm":                         "",
-						"_segments.def.infex.txt":     normalise("/_segments.def.infex.txt"),
-						"Orbital 2 (The Brown Album)": normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)"),
-						"03 - Lush 3-1.flac":          normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)/03 - Lush 3-1.flac"),
+						"_segments.def.infex.txt":     helpers.Normalise("/_segments.def.infex.txt"),
+						"Orbital 2 (The Brown Album)": helpers.Normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)"),
+						"03 - Lush 3-1.flac":          helpers.Normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)/03 - Lush 3-1.flac"),
 					}
-					path := path(root, "edm")
+					path := helpers.Path(root, "edm")
 					session := &nav.PrimarySession{
 						Path: path,
 					}
@@ -76,7 +79,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 									GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 										item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 									)
-									Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
+									Expect(item.Extension.SubPath).To(Equal(expected), helpers.Reason(item.Extension.Name))
 								}
 
 								return nil
@@ -92,10 +95,10 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 				expectations := map[string]string{
 					"RETRO-WAVE":            "",
 					"Electric Youth":        "",
-					"Innerworld":            normalise("/Electric Youth"),
-					"A1 - Before Life.flac": normalise("/Electric Youth/Innerworld"),
+					"Innerworld":            helpers.Normalise("/Electric Youth"),
+					"A1 - Before Life.flac": helpers.Normalise("/Electric Youth/Innerworld"),
 				}
-				path := path(root, "RETRO-WAVE")
+				path := helpers.Path(root, "RETRO-WAVE")
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -111,7 +114,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 								)
-								Expect(item.Extension.SubPath).To(Equal(expected), reason(item.Extension.Name))
+								Expect(item.Extension.SubPath).To(Equal(expected), helpers.Reason(item.Extension.Name))
 							}
 
 							return nil

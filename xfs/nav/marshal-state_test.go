@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -24,8 +25,8 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	)
 
 	BeforeAll(func() {
-		root = origin()
-		jroot = joinCwd("Test", "json")
+		root = musico()
+		jroot = helpers.JoinCwd("Test", "json")
 		fromJsonPath = strings.Join([]string{jroot, "persisted-state.json"}, string(filepath.Separator))
 		toJsonPath = strings.Join([]string{jroot, "test-state-marshal.json"}, string(filepath.Separator))
 		filterDefs = nav.FilterDefinitions{
@@ -53,7 +54,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	Context("Marshal", func() {
 		Context("given: correct config", func() {
 			It("🧪 should: write options in JSON", func() {
-				path := path(root, "RETRO-WAVE/Chromatics/Night Drive")
+				path := helpers.Path(root, "RETRO-WAVE/Chromatics/Night Drive")
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -86,7 +87,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					}
 				}()
 
-				path := path(root, entry.relative)
+				path := helpers.Path(root, entry.relative)
 				session := &nav.PrimarySession{
 					Path: path,
 				}

@@ -2,7 +2,6 @@ package nav_test
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -11,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/helpers"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -101,7 +101,7 @@ type resumeTestProfile struct {
 	mandatory  []string
 }
 
-func origin() string {
+func musico() string {
 	if current, err := os.Getwd(); err == nil {
 		parent, _ := filepath.Split(current)
 		grand := filepath.Dir(parent)
@@ -111,21 +111,11 @@ func origin() string {
 	panic("could not get root path")
 }
 
-func log() string {
-	if current, err := os.Getwd(); err == nil {
-		parent, _ := filepath.Split(current)
-		grand := filepath.Dir(parent)
-		great := filepath.Dir(grand)
-		return filepath.Join(great, "Test", "test.log")
-	}
-	panic("could not get root path")
-}
-
 func logo() nav.LoggingOptions {
 
 	return nav.LoggingOptions{
 		Enabled:         true,
-		Path:            log(),
+		Path:            helpers.Log(),
 		TimeStampFormat: "2006-01-02 15:04:05",
 		Rotation: nav.LogRotationOptions{
 			MaxSizeInMb:    5,
@@ -135,28 +125,8 @@ func logo() nav.LoggingOptions {
 	}
 }
 
-func joinCwd(segments ...string) string {
-	if current, err := os.Getwd(); err == nil {
-		parent, _ := filepath.Split(current)
-		grand := filepath.Dir(parent)
-		great := filepath.Dir(grand)
-		all := append([]string{great}, segments...)
-		return filepath.Join(all...)
-	}
-	panic("could not get root path")
-
-}
-
 const IsExtended = true
 const NotExtended = false
-
-func normalise(p string) string {
-	return strings.ReplaceAll(p, "/", string(filepath.Separator))
-}
-
-func reason(name string) string {
-	return fmt.Sprintf("❌ for item named: '%v'", name)
-}
 
 func begin(em string) nav.BeginHandler {
 	return func(state *nav.NavigationState) {
@@ -164,11 +134,6 @@ func begin(em string) nav.BeginHandler {
 			"---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, state.Root,
 		)
 	}
-}
-
-func path(parent, relative string) string {
-	segments := strings.Split(relative, "/")
-	return filepath.Join(append([]string{parent}, segments...)...)
 }
 
 func universalCallback(name string, extended bool) nav.LabelledTraverseCallback {
@@ -186,9 +151,9 @@ func universalCallback(name string, extended bool) nav.LabelledTraverseCallback 
 			)
 
 			if extended {
-				Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
+				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 			} else {
-				Expect(item.Extension).To(BeNil(), reason(item.Path))
+				Expect(item.Extension).To(BeNil(), helpers.Reason(item.Path))
 			}
 			return nil
 		},
@@ -214,9 +179,9 @@ func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
 			// Expect(actualNoChildren).To(Equal(expectedNoChildren))
 
 			if extended {
-				Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
+				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 			} else {
-				Expect(item.Extension).To(BeNil(), reason(item.Path))
+				Expect(item.Extension).To(BeNil(), helpers.Reason(item.Path))
 			}
 
 			return nil
@@ -234,7 +199,7 @@ func filesCallback(name string, extended bool) nav.LabelledTraverseCallback {
 			Expect(item.Info.IsDir()).To(BeFalse())
 
 			if extended {
-				Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
+				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 			}
 			return nil
 		},
@@ -251,7 +216,7 @@ func universalScopeCallback(name string) nav.LabelledTraverseCallback {
 			GinkgoWriter.Printf("---> 🌠 UNIVERSAL//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
-			Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
 			return nil
 		},
 	}
@@ -265,7 +230,7 @@ func foldersScopeCallback(name string) nav.LabelledTraverseCallback {
 			GinkgoWriter.Printf("---> 🌟 FOLDERS//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
-			Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
 			Expect(item.Info.IsDir()).To(BeTrue())
 			return nil
 		},
@@ -280,7 +245,7 @@ func filesScopeCallback(name string) nav.LabelledTraverseCallback {
 			GinkgoWriter.Printf("---> 🌬️ FILES//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
-			Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
 			Expect(item.Info.IsDir()).To(BeFalse())
 			return nil
 		},
@@ -297,7 +262,7 @@ func universalSortCallback(name string) nav.LabelledTraverseCallback {
 			GinkgoWriter.Printf("---> 💚 UNIVERSAL//%v-SORT-CALLBACK-EX(scope:%v, depth:%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Depth, item.Extension.Name,
 			)
-			Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
 			return nil
 		},
 	}
@@ -311,7 +276,7 @@ func foldersSortCallback(name string) nav.LabelledTraverseCallback {
 			GinkgoWriter.Printf("---> 💜 FOLDERS//%v-SORT-CALLBACK-EX '%v'\n",
 				name, item.Extension.Name,
 			)
-			Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
 			Expect(item.Info.IsDir()).To(BeTrue())
 			return nil
 		},
@@ -326,7 +291,7 @@ func filesSortCallback(name string) nav.LabelledTraverseCallback {
 			GinkgoWriter.Printf("---> 💙 FILES//%v-SORT-CALLBACK-EX '%v'\n",
 				name, item.Extension.Name,
 			)
-			Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
 			Expect(item.Info.IsDir()).To(BeFalse())
 			return nil
 		},
@@ -343,7 +308,7 @@ func universalDepthCallback(name string, maxDepth int) nav.LabelledTraverseCallb
 					name, item.Extension.NodeScope, item.Extension.Depth, item.Extension.Name,
 				)
 			}
-			Expect(item.Extension).NotTo(BeNil(), reason(item.Extension.Name))
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
 			return nil
 		},
 	}
@@ -438,9 +403,9 @@ func errorCallback(name string, extended bool, hasError bool) nav.LabelledTraver
 			GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
 
 			if extended {
-				Expect(item.Extension).NotTo(BeNil(), reason(item.Path))
+				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 			} else {
-				Expect(item.Extension).To(BeNil(), reason(item.Path))
+				Expect(item.Extension).To(BeNil(), helpers.Reason(item.Path))
 			}
 			if hasError {
 				Expect(item.Error).ToNot(BeNil())
