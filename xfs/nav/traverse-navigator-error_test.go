@@ -7,6 +7,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/translate"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -16,7 +17,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	Context("new-navigator", func() {
@@ -48,7 +49,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}()
 
 				const relative = "RETRO-WAVE"
-				path := path(root, relative)
+				path := helpers.Path(root, relative)
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -82,7 +83,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				recording := []error{}
 
 				const relative = "RETRO-WAVE"
-				path := path(root, relative)
+				path := helpers.Path(root, relative)
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -112,7 +113,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Context("navigator-files", func() {
 			It("🧪 should: invoke callback with immediate read error", func() {
 				const relative = "RETRO-WAVE"
-				path := path(root, relative)
+				path := helpers.Path(root, relative)
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -127,7 +128,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 			It("🧪 should: invoke callback with error at ...", func() {
 				const relative = "RETRO-WAVE"
-				path := path(root, relative)
+				path := helpers.Path(root, relative)
 				session := nav.PrimarySession{
 					Path: path,
 				}
@@ -149,7 +150,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			}()
 
 			const relative = "RETRO-WAVE"
-			path := path(root, relative)
+			path := helpers.Path(root, relative)
 			session := &nav.PrimarySession{
 				Path: path,
 			}
@@ -178,7 +179,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		Context("given: error occurs", func() {
 			It("🧪 should: halt traversal", func() {
 				const relative = "RETRO-WAVE"
-				path := path(root, relative)
+				path := helpers.Path(root, relative)
 				session := nav.PrimarySession{
 					Path: path,
 				}
@@ -204,7 +205,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					Scope:       nav.ScopeLeafEn,
 				}
 				const relative = "RETRO-WAVE"
-				path := path(root, relative)
+				path := helpers.Path(root, relative)
 				session := nav.PrimarySession{
 					Path: path,
 				}

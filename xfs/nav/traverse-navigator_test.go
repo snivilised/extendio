@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/helpers"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -17,7 +18,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	Context("Navigator", func() {
@@ -44,7 +45,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				}
 				callback := lo.Ternary(entry.once, once, lo.Ternary(entry.visit, visitor, entry.callback))
 
-				path := path(root, entry.relative)
+				path := helpers.Path(root, entry.relative)
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -293,7 +294,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				},
 			}
 
-			path := path(root, entry.relative)
+			path := helpers.Path(root, entry.relative)
 			session := nav.PrimarySession{
 				Path: path,
 			}
@@ -330,7 +331,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			}
 
 			for n, actualNoChildren := range entry.expectedNoOf.children {
-				Expect(recording[n]).To(Equal(actualNoChildren), reason(n))
+				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(n))
 			}
 
 			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),

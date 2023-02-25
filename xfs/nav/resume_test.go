@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -19,7 +20,7 @@ var _ = Describe("Resume", Ordered, func() {
 	)
 
 	BeforeAll(func() {
-		jroot = joinCwd("Test", "json")
+		jroot = helpers.JoinCwd("Test", "json")
 		fromJsonPath = strings.Join(
 			[]string{jroot, "persisted-state.json"},
 			string(filepath.Separator),

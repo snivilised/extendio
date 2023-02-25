@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/translate"
 	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -16,12 +17,12 @@ var _ = Describe("Listener", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
-		root = origin()
+		root = musico()
 	})
 
 	DescribeTable("Listener",
 		func(entry *listenTE) {
-			path := path(root, entry.relative)
+			path := helpers.Path(root, entry.relative)
 			session := &nav.PrimarySession{
 				Path: path,
 			}
@@ -48,11 +49,11 @@ var _ = Describe("Listener", Ordered, func() {
 							item.Extension.Name,
 						)
 
-						prohibited := fmt.Sprintf("%v, was invoked, but should NOT have been", reason(item.Extension.Name))
+						prohibited := fmt.Sprintf("%v, was invoked, but should NOT have been", helpers.Reason(item.Extension.Name))
 						Expect(lo.Contains(entry.prohibited, item.Extension.Name)).To(
 							BeFalse(), prohibited,
 						)
-						mandatory := fmt.Sprintf("%v, was not invoked, but should have been", reason(item.Extension.Name))
+						mandatory := fmt.Sprintf("%v, was not invoked, but should have been", helpers.Reason(item.Extension.Name))
 						Expect(lo.Contains(entry.mandatory, item.Extension.Name)).To(
 							BeTrue(), mandatory,
 						)
@@ -189,7 +190,7 @@ var _ = Describe("Listener", Ordered, func() {
 
 	Context("given: Early Exit", func() {
 		It("should: exit early (folders)", func() {
-			path := path(root, "")
+			path := helpers.Path(root, "")
 			session := &nav.PrimarySession{
 				Path: path,
 			}
@@ -211,7 +212,7 @@ var _ = Describe("Listener", Ordered, func() {
 		})
 
 		It("should: exit early (files)", func() {
-			path := path(root, "")
+			path := helpers.Path(root, "")
 			session := &nav.PrimarySession{
 				Path: path,
 			}
@@ -236,7 +237,7 @@ var _ = Describe("Listener", Ordered, func() {
 	Context("folders", func() {
 		Context("given: filter and listen both active", func() {
 			It("🧪 should: apply filter within the listen range", func() {
-				path := path(root, "edm/ELECTRONICA")
+				path := helpers.Path(root, "edm/ELECTRONICA")
 				session := &nav.PrimarySession{
 					Path: path,
 				}
@@ -284,7 +285,7 @@ var _ = Describe("Listener", Ordered, func() {
 								item.Extension.NodeScope,
 								o.Store.FilterDefs.Node.Scope,
 							)
-							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Pattern), reason(item.Extension.Name))
+							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Pattern), helpers.Reason(item.Extension.Name))
 							return nil
 						},
 					}
