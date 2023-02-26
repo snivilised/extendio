@@ -3,6 +3,8 @@ package nav
 import (
 	"encoding/json"
 	"os"
+
+	. "github.com/snivilised/extendio/i18n"
 )
 
 type stateMarshallerJSON struct {
@@ -46,7 +48,7 @@ func (m *stateMarshallerJSON) unmarshal(path string) error {
 func (m *stateMarshallerJSON) validate() {
 
 	if m.o.Callback.Fn == nil {
-		panic(MISSING_CALLBACK_FN_L_ERR)
+		panic(NewMissingCallbackError())
 	}
 }
 

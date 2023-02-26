@@ -1,11 +1,5 @@
 package nav
 
-import (
-	"io/fs"
-
-	. "github.com/snivilised/extendio/translate"
-)
-
 type universalNavigator struct {
 	navigator
 }
@@ -19,7 +13,7 @@ func (n *universalNavigator) top(frame *navigationFrame, root string) *TraverseR
 	})
 }
 
-func (n *universalNavigator) traverse(params *traverseParams) *LocalisableError {
+func (n *universalNavigator) traverse(params *traverseParams) error {
 	defer func() {
 		n.ascend(&NavigationInfo{
 			Options: n.o,
@@ -59,7 +53,7 @@ func (n *universalNavigator) traverse(params *traverseParams) *LocalisableError 
 
 	if le := n.agent.proxy(params.item, params.frame); le != nil ||
 		(params.item.Entry != nil && !params.item.Entry.IsDir()) {
-		if le != nil && le.Inner == fs.SkipDir && params.item.Entry.IsDir() {
+		if QuerySkipDirError(le) && params.item.Entry.IsDir() {
 			// Successfully skipped directory
 			//
 			le = nil

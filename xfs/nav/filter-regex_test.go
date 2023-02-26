@@ -9,7 +9,8 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/snivilised/extendio/internal/helpers"
-	"github.com/snivilised/extendio/translate"
+
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -18,6 +19,12 @@ var _ = Describe("FilterRegex", Ordered, func() {
 
 	BeforeAll(func() {
 		root = musico()
+	})
+
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
 	})
 
 	DescribeTable("RegexFilter",
@@ -52,7 +59,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
-					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						GinkgoWriter.Printf(
 							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
 							filter.Description(),
@@ -253,7 +260,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
-					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						actualNoChildren := len(item.Children)
 						GinkgoWriter.Printf(
 							"===> 💠 Compound Regex Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v', depth: '%v'\n",
@@ -372,7 +379,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.FilterDefs = filterDefs
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
-					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						return nil
 					},
 				}
@@ -426,7 +433,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
-					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						return nil
 					},
 				}

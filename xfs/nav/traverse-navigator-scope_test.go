@@ -5,8 +5,8 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -17,13 +17,19 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 		root = musico()
 	})
 
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
+	})
+
 	DescribeTable("scope",
 		func(entry *scopeTE) {
 			recording := recordingScopeMap{}
 
 			scopeRecorder := nav.LabelledTraverseCallback{
 				Label: "test callback",
-				Fn: func(item *nav.TraverseItem) *LocalisableError {
+				Fn: func(item *nav.TraverseItem) error {
 					_, found := recording[item.Extension.Name]
 
 					if !found {

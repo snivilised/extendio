@@ -3,8 +3,8 @@ package nav_test
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -15,10 +15,15 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 		root = musico()
 	})
 
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
+	})
+
 	Context("sub-path", func() {
 		When("KeepTrailingSep set to true", func() {
 			It("should: calculate subpath WITH trailing separator", func() {
-
 				expectations := map[string]string{
 					"RETRO-WAVE":                   "",
 					"Chromatics":                   helpers.Normalise("/"),
@@ -36,7 +41,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test sub-path callback",
-						Fn: func(item *nav.TraverseItem) *LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							if expected, ok := expectations[item.Extension.Name]; ok {
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
@@ -54,7 +59,6 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 
 			When("using RootItemSubPath", func() {
 				It("should: calculate subpath WITH trailing separator", func() {
-
 					expectations := map[string]string{
 						"edm":                         "",
 						"_segments.def.infex.txt":     helpers.Normalise("/_segments.def.infex.txt"),
@@ -74,7 +78,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						o.Store.DoExtend = true
 						o.Callback = nav.LabelledTraverseCallback{
 							Label: "test sub-path callback",
-							Fn: func(item *nav.TraverseItem) *LocalisableError {
+							Fn: func(item *nav.TraverseItem) error {
 								if expected, ok := expectations[item.Extension.Name]; ok {
 									GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 										item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
@@ -109,7 +113,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test sub-path callback",
-						Fn: func(item *nav.TraverseItem) *LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							if expected, ok := expectations[item.Extension.Name]; ok {
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,

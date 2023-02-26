@@ -1,9 +1,5 @@
 package nav
 
-import (
-	. "github.com/snivilised/extendio/translate"
-)
-
 // InitFiltersHookFn is the default filter initialiser. This can be overridden or extended
 // by the client if the need arises. To extend this behaviour rather than replace it,
 // call this function from inside the custom function set on o.Hooks.Filter. To
@@ -27,7 +23,7 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 			decorated := frame.client
 			decorator := &LabelledTraverseCallback{
 				Label: "filter decorator",
-				Fn: func(item *TraverseItem) *LocalisableError {
+				Fn: func(item *TraverseItem) error {
 					if frame.filters.Node.IsMatch(item) {
 						return decorated.Fn(item)
 					} else {

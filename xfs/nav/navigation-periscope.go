@@ -45,7 +45,7 @@ func (p *navigationPeriscope) difference(root, current string) {
 	currentSize := len(strings.Split(current, string(filepath.Separator)))
 
 	if rootSize > currentSize {
-		panic("navigationPeriscope: internal error, root path can't be longer than current path")
+		panic(NewInvalidPeriscopeRootPathNativeError(root, current))
 	}
 
 	p._offset = currentSize - rootSize

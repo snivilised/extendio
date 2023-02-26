@@ -9,8 +9,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -193,6 +193,12 @@ var _ = Describe("Resume", Ordered, func() {
 		)
 	})
 
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
+	})
+
 	DescribeTable("resume",
 		func(entry *resumeTE) {
 
@@ -231,7 +237,7 @@ var _ = Describe("Resume", Ordered, func() {
 
 					once := nav.LabelledTraverseCallback{
 						Label: "test once callback",
-						Fn: func(item *nav.TraverseItem) *LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							_, found := recording[item.Extension.Name]
 
 							Expect(found).To(BeFalse(), fmt.Sprintf("once only invoke failure -> %v",
@@ -244,7 +250,7 @@ var _ = Describe("Resume", Ordered, func() {
 
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "unit test callback for resume",
-						Fn: func(item *nav.TraverseItem) *LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							depth := lo.TernaryF(o.Store.DoExtend,
 								func() int { return item.Extension.Depth },
 								func() int { return 9999 },

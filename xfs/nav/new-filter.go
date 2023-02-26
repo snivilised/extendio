@@ -1,6 +1,7 @@
 package nav
 
 import (
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
@@ -33,7 +34,7 @@ func NewNodeFilter(def *FilterDef) TraverseFilter {
 
 	case FilterTypeCustomEn:
 		if utils.IsNil(def.Custom) {
-			panic("missing custom filter")
+			panic(NewMissingCustomFilterDefinitionError("Options/Store/FilterDefs/Node/Custom"))
 		}
 
 		filter = def.Custom
@@ -67,7 +68,7 @@ func NewCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 
 	case FilterTypeCustomEn:
 		if utils.IsNil(def.Custom) {
-			panic("missing custom compound filter")
+			panic(NewMissingCustomFilterDefinitionError("Options/Store/FilterDefs/Children/Custom"))
 		}
 
 		filter = def.Custom

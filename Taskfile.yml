@@ -36,6 +36,22 @@ tasks:
     cmds:
       - ginkgo watch -v -r -p ./...
 
+  watchvc:
+    cmds:
+      - ginkgo watch -v -r -p ./collections
+
+  watchvi:
+    cmds:
+      - ginkgo watch -v -r -p ./i18n
+
+  watchvn:
+    cmds:
+      - ginkgo watch -v -r -p ./nav
+
+  watchvu:
+    cmds:
+      - ginkgo watch -v -r -p ./xfs/utils
+
   watch:
     cmds:
       - ginkgo watch -r -p ./...

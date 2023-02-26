@@ -6,6 +6,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	. "github.com/snivilised/extendio/i18n"
 )
 
 type navigatorFactory struct{}
@@ -14,7 +16,7 @@ func (f navigatorFactory) new(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 
 	if o.Callback.Fn == nil {
-		panic(MISSING_CALLBACK_FN_L_ERR)
+		panic(NewMissingCallbackError())
 	}
 
 	impl := navigatorImplFactory{}.new(o)
@@ -79,7 +81,7 @@ func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[*zap.L
 	return utils.NewRoProp(lo.TernaryF(o.Store.Logging.Enabled,
 		func() *zap.Logger {
 			if o.Store.Logging.Path == "" {
-				panic("log file name missing from options at 'Store.Logging.Path'")
+				panic(NewInvalidConfigEntryError(o.Store.Logging.Path, "Store/Logging/Path"))
 			}
 			ws := zapcore.AddSync(&lumberjack.Logger{
 				Filename:   o.Store.Logging.Path,

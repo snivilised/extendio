@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -13,6 +14,12 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 
 	BeforeAll(func() {
 		root = musico()
+	})
+
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
 	})
 
 	When("folder is skipped", func() {

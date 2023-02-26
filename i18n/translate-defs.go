@@ -26,9 +26,11 @@ type UseOptions struct {
 	// Tag sets the language to use
 	//
 	Tag language.Tag
-	// App name which forms part of the language filename
+
+	// Name, name which forms part of the language filename, typically
+	// the name of the client app
 	//
-	App string
+	Name string
 
 	// Path denoting where to load language file from, defaults to exe location
 	//

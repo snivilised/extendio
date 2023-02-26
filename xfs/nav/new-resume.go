@@ -2,6 +2,8 @@ package nav
 
 import (
 	"fmt"
+
+	. "github.com/snivilised/extendio/i18n"
 )
 
 // ResumerInfo
@@ -88,7 +90,7 @@ func (f strategyFactory) new(params *createStrategyParams) resumeStrategy {
 		}
 
 	default:
-		panic(fmt.Errorf("*** newResumeStrategy: unsupported strategy: '%v'", params.strategyEn))
+		panic(NewInvalidResumeStrategyError(fmt.Sprintf("%v", params.strategyEn)))
 	}
 
 	return strategy

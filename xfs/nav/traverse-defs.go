@@ -3,7 +3,6 @@ package nav
 import (
 	"io/fs"
 
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/utils"
 	"go.uber.org/zap"
 )
@@ -30,7 +29,7 @@ type TraverseItem struct {
 	Entry     fs.DirEntry   // contains a FileInfo via Info() function
 	Info      fs.FileInfo   // optional file info instance
 	Extension *ExtendedItem // extended information about the file system node, if requested
-	Error     *LocalisableError
+	Error     error
 	Children  []fs.DirEntry
 	skip      bool
 }
@@ -67,7 +66,7 @@ const (
 )
 
 // TraverseCallback defines traversal callback function signature.
-type TraverseCallback func(item *TraverseItem) *LocalisableError
+type TraverseCallback func(item *TraverseItem) error
 
 type LabelledTraverseCallback struct {
 	Label string
@@ -122,7 +121,7 @@ type navigatorImpl interface {
 	options() *TraverseOptions
 	logger() *zap.Logger
 	top(frame *navigationFrame, root string) *TraverseResult
-	traverse(params *traverseParams) *LocalisableError
+	traverse(params *traverseParams) error
 	finish() error
 }
 

@@ -4,6 +4,7 @@ import (
 	"io/fs"
 
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/i18n"
 )
 
 type DirectoryEntryOrderEnum uint
@@ -70,6 +71,6 @@ func (e *DirectoryEntries) all() *[]fs.DirEntry {
 
 func (e *DirectoryEntries) sort(entries *[]fs.DirEntry) {
 	if err := e.Options.Hooks.Sort(*entries); err != nil {
-		panic(SORT_L_ERR)
+		panic(NewSortFnFailedError())
 	}
 }

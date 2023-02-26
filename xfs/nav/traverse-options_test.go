@@ -4,6 +4,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -15,6 +16,12 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 
 	BeforeEach(func() {
 		o = nav.GetDefaultOptions()
+	})
+
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
 	})
 
 	Context("clone", func() {

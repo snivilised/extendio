@@ -1,13 +1,14 @@
 package nav
 
 import (
-	"fmt"
 	"io/fs"
 	"path/filepath"
 
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 	"go.uber.org/zap"
+
+	. "github.com/snivilised/extendio/i18n"
 )
 
 const (
@@ -121,9 +122,7 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 	entries, err := s.o.Hooks.ReadDirectory(params.parent)
 
 	if err != nil {
-		panic(fmt.Sprintf("following failed to read contents of directory: '%v'",
-			params.parent),
-		)
+		panic(NewFailedToReadDirectoryContentsError(params.parent, err))
 	}
 
 	groups := lo.GroupBy(entries, func(item fs.DirEntry) bool {

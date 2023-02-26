@@ -1,6 +1,8 @@
 package i18n_test
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/text/language"
@@ -23,10 +25,16 @@ var _ = Describe("Translator", Ordered, func() {
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
 	})
 
+	BeforeEach(func() {
+		ResetTx()
+	})
+
 	Context("TxRef.IsNone", func() {
 		When("not Use'd", func() {
 			It("🧪 should: be true", func() {
-				Expect(TxRef.IsNone()).To(BeTrue(), "client should always call 'Use' before use")
+				Expect(TxRef.IsNone()).To(BeTrue(),
+					"'Use' not invoked but TxRef.IsNone indicates, its still set?",
+				)
 			})
 		})
 	})
@@ -36,7 +44,7 @@ var _ = Describe("Translator", Ordered, func() {
 			It("🧪 should: create Translator", func() {
 				Expect(Use(func(o *UseOptions) {
 					o.Tag = language.AmericanEnglish
-					o.App = "test"
+					o.Name = "test"
 					o.Path = l10nPath
 				})).Error().To(BeNil())
 				Expect(TxRef.IsNone()).To(BeFalse())
@@ -63,15 +71,82 @@ var _ = Describe("Translator", Ordered, func() {
 		})
 	})
 
-	Context("Text", func() {
-		Context("given: a template data instance", func() {
-			It("🧪 should: evaluate translated text", func() {
-				_ = Use(func(o *UseOptions) {
-					o.Tag = language.BritishEnglish
-				})
-				Expect(Text(ThirdPartyErrorTemplData{
-					Error: "out of stock",
-				})).NotTo(BeNil())
+	Context("Error Checking", func() {
+		Context("given: FailedToReadDirectoryContentsError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				reason := fmt.Errorf("file missing")
+				var err error = NewFailedToReadDirectoryContentsError("/foo/bar/", reason)
+				result := QueryFailedToReadDirectoryContentsError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: NewFailedToResumeFromFileError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				reason := fmt.Errorf("file missing")
+				var err error = NewFailedToResumeFromFileError("/foo/bar/resume.json", reason)
+				result := QueryFailedToResumeFromFileError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: InvalidConfigEntryError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				var err error = NewInvalidConfigEntryError("foo", "Store/Logging/Path")
+				result := QueryInvalidConfigEntryError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: InvalidResumeStrategyError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				var err error = NewInvalidResumeStrategyError("foo")
+				result := QueryInvalidResumeStrategyError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: MissingCallbackError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				var err error = NewMissingCallbackError()
+				result := QueryMissingCallbackError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: MissingCustomFilterDefinitionError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				var err error = NewMissingCustomFilterDefinitionError(
+					"Options/Store/FilterDefs/Node/Custom",
+				)
+				result := QueryMissingCustomFilterDefinitionError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: NotADirectoryError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				var err error = NewNotADirectoryError("/foo/bar")
+				result := QueryNotADirectoryError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: SortFnFailedError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				var err error = NewSortFnFailedError()
+				result := QuerySortFnFailedError(err)
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		Context("given: UnknownMarshalFormatError", func() {
+			It("🧪 should: be identifiable via query function", func() {
+				var err error = NewUnknownMarshalFormatError(
+					"Options/Persist/Format", "jpg",
+				)
+				result := QueryUnknownMarshalFormatError(err)
+				Expect(result).To(BeTrue())
 			})
 		})
 	})

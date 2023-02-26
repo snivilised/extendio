@@ -1,9 +1,5 @@
 package nav
 
-import (
-	. "github.com/snivilised/extendio/translate"
-)
-
 type filesNavigator struct {
 	navigator
 }
@@ -17,7 +13,7 @@ func (n *filesNavigator) top(frame *navigationFrame, root string) *TraverseResul
 	})
 }
 
-func (n *filesNavigator) traverse(params *traverseParams) *LocalisableError {
+func (n *filesNavigator) traverse(params *traverseParams) error {
 	//
 	// For files, the registered callback will only be invoked for file entries. This means
 	// that the client will have no way to skip the descending of a particular directory. In

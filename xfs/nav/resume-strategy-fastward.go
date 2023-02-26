@@ -79,7 +79,7 @@ func (s *fastwardStrategy) detach(frame *navigationFrame) {
 	frame.notifiers.mute(notificationAllEn, false)
 
 	if s.ps.Active.Listen == ListenFastward {
-		panic("invalid state transition detected (ListenFastward)")
+		panic(NewInvalidResumeStateTransitionNativeError("ListenFastward"))
 	}
 	frame.listener.transition(s.ps.Active.Listen)
 }
