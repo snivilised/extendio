@@ -9,17 +9,17 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/snivilised/extendio/internal/helpers"
-	"github.com/snivilised/extendio/translate"
+
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
 var _ = Describe("MarshalOptions", Ordered, func() {
 	var (
-		o            *nav.TraverseOptions
-		root         string
-		jroot        string
-		fromJsonPath string
-		toJsonPath   string
+		root  string
+		jroot string
+
+		toJsonPath string
 
 		filterDefs nav.FilterDefinitions
 	)
@@ -27,7 +27,6 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	BeforeAll(func() {
 		root = musico()
 		jroot = helpers.JoinCwd("Test", "json")
-		fromJsonPath = strings.Join([]string{jroot, "persisted-state.json"}, string(filepath.Separator))
 		toJsonPath = strings.Join([]string{jroot, "test-state-marshal.json"}, string(filepath.Separator))
 		filterDefs = nav.FilterDefinitions{
 			Node: nav.FilterDef{
@@ -48,7 +47,10 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		o = nav.GetDefaultOptions()
+		ResetTx()
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
 	})
 
 	Context("Marshal", func() {
@@ -64,7 +66,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test marshal state callback",
-						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							return nil
 						},
 					}
@@ -98,7 +100,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test marshal state callback",
-						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							return nil
 						},
 					}
@@ -119,21 +121,5 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 				errorContains: "unknown marshal format",
 			}),
 		)
-	})
-
-	Context("Unmarshal", func() {
-		Context("given: correct config", func() {
-			It("🧪 should: write options in JSON", func() {
-				Skip("needs resume function")
-				restore := func(o *nav.TraverseOptions) {
-					GinkgoWriter.Printf("---> marshaller ...\n")
-				}
-				restore(o)
-				_ = fromJsonPath
-
-				// err := o.UnmarshalDefunct(fromJsonPath)
-				// Expect(err).To(BeNil())
-			})
-		})
 	})
 })

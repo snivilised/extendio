@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/snivilised/extendio/internal/helpers"
-	"github.com/snivilised/extendio/translate"
+
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -52,7 +52,7 @@ var _ = Describe("Resume", Ordered, func() {
 
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test spawn callback",
-					Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						return nil
 					},
 				}

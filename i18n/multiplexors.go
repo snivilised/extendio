@@ -1,8 +1,6 @@
 package i18n
 
 import (
-	"fmt"
-
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 	"golang.org/x/text/language"
@@ -38,7 +36,7 @@ func (mx *multipleLocalizers) localise(data Localisable) string {
 
 func (mx *multipleLocalizers) add(info *LocalizerInfo) error {
 	if _, found := mx.lookup[info.SourceId]; found {
-		return fmt.Errorf("localizer already exists for: '%v'", info.SourceId)
+		return NewLocalizerAlreadyExistsNativeError(info.SourceId)
 	}
 	mx.lookup[info.SourceId] = info.Localizer
 	return nil
@@ -49,7 +47,7 @@ func (mx *multipleLocalizers) find(id string) *i18n.Localizer {
 		return loc
 	}
 
-	panic(fmt.Errorf("failed to find localizer for source: '%v'", id))
+	panic(NewCouldNotFindLocalizerNativeError(id))
 }
 
 type translationProvider struct {

@@ -1,12 +1,24 @@
 package i18n
 
+import (
+	"reflect"
+)
+
 // LocalisableError is an error that is translate-able (Localisable)
-// this has to be modified to implement the error interface.
 type LocalisableError struct {
-	Data  Localisable
-	Inner error // the core error
+	Data Localisable
 }
 
 func (le LocalisableError) Error() string {
-	return le.Inner.Error()
+	return Text(le.Data)
+}
+
+func QueryGeneric[T any](method string, target error) bool {
+	nativeIf, ok := target.(T)
+
+	if !ok {
+		return false
+	}
+	none := []reflect.Value{}
+	return reflect.ValueOf(&nativeIf).Elem().MethodByName(method).Call(none)[0].Bool()
 }

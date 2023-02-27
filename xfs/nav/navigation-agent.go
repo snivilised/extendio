@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/samber/lo"
-	. "github.com/snivilised/extendio/translate"
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
@@ -41,10 +41,11 @@ func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
 	params.frame.reset()
 
 	info, err := a.o.Hooks.QueryStatus(params.top)
-	var le *LocalisableError = nil
+	var le error
 	if err != nil {
+		// change LocalisableError to ThirdPartyError
 		item := &TraverseItem{
-			Path: params.top, Info: info, Error: &LocalisableError{Inner: err},
+			Path: params.top, Info: info, Error: NewThirdPartyErr(err),
 			Children: []fs.DirEntry{},
 		}
 		le = a.proxy(item, params.frame)
@@ -62,7 +63,7 @@ func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
 	}
 
 	result := params.frame.collate()
-	if (le != nil) && (le.Inner == fs.SkipDir) {
+	if QuerySkipDirError(le) {
 		result.Error = le
 	}
 
@@ -93,25 +94,25 @@ type agentNotifyParams struct {
 	readErr error
 }
 
-func (a *navigationAgent) notify(params *agentNotifyParams) (bool, *LocalisableError) {
+func (a *navigationAgent) notify(params *agentNotifyParams) (bool, error) {
 
 	exit := false
 	if params.readErr != nil {
 
 		if a.doInvoke.Get() {
 			item2 := params.item.clone()
-			item2.Error = &LocalisableError{Inner: params.readErr}
+			item2.Error = NewThirdPartyErr(params.readErr)
 
 			// Second call, to report ReadDir error
 			//
 			if le := a.proxy(item2, params.frame); le != nil {
-				if params.readErr == fs.SkipDir && (item2.Entry != nil && item2.Entry.IsDir()) {
+				if QuerySkipDirError(params.readErr) && (item2.Entry != nil && item2.Entry.IsDir()) {
 					params.readErr = nil
 				}
-				return true, &LocalisableError{Inner: params.readErr}
+				return true, NewThirdPartyErr(params.readErr)
 			}
 		} else {
-			return true, &LocalisableError{Inner: params.readErr}
+			return true, NewThirdPartyErr(params.readErr)
 		}
 	}
 
@@ -125,11 +126,16 @@ type agentTraverseParams struct {
 	frame    *navigationFrame
 }
 
-func (a *navigationAgent) traverse(params *agentTraverseParams) *LocalisableError {
+func (a *navigationAgent) traverse(params *agentTraverseParams) error {
 	for _, entry := range *params.contents {
 		path := filepath.Join(params.parent.Path, entry.Name())
 		info, err := entry.Info()
-		le := lo.Ternary(err == nil, nil, &LocalisableError{Inner: err})
+
+		var le error
+		// change LocalisableError to ThirdPartyError
+		le = lo.Ternary(err == nil, nil, &ThirdPartyError{
+			// Error: err.Error(),
+		})
 		child := TraverseItem{
 			Path: path, Info: info, Entry: entry, Error: le,
 			Children: []fs.DirEntry{},
@@ -139,7 +145,7 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) *LocalisableErro
 			item:  &child,
 			frame: params.frame,
 		}); le != nil {
-			if le.Inner == fs.SkipDir {
+			if QuerySkipDirError(le) {
 				break
 			}
 			return le
@@ -148,7 +154,7 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) *LocalisableErro
 	return nil
 }
 
-func (a *navigationAgent) proxy(item *TraverseItem, frame *navigationFrame) *LocalisableError {
+func (a *navigationAgent) proxy(item *TraverseItem, frame *navigationFrame) error {
 	// proxy is the correct way to invoke the client callback, because it takes into
 	// account any active decorations such as listening and filtering. It should be noted
 	// that the Callback on the options represents the client defined function which

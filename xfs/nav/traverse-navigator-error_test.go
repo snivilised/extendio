@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/snivilised/extendio/internal/helpers"
-	"github.com/snivilised/extendio/translate"
-	. "github.com/snivilised/extendio/translate"
+
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -18,6 +18,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 	BeforeAll(func() {
 		root = musico()
+	})
+
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
 	})
 
 	Context("new-navigator", func() {
@@ -65,7 +71,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test callback",
-						Fn: func(item *nav.TraverseItem) *LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							return nil
 						},
 					}
@@ -94,7 +100,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test callback",
-						Fn: func(item *nav.TraverseItem) *LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
 								item.Path, item.Error,
 							)
@@ -217,7 +223,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Notify.OnBegin = begin("🧲")
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test callback",
-						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
 							return nil
 						},

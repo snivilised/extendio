@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/internal/helpers"
-	"github.com/snivilised/extendio/translate"
-	. "github.com/snivilised/extendio/translate"
+
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -17,6 +17,10 @@ var _ = Describe("Listener", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
+
 		root = musico()
 	})
 
@@ -44,7 +48,7 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Store.DoExtend = entry.extended
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test listener callback",
-					Fn: func(item *nav.TraverseItem) *LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
 							item.Extension.Name,
 						)
@@ -273,7 +277,7 @@ var _ = Describe("Listener", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "Listener Test Callback",
-						Fn: func(item *nav.TraverseItem) *translate.LocalisableError {
+						Fn: func(item *nav.TraverseItem) error {
 							GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
 								item.Extension.Name,
 							)
@@ -295,7 +299,6 @@ var _ = Describe("Listener", Ordered, func() {
 				files := (*result.Metrics)[nav.MetricNoFilesEn].Count
 				folders := (*result.Metrics)[nav.MetricNoFoldersEn].Count
 
-				// metrics failure
 				GinkgoWriter.Printf("---> 🍕🍕 Metrics, files:'%v', folders:'%v'\n",
 					files, folders,
 				)

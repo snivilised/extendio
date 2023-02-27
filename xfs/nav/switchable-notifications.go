@@ -116,7 +116,7 @@ func (n *notificationsSink) init(notifications *Notifications) {
 func (n *notificationsSink) mute(notifyEn notificationBiEnum, values ...bool) {
 
 	if notifyEn == notificationUndefinedEn {
-		panic(fmt.Errorf("invalid mute requested (undefined)"))
+		panic(NewInvalidNotificationMuteRequestedNativeError(fmt.Sprintf("%v", notifyEn)))
 	}
 
 	value := lo.TernaryF(len(values) > 0,

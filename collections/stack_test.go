@@ -26,7 +26,7 @@ var _ = Describe("Stack", func() {
 			It("🧪 should: return empty error", func() {
 				stack := collections.NewStack[string]()
 				_, err := stack.Pop()
-				Expect(err).To(MatchError("stack is empty"))
+				Expect(err).To(MatchError("internal: stack is empty"))
 
 			})
 		})
@@ -78,7 +78,7 @@ var _ = Describe("Stack", func() {
 
 				Expect(func() {
 					stack.MustPop()
-				}).To(PanicWith(collections.STACK_IS_EMPTY_L_ERR))
+				}).To(PanicWith(collections.NewStackIsEmptyNativeError()))
 			})
 		})
 	})
@@ -88,7 +88,7 @@ var _ = Describe("Stack", func() {
 			It("🧪 should: return empty error", func() {
 				stack := collections.NewStack[string]()
 				_, err := stack.Current()
-				Expect(err).To(MatchError("stack is empty"))
+				Expect(err).To(MatchError("internal: stack is empty"))
 			})
 		})
 

@@ -1,27 +1,61 @@
 package nav
 
 import (
-	"errors"
-
-	. "github.com/snivilised/extendio/translate"
+	"fmt"
+	"io/fs"
 )
 
-// This file should only contain user facing error messages. Other errors/panics
-// maybe generated in this lib, but if they are internal errors or situations
-// that occur due to programming mistakes, they they do not need to be defined here
-// and can be constructed on the fly.
-//
+// ❌ Invalid Notification Mute Requested
 
-var TERMINATE_ERR = errors.New("terminate traverse")
+// NewInvalidNotificationMuteRequestedNativeError creates an untranslated error to
+// indicate invalid notification mute requested (internal error)
+func NewInvalidNotificationMuteRequestedNativeError(value string) error {
+	return fmt.Errorf("internal: invalid notification mute requested (%v)", value)
+}
 
-var NOT_DIRECTORY_ERR = errors.New("Not a directory")
-var NOT_DIRECTORY_L_ERR = LocalisableError{Inner: NOT_DIRECTORY_ERR}
+// ❌ Invalid Resume State Transition Detected
 
-var SORT_ERR = errors.New("sort function failed")
-var SORT_L_ERR = LocalisableError{Inner: SORT_ERR}
+// NewItemAlreadyExtendedNativeError creates an untranslated error to
+// indicate invalid resume state transition occurred (internal error)
+func NewInvalidResumeStateTransitionNativeError(state string) error {
+	return fmt.Errorf("internal: invalid resume state transition detected (%v)", state)
+}
 
-var MISSING_CALLBACK_FN_ERR = errors.New("missing callback function")
-var MISSING_CALLBACK_FN_L_ERR = LocalisableError{Inner: MISSING_CALLBACK_FN_ERR}
+// ❌ Item already extended
 
-var CANT_SAVE_LISTEN_RETIRED_FN_ERR = errors.New("can't save, traversal retired")
-var CANT_SAVE_LISTEN_RETIRED_FN_L_ERR = LocalisableError{Inner: CANT_SAVE_LISTEN_RETIRED_FN_ERR}
+// NewItemAlreadyExtendedNativeError creates an untranslated error to
+// indicate traverse-item already extended (internal error)
+func NewItemAlreadyExtendedNativeError(path string) error {
+	return fmt.Errorf("internal: item already extended for item at: '%v'", path)
+}
+
+// ❌ Missing listen detacher function
+
+// NewMissingListenDetacherFunctionNativeError creates an untranslated error to
+// indicate invalid resume state transition occurred (internal error)
+func NewMissingListenDetacherFunctionNativeError(state string) error {
+	return fmt.Errorf("internal: missing listen detacher function (%v)", state)
+}
+
+// ❌ Invalid Periscope Root Path
+
+// NewInvalidPeriscopeRootPathNativeError creates an untranslated error to
+// indicate invalid resume state transition occurred (internal error)
+func NewInvalidPeriscopeRootPathNativeError(root, current string) error {
+	return fmt.Errorf("internal: root path '%v' can't be longer than current '%v'", root, current)
+}
+
+// ❌ Resume controller not set
+
+// NewResumeControllerNotSetNativeError creates an untranslated error to
+// indicate resume controller not set (internal error)
+func NewResumeControllerNotSetNativeError(from string) error {
+	return fmt.Errorf("internal: resume controller not set (from: '%v')", from)
+}
+
+// ❌ SkipDir
+
+// QuerySkipDirError query if error is the fs SkipDir error
+func QuerySkipDirError(target error) bool {
+	return target != nil && target == fs.SkipDir
+}

@@ -6,8 +6,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/snivilised/extendio/internal/helpers"
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
+
+	. "github.com/snivilised/extendio/i18n"
 )
 
 var _ = Describe("TraverseNavigatorSort", Ordered, func() {
@@ -17,6 +18,12 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 		root = musico()
 	})
 
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
+	})
+
 	DescribeTable("sort",
 		func(entry *sortTE) {
 			recording := recordingOrderMap{}
@@ -24,7 +31,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 
 			recorder := nav.LabelledTraverseCallback{
 				Label: "test recorder callback",
-				Fn: func(item *nav.TraverseItem) *LocalisableError {
+				Fn: func(item *nav.TraverseItem) error {
 					_, found := recording[item.Extension.Name]
 
 					if !found {

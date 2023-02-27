@@ -11,7 +11,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/internal/helpers"
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -141,7 +140,7 @@ func universalCallback(name string, extended bool) nav.LabelledTraverseCallback 
 	ex := lo.Ternary(extended, "-EX", "")
 	return nav.LabelledTraverseCallback{
 		Label: "test universal callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			depth := lo.TernaryF(extended,
 				func() int { return item.Extension.Depth },
 				func() int { return 9999 },
@@ -165,7 +164,7 @@ func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 	return nav.LabelledTraverseCallback{
 		Label: "folders callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			depth := lo.TernaryF(extended,
 				func() int { return item.Extension.Depth },
 				func() int { return 9999 },
@@ -194,7 +193,7 @@ func filesCallback(name string, extended bool) nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 	return nav.LabelledTraverseCallback{
 		Label: "files callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌙 FILES//%v-CALLBACK%v: '%v'\n", name, ex, item.Path)
 			Expect(item.Info.IsDir()).To(BeFalse())
 
@@ -212,7 +211,7 @@ func universalScopeCallback(name string) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test universal callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌠 UNIVERSAL//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
@@ -226,7 +225,7 @@ func foldersScopeCallback(name string) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test folders callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌟 FOLDERS//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
@@ -241,7 +240,7 @@ func filesScopeCallback(name string) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test files callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌬️ FILES//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
@@ -258,7 +257,7 @@ func universalSortCallback(name string) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test universal callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 💚 UNIVERSAL//%v-SORT-CALLBACK-EX(scope:%v, depth:%v) '%v'\n",
 				name, item.Extension.NodeScope, item.Extension.Depth, item.Extension.Name,
 			)
@@ -272,7 +271,7 @@ func foldersSortCallback(name string) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test folders sort callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 💜 FOLDERS//%v-SORT-CALLBACK-EX '%v'\n",
 				name, item.Extension.Name,
 			)
@@ -287,7 +286,7 @@ func filesSortCallback(name string) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test files sort callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 💙 FILES//%v-SORT-CALLBACK-EX '%v'\n",
 				name, item.Extension.Name,
 			)
@@ -302,7 +301,7 @@ func universalDepthCallback(name string, maxDepth int) nav.LabelledTraverseCallb
 
 	return nav.LabelledTraverseCallback{
 		Label: "test universal depth callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			if item.Extension.Depth <= maxDepth {
 				GinkgoWriter.Printf("---> 💚 UNIVERSAL//%v-SORT-CALLBACK-EX(scope:%v, depth:%v) '%v'\n",
 					name, item.Extension.NodeScope, item.Extension.Depth, item.Extension.Name,
@@ -319,7 +318,7 @@ func foldersCaseSensitiveCallback(first, second string) nav.LabelledTraverseCall
 
 	return nav.LabelledTraverseCallback{
 		Label: "test folders case sensitive callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			recording[item.Path] = len(item.Children)
 
 			GinkgoWriter.Printf("---> ☀️ CASE-SENSITIVE-CALLBACK: '%v'\n", item.Path)
@@ -347,7 +346,7 @@ func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
 
 	return nav.LabelledTraverseCallback{
 		Label: "test skip folder callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf(
 				"---> ♻️ ON-NAVIGATOR-SKIP-CALLBACK(skip:%v): '%v'\n", skip, item.Path,
 			)
@@ -355,7 +354,7 @@ func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
 			Expect(strings.HasSuffix(item.Path, exclude)).To(BeFalse())
 
 			return lo.Ternary(strings.HasSuffix(item.Path, skip),
-				&LocalisableError{Inner: fs.SkipDir}, nil,
+				fs.SkipDir, nil,
 			)
 		},
 	}
@@ -399,7 +398,7 @@ func errorCallback(name string, extended bool, hasError bool) nav.LabelledTraver
 	ex := lo.Ternary(extended, "-EX", "")
 	return nav.LabelledTraverseCallback{
 		Label: "test error callback",
-		Fn: func(item *nav.TraverseItem) *LocalisableError {
+		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
 
 			if extended {

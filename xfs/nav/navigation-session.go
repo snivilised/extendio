@@ -1,7 +1,7 @@
 package nav
 
 import (
-	"fmt"
+	. "github.com/snivilised/extendio/i18n"
 )
 
 type traverseSession interface {
@@ -85,7 +85,7 @@ func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *Activ
 	s.resumer, err = resumerFactory{}.new(info)
 
 	if err != nil {
-		panic(fmt.Errorf("failed to restore resume file: '%v' (%v)", s.Path, err))
+		panic(NewFailedToResumeFromFileError(s.Path, err))
 	}
 	return &resumeRunner{
 		sessionRunner: sessionRunner{

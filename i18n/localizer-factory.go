@@ -35,7 +35,7 @@ func (f LocalizerFactory) create(li *LanguageInfo) *i18n.Localizer {
 		// TODO: consider changing this, too rigid, active may not be liked by client,
 		// they should be able to control the name of the translation file.
 		//
-		filename := fmt.Sprintf("%v.active.%v.json", li.App, li.Current)
+		filename := fmt.Sprintf("%v.active.%v.json", li.Name, li.Current)
 		resolved, _ := filepath.Abs(li.Path)
 
 		directory := lo.TernaryF(li.Path != "",
@@ -55,7 +55,7 @@ func (f LocalizerFactory) create(li *LanguageInfo) *i18n.Localizer {
 			// this error message is able to be generated in translated form, so
 			// we are forced to generate an error message in the default language.
 			//
-			panic(fmt.Errorf("could not load translations for '%v', from: '%v'", li.Current, path))
+			panic(NewCouldNotLoadTranslationsNativeError(li.Current, path, err))
 		}
 	}
 

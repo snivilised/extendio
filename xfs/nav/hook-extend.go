@@ -1,12 +1,10 @@
 package nav
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/samber/lo"
-	. "github.com/snivilised/extendio/translate"
 )
 
 // DefaultExtendHookFn is the default extend hook function. The client can choose to
@@ -16,9 +14,7 @@ import (
 func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 
 	if navi.Item.Extension != nil {
-		panic(LocalisableError{
-			Inner: fmt.Errorf("extend: item for path '%v' already extended", navi.Item.Path),
-		})
+		panic(NewItemAlreadyExtendedNativeError(navi.Item.Path))
 	}
 	isLeaf := false
 	var scope FilterScopeBiEnum

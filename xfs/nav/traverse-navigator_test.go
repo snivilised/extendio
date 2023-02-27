@@ -9,8 +9,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
-	. "github.com/snivilised/extendio/translate"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -21,6 +21,12 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 		root = musico()
 	})
 
+	BeforeEach(func() {
+		_ = Use(func(o *UseOptions) {
+			o.Tag = DefaultLanguage.Get()
+		})
+	})
+
 	Context("Navigator", func() {
 		DescribeTable("Ensure Callback Invoked Once",
 			func(entry *naviTE) {
@@ -29,7 +35,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 
 				once := nav.LabelledTraverseCallback{
 					Label: "test once decorator",
-					Fn: func(item *nav.TraverseItem) *LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						_, found := recording[item.Path]
 						Expect(found).To(BeFalse())
 						recording[item.Path] = len(item.Children)
@@ -39,7 +45,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				}
 
 				visitor := nav.LabelledTraverseCallback{
-					Fn: func(item *nav.TraverseItem) *LocalisableError {
+					Fn: func(item *nav.TraverseItem) error {
 						return once.Fn(item)
 					},
 				}
@@ -285,7 +291,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 
 			once := nav.LabelledTraverseCallback{
 				Label: "test once callback",
-				Fn: func(item *nav.TraverseItem) *LocalisableError {
+				Fn: func(item *nav.TraverseItem) error {
 					_, found := recording[item.Extension.Name]
 					Expect(found).To(BeFalse())
 					recording[item.Extension.Name] = len(item.Children)

@@ -1,6 +1,10 @@
 package nav
 
-import "fmt"
+import (
+	"fmt"
+
+	. "github.com/snivilised/extendio/i18n"
+)
 
 type marshallerFactory struct{}
 
@@ -14,7 +18,10 @@ func (m *marshallerFactory) new(o *TraverseOptions, state *persistState) stateMa
 		}
 
 	default:
-		panic(fmt.Errorf("unknown marshal format: '%v'", o.Persist.Format))
+		// NewUnknownMarshalFormatError()
+		panic(NewUnknownMarshalFormatError(
+			fmt.Sprintf("%v", o.Persist.Format), "Options/Persist/Format",
+		))
 	}
 
 	return marshaller

@@ -1,14 +1,13 @@
 package i18n
 
 import (
-	"fmt"
-
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 	"golang.org/x/text/language"
 )
+
+var DefaultLanguage = utils.NewRoProp(language.BritishEnglish)
 
 var tx *Translator
 var TxRef utils.RoProp[*Translator] = utils.NewRoProp(tx)
@@ -30,20 +29,27 @@ func Use(options ...UseOptionFn) error {
 	li := newLanguageInfo(o)
 
 	if !containsLanguage(li.Supported, o.Tag) {
-		// TODO: create a behavioural interface that denotes language created,
-		// as per Dave Cheney's  recommendation
-		//
-		return fmt.Errorf("language '%v' not available", o.Tag)
+		return NewLanguageNotAvailableNativeError(o.Tag)
 	}
 
 	tx = NewTranslator(li)
 	TxRef = utils.NewRoProp(tx)
 
 	if TxRef.IsNone() {
-		return fmt.Errorf("failed to create translator for language '%v'", o.Tag)
+		return NewFailedToCreateTranslatorNativeError(o.Tag)
 	}
 
 	return nil
+}
+
+// ResetTx, do not use, required for unit testing only and is not considered
+// part of the public api and may be removed without corresponding version
+// number change.
+func ResetTx() {
+	// having to do this smells a bit, but required so unit tests can
+	// remain isolated (this is why package globals are bad).
+	tx = nil
+	TxRef = utils.NewRoProp(tx)
 }
 
 func newLanguageInfo(o *UseOptions) *LanguageInfo {
@@ -105,8 +111,7 @@ func NewTranslator(li *LanguageInfo, foreigners ...*LocalizerInfo) *Translator {
 				SourceId:  EXTENDIO_SOURCE_ID,
 				Localizer: native,
 			}); err != nil {
-				panic(errors.Wrapf(err, "failed to create localizer for language '%v', dependency: '%v'",
-					li.Current, EXTENDIO_SOURCE_ID))
+				panic(NewFailedToCreateLocalizerNativeError(li.Current, EXTENDIO_SOURCE_ID))
 			}
 
 			for _, forloc := range foreigners {
@@ -114,8 +119,7 @@ func NewTranslator(li *LanguageInfo, foreigners ...*LocalizerInfo) *Translator {
 					SourceId:  forloc.SourceId,
 					Localizer: forloc.Localizer,
 				}); err != nil {
-					panic(errors.Wrapf(err, "failed to create foreigner localizer for language '%v', dependency: '%v'",
-						li.Current, forloc.SourceId))
+					panic(NewFailedToCreateLocalizerNativeError(li.Current, EXTENDIO_SOURCE_ID))
 				}
 			}
 
