@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"go.uber.org/zap"
 
 	. "github.com/snivilised/extendio/i18n"
 )
@@ -28,8 +28,8 @@ func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
 	resumeAt := s.ps.Active.NodePath
 
 	s.nc.logger().Info("spawn resume",
-		zap.String("root-path", info.ps.Active.Root),
-		zap.String("resume-at-path", resumeAt),
+		log.String("root-path", info.ps.Active.Root),
+		log.String("resume-at-path", resumeAt),
 	)
 
 	return s.conclude(&concludeInfo{

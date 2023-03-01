@@ -5,8 +5,8 @@ import (
 
 	"github.com/mohae/deepcopy"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"go.uber.org/zap/zapcore"
 )
 
 // SubPathBehaviour
@@ -117,7 +117,7 @@ type LoggingOptions struct {
 	Enabled         bool
 	Path            string
 	TimeStampFormat string
-	Level           zapcore.Level
+	Level           log.Level
 	Rotation        LogRotationOptions
 }
 
@@ -228,7 +228,7 @@ func GetDefaultOptions() *TraverseOptions {
 			Logging: LoggingOptions{
 				Path:            filepath.Join("~", "snivilised.extendio.nav.log"),
 				TimeStampFormat: "2006-01-02 15:04:05",
-				Level:           zapcore.InfoLevel,
+				Level:           log.InfoLevel,
 				Rotation: LogRotationOptions{
 					MaxSizeInMb:    50,
 					MaxNoOfBackups: 3,

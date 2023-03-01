@@ -3,8 +3,8 @@ package nav
 import (
 	"io/fs"
 
+	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"go.uber.org/zap"
 )
 
 // ExtendedItem provides extended information if the client requests
@@ -119,7 +119,7 @@ type traverseParams struct {
 
 type navigatorImpl interface {
 	options() *TraverseOptions
-	logger() *zap.Logger
+	logger() log.Handle
 	top(frame *navigationFrame, root string) *TraverseResult
 	traverse(params *traverseParams) error
 	finish() error
