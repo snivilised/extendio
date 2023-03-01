@@ -2,9 +2,8 @@ package nav
 
 import (
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 type navigatorController struct {
@@ -32,19 +31,19 @@ func (c *navigatorController) init() {
 	c.ns = &NavigationState{Filters: c.frame.filters, Root: &c.frame.root}
 }
 
-func (c *navigatorController) logger() *zap.Logger {
+func (c *navigatorController) logger() log.Handle {
 	return c.impl.logger()
 }
 
 func (c *navigatorController) Walk(root string) *TraverseResult {
 	c.frame.root.Set(root)
-	c.impl.logger().Info("Walk", zap.String("root", root))
+	c.impl.logger().Info("Walk", log.String("root", root))
 	c.frame.notifiers.begin.invoke(c.ns)
 	result := c.impl.top(c.frame, root)
 
-	fields := []zapcore.Field{}
+	fields := []log.Field{}
 	for _, m := range *result.Metrics {
-		fields = append(fields, zap.Uint(m.Name, m.Count))
+		fields = append(fields, log.Uint(m.Name, m.Count))
 	}
 
 	c.impl.logger().Info("Result", fields...)

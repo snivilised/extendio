@@ -1,21 +1,21 @@
 package nav
 
 import (
+	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"go.uber.org/zap"
 )
 
 type navigator struct {
 	o     *TraverseOptions
 	agent *navigationAgent
-	log   utils.RoProp[*zap.Logger]
+	log   utils.RoProp[log.Handle]
 }
 
 func (n *navigator) options() *TraverseOptions {
 	return n.o
 }
 
-func (n *navigator) logger() *zap.Logger {
+func (n *navigator) logger() log.Handle {
 	return n.log.Get()
 }
 
@@ -30,5 +30,5 @@ func (n *navigator) ascend(navi *NavigationInfo) {
 }
 
 func (n *navigator) finish() error {
-	return n.log.Get().Sync()
+	return (*n.log.Get()).Sync()
 }

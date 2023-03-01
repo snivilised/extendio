@@ -1,11 +1,8 @@
 package nav
 
 import (
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 
 	. "github.com/snivilised/extendio/i18n"
 )
@@ -76,28 +73,18 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 	return impl
 }
 
-func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[*zap.Logger] {
+func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[log.Handle] {
 
-	return utils.NewRoProp(lo.TernaryF(o.Store.Logging.Enabled,
-		func() *zap.Logger {
-			if o.Store.Logging.Path == "" {
-				panic(NewInvalidConfigEntryError(o.Store.Logging.Path, "Store/Logging/Path"))
-			}
-			ws := zapcore.AddSync(&lumberjack.Logger{
-				Filename:   o.Store.Logging.Path,
-				MaxSize:    o.Store.Logging.Rotation.MaxSizeInMb,
-				MaxBackups: o.Store.Logging.Rotation.MaxNoOfBackups,
-				MaxAge:     o.Store.Logging.Rotation.MaxAgeInDays,
-			})
-			config := zap.NewProductionEncoderConfig()
-			config.EncodeTime = zapcore.TimeEncoderOfLayout(o.Store.Logging.TimeStampFormat)
-			core := zapcore.NewCore(
-				zapcore.NewJSONEncoder(config),
-				ws,
-				o.Store.Logging.Level,
-			)
-			return zap.New(core)
-		}, func() *zap.Logger {
-			return zap.NewNop()
-		}))
+	return log.NewLogger(&log.LoggerInfo{
+		Rotation: log.Rotation{
+			Filename:       o.Store.Logging.Path,
+			MaxSizeInMb:    o.Store.Logging.Rotation.MaxSizeInMb,
+			MaxNoOfBackups: o.Store.Logging.Rotation.MaxNoOfBackups,
+			MaxAgeInDays:   o.Store.Logging.Rotation.MaxAgeInDays,
+		},
+		Enabled:         o.Store.Logging.Enabled,
+		Path:            o.Store.Logging.Path,
+		TimeStampFormat: o.Store.Logging.TimeStampFormat,
+		Level:           o.Store.Logging.Level,
+	})
 }
