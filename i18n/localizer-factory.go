@@ -32,10 +32,14 @@ func (f LocalizerFactory) create(li *LanguageInfo) *i18n.Localizer {
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	if li.Current != li.Default {
-		// TODO: consider changing this, too rigid, active may not be liked by client,
-		// they should be able to control the name of the translation file.
-		//
-		filename := fmt.Sprintf("%v.active.%v.json", li.Name, li.Current)
+		filename := lo.TernaryF(li.Name == "",
+			func() string {
+				return fmt.Sprintf("active.%v.json", li.Current)
+			},
+			func() string {
+				return fmt.Sprintf("%v.active.%v.json", li.Name, li.Current)
+			},
+		)
 		resolved, _ := filepath.Abs(li.Path)
 
 		directory := lo.TernaryF(li.Path != "",

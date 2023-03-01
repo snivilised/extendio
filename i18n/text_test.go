@@ -32,7 +32,7 @@ var _ = Describe("Text", Ordered, func() {
 	Context("native", func() {
 		BeforeEach(func() {
 			_ = Use(func(o *UseOptions) {
-				o.Tag = language.BritishEnglish
+				o.Tag = DefaultLanguage.Get()
 			})
 		})
 
@@ -52,6 +52,28 @@ var _ = Describe("Text", Ordered, func() {
 					Expect(Text(ThirdPartyErrorTemplData{
 						Error: errors.New("out of stock"),
 					})).NotTo(BeNil())
+				})
+			})
+		})
+	})
+
+	Context("foreign", func() {
+		BeforeEach(func() {
+			_ = Use(func(o *UseOptions) {
+				o.Tag = language.AmericanEnglish
+				o.Name = "test"
+				o.Path = l10nPath
+			})
+		})
+
+		Context("Text", func() {
+			Context("given: a template data instance", func() {
+				It("🧪 should: evaluate translated text(internationalization)", func() {
+					Expect(Text(InternationalisationTemplData{})).To(Equal("internationalization"))
+				})
+
+				It("🧪 should: evaluate translated text(localization)", func() {
+					Expect(Text(LocalisationTemplData{})).To(Equal("localization"))
 				})
 			})
 		})
