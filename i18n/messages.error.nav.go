@@ -13,7 +13,7 @@ import (
 // due-ly noted, but if translations are important, then we
 // have to live with this problem unless another approach
 // is available. Its not really recommended to provide foreign
-// translations for external packages as this creates as
+// translations for external packages as this creates an
 // undesirable coupling, but the option is there just in case.
 // To ameliorate api surface area issue, limit error definitions
 // to those errors that are intended to be displayed to
@@ -42,12 +42,57 @@ import (
 // can be wrapped (errors.Wrap), providing content in the
 // required but library un-supported language.
 //
+// There does NOT need to be a translation file for the default language
+// as the default language is what's implemented in code, here in
+// message files (messages.error.nav.go). Having said that, we
+// still need to create a file for the default language as that file
+// is used to create translations. This default file will not be
+// be part of the installation set.
+// ===> checked in as i18n/default/active.en-GB.json
+//
+// 1) This file is automatically processed to create the translation
+// files, currently only 'active.en-US.json' by running:
+// $ goi18n extract -format json -sourceLanguage "en-GB" -out ./out
+// ---> creates i18n/out/active.en-GB.json (i18n/default/active.en-GB.json)
+// ===> implemented as task: extract
+//
+// 2) ... Create an empty message file for the language that you want
+// to add (e.g. translate.en-US.json).
+// ---> when performing updates, you don't need to create the empty file, use the existing one
+// ---> check-in the translation file
+// ===> this has been implemented in the extract task
+//
+// 3) goi18n merge -format json active.en.json translate.en-US.json -outdir <dir>
+// (goi18n merge -format <json|toml> <default-language-file> <existing-active-file>)
+//
+// existing-active-file: when starting out, this file is blank, but must exist first.
+// When updating existing translations, this file will be the one that's already
+// checked-in and the result of manual translation (ie we re-named the translation file
+// to be active file)
+//
+// current dir: ./extendio/i18n/
+// $ goi18n merge -format json -sourceLanguage "en-GB" -outdir ./out ./out/active.en-GB.json ./out/l10n/translate.en-US.json
+//
+// ---> creates the translate.en-US.json in the current directory, this is the real one
+// with the content including the hashes, ready to be translated. It also
+// creates an empty active version (active.en-US.json)
+//
+// ---> so the go merge command needs the translate file to pre-exist
+//
+// 4) translate the translate.en-US.json and copy the contents to the active
+// file (active.en-US.json)
+//
+// 5) the translated file should be renamed to 'active' version
+// ---> so 'active' files denotes the file that is used in production (loaded into bundle)
+// ---> check-in the active file
 
 type ExtendioTemplData struct{}
 
 func (td ExtendioTemplData) SourceId() string {
 	return EXTENDIO_SOURCE_ID
 }
+
+// ====================================================================
 
 // ❌ FailedToReadDirectoryContents
 
@@ -62,7 +107,7 @@ func (td FailedToReadDirectoryContentsTemplData) Message() *i18n.Message {
 	return &i18n.Message{
 		ID:          "failed-to-read-directory-contents.extendio.nav",
 		Description: "Failed to read directory contents from the path specified",
-		Other:       "failed to read directory contents '{{.Path}}' (reason: {{.REASON}})",
+		Other:       "failed to read directory contents '{{.Path}}' (reason: {{.Reason}})",
 	}
 }
 
@@ -113,7 +158,7 @@ func (td FailedToResumeFromFileTemplData) Message() *i18n.Message {
 	return &i18n.Message{
 		ID:          "failed-to-resume-from-file.extendio.nav",
 		Description: "Failed to resume traverse operation from the resume file specified",
-		Other:       "failed to resume from file '{{.Path}}' (reason: {{.REASON}})",
+		Other:       "failed to resume from file '{{.Path}}' (reason: {{.Reason}})",
 	}
 }
 
@@ -495,12 +540,6 @@ func QueryTerminateTraverseError(target error) bool {
 
 // ❌ ThirdPartyError
 
-// ====================================================================
-
-// This file is automatically processed to create the active.en.json
-// by running:
-// $ goi18n extract -format json
-
 // ThirdPartyErrorTemplData third party un-translated error
 type ThirdPartyErrorTemplData struct {
 	ExtendioTemplData
@@ -546,7 +585,7 @@ type UnknownMarshalFormatTemplData struct {
 func (td UnknownMarshalFormatTemplData) Message() *i18n.Message {
 	return &i18n.Message{
 		ID:          "unknown-marshal-format.config.extendio.nav",
-		Description: "Unknown marshal format specified in config",
+		Description: "Unknown marshal format specified",
 		Other:       "unknown marshal format {{.Format}} specified at {{.At}}",
 	}
 }

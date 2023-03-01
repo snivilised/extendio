@@ -56,9 +56,9 @@ func newLanguageInfo(o *UseOptions) *LanguageInfo {
 	return &LanguageInfo{
 		UseOptions: *o,
 		Current:    o.Tag,
-		Default:    language.BritishEnglish,
+		Default:    DefaultLanguage.Get(),
 		Supported: SupportedLanguages{
-			language.BritishEnglish,
+			DefaultLanguage.Get(),
 			language.AmericanEnglish,
 		},
 	}

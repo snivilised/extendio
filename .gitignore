@@ -24,3 +24,5 @@ ginkgo.report
 test-options*.json
 test-state*.json
 *.log
+i18n/out/*
+i18n/temp/*
