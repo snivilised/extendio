@@ -1,12 +1,24 @@
+---
+# dependencies:
+# - ginkgo
+# - goi18n
+# - golangci-lint
+# - goveralls
+# - yamllint
+
 version: '3'
 silent: true
 
 dotenv: ['.env']
 
 tasks:
+  # === build ================================================
+
   b:
     cmds:
       - go build ./...
+
+  # === test =================================================
 
   t:
     cmds:
@@ -32,29 +44,7 @@ tasks:
     cmds:
       - ginkgo -v --dry-run ./...
 
-  watchv:
-    cmds:
-      - ginkgo watch -v -r -p ./...
-
-  watchvc:
-    cmds:
-      - ginkgo watch -v -r -p ./collections
-
-  watchvi:
-    cmds:
-      - ginkgo watch -v -r -p ./i18n
-
-  watchvn:
-    cmds:
-      - ginkgo watch -v -r -p ./nav
-
-  watchvu:
-    cmds:
-      - ginkgo watch -v -r -p ./xfs/utils
-
-  watch:
-    cmds:
-      - ginkgo watch -r -p ./...
+  # === ginkgo ================================================
 
   # initialise a test suite for a package. (only 1 per package)
   boot:
@@ -82,9 +72,43 @@ tasks:
     cmds:
       - ginkgo generate {{.CLI_ARGS}}
 
+  # === watch ================================================
+
+  watchv:
+    cmds:
+      - ginkgo watch -v -r -p ./...
+
+  watchvc:
+    cmds:
+      - ginkgo watch -v -r -p ./collections
+
+  watchvi:
+    cmds:
+      - ginkgo watch -v -r -p ./i18n
+
+  watchvn:
+    cmds:
+      - ginkgo watch -v -r -p ./nav
+
+  watchvu:
+    cmds:
+      - ginkgo watch -v -r -p ./xfs/utils
+
+  watch:
+    cmds:
+      - ginkgo watch -r -p ./...
+
+  # === lint =================================================
+
   lint:
     cmds:
       - golangci-lint run
+
+  linty:
+    cmds:
+      - yamllint *.y*ml
+
+  # === coverage =============================================
 
   publish-cover:
     cmds:
@@ -92,7 +116,10 @@ tasks:
 
   cover:
     cmds:
-      - ginkgo --json-report ./ginkgo.report  -coverpkg=./... -coverprofile=./coverage/coverage.out -r
+      - ginkgo --json-report
+        ./ginkgo.report
+        -coverpkg=./...
+        -coverprofile=./coverage/coverage.out -r
 
   # === i18n =================================================
 
@@ -103,7 +130,10 @@ tasks:
   # extract i18m messages
   extract:
     cmds:
-      - goi18n extract -format json -sourceLanguage "en-GB" -outdir ./i18n/out/
+      - goi18n extract
+        -format json
+        -sourceLanguage "en-GB"
+        -outdir ./i18n/out/
 
   # new translation
   newt:
@@ -114,21 +144,35 @@ tasks:
   # derive a translation from the default
   merge:
     cmds:
-      - goi18n merge -format json -sourceLanguage "en-GB" -outdir ./i18n/out ./i18n/out/active.en-GB.json ./i18n/out/l10n/translate.en-US.json
+      - goi18n merge
+        -format json
+        -sourceLanguage "en-GB"
+        -outdir ./i18n/out
+        ./i18n/out/active.en-GB.json ./i18n/out/l10n/translate.en-US.json
 
   # update existing translations
-  # after running this task, the translation file generated will contain only the
-  # new translations. Update the active file, with the new translations.
-  # Also, need to copy the default file (active.en-GB.json) back into ./i18n/default
+  # after running this task, the translation file generated will
+  # contain only the new translations. Update the active file,
+  # with the new translations. Also, need to copy the default
+  # file (active.en-GB.json) back into ./i18n/default
   update:
     deps: [extract]
     cmds:
-      - goi18n merge -format json -sourceLanguage "en-GB" -outdir ./i18n/out ./i18n/out/active.en-GB.json ./i18n/deploy/active.en-US.json
+      - goi18n merge
+        -format json
+        -sourceLanguage "en-GB"
+        -outdir ./i18n/out
+        ./i18n/out/active.en-GB.json ./i18n/deploy/active.en-US.json
 
-  # run this after manual translation has occurred to integrate it back into the
-  # translation file. Unfortunately, this task doesn't work properly, because it
-  # does not include the hashes. Without this task, the new translations must be manually
-  # added to the active translation file (active.en-US.json).
+  # run this after manual translation has occurred to integrate it
+  # back into the translation file. Unfortunately, this task doesn't
+  # work properly, because it does not include the hashes. Without
+  # this task, the new translations must be manually added to the active
+  # translation file (active.en-US.json).
   accept:
     cmds:
-      - goi18n merge -format json -sourceLanguage "en-US" -outdir ./i18n/temp ./i18n/out/translate.en-US.json ./i18n/deploy/active.en-US.json
+      - goi18n merge
+        -format json
+        -sourceLanguage "en-US"
+        -outdir ./i18n/temp
+        ./i18n/out/translate.en-US.json ./i18n/deploy/active.en-US.json
