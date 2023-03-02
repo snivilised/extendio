@@ -8,7 +8,7 @@ require (
 	github.com/onsi/gomega v1.27.1
 	github.com/samber/lo v1.37.0
 	go.uber.org/zap v1.24.0
-	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
 
 require (

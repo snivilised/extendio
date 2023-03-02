@@ -26,3 +26,5 @@ test-state*.json
 *.log
 i18n/out/*
 i18n/temp/*
+
+dist/
