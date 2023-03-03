@@ -8,14 +8,14 @@ import (
 type navigator struct {
 	o     *TraverseOptions
 	agent *navigationAgent
-	log   utils.RoProp[log.Handle]
+	log   utils.RoProp[log.Logger]
 }
 
 func (n *navigator) options() *TraverseOptions {
 	return n.o
 }
 
-func (n *navigator) logger() log.Handle {
+func (n *navigator) logger() log.Logger {
 	return n.log.Get()
 }
 
@@ -30,5 +30,5 @@ func (n *navigator) ascend(navi *NavigationInfo) {
 }
 
 func (n *navigator) finish() error {
-	return (*n.log.Get()).Sync()
+	return n.log.Get().Sync()
 }

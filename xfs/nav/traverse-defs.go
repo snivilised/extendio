@@ -119,7 +119,7 @@ type traverseParams struct {
 
 type navigatorImpl interface {
 	options() *TraverseOptions
-	logger() log.Handle
+	logger() log.Logger
 	top(frame *navigationFrame, root string) *TraverseResult
 	traverse(params *traverseParams) error
 	finish() error

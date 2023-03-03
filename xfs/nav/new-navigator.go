@@ -73,7 +73,7 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 	return impl
 }
 
-func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[log.Handle] {
+func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[log.Logger] {
 
 	return log.NewLogger(&log.LoggerInfo{
 		Rotation: log.Rotation{

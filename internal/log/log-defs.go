@@ -7,22 +7,20 @@ import (
 )
 
 type Field = zap.Field
-
-type Flusher = zapcore.WriteSyncer
-
 type Level = zapcore.Level
-
-type Handle = *zap.Logger
-
-type Ref utils.RoProp[Handle]
 
 const (
 	InfoLevel  = zapcore.InfoLevel
-	DebugLevel = zapcore.DebugLevel
-	WarnLevel  = zapcore.WarnLevel
 	ErrorLevel = zapcore.ErrorLevel
-	FatalLevel = zapcore.FatalLevel
 )
+
+type Logger interface {
+	Info(msg string, fields ...Field)
+	Error(msg string, fields ...Field)
+	Sync() error
+}
+
+type Ref utils.RoProp[Logger]
 
 type Rotation struct {
 	Filename       string
