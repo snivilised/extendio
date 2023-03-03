@@ -132,10 +132,9 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) error {
 		info, err := entry.Info()
 
 		var le error
-		// change LocalisableError to ThirdPartyError
-		le = lo.Ternary(err == nil, nil, &ThirdPartyError{
-			// Error: err.Error(),
-		})
+		if le != nil {
+			le = NewThirdPartyErr(err)
+		}
 		child := TraverseItem{
 			Path: path, Info: info, Entry: entry, Error: le,
 			Children: []fs.DirEntry{},
