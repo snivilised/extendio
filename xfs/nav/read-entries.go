@@ -12,8 +12,9 @@ func ReadEntries(dirname string) ([]fs.DirEntry, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
+
 	dirs, err := f.ReadDir(-1)
-	f.Close()
 	if err != nil {
 		return nil, err
 	}
