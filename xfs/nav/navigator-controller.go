@@ -31,7 +31,7 @@ func (c *navigatorController) init() {
 	c.ns = &NavigationState{Filters: c.frame.filters, Root: &c.frame.root}
 }
 
-func (c *navigatorController) logger() log.Handle {
+func (c *navigatorController) logger() log.Logger {
 	return c.impl.logger()
 }
 

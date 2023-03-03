@@ -12,7 +12,7 @@ import (
 
 func NewLogger(info *LoggerInfo) Ref {
 	return utils.NewRoProp(lo.TernaryF(info.Enabled,
-		func() Handle {
+		func() Logger {
 			if info.Path == "" {
 				panic(NewInvalidConfigEntryError(info.Path, "Store/Logging/Path"))
 			}
@@ -30,7 +30,7 @@ func NewLogger(info *LoggerInfo) Ref {
 				info.Level,
 			)
 			return zap.New(core)
-		}, func() Handle {
+		}, func() Logger {
 			return zap.NewNop()
 		}))
 }
