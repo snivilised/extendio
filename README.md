@@ -31,18 +31,17 @@ The `io` and `filepath` libraries both contain a function `WalkDir` that allows 
 
 `Walk` traverses the directory tree, invoking `os.Lstat` for every directory and file it finds. However, this is quite heavy weight so in version __go1.16__, `WalkDir` was introduced which aims to be more efficient by avoiding this `os.Lstat` invoke.
 
-Despite the optimisation provided by `WalkDir`, it is still not implemented in an efficient way for some scenarios. If the client needs to walk a directory structure that contains many files and is only interested in the directory structure, not the prevalence of files, then requiring the client to have to be notified for every entry and returning from the callback function using the `fs.DirEntry.IsDir()`. This still seems to be overkill in this use-case (essentially, what we're trying to achieve is the equivalent of the [-Directory](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem?view=powershell-7.2#-directory) option of the PowerShell [Get-ChildItem](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem?view=powershell-7.2#description) command at the same time as maintaining the same sorting characteristics it already possesses). 
+Despite the optimisation provided by `WalkDir`, it is still not implemented in an efficient way for some scenarios. If the client needs to walk a directory structure that contains many files and is only interested in the directory structure, not the prevalence of files, then requiring the client to have to be notified for every entry and returning from the callback function using the `fs.DirEntry.IsDir()`. This still seems to be overkill in this use-case (essentially, what we're trying to achieve is the equivalent of the [-Directory](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem?view=powershell-7.2#-directory) option of the PowerShell [Get-ChildItem](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-childitem?view=powershell-7.2#description) command at the same time as maintaining the same sorting characteristics it already possesses).
 
 I recently discovered this article: [If this code could walk](https://engineering.kablamo.com.au/posts/2021/quick-comparison-between-go-file-walk-implementations), which talks about an alternative library [godirwalk](https://github.com/karrick/godirwalk) and how it performs in comparison to the `filepath.WalkFir` implementation. This article has thrown everything up in the air, so in the interests of avoiding premature optimisation, the alternative implementation provided here as `Traverse` will not try improve on performance as was the original intention, as `filepath.Walk` has seen a dramatic improvement to its performance as of late. The aim will simply be to provide an alternative way of interacting with the file system, taking into consideration some of the short-comings of `filepath.WalkDir` identified by `godirwalk`.
 
 Use of the new `Traverse` functionality over `filepath.Walk/WalkDir` is not primarily about performance (in fact it can't be because some of the new features necessarily require more processing). Rather it's about the following significant deficiencies (not even addressed by `godirwalk`) that need to be addressed:
+
 - process directory entries only (omit files)
 - sort directory names in a non case sensitive manner, so that "a" would be visited before "B"
 - integration of complex search criteria (globs and regular expressions)
 - filtering based upon directory categories (eg Leaf nodes)
 - notification of traversal depth
-
-# 🎀 Features
 
 ## 🧪 Testing
 
@@ -51,19 +50,79 @@ Use of the new `Traverse` functionality over `filepath.Walk/WalkDir` is not prim
   <a href="https://onsi.github.io/gomega/"><img src="https://onsi.github.io/gomega/images/gomega.png" width="100" /></a>
 </p>
 
-+ unit testing with [Ginkgo](https://onsi.github.io/ginkgo/)/[Gomega](https://onsi.github.io/gomega/)
-## 👣 Traverse
+- unit testing with [Ginkgo](https://onsi.github.io/ginkgo/)/[Gomega](https://onsi.github.io/gomega/)
+
+## 🎀 Features
+
+### 👣 Traverse
 
 - Provides a pre-emptive declarative paradigm, to allow the client to be notified on a wider set of criteria and to minimise callback invocation. This allows for more efficiency when navigating large directory trees.
-- More comprehensive filtering capabilities incorporating that which is already provided by `filepath.Match`). The filtering will include positive and negative matching for globs (shell patterns) and regular expressions.
+- More comprehensive filtering capabilities incorporating that which is already provided by `filepath.Match`. The filtering will include positive and negative matching for globs (shell patterns) and regular expressions.
 - The callback function signature will differ from `WalkDir`. Instead of being passed just the corresponding `fs.DirEntry`, another custom type will be introduced which contains as a member `fs.DirEntry`. More properties can be attached to this new abstraction to support more features (as indicated below).
 - Add `Depth` property. This will indicate to the callback how many levels of descending has occurred relative to the root directory.
 - Add `IsLeaf` property. The client may need to know if the current directory being notified for is a leaf directory. In fact as part of the declarative paradigm, the client may if they wish request to be notified for leaf nodes only and this will be achieved using the `IsLeaf` property.
 
-## ♻️ Resume
+### ♻️ Resume
 
 - Add `Resume` function. Typically required in recovery scenarios, particularly when a large directory tree is being traversed and has been terminated part way, possibly in response to a CTRL-C interrupt. Instead of requiring a full traversal of the directory tree, the `Resume` function can be used to only process that part of the tree not visited in the previous run. The `Resume` function would require the `Root` path parameter, and a __checkpoint path__. The term ___fractured ancestor___ is introduced which denotes those directory nodes in the tree whose contents were only partially visited. Starting at the checkpoint, `Resume` would traverse the tree beginning at the checkpoint, then get the parent and find successor sibling nodes, invoking their corresponding trees. Then ascend and repeat the process until the root is encountered. `Resume` needs to invoke `Traverse` for each sub tree individually.
 
-## 💱 i18n
+### 💱 i18n
 
 - In order to support i18n, error handling will be implemented slightly differently to the standard error handling paradigm already established in Go. Simply returning an error which is just a string containing an error message, is not i18n friendly. We could just return an error code which of course would be documented, but it would be more useful to return a richer abstraction, another object which contains various properties about the error. This object will contain an error code (probably int based, or pseudo enum). It can even contain a string member which contains the error message in English, but the error code would allow for messages to be translated (possibly using Go templates). The exact implementation has not been finalised yet, but this is the direction of travel.
+
+## 🧰 Development
+
+### 🤚 Branch Protection Rules
+
+A switch has been made to adopt the [__Pull Request__](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/getting-started/about-collaborative-development-models) model for development. This means that all code must be pushed on a feature branch. Before this push is performed, they should be squashed locally. Since this was new to me, there were a few teething problems encountered, particularly to do with the deletion of stale local branches (see discussion: [When using Pull Request model how to safely delete local branch](https://github.com/orgs/community/discussions/49327))
+
+There are various tools available that aim to clear up stale branches, eg: [get-trim](https://github.com/jasonmccreary/git-trim), but since the command to run is straight forward, I don't really see the need to use a third party tool; one can simply use:
+
+> git branch -D \<local-branch-name\>
+
+Or, you can use:
+
+> git fetch --prune
+
+but beware, that the ___prune___ method, depends on the upstream branch having been deleted as part of the merge process ___Rebase and Merge___ on Github. You'll need to look at the Git Graph to see the current state and act accordingly.
+
+The [rules]((<https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/managing-a-branch-protection-rule>)) that have been activated are:
+
+- ___Require a pull request before merging___
+- ___Require linear history___
+- ___Do not allow bypassing the above settings___
+
+The way we finish a feature branch is with a script function ___endfeat___, currently implemented as:
+
+```zsh
+endfeat() {
+  local feature_branch="$(git_current_branch)"
+
+  echo "About to end feature 🎁 '$feature_branch' ... have you squashed commits? (type 'y' to confirm)"
+  read squashed
+
+  if [ $squashed = "y" ]; then
+    echo "<=== ✨ END FEATURE: '$feature_branch'"
+
+    if [ $feature_branch != master ] && [ $feature_branch != main ]; then
+      git branch --unset-upstream
+      git pull origin $(git config --get init.defaultBranch)
+      echo "Done! ✔️"
+    else
+      echo "!!! 😕 Not on a feature branch ($feature_branch)"
+    fi
+  else
+    echo "⛔ Aborted!"
+  fi
+}
+```
+
+## 🤖 Github Automation
+
+pending...
+
+### ♻️ CI
+
+### ✅ Changelog Generation
+
+### 📑 Release Automation
