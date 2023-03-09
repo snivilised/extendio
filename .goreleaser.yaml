@@ -45,6 +45,7 @@ changelog:
       - '^test:'
       - '^chore:'
       - '^Bump version'
+      - '^Merge branch'
   groups:
     - title: '🚀 Features'
       regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
