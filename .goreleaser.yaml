@@ -44,7 +44,6 @@ changelog:
       - '^docs:'
       - '^test:'
       - '^chore:'
-      - '^ref:'
       - '^Bump version'
   groups:
     - title: '🚀 Features'
