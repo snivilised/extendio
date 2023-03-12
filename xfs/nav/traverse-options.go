@@ -132,10 +132,6 @@ type OptionsStore struct {
 	//
 	DoExtend bool
 
-	// WithMetrics request metrics in TraversalResult.
-	//
-	WithMetrics bool
-
 	// Behaviours collection of behaviours that adjust the way navigation occurs,
 	// that can be tweaked by the client.
 	//
