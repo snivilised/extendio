@@ -6,10 +6,10 @@
 # - goveralls
 # - yamllint
 
-version: '3'
+version: "3"
 silent: true
 
-dotenv: ['.env']
+dotenv: [".env"]
 
 tasks:
   # === build ================================================
@@ -88,7 +88,7 @@ tasks:
 
   watchvn:
     cmds:
-      - ginkgo watch -v -r -p ./nav
+      - ginkgo watch -v -r -p ./nav/...
 
   watchvu:
     cmds:

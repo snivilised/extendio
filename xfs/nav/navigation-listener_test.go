@@ -89,13 +89,13 @@ var _ = Describe("Listener", Ordered, func() {
 				prohibited:   []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
 			},
 			start: &nav.ListenBy{
-				Name: "Name: Night Drive",
+				Name: "Night Drive",
 				Fn: func(item *nav.TraverseItem) bool {
 					return item.Extension.Name == "Night Drive"
 				},
 			},
 			stop: &nav.ListenBy{
-				Name: "Name: Electric Youth",
+				Name: "Electric Youth",
 				Fn: func(item *nav.TraverseItem) bool {
 					return item.Extension.Name == "Electric Youth"
 				},
@@ -103,6 +103,34 @@ var _ = Describe("Listener", Ordered, func() {
 			incStart: true,
 			incStop:  false,
 		}),
+
+		Entry(nil, &listenTE{
+			naviTE: naviTE{
+				message:      "listening, start and stop, defined by filters (folders, inc:default)",
+				relative:     "RETRO-WAVE",
+				extended:     true,
+				subscription: nav.SubscribeFolders,
+				mandatory:    []string{"Night Drive", "College", "Northern Council", "Teenage Color"},
+				prohibited:   []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
+			},
+			start: nav.NewRegexNodeFilter(
+				&nav.FilterDef{
+					Type:        nav.FilterTypeRegexEn,
+					Description: "Start At: Night Drive",
+					Pattern:     "Night Drive",
+				},
+			),
+			stop: nav.NewGlobNodeFilter(
+				&nav.FilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: "Stop At: Electric Youth",
+					Pattern:     "Electric Youth",
+				},
+			),
+			incStart: true,
+			incStop:  false,
+		}),
+
 		Entry(nil, &listenTE{
 			naviTE: naviTE{
 				message:      "listening, start and stop (folders, excl:start, inc:stop, mute)",

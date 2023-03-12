@@ -147,7 +147,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 				//
 				if params.frame.listener.lo.Stop.IsMatch(item) {
 					params.frame.listener.transition(ListenRetired)
-					params.frame.notifiers.stop.invoke(params.frame.listener.lo.Start.Description())
+					params.frame.notifiers.stop.invoke(params.frame.listener.lo.Stop.Description())
 
 					if params.o.Store.Behaviours.Listen.InclusiveStop {
 						return params.frame.raw.Fn(item)
