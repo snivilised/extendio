@@ -4,7 +4,7 @@ type filesNavigator struct {
 	navigator
 }
 
-func (n *filesNavigator) top(frame *navigationFrame, root string) *TraverseResult {
+func (n *filesNavigator) top(frame *navigationFrame, root string) (*TraverseResult, error) {
 
 	return n.agent.top(&agentTopParams{
 		impl:  n,

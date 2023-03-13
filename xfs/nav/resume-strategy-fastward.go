@@ -84,7 +84,7 @@ func (s *fastwardStrategy) detach(frame *navigationFrame) {
 	frame.listener.transition(s.ps.Active.Listen)
 }
 
-func (s *fastwardStrategy) resume(info *strategyResumeInfo) *TraverseResult {
+func (s *fastwardStrategy) resume(info *strategyResumeInfo) (*TraverseResult, error) {
 	resumeAt := info.ps.Active.NodePath
 	s.nc.logger().Info("fastward resume",
 		log.String("root-path", info.ps.Active.Root),

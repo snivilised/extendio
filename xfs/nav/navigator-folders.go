@@ -10,7 +10,7 @@ type foldersNavigator struct {
 	navigator
 }
 
-func (n *foldersNavigator) top(frame *navigationFrame, root string) *TraverseResult {
+func (n *foldersNavigator) top(frame *navigationFrame, root string) (*TraverseResult, error) {
 
 	return n.agent.top(&agentTopParams{
 		impl:  n,

@@ -4,7 +4,7 @@ type universalNavigator struct {
 	navigator
 }
 
-func (n *universalNavigator) top(frame *navigationFrame, root string) *TraverseResult {
+func (n *universalNavigator) top(frame *navigationFrame, root string) (*TraverseResult, error) {
 
 	return n.agent.top(&agentTopParams{
 		impl:  n,

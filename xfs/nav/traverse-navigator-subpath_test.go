@@ -34,7 +34,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.Behaviours.SubPath.KeepTrailingSep = true
@@ -69,7 +69,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					session := &nav.PrimarySession{
 						Path: path,
 					}
-					_ = session.Configure(func(o *nav.TraverseOptions) {
+					_, _ = session.Configure(func(o *nav.TraverseOptions) {
 						o.Notify.OnBegin = begin("🛡️")
 						o.Store.Subscription = nav.SubscribeAny
 						o.Hooks.FolderSubPath = nav.RootItemSubPath
@@ -106,7 +106,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Behaviours.SubPath.KeepTrailingSep = false
 					o.Store.Subscription = nav.SubscribeAny

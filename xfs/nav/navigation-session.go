@@ -5,11 +5,11 @@ import (
 )
 
 type traverseSession interface {
-	run() *TraverseResult
+	run() (*TraverseResult, error)
 }
 
 type NavigationRunner interface {
-	Run() *TraverseResult
+	Run() (*TraverseResult, error)
 }
 
 type sessionRunner struct {
@@ -21,7 +21,7 @@ type primaryRunner struct {
 }
 
 // Run invokes the traversal run for a primary session
-func (r *primaryRunner) Run() *TraverseResult {
+func (r *primaryRunner) Run() (*TraverseResult, error) {
 	return r.session.run()
 }
 
@@ -30,7 +30,7 @@ type resumeRunner struct {
 }
 
 // Run invokes the traversal run for a resume session
-func (r *resumeRunner) Run() *TraverseResult {
+func (r *resumeRunner) Run() (*TraverseResult, error) {
 	return r.session.run()
 }
 
@@ -56,7 +56,7 @@ func (s *PrimarySession) Save(path string) error {
 	return s.navigator.Save(path)
 }
 
-func (s *PrimarySession) run() *TraverseResult {
+func (s *PrimarySession) run() (*TraverseResult, error) {
 	defer s.finish()
 
 	return s.navigator.Walk(s.Path)
@@ -100,7 +100,7 @@ func (s *ResumeSession) Save(path string) error {
 	return s.resumer.navigator.Save(path)
 }
 
-func (s *ResumeSession) run() *TraverseResult {
+func (s *ResumeSession) run() (*TraverseResult, error) {
 	defer s.finish()
 
 	return s.resumer.Continue()

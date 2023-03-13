@@ -32,7 +32,7 @@ type resumeStrategy interface {
 	init(params *strategyInitParams)
 	attach(params *resumeAttachParams)
 	detach(frame *navigationFrame)
-	resume(info *strategyResumeInfo) *TraverseResult
+	resume(info *strategyResumeInfo) (*TraverseResult, error)
 	finish() error
 }
 

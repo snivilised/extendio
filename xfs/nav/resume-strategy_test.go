@@ -289,7 +289,7 @@ var _ = Describe("Resume", Ordered, func() {
 					Path:     fromJsonPath,
 					Strategy: strategyEn,
 				}
-				result := session.Configure(restore).Run()
+				result, _ := session.Configure(restore).Run()
 
 				if profile.mandatory != nil {
 					for _, name := range profile.mandatory {

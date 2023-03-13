@@ -37,7 +37,7 @@ type agentTopParams struct {
 	top   string
 }
 
-func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
+func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 	params.frame.reset()
 
 	info, err := a.o.Hooks.QueryStatus(params.top)
@@ -64,10 +64,10 @@ func (a *navigationAgent) top(params *agentTopParams) *TraverseResult {
 
 	result := params.frame.collate()
 	if QuerySkipDirError(le) {
-		result.Error = le
+		result.err = le
 	}
 
-	return result
+	return result, result.err
 }
 
 func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*DirectoryEntries, error) {

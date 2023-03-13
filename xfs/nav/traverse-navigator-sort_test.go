@@ -46,7 +46,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = &nav.FilterDefinitions{

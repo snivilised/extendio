@@ -59,7 +59,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.Extend = func(navi *nav.NavigationInfo, entries *nav.DirectoryEntries) {
@@ -93,7 +93,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
@@ -123,7 +123,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeError
@@ -138,7 +138,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := nav.PrimarySession{
 					Path: path,
 				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
@@ -160,7 +160,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			session.Configure(func(o *nav.TraverseOptions) {
+			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = entry.subscription
 				o.Hooks.Sort = func(entries []fs.DirEntry, custom ...any) error {
@@ -189,7 +189,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := nav.PrimarySession{
 					Path: path,
 				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
@@ -215,7 +215,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				session := nav.PrimarySession{
 					Path: path,
 				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.FilterDefs = &nav.FilterDefinitions{
 						Node: filterDef,

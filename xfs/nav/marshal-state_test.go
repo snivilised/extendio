@@ -94,7 +94,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					Path: path,
 				}
 
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
