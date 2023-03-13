@@ -18,8 +18,7 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 
 		if o.Store.FilterDefs.Node.Pattern != "" || o.Store.FilterDefs.Node.Custom != nil {
 			o.useExtendHook()
-			frame.filters.Node = NewNodeFilter(&o.Store.FilterDefs.Node)
-			frame.filters.Node.Validate()
+			frame.filters.Node = newNodeFilter(&o.Store.FilterDefs.Node)
 			decorated := frame.client
 			decorator := &LabelledTraverseCallback{
 				Label: "filter decorator",
@@ -38,8 +37,7 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 
 		if o.Store.FilterDefs.Children.Pattern != "" || o.Store.FilterDefs.Children.Custom != nil {
 			o.useExtendHook()
-			frame.filters.Children = NewCompoundFilter(&o.Store.FilterDefs.Children)
-			frame.filters.Children.Validate()
+			frame.filters.Children = newCompoundFilter(&o.Store.FilterDefs.Children)
 		}
 	} else {
 		frame.raw = frame.client

@@ -12,9 +12,10 @@ const (
 )
 
 type strategyInitParams struct {
-	ps    *persistState
-	frame *navigationFrame
-	rc    *resumeController
+	ps       *persistState
+	frame    *navigationFrame
+	rc       *resumeController
+	triggers *ListenTriggers
 }
 
 type strategyResumeInfo struct {
@@ -23,9 +24,9 @@ type strategyResumeInfo struct {
 }
 
 type resumeAttachParams struct {
-	o     *TraverseOptions
-	frame *navigationFrame
-	lo    *ListenOptions
+	o        *TraverseOptions
+	frame    *navigationFrame
+	triggers *ListenTriggers
 }
 
 type resumeStrategy interface {

@@ -2,7 +2,6 @@ package nav_test
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -27,7 +26,8 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	BeforeAll(func() {
 		root = musico()
 		jroot = helpers.JoinCwd("Test", "json")
-		toJsonPath = strings.Join([]string{jroot, "test-state-marshal.json"}, string(filepath.Separator))
+		toJsonPath = helpers.Path(jroot, "test-state-marshal.json")
+
 		filterDefs = nav.FilterDefinitions{
 			Node: nav.FilterDef{
 				Type:            nav.FilterTypeGlobEn,

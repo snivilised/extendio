@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/snivilised/extendio/xfs/nav"
 )
 
 func Path(parent, relative string) string {
@@ -52,4 +54,34 @@ func Log() string {
 		return filepath.Join(great, "Test", "test.log")
 	}
 	panic("could not get root path")
+}
+
+type CustomFilter struct {
+	Name  string
+	Value string
+}
+
+func (f *CustomFilter) Description() string {
+	return f.Name
+}
+
+func (f *CustomFilter) Validate() {}
+
+func (f *CustomFilter) Source() string {
+	return f.Value
+}
+
+func (f *CustomFilter) IsMatch(item *nav.TraverseItem) bool {
+	if item.Extension != nil {
+		return f.Value == item.Extension.Name
+	}
+	return false
+}
+
+func (f *CustomFilter) IsApplicable(item *nav.TraverseItem) bool {
+	return true
+}
+
+func (f *CustomFilter) Scope() nav.FilterScopeBiEnum {
+	return nav.ScopeAllEn
 }
