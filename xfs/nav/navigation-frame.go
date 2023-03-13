@@ -34,7 +34,7 @@ type navigationFrame struct {
 // as the state changes, then so does the decorator behaviour.
 // - Resume: Uses the listen feature, but because there is a resume specific state,
 // behaviour changes occur because of this particular state. However, the stack still
-// needs a custom ListenOptions instance, therefore it requires a push.
+// needs a custom ListenTriggers instance, therefore it requires a push.
 //
 
 func (f *navigationFrame) decorate(label string, decorator *LabelledTraverseCallback) *LabelledTraverseCallback {

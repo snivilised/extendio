@@ -45,11 +45,11 @@ func (b *bootstrapper) initNotifiers() {
 }
 
 func (b *bootstrapper) initListener() {
-	initialState := backfill(&b.o.Listen)
+	state := backfill(&b.o.Store.ListenDefs)
 
 	b.nc.frame.listener = &navigationListener{
-		state:       initialState,
-		resumeStack: collections.NewStack[*ListenOptions](),
+		state:       state.initialState,
+		resumeStack: collections.NewStack[*ListenTriggers](),
 	}
 
 	b.nc.frame.listener.makeStates(&listenStatesParams{
@@ -58,17 +58,17 @@ func (b *bootstrapper) initListener() {
 	})
 
 	b.nc.frame.listener.decorate(&listenStatesParams{
-		lo: &b.o.Listen, frame: b.nc.frame,
+		triggers: &state.Listen, frame: b.nc.frame,
 	})
 }
 
 type preserveClientInfo struct {
-	lo         *ListenOptions
+	triggers   *ListenTriggers
 	behaviours ListenBehaviour
 }
 
 type overrideClientInfo struct {
-	lo *ListenOptions
+	triggers *ListenTriggers
 }
 
 type overrideListenerInfo struct {
@@ -86,9 +86,10 @@ func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
 	}
 
 	strategyParams := &strategyInitParams{
-		ps:    ps,
-		frame: b.nc.frame,
-		rc:    b.rc,
+		ps:       ps,
+		frame:    b.nc.frame,
+		rc:       b.rc,
+		triggers: b.nc.frame.listener.triggers,
 	}
 	b.nc.frame.metrics.load(ps.Active)
 

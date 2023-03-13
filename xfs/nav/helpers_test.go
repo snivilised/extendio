@@ -46,11 +46,12 @@ type skipTE struct {
 
 type listenTE struct {
 	naviTE
-	start    nav.Listener
-	stop     nav.Listener
-	incStart bool
-	incStop  bool
-	mute     bool
+	// start      nav.Listener
+	// stop       nav.Listener
+	listenDefs *nav.ListenDefinitions
+	incStart   bool
+	incStop    bool
+	mute       bool
 }
 
 type filterTE struct {

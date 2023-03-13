@@ -2,7 +2,6 @@
   "Store": {
     "Subscription": 1,
     "DoExtend": true,
-    "WithMetrics": false,
     "Behaviours": {
       "SubPath": {
         "KeepTrailingSep": true

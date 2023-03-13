@@ -7,7 +7,7 @@ import (
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
-func NewNodeFilter(def *FilterDef) TraverseFilter {
+func newNodeFilter(def *FilterDef) TraverseFilter {
 	var filter TraverseFilter
 	switch def.Type {
 	case FilterTypeRegexEn:
@@ -47,50 +47,8 @@ func NewNodeFilter(def *FilterDef) TraverseFilter {
 	return filter
 }
 
-func NewRegexNodeFilter(def *FilterDef) TraverseFilter {
-	def.Type = FilterTypeRegexEn
-	scope := def.Scope
-	if scope == ScopeUndefinedEn {
-		scope = ScopeAllEn
-	}
-
-	filter := RegexFilter{
-		Filter: Filter{
-			Name:            def.Description,
-			RequiredScope:   scope,
-			Pattern:         def.Pattern,
-			Negate:          def.Negate,
-			IfNotApplicable: def.IfNotApplicable,
-		},
-	}
-	filter.Validate()
-
-	return &filter
-}
-
-func NewGlobNodeFilter(def *FilterDef) TraverseFilter {
-	def.Type = FilterTypeGlobEn
-	scope := def.Scope
-	if scope == ScopeUndefinedEn {
-		scope = ScopeAllEn
-	}
-
-	filter := GlobFilter{
-		Filter: Filter{
-			Name:            def.Description,
-			RequiredScope:   scope,
-			Pattern:         def.Pattern,
-			Negate:          def.Negate,
-			IfNotApplicable: def.IfNotApplicable,
-		},
-	}
-	filter.Validate()
-
-	return &filter
-}
-
-// NewCompoundFilter exported for testing purposes only (do not use)
-func NewCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
+// newCompoundFilter exported for testing purposes only (do not use)
+func newCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 	var filter CompoundTraverseFilter
 
 	switch def.Type {
@@ -119,6 +77,7 @@ func NewCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 
 		filter = def.Custom
 	}
+	filter.Validate()
 
 	return filter
 }

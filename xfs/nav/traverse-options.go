@@ -79,6 +79,14 @@ type FilterDefinitions struct {
 	Children CompoundFilterDef
 }
 
+type ListenDefinitions struct {
+	// Node denotes the filter object that represents the current file system item
+	// being visited.
+	//
+	StartAt *FilterDef
+	StopAt  *FilterDef
+}
+
 type NavigationFilters struct {
 	// Node denotes the filter object that represents the Node file system item
 	// being visited.
@@ -142,6 +150,11 @@ type OptionsStore struct {
 	//
 	FilterDefs *FilterDefinitions
 
+	// ListenDefs definitions to define when listening starts and stops. Filters
+	// can be used to define the Listeners.
+	//
+	ListenDefs ListenDefinitions
+
 	// Logging options
 	//
 	Logging LoggingOptions
@@ -165,7 +178,7 @@ type TraverseOptions struct {
 
 	// Listen options that control when listening state starts and finishes.
 	//
-	Listen ListenOptions `json:"-"`
+	Listen ListenTriggers `json:"-"`
 
 	// Persist contains options for persisting traverse options
 	//
@@ -245,7 +258,7 @@ func GetDefaultOptions() *TraverseOptions {
 			FileSubPath:   RootParentSubPath,
 			InitFilters:   InitFiltersHookFn,
 		},
-		Listen: ListenOptions{
+		Listen: ListenTriggers{
 			Start: nil,
 			Stop:  nil,
 		},

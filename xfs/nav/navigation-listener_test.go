@@ -35,8 +35,9 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Listen.InclusiveStart = entry.incStart
 				o.Store.Behaviours.Listen.InclusiveStop = entry.incStop
-				o.Listen.Start = entry.start
-				o.Listen.Stop = entry.stop
+				if entry.listenDefs != nil {
+					o.Store.ListenDefs = *entry.listenDefs
+				}
 				if !entry.mute {
 					o.Notify.OnStart = func(description string) {
 						GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
@@ -53,11 +54,16 @@ var _ = Describe("Listener", Ordered, func() {
 							item.Extension.Name,
 						)
 
-						prohibited := fmt.Sprintf("%v, was invoked, but should NOT have been", helpers.Reason(item.Extension.Name))
+						prohibited := fmt.Sprintf("%v, was invoked, but should NOT have been",
+							helpers.Reason(item.Extension.Name),
+						)
 						Expect(lo.Contains(entry.prohibited, item.Extension.Name)).To(
 							BeFalse(), prohibited,
 						)
-						mandatory := fmt.Sprintf("%v, was not invoked, but should have been", helpers.Reason(item.Extension.Name))
+
+						mandatory := fmt.Sprintf("%v, was not invoked, but should have been",
+							helpers.Reason(item.Extension.Name),
+						)
 						Expect(lo.Contains(entry.mandatory, item.Extension.Name)).To(
 							BeTrue(), mandatory,
 						)
@@ -88,45 +94,18 @@ var _ = Describe("Listener", Ordered, func() {
 				mandatory:    []string{"Night Drive", "College", "Northern Council", "Teenage Color"},
 				prohibited:   []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
 			},
-			start: &nav.ListenBy{
-				Name: "Night Drive",
-				Fn: func(item *nav.TraverseItem) bool {
-					return item.Extension.Name == "Night Drive"
-				},
-			},
-			stop: &nav.ListenBy{
-				Name: "Electric Youth",
-				Fn: func(item *nav.TraverseItem) bool {
-					return item.Extension.Name == "Electric Youth"
-				},
-			},
-			incStart: true,
-			incStop:  false,
-		}),
-
-		Entry(nil, &listenTE{
-			naviTE: naviTE{
-				message:      "listening, start and stop, defined by filters (folders, inc:default)",
-				relative:     "RETRO-WAVE",
-				extended:     true,
-				subscription: nav.SubscribeFolders,
-				mandatory:    []string{"Night Drive", "College", "Northern Council", "Teenage Color"},
-				prohibited:   []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
-			},
-			start: nav.NewRegexNodeFilter(
-				&nav.FilterDef{
-					Type:        nav.FilterTypeRegexEn,
-					Description: "Start At: Night Drive",
+			listenDefs: &nav.ListenDefinitions{
+				StartAt: &nav.FilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: "Start Listening At: Night Drive",
 					Pattern:     "Night Drive",
 				},
-			),
-			stop: nav.NewGlobNodeFilter(
-				&nav.FilterDef{
+				StopAt: &nav.FilterDef{
 					Type:        nav.FilterTypeGlobEn,
-					Description: "Stop At: Electric Youth",
+					Description: "Stop Listening At: Electric Youth",
 					Pattern:     "Electric Youth",
 				},
-			),
+			},
 			incStart: true,
 			incStop:  false,
 		}),
@@ -142,22 +121,23 @@ var _ = Describe("Listener", Ordered, func() {
 					"Innerworld",
 				},
 			},
-			start: &nav.ListenBy{
-				Name: "Name: Night Drive",
-				Fn: func(item *nav.TraverseItem) bool {
-					return item.Extension.Name == "Night Drive"
+			listenDefs: &nav.ListenDefinitions{
+				StartAt: &nav.FilterDef{
+					Type:        nav.FilterTypeRegexEn,
+					Description: "Start Listening At: Night Drive",
+					Pattern:     "Night Drive",
 				},
-			},
-			stop: &nav.ListenBy{
-				Name: "Name: Electric Youth",
-				Fn: func(item *nav.TraverseItem) bool {
-					return item.Extension.Name == "Electric Youth"
+				StopAt: &nav.FilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: "Stop Listening At: Electric Youth",
+					Pattern:     "Electric Youth",
 				},
 			},
 			incStart: false,
 			incStop:  true,
 			mute:     true,
 		}),
+
 		Entry(nil, &listenTE{
 			naviTE: naviTE{
 				message:      "listening, start only (folders, inc:default)",
@@ -169,15 +149,17 @@ var _ = Describe("Listener", Ordered, func() {
 				},
 				prohibited: []string{"RETRO-WAVE", "Chromatics"},
 			},
-			start: &nav.ListenBy{
-				Name: "Name: Night Drive",
-				Fn: func(item *nav.TraverseItem) bool {
-					return item.Extension.Name == "Night Drive"
+			listenDefs: &nav.ListenDefinitions{
+				StartAt: &nav.FilterDef{
+					Type:        nav.FilterTypeRegexEn,
+					Description: "Start Listening At: Night Drive",
+					Pattern:     "Night Drive",
 				},
 			},
 			incStart: true,
 			incStop:  false,
 		}),
+
 		Entry(nil, &listenTE{
 			naviTE: naviTE{
 				message:      "listening, stop only (folders, inc:default)",
@@ -189,15 +171,18 @@ var _ = Describe("Listener", Ordered, func() {
 				},
 				prohibited: []string{"Electric Youth", "Innerworld"},
 			},
-			stop: &nav.ListenBy{
-				Name: "Name: Electric Youth",
-				Fn: func(item *nav.TraverseItem) bool {
-					return item.Extension.Name == "Electric Youth"
+
+			listenDefs: &nav.ListenDefinitions{
+				StopAt: &nav.FilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: "Stop Listening At: Electric Youth",
+					Pattern:     "Electric Youth",
 				},
 			},
 			incStart: true,
 			incStop:  false,
 		}),
+
 		Entry(nil, &listenTE{
 			naviTE: naviTE{
 				message:      "listening, stop only (folders, inc:default)",
@@ -209,10 +194,11 @@ var _ = Describe("Listener", Ordered, func() {
 					"Teenage Color", "Electric Youth", "Innerworld",
 				},
 			},
-			stop: &nav.ListenBy{
-				Name: "Name: Night Drive",
-				Fn: func(item *nav.TraverseItem) bool {
-					return item.Extension.Name == "Night Drive"
+			listenDefs: &nav.ListenDefinitions{
+				StopAt: &nav.FilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: "Stop Listening At: Night Drive",
+					Pattern:     "Night Drive",
 				},
 			},
 			incStart: true,
@@ -229,12 +215,14 @@ var _ = Describe("Listener", Ordered, func() {
 			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFolders
-				o.Listen.Stop = &nav.ListenBy{
-					Name: "Name: DREAM-POP",
-					Fn: func(item *nav.TraverseItem) bool {
-						return item.Extension.Name == "DREAM-POP"
+				o.Store.ListenDefs = nav.ListenDefinitions{
+					StopAt: &nav.FilterDef{
+						Type:        nav.FilterTypeGlobEn,
+						Description: "Stop Listening At: DREAM-POP",
+						Pattern:     "DREAM-POP",
 					},
 				}
+
 				o.Notify.OnStop = func(description string) {
 					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 				}
@@ -251,12 +239,14 @@ var _ = Describe("Listener", Ordered, func() {
 			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFiles
-				o.Listen.Stop = &nav.ListenBy{
-					Name: "Name(contains): Captain",
-					Fn: func(item *nav.TraverseItem) bool {
-						return strings.Contains(item.Extension.Name, "Captain")
+				o.Store.ListenDefs = nav.ListenDefinitions{
+					StopAt: &nav.FilterDef{
+						Type:        nav.FilterTypeGlobEn,
+						Description: "Stop Listening At: Item containing Captain",
+						Pattern:     "*Captain*",
 					},
 				}
+
 				o.Notify.OnStop = func(description string) {
 					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 				}
@@ -284,18 +274,24 @@ var _ = Describe("Listener", Ordered, func() {
 							Pattern:     "(i?)o",
 						},
 					}
-					o.Listen.Start = &nav.ListenBy{
-						Name: "Name: Orbital",
-						Fn: func(item *nav.TraverseItem) bool {
-							return item.Extension.Name == "Orbital"
+
+					o.Store.ListenDefs = nav.ListenDefinitions{
+						StartAt: &nav.FilterDef{
+							Type: nav.FilterTypeCustomEn,
+							Custom: &helpers.CustomFilter{
+								Value: "Orbital",
+								Name:  "Start Listening At: Orbital",
+							},
+						},
+						StopAt: &nav.FilterDef{
+							Type: nav.FilterTypeCustomEn,
+							Custom: &helpers.CustomFilter{
+								Value: "Underworld",
+								Name:  "Stop Listening At: Underworld",
+							},
 						},
 					}
-					o.Listen.Stop = &nav.ListenBy{
-						Name: "Name: Underworld",
-						Fn: func(item *nav.TraverseItem) bool {
-							return item.Extension.Name == "Underworld"
-						},
-					}
+
 					o.Notify.OnStart = func(description string) {
 						GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
 					}
@@ -317,7 +313,9 @@ var _ = Describe("Listener", Ordered, func() {
 								item.Extension.NodeScope,
 								o.Store.FilterDefs.Node.Scope,
 							)
-							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Pattern), helpers.Reason(item.Extension.Name))
+							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Pattern),
+								helpers.Reason(item.Extension.Name),
+							)
 							return nil
 						},
 					}

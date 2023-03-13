@@ -271,12 +271,10 @@ var _ = Describe("Resume", Ordered, func() {
 					}
 					if strategyEn == nav.ResumeStrategyFastwardEn {
 						if entry.clientListenAt != "" {
-							o.Listen = nav.ListenOptions{
-								Start: &nav.ListenBy{
-									Fn: func(item *nav.TraverseItem) bool {
-										return item.Extension.Name == entry.clientListenAt
-									},
-								},
+							o.Store.ListenDefs.StartAt = &nav.FilterDef{
+								Type:        nav.FilterTypeGlobEn,
+								Description: fmt.Sprintf("Start Listening At: %v", entry.clientListenAt),
+								Pattern:     entry.clientListenAt,
 							}
 						}
 					}

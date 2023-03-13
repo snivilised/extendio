@@ -5,35 +5,13 @@ import (
 	. "github.com/snivilised/extendio/i18n"
 )
 
-// Listener
-type Listener interface {
-	Description() string
-	IsMatch(item *TraverseItem) bool
-}
-
-type ListenBy struct {
-	Fn   ListenPredicate
-	Name string
-}
-
-func (f *ListenBy) Description() string {
-	return f.Name
-}
-
-func (f *ListenBy) IsMatch(item *TraverseItem) bool {
-	return f.Fn(item)
-}
-
-// ListenPredicate
-type ListenPredicate func(item *TraverseItem) bool
-
 // ListenHandler
 type ListenHandler func(description string)
 
-// ListenOptions
-type ListenOptions struct {
-	Start Listener
-	Stop  Listener
+// ListenTriggers
+type ListenTriggers struct {
+	Start TraverseFilter
+	Stop  TraverseFilter
 }
 
 type ListenBehaviour struct {
@@ -58,7 +36,7 @@ type navigationListeningStates map[ListeningState]LabelledTraverseCallback
 type listenStatesParams struct {
 	// currently used for makeStates and listener.decorate
 	//
-	lo       *ListenOptions
+	triggers *ListenTriggers
 	o        *TraverseOptions
 	frame    *navigationFrame
 	detacher resumeDetacher
@@ -68,8 +46,8 @@ type navigationListener struct {
 	state       ListeningState
 	states      navigationListeningStates
 	current     LabelledTraverseCallback
-	resumeStack *collections.Stack[*ListenOptions]
-	lo          *ListenOptions
+	resumeStack *collections.Stack[*ListenTriggers]
+	triggers    *ListenTriggers
 }
 
 func (l *navigationListener) init() {
@@ -87,7 +65,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 	// listener state. When an attachment occurs for the purposes of resume, the state
 	// machine takes account of required change in behaviour, ie we don't have to
 	// re-decorate the client. The only thing required in this scenario is the modification
-	// of the resume stack which is updated with the resume specific ListenOptions and
+	// of the resume stack which is updated with the resume specific ListenTriggers and
 	// reverted at a later point via detach (resume stack pop).
 	//
 	l.states = navigationListeningStates{
@@ -102,7 +80,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 			Fn: func(item *TraverseItem) error {
 				// fast forwarding to resume point
 				//
-				if params.frame.listener.lo.Stop.IsMatch(item) {
+				if params.frame.listener.triggers.Stop.IsMatch(item) {
 					if params.detacher != nil {
 						// detach performs state transition
 						//
@@ -127,9 +105,9 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 			Fn: func(item *TraverseItem) error {
 				// listening not yet started
 				//
-				if params.frame.listener.lo.Start.IsMatch(item) {
+				if params.frame.listener.triggers.Start.IsMatch(item) {
 					params.frame.listener.transition(ListenActive)
-					params.frame.notifiers.start.invoke(params.frame.listener.lo.Start.Description())
+					params.frame.notifiers.start.invoke(params.frame.listener.triggers.Start.Description())
 
 					if params.o.Store.Behaviours.Listen.InclusiveStart {
 						return params.frame.raw.Fn(item)
@@ -145,9 +123,9 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 			Fn: func(item *TraverseItem) error {
 				// listening
 				//
-				if params.frame.listener.lo.Stop.IsMatch(item) {
+				if params.frame.listener.triggers.Stop.IsMatch(item) {
 					params.frame.listener.transition(ListenRetired)
-					params.frame.notifiers.stop.invoke(params.frame.listener.lo.Stop.Description())
+					params.frame.notifiers.stop.invoke(params.frame.listener.triggers.Stop.Description())
 
 					if params.o.Store.Behaviours.Listen.InclusiveStop {
 						return params.frame.raw.Fn(item)
@@ -187,58 +165,68 @@ func (l *navigationListener) decorate(params *listenStatesParams) {
 	}
 	params.frame.decorate("listener 🎀", decorator)
 
-	l.lo = params.lo
-	l.resumeStack.Push(l.lo)
+	l.triggers = params.triggers
+	l.resumeStack.Push(l.triggers)
 	l.init()
 }
 
-func backfill(lo *ListenOptions) ListeningState {
+type initialListenerState struct {
+	initialState ListeningState
+	Listen       ListenTriggers
+}
 
-	initialState := ListenDeaf
+func backfill(defs *ListenDefinitions) *initialListenerState {
 
-	start := func(item *TraverseItem) bool {
-		return false
+	state := initialListenerState{
+		initialState: ListenDeaf,
 	}
-	stop := func(item *TraverseItem) bool {
-		return true
+
+	startAt := FilterDef{
+		Type:            FilterTypeGlobEn,
+		Description:     "start listening straight away",
+		Pattern:         "*",
+		Scope:           ScopeAllEn,
+		IfNotApplicable: true,
+	}
+	stopAt := FilterDef{
+		Type:        FilterTypeGlobEn,
+		Description: "run to completion, don't stop early",
+		// We don't want this to match, so the stop trigger is never fired.
+		// "/" is prohibited within the name of a file-system item on
+		// all OSs.
+		//
+		Pattern:         "/",
+		Scope:           ScopeRootEn,
+		IfNotApplicable: false,
 	}
 
 	switch {
-	case (lo.Start != nil) && (lo.Stop != nil):
-		initialState = ListenPending
+	case (defs.StartAt != nil) && (defs.StopAt != nil):
+		state.initialState = ListenPending
 
-	case lo.Start != nil:
-		initialState = ListenPending
-		lo.Stop = &ListenBy{
-			Name: "run to completion, don't stop early",
-			Fn:   start,
-		}
+	case defs.StartAt != nil:
+		state.initialState = ListenPending
+		defs.StopAt = &stopAt
 
-	case lo.Stop != nil:
-		initialState = ListenActive
-		lo.Start = &ListenBy{
-			Name: "start listening straight away",
-			Fn:   stop,
-		}
+	case defs.StopAt != nil:
+		state.initialState = ListenActive
+		defs.StartAt = &startAt
 
 	default:
-		lo.Stop = &ListenBy{
-			Name: "dormant listener, don't stop early",
-			Fn:   start,
-		}
-		lo.Start = &ListenBy{
-			Name: "dormant listener, start listening straight away",
-			Fn:   stop,
-		}
+		defs.StartAt = &startAt
+		defs.StopAt = &stopAt
 	}
 
-	return initialState
+	state.Listen.Start = newNodeFilter(defs.StartAt)
+	state.Listen.Stop = newNodeFilter(defs.StopAt)
+
+	return &state
 }
 
-func (l *navigationListener) dispose() *ListenOptions {
+func (l *navigationListener) dispose() *ListenTriggers {
 
 	previous, _ := l.resumeStack.Pop()
-	l.lo, _ = l.resumeStack.Current()
+	l.triggers, _ = l.resumeStack.Current()
 
 	return previous
 }
