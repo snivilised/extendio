@@ -35,11 +35,12 @@ func (c *navigatorController) logger() log.Logger {
 	return c.impl.logger()
 }
 
-func (c *navigatorController) Walk(root string) *TraverseResult {
+func (c *navigatorController) Walk(root string) (*TraverseResult, error) {
 	c.frame.root.Set(root)
 	c.impl.logger().Info("Walk", log.String("root", root))
 	c.frame.notifiers.begin.invoke(c.ns)
-	result := c.impl.top(c.frame, root)
+
+	result, err := c.impl.top(c.frame, root)
 
 	fields := []log.Field{}
 	for _, m := range *result.Metrics {
@@ -49,7 +50,7 @@ func (c *navigatorController) Walk(root string) *TraverseResult {
 	c.impl.logger().Info("Result", fields...)
 	c.frame.notifiers.end.invoke(result)
 
-	return result
+	return result, err
 }
 
 func (c *navigatorController) Save(path string) error {

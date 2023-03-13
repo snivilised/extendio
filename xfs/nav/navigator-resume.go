@@ -5,12 +5,11 @@ func ResumeLegacy(resumeInfo *ResumerInfo) (*TraverseResult, error) {
 
 	if err != nil {
 		return &TraverseResult{
-			Error: err,
+			err: err,
 		}, err
 	}
-	result := resumer.Continue()
 
-	return result, result.Error
+	return resumer.Continue()
 }
 
 func Resume(info *ResumerInfo) (*TraverseResult, error) {

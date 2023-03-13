@@ -6,7 +6,7 @@ type resumeController struct {
 	strategy  resumeStrategy
 }
 
-func (c *resumeController) Continue() *TraverseResult {
+func (c *resumeController) Continue() (*TraverseResult, error) {
 
 	return c.strategy.resume(&strategyResumeInfo{
 		nc: c.navigator,

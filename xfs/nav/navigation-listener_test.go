@@ -30,7 +30,7 @@ var _ = Describe("Listener", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Listen.InclusiveStart = entry.incStart
@@ -226,7 +226,7 @@ var _ = Describe("Listener", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFolders
 				o.Listen.Stop = &nav.ListenBy{
@@ -248,7 +248,7 @@ var _ = Describe("Listener", Ordered, func() {
 			session := &nav.PrimarySession{
 				Path: path,
 			}
-			_ = session.Configure(func(o *nav.TraverseOptions) {
+			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFiles
 				o.Listen.Stop = &nav.ListenBy{
@@ -273,7 +273,7 @@ var _ = Describe("Listener", Ordered, func() {
 				session := &nav.PrimarySession{
 					Path: path,
 				}
-				result := session.Configure(func(o *nav.TraverseOptions) {
+				result, _ := session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.FilterDefs = &nav.FilterDefinitions{

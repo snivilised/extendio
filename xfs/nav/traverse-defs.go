@@ -85,12 +85,12 @@ type EndHandler func(result *TraverseResult)
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
 	Metrics *MetricCollection
-	Error   error
+	err     error
 }
 
-func (r *TraverseResult) merge(other *TraverseResult) *TraverseResult {
-	if !utils.IsNil(other.Error) {
-		r.Error = other.Error
+func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
+	if !utils.IsNil(other.err) {
+		r.err = other.err
 	}
 
 	if other.Metrics != nil {
@@ -102,12 +102,12 @@ func (r *TraverseResult) merge(other *TraverseResult) *TraverseResult {
 			}
 		}
 	}
-	return r
+	return r, r.err
 }
 
 // TraverseNavigator interface to the main traverse instance.
 type TraverseNavigator interface {
-	Walk(root string) *TraverseResult
+	Walk(root string) (*TraverseResult, error)
 	Save(path string) error
 	finish() error
 }
@@ -120,7 +120,7 @@ type traverseParams struct {
 type navigatorImpl interface {
 	options() *TraverseOptions
 	logger() log.Logger
-	top(frame *navigationFrame, root string) *TraverseResult
+	top(frame *navigationFrame, root string) (*TraverseResult, error)
 	traverse(params *traverseParams) error
 	finish() error
 }

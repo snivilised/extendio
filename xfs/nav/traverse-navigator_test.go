@@ -56,7 +56,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					Path: path,
 				}
 
-				result := session.Configure(func(o *nav.TraverseOptions) {
+				result, _ := session.Configure(func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = entry.subscription
 					o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
@@ -304,7 +304,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			result := session.Configure(func(o *nav.TraverseOptions) {
+			result, _ := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive

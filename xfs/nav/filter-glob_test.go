@@ -45,7 +45,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			result := session.Configure(func(o *nav.TraverseOptions) {
+			result, _ := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,
@@ -200,7 +200,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			session := nav.PrimarySession{
 				Path: path,
 			}
-			result := session.Configure(func(o *nav.TraverseOptions) {
+			result, _ := session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = func(state *nav.NavigationState) {
 					GinkgoWriter.Printf(
 						"---> 🛡️ [traverse-navigator-test:BEGIN], root: '%v'\n", state.Root,

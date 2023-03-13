@@ -23,7 +23,7 @@ func (s *spawnStrategy) init(params *strategyInitParams) {
 
 }
 
-func (s *spawnStrategy) resume(info *strategyResumeInfo) *TraverseResult {
+func (s *spawnStrategy) resume(info *strategyResumeInfo) (*TraverseResult, error) {
 	s.nc.frame.root.Set(info.ps.Active.Root)
 	resumeAt := s.ps.Active.NodePath
 
@@ -47,11 +47,11 @@ type concludeInfo struct {
 	inclusive bool
 }
 
-func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
+func (s *spawnStrategy) conclude(conclusion *concludeInfo) (*TraverseResult, error) {
 	if conclusion.current == conclusion.active.Root {
 		// reach the top, so we're done
 		//
-		return &TraverseResult{}
+		return &TraverseResult{}, nil
 	}
 	parent, child := utils.SplitParent(conclusion.current)
 
@@ -64,20 +64,24 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) *TraverseResult {
 	following.siblings.sort(&following.siblings.Files)
 	following.siblings.sort(&following.siblings.Folders)
 
-	compoundResult := s.seed(&seedParams{
+	compoundResult, err := s.seed(&seedParams{
 		frame:      s.nc.frame,
 		parent:     parent,
 		entries:    following.siblings.all(),
 		conclusion: conclusion,
 	})
 
-	if !utils.IsNil(compoundResult.Error) {
-		return compoundResult
+	if !utils.IsNil(err) {
+		return compoundResult, err
 	}
 	conclusion.current = parent
 	conclusion.inclusive = false
 
-	return compoundResult.merge(s.conclude(conclusion))
+	// the ignored error below is already accounted for in the merge
+	//
+	result, _ := s.conclude(conclusion)
+
+	return compoundResult.merge(result)
 }
 
 type seedParams struct {
@@ -87,7 +91,7 @@ type seedParams struct {
 	conclusion *concludeInfo
 }
 
-func (s *spawnStrategy) seed(params *seedParams) *TraverseResult {
+func (s *spawnStrategy) seed(params *seedParams) (*TraverseResult, error) {
 	params.frame.link(&linkParams{
 		root:    params.conclusion.root,
 		current: params.conclusion.current,
@@ -96,14 +100,15 @@ func (s *spawnStrategy) seed(params *seedParams) *TraverseResult {
 	compoundResult := &TraverseResult{}
 	for _, entry := range *params.entries {
 		topPath := filepath.Join(params.parent, entry.Name())
-		result := s.nc.impl.top(params.frame, topPath)
-		compoundResult.merge(result)
 
-		if result.Error != nil {
-			return compoundResult
+		result, err := s.nc.impl.top(params.frame, topPath)
+		_, _ = compoundResult.merge(result)
+
+		if err != nil {
+			return compoundResult, err
 		}
 	}
-	return compoundResult
+	return compoundResult, compoundResult.err
 }
 
 type shard struct {
