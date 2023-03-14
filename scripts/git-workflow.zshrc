@@ -1,4 +1,8 @@
 
+get-def-branch() {
+  echo master
+}
+
 startfeat() {
   if [[ -n $1 ]]; then
     echo "===> 🚀 START FEATURE: '🎀 $1'"
@@ -11,8 +15,8 @@ startfeat() {
 }
 
 endfeat() {
-  local feature_branch="$(git_current_branch)"
-  local default_branch="$(git config --get init.defaultBranch)"
+  local feature_branch=$(git_current_branch)
+  local default_branch=$(get-def-branch)
 
   echo "About to end feature 🎁 '$feature_branch' ... have you squashed commits? (type 'y' to confirm)"
   read squashed
@@ -43,7 +47,7 @@ endfeat() {
 
 push-feat() {
   local current_branch=$(git_current_branch)
-  local default_branch=$(git config --get init.defaultBranch)
+  local default_branch=$(get-def-branch)
 
   if [ $current_branch = $default_branch ]; then
     echo "!!! ⛔ Aborted! still on default branch($default_branch) branch ($current_branch)"
@@ -65,7 +69,7 @@ release() {
   if [[ -n $1 ]]; then
     local version_number=v$1
     local current_branch=$(git_current_branch)
-    local default_branch=$(git config --get init.defaultBranch)
+    local default_branch=$(get-def-branch)
 
     if [ $current_branch != $default_branch ]; then
       echo "!!! ⛔ Aborted! not on default($default_branch) branch; current($current_branch)"
@@ -122,7 +126,7 @@ tag-rel() {
   if [[ -n $1 ]]; then
     local version_number="v$1"
     local current_branch=$(git_current_branch)
-    local default_branch=$(git config --get init.defaultBranch)
+    local default_branch=$(get-def-branch)
 
     if [ $current_branch != $default_branch ]; then
       echo "!!! ⛔ Aborted! not on default($default_branch) branch; current($current_branch)"
