@@ -107,8 +107,8 @@ func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
 
 // TraverseNavigator interface to the main traverse instance.
 type TraverseNavigator interface {
-	Walk(root string) (*TraverseResult, error)
-	Save(path string) error
+	walk(root string) (*TraverseResult, error)
+	save(path string) error
 	finish() error
 }
 
@@ -125,18 +125,21 @@ type navigatorImpl interface {
 	finish() error
 }
 
+// NavigationInfo
 type NavigationInfo struct {
 	Options *TraverseOptions
 	Item    *TraverseItem
 	Frame   *navigationFrame
 }
 
+// SubPathInfo
 type SubPathInfo struct {
 	Root      string
 	Item      *TraverseItem
 	Behaviour *SubPathBehaviour
 }
 
+// ClientLogger
 type ClientLogger interface {
 	Debug(msg string, fields ...log.Field)
 	Info(msg string, fields ...log.Field)

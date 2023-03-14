@@ -12,13 +12,13 @@ type GlobFilter struct {
 	Filter
 }
 
-// IsMatch
+// IsMatch does this item match the filter
 func (f *GlobFilter) IsMatch(item *TraverseItem) bool {
 	if f.IsApplicable(item) {
-		matched, _ := filepath.Match(f.Pattern, item.Extension.Name)
+		matched, _ := filepath.Match(f.pattern, item.Extension.Name)
 		return f.invert(matched)
 	}
-	return f.IfNotApplicable
+	return f.ifNotApplicable
 }
 
 // CompoundGlobFilter =========================================================
@@ -27,6 +27,8 @@ type CompoundGlobFilter struct {
 	CompoundFilter
 }
 
+// Matching returns the collection of files contained within this
+// item's folder that matches this filter.
 func (f *CompoundGlobFilter) Matching(children []fs.DirEntry) []fs.DirEntry {
 	return lo.Filter(children, func(entry fs.DirEntry, index int) bool {
 		matched, _ := filepath.Match(f.Pattern, entry.Name())

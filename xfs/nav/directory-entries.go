@@ -7,10 +7,15 @@ import (
 	. "github.com/snivilised/extendio/i18n"
 )
 
+// DirectoryEntryOrderEnum determines what order a directories
+// entries are invoked for.
 type DirectoryEntryOrderEnum uint
 
 const (
+	// DirectoryEntryOrderFoldersFirstEn invoke folders first
 	DirectoryEntryOrderFoldersFirstEn DirectoryEntryOrderEnum = iota
+
+	// DirectoryEntryOrderFilesFirstEn invoke files first
 	DirectoryEntryOrderFilesFirstEn
 )
 

@@ -6,37 +6,39 @@ import "github.com/samber/lo"
 
 // Filter base filter struct.
 type Filter struct {
-	Name            string
-	Pattern         string
-	RequiredScope   FilterScopeBiEnum // defines which file system nodes the filter should be applied to
-	Negate          bool              // select to define a negative match
-	IfNotApplicable bool
+	name            string
+	pattern         string
+	scope           FilterScopeBiEnum // defines which file system nodes the filter should be applied to
+	negate          bool              // select to define a negative match
+	ifNotApplicable bool
 }
 
+// Description description of the filter
 func (f *Filter) Description() string {
-	return f.Name
+	return f.name
 }
 
-func (f *Filter) Validate() {
-	if f.RequiredScope == ScopeUndefinedEn {
-		f.RequiredScope = ScopeAllEn
-	}
-}
-
+// Source text defining the filter
 func (f *Filter) Source() string {
-	return f.Pattern
+	return f.pattern
 }
 
 func (f *Filter) IsApplicable(item *TraverseItem) bool {
-	return (f.RequiredScope & item.Extension.NodeScope) > 0
+	return (f.scope & item.Extension.NodeScope) > 0
 }
 
 func (f *Filter) Scope() FilterScopeBiEnum {
-	return f.RequiredScope
+	return f.scope
 }
 
 func (f *Filter) invert(result bool) bool {
-	return lo.Ternary(f.Negate, !result, result)
+	return lo.Ternary(f.negate, !result, result)
+}
+
+func (f *Filter) Validate() {
+	if f.scope == ScopeUndefinedEn {
+		f.scope = ScopeAllEn
+	}
 }
 
 // CompoundFilter =============================================================

@@ -53,13 +53,13 @@ func (s *PrimarySession) Configure(fn ...TraverseOptionFn) NavigationRunner {
 // Save persists the current state for a primary session, that allows
 // a subsequent run to complete the resume.
 func (s *PrimarySession) Save(path string) error {
-	return s.navigator.Save(path)
+	return s.navigator.save(path)
 }
 
 func (s *PrimarySession) run() (*TraverseResult, error) {
 	defer s.finish()
 
-	return s.navigator.Walk(s.Path)
+	return s.navigator.walk(s.Path)
 }
 
 func (s *PrimarySession) finish() {
@@ -97,7 +97,7 @@ func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *Activ
 // Save persists the current state for a resume session, that allows
 // a subsequent run to complete the resume.
 func (s *ResumeSession) Save(path string) error {
-	return s.resumer.navigator.Save(path)
+	return s.resumer.navigator.save(path)
 }
 
 func (s *ResumeSession) run() (*TraverseResult, error) {

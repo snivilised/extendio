@@ -13,22 +13,22 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 	case FilterTypeRegexEn:
 		filter = &RegexFilter{
 			Filter: Filter{
-				Name:            def.Description,
-				RequiredScope:   def.Scope,
-				Pattern:         def.Pattern,
-				Negate:          def.Negate,
-				IfNotApplicable: def.IfNotApplicable,
+				name:            def.Description,
+				scope:           def.Scope,
+				pattern:         def.Pattern,
+				negate:          def.Negate,
+				ifNotApplicable: def.IfNotApplicable,
 			},
 		}
 
 	case FilterTypeGlobEn:
 		filter = &GlobFilter{
 			Filter: Filter{
-				Name:            def.Description,
-				RequiredScope:   def.Scope,
-				Pattern:         def.Pattern,
-				Negate:          def.Negate,
-				IfNotApplicable: def.IfNotApplicable,
+				name:            def.Description,
+				scope:           def.Scope,
+				pattern:         def.Pattern,
+				negate:          def.Negate,
+				ifNotApplicable: def.IfNotApplicable,
 			},
 		}
 

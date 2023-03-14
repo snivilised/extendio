@@ -15,9 +15,10 @@ type RegexFilter struct {
 	rex *regexp.Regexp
 }
 
+// Validate ensures the filter definition is valid, panics when invalid
 func (f *RegexFilter) Validate() {
 	f.Filter.Validate()
-	f.rex = regexp.MustCompile(f.Pattern)
+	f.rex = regexp.MustCompile(f.pattern)
 }
 
 // IsMatch
@@ -25,7 +26,7 @@ func (f *RegexFilter) IsMatch(item *TraverseItem) bool {
 	if f.IsApplicable(item) {
 		return f.invert(f.rex.Match([]byte(item.Extension.Name)))
 	}
-	return f.IfNotApplicable
+	return f.ifNotApplicable
 }
 
 // CompoundRegexFilter ========================================================

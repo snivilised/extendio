@@ -91,10 +91,9 @@ func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
 	}
 
 	strategyParams := &strategyInitParams{
-		ps:       ps,
-		frame:    b.nc.frame,
-		rc:       b.rc,
-		triggers: b.nc.frame.listener.triggers,
+		ps:    ps,
+		frame: b.nc.frame,
+		rc:    b.rc,
 	}
 	b.nc.frame.metrics.load(ps.Active)
 
