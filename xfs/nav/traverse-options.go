@@ -105,6 +105,7 @@ type NavigationFilters struct {
 type NavigationState struct {
 	Root    *utils.VarProp[string]
 	Filters *NavigationFilters
+	Logger  utils.RoProp[ClientLogger]
 }
 
 // PersistOptions contains options for persisting traverse options

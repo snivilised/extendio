@@ -28,7 +28,12 @@ func (c *navigatorController) makeFrame() *navigationFrame {
 }
 
 func (c *navigatorController) init() {
-	c.ns = &NavigationState{Filters: c.frame.filters, Root: &c.frame.root}
+
+	c.ns = &NavigationState{
+		Filters: c.frame.filters,
+		Root:    &c.frame.root,
+		Logger:  utils.NewRoProp[ClientLogger](c.impl.logger()),
+	}
 }
 
 func (c *navigatorController) logger() log.Logger {
