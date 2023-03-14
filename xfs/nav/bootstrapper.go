@@ -2,6 +2,7 @@ package nav
 
 import (
 	"github.com/snivilised/extendio/collections"
+	"github.com/snivilised/extendio/xfs/utils"
 )
 
 type nullDetacher struct{}
@@ -25,7 +26,11 @@ func (b *bootstrapper) init() {
 	b.initNotifiers()
 	b.initListener()
 	b.nc.init()
-	b.nc.ns = &NavigationState{Filters: b.nc.frame.filters, Root: &b.nc.frame.root}
+	b.nc.ns = &NavigationState{
+		Filters: b.nc.frame.filters,
+		Root:    &b.nc.frame.root,
+		Logger:  utils.NewRoProp[ClientLogger](b.nc.impl.logger()),
+	}
 }
 
 func (b *bootstrapper) initFilters() {

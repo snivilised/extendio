@@ -3,6 +3,7 @@ package nav_test
 import (
 	"errors"
 	"io/fs"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/internal/helpers"
+	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -129,7 +131,15 @@ const IsExtended = true
 const NotExtended = false
 
 func begin(em string) nav.BeginHandler {
+
 	return func(state *nav.NavigationState) {
+		state.Logger.Get().Info("💧 Beginning Traversal (client side)",
+			log.String("Root", state.Root.Get()),
+			log.Uint("Foo", 42),
+			log.Int("Bar", 13),
+			log.Float64("Pi", float64(math.Pi)),
+		)
+
 		GinkgoWriter.Printf(
 			"---> %v [traverse-navigator-test:BEGIN], root: '%v'\n", em, state.Root,
 		)
