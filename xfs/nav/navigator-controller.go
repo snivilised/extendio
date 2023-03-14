@@ -40,9 +40,9 @@ func (c *navigatorController) logger() log.Logger {
 	return c.impl.logger()
 }
 
-func (c *navigatorController) Walk(root string) (*TraverseResult, error) {
+func (c *navigatorController) walk(root string) (*TraverseResult, error) {
 	c.frame.root.Set(root)
-	c.impl.logger().Info("Walk", log.String("root", root))
+	c.impl.logger().Info("walk", log.String("root", root))
 	c.frame.notifiers.begin.invoke(c.ns)
 
 	result, err := c.impl.top(c.frame, root)
@@ -58,7 +58,7 @@ func (c *navigatorController) Walk(root string) (*TraverseResult, error) {
 	return result, err
 }
 
-func (c *navigatorController) Save(path string) error {
+func (c *navigatorController) save(path string) error {
 	o := c.impl.options()
 
 	listen := lo.TernaryF(c.frame.listener == nil,

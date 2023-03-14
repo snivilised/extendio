@@ -15,7 +15,7 @@ func (c *resumeController) Continue() (*TraverseResult, error) {
 }
 
 func (c *resumeController) Save(path string) error {
-	return c.navigator.Save(path)
+	return c.navigator.save(path)
 }
 
 func (c *resumeController) detach(frame *navigationFrame) {

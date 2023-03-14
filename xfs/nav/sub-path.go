@@ -17,23 +17,25 @@ func Tail(input string, offset int) string {
 	return string(asRunes[offset:])
 }
 
-// Difference returns the difference between a child path and a parent path
+// difference returns the difference between a child path and a parent path
 // Designed to be used with paths created from the file system rather than
 // custom created or user provided input. For this reason, if there is no
 // relationship between the parent and child paths provided then a panic
 // may occur.
-func Difference(parent string, child string) string {
+func difference(parent string, child string) string {
 	return Tail(child, len(parent))
 }
 
+// RootItemSubPath
 func RootItemSubPath(info *SubPathInfo) string {
-	return Difference(info.Root, info.Item.Path)
+	return difference(info.Root, info.Item.Path)
 }
 
+// RootParentSubPath
 func RootParentSubPath(info *SubPathInfo) string {
 
 	if info.Item.Extension.NodeScope == ScopeTopEn {
 		return lo.Ternary(info.Behaviour.KeepTrailingSep, string(filepath.Separator), "")
 	}
-	return Difference(info.Root, info.Item.Extension.Parent)
+	return difference(info.Root, info.Item.Extension.Parent)
 }

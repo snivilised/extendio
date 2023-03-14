@@ -49,8 +49,14 @@ type FilterTypeEnum uint
 
 const (
 	FilterTypeUndefinedEn FilterTypeEnum = iota
+
+	// FilterTypeRegexEn regex filter
 	FilterTypeRegexEn
+
+	// FilterTypeGlobEn glob filter
 	FilterTypeGlobEn
+
+	// FilterTypeCustomEn client definable filter
 	FilterTypeCustomEn
 )
 
@@ -64,7 +70,7 @@ var filterScopeStrings = map[FilterScopeBiEnum]string{
 	ScopeAllEn:          "All",
 }
 
-// String
+// String converts enum value to a string
 func (f FilterScopeBiEnum) String() string {
 	result := filterScopeStrings[f]
 	return lo.Ternary(result == "", "[multi]", result)
@@ -73,37 +79,88 @@ func (f FilterScopeBiEnum) String() string {
 // TraverseFilter filter that can be applied to file system entries. When specified,
 // the callback will only be invoked for file system nodes that pass the filter.
 type TraverseFilter interface {
+	// Description describes filter
 	Description() string
+
+	// Validate ensures the filter definition is valid, panics when invalid
 	Validate()
+
+	// Source, filter definition (comes from filter definition Pattern)
 	Source() string
+
+	// IsMatch does this item match the filter
 	IsMatch(item *TraverseItem) bool
+
+	// IsApplicable is this filter applicable to this item's scope
 	IsApplicable(item *TraverseItem) bool
+
+	// Scope, what items this filter applies to
 	Scope() FilterScopeBiEnum
 }
 
+// FilterDef defines a filter to be used filtering or listening features.
 type FilterDef struct {
-	Type            FilterTypeEnum
-	Description     string
-	Pattern         string
-	Scope           FilterScopeBiEnum
-	Negate          bool
+	// Type specifies the type of filter (mandatory)
+	Type FilterTypeEnum
+
+	// Description describes filter (optional)
+	Description string
+
+	// Pattern filter definition (mandatory)
+	Pattern string
+
+	// Scope which file system entries this filter applies to (defaults
+	// to ScopeAllEn)
+	Scope FilterScopeBiEnum
+
+	// Negate, reverses the applicability of the filter (Defaults to false)
+	Negate bool
+
+	// IfNotApplicable, when the filter does not apply to a directory entry,
+	// this value determines whether the callback is invoked for this entry
+	// or not (defaults to false). Since this default to false (ie the zero
+	// value for a bool, it is highly recommended to set this explicitly to
+	// true as this is the scenario that most makes sense)
 	IfNotApplicable bool
-	Custom          TraverseFilter `json:"-"`
+
+	// Custom client define-able filter. When restoring for resume feature,
+	// its the client's responsibility to restore this themselves (see
+	// PersistenceRestorer)
+	Custom TraverseFilter `json:"-"`
 }
 
 // CompoundTraverseFilter filter that can be applied to a folder's collection of entries
 // when subscription is
 type CompoundTraverseFilter interface {
+	// Description describes filter
 	Description() string
+
+	// Validate ensures the filter definition is valid, panics when invalid
 	Validate()
+
+	// Source, filter definition (comes from filter definition Pattern)
 	Source() string
+
+	// Matching returns the collection of files contained within this
+	// item's folder that matches this filter.
 	Matching(children []fs.DirEntry) []fs.DirEntry
 }
 
 type CompoundFilterDef struct {
-	Type        FilterTypeEnum
+	// Type specifies the type of filter (mandatory)
+	Type FilterTypeEnum
+
+	// Description describes filter (optional)
 	Description string
-	Pattern     string
-	Negate      bool
-	Custom      CompoundTraverseFilter `json:"-"`
+
+	// Pattern filter definition (mandatory)
+	Pattern string
+
+	// Negate, reverses the applicability of the filter (Defaults to false)
+	Negate bool
+
+	// Custom client define-able filter. When restoring for resume feature,
+	// its the client's responsibility to restore this themselves (see
+	// PersistenceRestorer)
+	Custom CompoundTraverseFilter `json:"-"`
 }

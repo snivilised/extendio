@@ -114,20 +114,34 @@ type PersistOptions struct {
 }
 
 type LogRotationOptions struct {
-	// Max size of a log file, before it is re-cycled
+	// MaxSizeInMb, max size of a log file, before it is re-cycled
 	MaxSizeInMb int
 
-	// Max number of legacy log files that can exist before being deleted
+	// MaxNoOfBackups, max number of legacy log files that can exist
+	// before being deleted
 	MaxNoOfBackups int
-	MaxAgeInDays   int
+
+	// MaxAgeInDays, max no of days before old log file is deleted
+	MaxAgeInDays int
 }
 
+// LoggingOptions
 type LoggingOptions struct {
-	Enabled         bool
-	Path            string
+
+	// Enabled controls logging actuation
+	Enabled bool
+
+	// Path of log file
+	Path string
+
+	// TimeStampFormat format of the timestamp field in generated logs
 	TimeStampFormat string
-	Level           log.Level
-	Rotation        LogRotationOptions
+
+	// Level controls which the level of logging desired
+	Level log.Level
+
+	// Rotation log file rotation options
+	Rotation LogRotationOptions
 }
 
 // OptionsStore represents that part of options that is directly
@@ -177,10 +191,6 @@ type TraverseOptions struct {
 	//
 	Hooks TraverseHooks `json:"-"`
 
-	// Listen options that control when listening state starts and finishes.
-	//
-	Listen ListenTriggers `json:"-"`
-
 	// Persist contains options for persisting traverse options
 	//
 	Persist PersistOptions `json:"-"`
@@ -217,6 +227,7 @@ func (o *TraverseOptions) Clone() *TraverseOptions {
 	return clone.(*TraverseOptions)
 }
 
+// GetDefaultOptions
 func GetDefaultOptions() *TraverseOptions {
 	return &TraverseOptions{
 		Store: OptionsStore{
@@ -258,10 +269,6 @@ func GetDefaultOptions() *TraverseOptions {
 			FolderSubPath: RootParentSubPath,
 			FileSubPath:   RootParentSubPath,
 			InitFilters:   InitFiltersHookFn,
-		},
-		Listen: ListenTriggers{
-			Start: nil,
-			Stop:  nil,
 		},
 		Persist: PersistOptions{
 			Format: PersistInJSONEn,
