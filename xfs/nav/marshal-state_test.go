@@ -15,11 +15,9 @@ import (
 
 var _ = Describe("MarshalOptions", Ordered, func() {
 	var (
-		root  string
-		jroot string
-
+		root       string
+		jroot      string
 		toJsonPath string
-
 		filterDefs nav.FilterDefinitions
 	)
 
@@ -35,7 +33,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 				Pattern:         "*.flac",
 				Scope:           nav.ScopeLeafEn,
 				Negate:          false,
-				IfNotApplicable: true,
+				IfNotApplicable: nav.TriStateBoolTrueEn,
 			},
 			Children: nav.CompoundFilterDef{
 				Type:        nav.FilterTypeRegexEn,

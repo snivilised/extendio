@@ -209,7 +209,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			name:            "top items that contain 'HOUSE'",
 			pattern:         "HOUSE",
 			scope:           nav.ScopeTopEn,
-			ifNotApplicable: true,
+			ifNotApplicable: nav.TriStateBoolTrueEn,
 		}),
 
 		Entry(nil, &filterTE{
@@ -227,7 +227,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			name:            "top items that contain 'HOUSE'",
 			pattern:         "HOUSE",
 			scope:           nav.ScopeTopEn,
-			ifNotApplicable: false,
+			ifNotApplicable: nav.TriStateBoolFalseEn,
 		}),
 	)
 
@@ -343,7 +343,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 			name:            "items without '.txt' suffix",
 			pattern:         "\\.txt$",
 			negate:          true,
-			ifNotApplicable: true,
+			ifNotApplicable: nav.TriStateBoolTrueEn,
 		}),
 	)
 

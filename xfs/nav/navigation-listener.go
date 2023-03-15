@@ -186,7 +186,7 @@ func backfill(defs *ListenDefinitions) *initialListenerState {
 		Description:     "start listening straight away",
 		Pattern:         "*",
 		Scope:           ScopeAllEn,
-		IfNotApplicable: true,
+		IfNotApplicable: TriStateBoolTrueEn,
 	}
 	stopAt := FilterDef{
 		Type:        FilterTypeGlobEn,
@@ -197,7 +197,7 @@ func backfill(defs *ListenDefinitions) *initialListenerState {
 		//
 		Pattern:         "/",
 		Scope:           ScopeRootEn,
-		IfNotApplicable: false,
+		IfNotApplicable: TriStateBoolFalseEn,
 	}
 
 	switch {

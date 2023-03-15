@@ -161,7 +161,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			name:            "items with '.flac' suffix",
 			pattern:         "*.flac",
 			scope:           nav.ScopeLeafEn,
-			ifNotApplicable: true,
+			ifNotApplicable: nav.TriStateBoolTrueEn,
 		}),
 
 		Entry(nil, &filterTE{
@@ -179,7 +179,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			name:            "items with '.flac' suffix",
 			pattern:         "*.flac",
 			scope:           nav.ScopeLeafEn,
-			ifNotApplicable: false,
+			ifNotApplicable: nav.TriStateBoolFalseEn,
 		}),
 	)
 

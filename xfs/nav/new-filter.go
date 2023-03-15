@@ -8,7 +8,19 @@ import (
 )
 
 func newNodeFilter(def *FilterDef) TraverseFilter {
-	var filter TraverseFilter
+	var (
+		filter          TraverseFilter
+		ifNotApplicable bool = true
+	)
+
+	switch def.IfNotApplicable {
+	case TriStateBoolTrueEn:
+		ifNotApplicable = true
+
+	case TriStateBoolFalseEn:
+		ifNotApplicable = false
+	}
+
 	switch def.Type {
 	case FilterTypeRegexEn:
 		filter = &RegexFilter{
@@ -17,7 +29,7 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 				scope:           def.Scope,
 				pattern:         def.Pattern,
 				negate:          def.Negate,
-				ifNotApplicable: def.IfNotApplicable,
+				ifNotApplicable: ifNotApplicable,
 			},
 		}
 
@@ -28,7 +40,7 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 				scope:           def.Scope,
 				pattern:         def.Pattern,
 				negate:          def.Negate,
-				ifNotApplicable: def.IfNotApplicable,
+				ifNotApplicable: ifNotApplicable,
 			},
 		}
 

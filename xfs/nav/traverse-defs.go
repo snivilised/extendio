@@ -146,3 +146,11 @@ type ClientLogger interface {
 	Warn(msg string, fields ...log.Field)
 	Error(msg string, fields ...log.Field)
 }
+
+type TriStateBoolEnum uint
+
+const (
+	TriStateBoolUnsetEn TriStateBoolEnum = iota
+	TriStateBoolTrueEn
+	TriStateBoolFalseEn
+)
