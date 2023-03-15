@@ -54,12 +54,13 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	Context("Marshal", func() {
 		Context("given: correct config", func() {
 			It("🧪 should: write options in JSON", func() {
-				path := helpers.Path(root, "RETRO-WAVE/Chromatics/Night Drive")
+				path := helpers.Path(root, "RETRO-WAVE")
 				session := &nav.PrimarySession{
 					Path: path,
 				}
 
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+					o.Store.Subscription = nav.SubscribeAny
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = nav.LabelledTraverseCallback{
@@ -68,7 +69,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 							return nil
 						},
 					}
-				})
+				}).Run()
 
 				err := session.Save(toJsonPath)
 				Expect(err).To(BeNil())
