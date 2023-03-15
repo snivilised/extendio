@@ -64,7 +64,7 @@ type filterTE struct {
 	negate          bool
 	expectedErr     error
 	errorContains   string
-	ifNotApplicable bool
+	ifNotApplicable nav.TriStateBoolEnum
 }
 
 type marshalTE struct {

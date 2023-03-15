@@ -118,10 +118,8 @@ type FilterDef struct {
 
 	// IfNotApplicable, when the filter does not apply to a directory entry,
 	// this value determines whether the callback is invoked for this entry
-	// or not (defaults to false). Since this default to false (ie the zero
-	// value for a bool, it is highly recommended to set this explicitly to
-	// true as this is the scenario that most makes sense)
-	IfNotApplicable bool
+	// or not (defaults to TriStateBoolTrueEn/true).
+	IfNotApplicable TriStateBoolEnum
 
 	// Custom client define-able filter. When restoring for resume feature,
 	// its the client's responsibility to restore this themselves (see

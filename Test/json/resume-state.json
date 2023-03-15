@@ -22,7 +22,7 @@
         "Source": "*.flac",
         "Scope": 4,
         "Negate": false,
-        "IfNotApplicable": true
+        "IfNotApplicable": 1
       },
       "Children": {
         "Type": 1,
