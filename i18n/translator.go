@@ -8,7 +8,6 @@ import (
 )
 
 var DefaultLanguage = utils.NewRoProp(language.BritishEnglish)
-
 var tx *Translator
 var TxRef utils.RoProp[*Translator] = utils.NewRoProp(tx)
 
@@ -32,7 +31,13 @@ func Use(options ...UseOptionFn) error {
 		return NewLanguageNotAvailableNativeError(o.Tag)
 	}
 
-	tx = NewTranslator(li)
+	// since extendio is not trying to provide foreign translations for any
+	// of its dependencies, we only need create a localizer for this module
+	// only (extendio). If we do need to provide these additional translations,
+	// then use NewMultiTranslator instead and then provide additional
+	// localizers.
+	//
+	tx = NewSingularTranslator(li)
 	TxRef = utils.NewRoProp(tx)
 
 	if TxRef.IsNone() {
@@ -47,7 +52,9 @@ func Use(options ...UseOptionFn) error {
 // number change.
 func ResetTx() {
 	// having to do this smells a bit, but required so unit tests can
-	// remain isolated (this is why package globals are bad).
+	// remain isolated (this is why package globals are bad, but sometimes
+	// unavoidable).
+	//
 	tx = nil
 	TxRef = utils.NewRoProp(tx)
 }
@@ -78,19 +85,7 @@ type Translator struct {
 	LanguageInfoRef utils.RoProp[LanguageInfo]
 }
 
-// since extendio is not trying to provide foreign translations for any
-// of its dependencies, we only need create a localizer for this module
-// only (extendio). If we do need to provide these additional translations,
-// then set _USE_MULTI to true and then provide additional localizers
-// as indicated with the add method.
-const _USE_MULTI = false
-
-// NewTranslator creates a translator instance from the provided
-// Localizers. If no foreign localizers are provided, then the
-// Translator will be created with the single localizer which represents
-// the client's package. If foreign localizers are present, then
-// these are added as registered localizers.
-func NewTranslator(li *LanguageInfo, foreigners ...*LocalizerInfo) *Translator {
+func nativeLocalizer(li *LanguageInfo) *i18n.Localizer {
 	liRef := utils.NewRoProp(*li)
 
 	factory := LocalizerFactory{
@@ -101,39 +96,52 @@ func NewTranslator(li *LanguageInfo, foreigners ...*LocalizerInfo) *Translator {
 	// The native localizer represents the one that is used for this
 	// module's translations requirements.
 	//
-	native := factory.New(li)
+	return factory.New(li)
+}
 
-	mx := lo.TernaryF(_USE_MULTI,
-		func() localizerMultiplexor {
-			multi := multipleLocalizers{}
-
-			if err := multi.add(&LocalizerInfo{
-				SourceId:  EXTENDIO_SOURCE_ID,
-				Localizer: native,
-			}); err != nil {
-				panic(NewFailedToCreateLocalizerNativeError(li.Current, EXTENDIO_SOURCE_ID))
-			}
-
-			for _, forloc := range foreigners {
-				if err := multi.add(&LocalizerInfo{
-					SourceId:  forloc.SourceId,
-					Localizer: forloc.Localizer,
-				}); err != nil {
-					panic(NewFailedToCreateLocalizerNativeError(li.Current, EXTENDIO_SOURCE_ID))
-				}
-			}
-
-			return &multi
-		},
-		func() localizerMultiplexor {
-			return &singleLocalizer{
-				localizer: native,
-			}
-		},
-	)
+// NewSingularTranslator create Translator with the single localizer which
+// represents the client's package.
+func NewSingularTranslator(li *LanguageInfo) *Translator {
+	liRef := utils.NewRoProp(*li)
+	native := nativeLocalizer(li)
+	single := &singleLocalizer{
+		localizer: native,
+	}
 
 	return &Translator{
-		mx:              mx,
+		mx:              single,
+		LanguageInfoRef: liRef,
+	}
+}
+
+// NewMultiTranslator creates a translator instance from the provided
+// Localizers. If no foreign (alien) localizers are provided, then the
+// Translator will be created with the single localizer which represents
+// the client's package. If foreign localizers are present, then
+// these are added as registered localizers.
+func NewMultiTranslator(li *LanguageInfo, aliens ...*LocalizerInfo) *Translator {
+	liRef := utils.NewRoProp(*li)
+	native := nativeLocalizer(li)
+	multi := &multipleLocalizers{}
+
+	if err := multi.add(&LocalizerInfo{
+		SourceId:  EXTENDIO_SOURCE_ID,
+		Localizer: native,
+	}); err != nil {
+		panic(NewFailedToCreateLocalizerNativeError(li.Current, EXTENDIO_SOURCE_ID))
+	}
+
+	for _, foreign := range aliens {
+		if err := multi.add(&LocalizerInfo{
+			SourceId:  foreign.SourceId,
+			Localizer: foreign.Localizer,
+		}); err != nil {
+			panic(NewFailedToCreateLocalizerNativeError(li.Current, EXTENDIO_SOURCE_ID))
+		}
+	}
+
+	return &Translator{
+		mx:              multi,
 		LanguageInfoRef: liRef,
 	}
 }
