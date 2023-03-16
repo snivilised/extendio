@@ -1,2 +1,1 @@
-default://genre/artist/album
-*default
+0
