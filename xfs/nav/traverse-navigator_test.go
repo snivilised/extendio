@@ -133,7 +133,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS (large)", NotExtended),
 				expectedNoOf: expectedNo{
-					files:   657,
+					files:   656,
 					folders: 178,
 				},
 			}),
@@ -145,7 +145,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
 				expectedNoOf: expectedNo{
-					files:   657,
+					files:   656,
 					folders: 178,
 				},
 			}),
@@ -265,7 +265,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS (large)", IsExtended),
 				expectedNoOf: expectedNo{
-					files:   657,
+					files:   656,
 					folders: 0,
 				},
 			}),
@@ -277,7 +277,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS (large, ensure single invoke)", IsExtended),
 				expectedNoOf: expectedNo{
-					files:   657,
+					files:   656,
 					folders: 0,
 				},
 			}),

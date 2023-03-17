@@ -8,8 +8,29 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/snivilised/extendio/internal/helpers"
+
 	"github.com/snivilised/extendio/xfs/utils"
 )
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func musico() string {
+	if current, err := os.Getwd(); err == nil {
+		parent, _ := filepath.Split(current)
+		grand := filepath.Dir(parent)
+		great := filepath.Dir(grand)
+		result := filepath.Join(great, "Test", "data", "MUSICO")
+		must(helpers.Ensure(result))
+
+		return result
+	}
+	panic("could not get root path")
+}
 
 func path(parent, relative string) string {
 	segments := strings.Split(relative, "/")
@@ -20,12 +41,8 @@ var _ = Describe("Exists Utils", Ordered, func() {
 	var root, heavy string
 
 	BeforeAll(func() {
-		if current, err := os.Getwd(); err == nil {
-			parent := filepath.Dir(current)
-			grand := filepath.Dir(parent)
-			root = filepath.Join(grand, "Test", "data", "MUSICO")
-			heavy = filepath.Join(root, "rock", "metal", "dark", "HEAVY-METAL")
-		}
+		root = musico()
+		heavy = filepath.Join(root, "rock", "metal", "dark", "HEAVY-METAL")
 	})
 
 	DescribeTable("Exists",

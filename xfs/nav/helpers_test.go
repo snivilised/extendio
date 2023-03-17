@@ -14,6 +14,7 @@ import (
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/nav"
+	"github.com/snivilised/extendio/xfs/utils"
 )
 
 type recordingMap map[string]int
@@ -108,7 +109,10 @@ func musico() string {
 		parent, _ := filepath.Split(current)
 		grand := filepath.Dir(parent)
 		great := filepath.Dir(grand)
-		return filepath.Join(great, "Test", "data", "MUSICO")
+		result := filepath.Join(great, "Test", "data", "MUSICO")
+
+		utils.Must(helpers.Ensure(result))
+		return result
 	}
 	panic("could not get root path")
 }
