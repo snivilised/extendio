@@ -1,0 +1,1019 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tree>
+  <directory name="MUSICO">
+    <directory name="bass">
+      <directory name="DUB">
+        <directory name="Dreadzone">
+          <directory name="Second Light">
+            <file name="01 - Life, Love and Unity.flac"></file>
+            <file name="02 - Little Britain.flac"></file>
+            <file name="03 - A Canterbury Tale.flac"></file>
+            <file name="04 - Captain Dread.flac"></file>
+            <file name="accuraterip.dreadzone.second light.report.txt"></file>
+            <file name="cover.second-light.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="Leftfield">
+          <directory name="Alternative Light Source">
+            <file name="01 - Bad Radio.flac"></file>
+            <file name="02 - Universal Everything.flac"></file>
+            <file name="03 - Bilocation.flac"></file>
+            <file name="04 - Head And Shoulders.flac"></file>
+            <file name="cover.alternative-light-source.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.txt"></file>
+          </directory>
+          <directory name="Leftism 22">
+            <file name="1.01 - Release the Pressure (Remastered).flac"></file>
+            <file name="1.02 - Afro Left (Remastered).flac"></file>
+            <file name="1.03 - Melt (Remastered).flac"></file>
+            <file name="1.04 - Song of Life (Remastered).flac"></file>
+            <file name="cover.leftism-22.jpg"></file>
+          </directory>
+          <directory name="Tourism">
+            <file name="1.01 - Intro.flac"></file>
+            <file name="1.02 - Song of Life.flac"></file>
+            <file name="1.03 - Black Flute.flac"></file>
+            <file name="1.04 - Original.flac"></file>
+            <file name="cover.tourism.jpg"></file>
+          </directory>
+        </directory>
+      </directory>
+      <directory name="DUBSTEP">
+        <directory name="Katy B">
+          <directory name="Honey">
+            <file name="1.01 - Honey.flac"></file>
+            <file name="1.02 - Who Am I.flac"></file>
+            <file name="1.03 - So Far Away.flac"></file>
+            <file name="1.04 - Chase Me.flac"></file>
+            <file name="back.jpg"></file>
+            <file name="cover.honey.jpg"></file>
+          </directory>
+          <directory name="Little Red">
+            <file name="01 - Crying For No Reason.flac"></file>
+            <file name="02 - I Like You.flac"></file>
+            <file name="03 - All My Lovin.flac"></file>
+            <file name="04 - Aaliyah (feat Jessie Ware).flac"></file>
+            <file name="cover.little red.jpg"></file>
+            <file name="cover.little-red.jpg"></file>
+            <file name="MyTag.Katy B.Little Red.txt"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+          </directory>
+        </directory>
+      </directory>
+      <file name="segments.bass.infex.txt"></file>
+    </directory>
+    <directory name="DREAM-POP">
+      <directory name="Cocteau Twins">
+        <directory name="Heaven Or Las Vegas">
+          <file name="01 - Cherry-Coloured Funk.flac"></file>
+          <file name="02 - Pitch The Baby.flac"></file>
+          <file name="03 - Iceblink Luck.flac"></file>
+          <file name="04 - Fifty-Fifty Clown.flac"></file>
+          <file name="cover.heaven-or-las-vegas.jpg"></file>
+          <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+        </directory>
+      </directory>
+      <directory name="Kate Bush">
+        <directory name="Hounds of Love">
+          <file name="01 - Running Up That Hill (A Deal With God).flac"></file>
+          <file name="02 - Hounds of Love.flac"></file>
+          <file name="03 - The Big Sky.flac"></file>
+          <file name="04 - Mother Stands for Comfort.flac"></file>
+          <file name="cover.hounds-of-love.jpg"></file>
+        </directory>
+        <directory name="The Sensual World">
+          <file name="01 - The Sensual World.flac"></file>
+          <file name="02 - Love and Anger.flac"></file>
+          <file name="03 - The Fog.flac"></file>
+          <file name="04 - Reaching Out.flac"></file>
+          <file name="accuraterip.kate bush.the sensual world.report.txt"></file>
+          <file name="cover.the-sensual-world.jpg"></file>
+        </directory>
+      </directory>
+      <directory name="Tori Amos">
+        <directory name="Little Earthquakes">
+          <file name="01 - Crucify.flac"></file>
+          <file name="02 - Girl.flac"></file>
+          <file name="03 - Silent All These Years.flac"></file>
+          <file name="04 - Precious Things.flac"></file>
+          <file name="cover.little-earthquakes.jpg"></file>
+          <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+        </directory>
+        <directory name="Strange Little Girls">
+          <file name="01 - New Age.flac"></file>
+          <file name="02 - 97 Bonnie &amp; Clyde.flac"></file>
+          <file name="03 - Strange Little Girl.flac"></file>
+          <file name="04 - Enjoy the Silence.flac"></file>
+          <file name="back.jpg"></file>
+          <file name="cover.strange-little-girls.jpg"></file>
+        </directory>
+      </directory>
+    </directory>
+    <directory name="edm">
+      <directory name="AMBIENT-TECHNO">
+        <directory name="Amorphous Androgynous">
+          <directory name="Tales Of Ephidrina">
+            <file name="01 - Liquid Insects.flac"></file>
+            <file name="02 - Swab.flac"></file>
+            <file name="03 - Mountain Goat.flac"></file>
+            <file name="04 - In Mind.flac"></file>
+            <file name="cover.tales-of-ephidrina.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="Aphex Twin">
+          <directory name="Classics">
+            <file name="01 - Digeridoo.flac"></file>
+            <file name="02 - Flaphead.flac"></file>
+            <file name="03 - Phloam.flac"></file>
+            <file name="04 - Isopropanol.flac"></file>
+            <file name="cover.classics.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="Selected Ambient Works 85-92">
+            <file name="01 - Xtal.flac"></file>
+            <file name="02 - Tha.flac"></file>
+            <file name="03 - Pulsewidth.flac"></file>
+            <file name="04 - Ageispolis.flac"></file>
+            <file name="cover.selected-ambient-works-85-92.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.txt"></file>
+          </directory>
+        </directory>
+        <directory name="Polygon Window">
+          <directory name="Surfing on Sine Waves">
+            <file name="01 - Polygon Window.flac"></file>
+            <file name="02 - Audax Powder.flac"></file>
+            <file name="03 - Quoth.flac"></file>
+            <file name="04 - If It Really Is Me.flac"></file>
+            <file name="cover.surfing-on-sine-waves.jpg"></file>
+          </directory>
+        </directory>
+      </directory>
+      <directory name="ELECTRONICA">
+        <directory name="Orbital">
+          <directory name="Diversions">
+            <file name="01 - Impact USA (The Earth Is Burning- Diversion).flac"></file>
+            <file name="02 - Lush 3 (Euro Tunnel Disaster 94) - Walk About (John Peel sessions).flac"></file>
+            <file name="03 - Semi Detached.flac"></file>
+            <file name="04 - Lush 3-5 (C.J. Bolland).flac"></file>
+            <file name="cover.diversions.jpg"></file>
+          </directory>
+          <directory name="In Sides">
+            <file name="01 - The Girl With the Sun in Her Head.flac"></file>
+            <file name="02 - P.E.T.R.O.L..flac"></file>
+            <file name="03 - The Box, Part 1.flac"></file>
+            <file name="04 - The Box, Part 2.flac"></file>
+            <file name="cover.in-sides.jpg"></file>
+          </directory>
+          <directory name="Orbital 2 (The Brown Album)">
+            <file name="01 - Time Becomes.flac"></file>
+            <file name="02 - Planet of the Shapes.flac"></file>
+            <file name="03 - Lush 3-1.flac"></file>
+            <file name="04 - Lush 3-2.flac"></file>
+            <file name="cover.orbital-2-the-brown-album.jpg"></file>
+          </directory>
+          <directory name="Orbital (UK Version)">
+            <file name="01 - The Moebius.flac"></file>
+            <file name="02 - Speed Freak.flac"></file>
+            <file name="03 - Oolaa.flac"></file>
+            <file name="04 - Desert Storm.flac"></file>
+            <file name="cover.orbital-uk-version.jpg"></file>
+          </directory>
+          <directory name="Snivilisation">
+            <file name="01 - Forever.flac"></file>
+            <file name="02 - I Wish I Had Duck Feet.flac"></file>
+            <file name="03 - Sad but True.flac"></file>
+            <file name="04 - Crash and Carry.flac"></file>
+            <file name="cover.snivilisation.jpg"></file>
+          </directory>
+          <directory name="Wonky">
+            <file name="01 - One Big Moment.flac"></file>
+            <file name="02 - Straight Sun.flac"></file>
+            <file name="03 - Never.flac"></file>
+            <file name="04 - New France.flac"></file>
+            <file name="cover.wonky.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="The Chemical Brothers">
+          <directory name="Exit Planet Dust">
+            <file name="01 - Leave Home.flac"></file>
+            <file name="02 - In Dust We Trust.flac"></file>
+            <file name="03 - Song to the Siren.flac"></file>
+            <file name="04 - Three Little Birdies Down Beats.flac"></file>
+            <file name="accuraterip.chemical brothers.exit planet dust.report.txt"></file>
+            <file name="cover.exit-planet-dust.jpg"></file>
+          </directory>
+          <directory name="No Geography">
+            <file name="1.01 - Eve of Destruction.flac"></file>
+            <file name="1.02 - Bango.flac"></file>
+            <file name="1.03 - No Geography.flac"></file>
+            <file name="2.04 - Got to Keep On.flac"></file>
+            <file name="cover.no-geography.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="Underworld">
+          <directory name="Beaucoup Fish">
+            <file name="01 - Cups.flac"></file>
+            <file name="02 - Push Upstairs.flac"></file>
+            <file name="03 - Jumbo.flac"></file>
+            <file name="04 - Shudder - King of Snake.flac"></file>
+            <file name="cover.beacoup-fish.jpg"></file>
+          </directory>
+          <directory name="Dubnobasswithmyheadman">
+            <file name="01 - Dark &amp; Long.flac"></file>
+            <file name="02 - Mmm Skyscraper I Love You.flac"></file>
+            <file name="03 - Surfboy.flac"></file>
+            <file name="04 - Spoonman.flac"></file>
+            <file name="cover.dubnobasswithmyheadman.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="Pearls Girl">
+            <file name="01 - Pearls Girl (Tin There).flac"></file>
+            <file name="02 - Pearls Girl (14996 version).flac"></file>
+            <file name="03 - Puppies.flac"></file>
+            <file name="04 - Oich Oich.flac"></file>
+            <file name="cover.pearls-girl.jpg"></file>
+          </directory>
+          <directory name="Second Toughest in the Infants">
+            <file name="1.01 - Juanita - Kiteless - To Dream of Love.flac"></file>
+            <file name="1.02 - Banstyle - Sappys Curry.flac"></file>
+            <file name="1.03 - Confusion the Waitress.flac"></file>
+            <file name="1.04 - Rowla.flac"></file>
+            <file name="cover.second-toughest-in-the-infants.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.MAX-GAIN.txt"></file>
+          </directory>
+        </directory>
+      </directory>
+      <directory name="MINMAL-TECHNO">
+        <directory name="FUSE">
+          <directory name="Dimension Intrusion">
+            <file name="01 - A New Day.flac"></file>
+            <file name="02 - F.U..flac"></file>
+            <file name="03 - Siac.flac"></file>
+            <file name="04 - Dimension Intrusion.flac"></file>
+            <file name="fuse.demensions.gif"></file>
+            <file name="fuse.demensions.jpg"></file>
+          </directory>
+          <directory name="Train Trac">
+            <file name="01 - Train-Trac (Train-Abuse).flac"></file>
+            <file name="02 - Train-Trac (Kaboose).flac"></file>
+            <file name="03 - Train-Trac (Drum-Trac 2).flac"></file>
+            <file name="04 - Train-Trac (Bajack).flac"></file>
+            <file name="cover.dimension illusion.fuse.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="Plastikman">
+          <directory name="Closer">
+            <file name="01 - Ask Yourself.flac"></file>
+            <file name="02 - Mind Encode.flac"></file>
+            <file name="03 - Lost.flac"></file>
+            <file name="04 - Disconnect.flac"></file>
+            <file name="cover.closer.jpg"></file>
+          </directory>
+          <directory name="Consumed">
+            <file name="A1 - Contain.mp3"></file>
+            <file name="B1 - In Side.mp3"></file>
+            <file name="C1 - Locomotion.mp3"></file>
+            <file name="cover.consumed.jpg"></file>
+            <file name="D1 - Car Ten.mp3"></file>
+          </directory>
+          <directory name="Musik">
+            <file name="01 - Konception.flac"></file>
+            <file name="02 - Plastique.flac"></file>
+            <file name="03 - Kriket.flac"></file>
+            <file name="04 - Fuk.flac"></file>
+            <file name="cover.musik.jpg"></file>
+          </directory>
+          <directory name="Sheet One">
+            <file name="01 - Dre.flac"></file>
+            <file name="02 - Plasticity.flac"></file>
+            <file name="03 - Gak.flac"></file>
+            <file name="04 - Okx.flac"></file>
+            <file name="cover.sheet-one.jpg"></file>
+            <file name="Folder.jpg"></file>
+          </directory>
+        </directory>
+      </directory>
+      <file name="_segments.def.infex.txt"></file>
+      <file name="_segments.edm.infex.txt"></file>
+    </directory>
+    <directory name="ELECTRONIC-POP">
+      <directory name="Depeche Mode">
+        <directory name="I Feel You">
+          <file name="01 - I Feel You (seven inch mix).flac"></file>
+          <file name="02 - One Caress.flac"></file>
+          <file name="03 - I Feel You (Throb mix).flac"></file>
+          <file name="04 - I Feel You (Babylon mix).flac"></file>
+          <file name="cover.i-feel-you.jpg"></file>
+        </directory>
+        <directory name="Remixes 81-04">
+          <file name="01 - Never Let Me Down Again (Split mix).flac"></file>
+          <file name="02 - Personal Jesus (Pump mix).flac"></file>
+          <file name="03 - Barrel of a Gun (Underworld Hard mix).flac"></file>
+          <file name="04 - Route 66 (Beatmasters mix).flac"></file>
+          <file name="cover.remixes-81-04.jpg"></file>
+        </directory>
+      </directory>
+      <directory name="Traci Lords">
+        <directory name="1000 Fires">
+          <file name="01 - Control.flac"></file>
+          <file name="02 - Fallen Angel.flac"></file>
+          <file name="03 - Good-N-Evil.flac"></file>
+          <file name="04 - Fly.flac"></file>
+          <file name="back.jpg"></file>
+          <file name="cover.1000-fires.jpg"></file>
+        </directory>
+        <directory name="Control (Single)">
+          <file name="01 - Control (Olympic 7 edit).flac"></file>
+          <file name="02 - Control (original mix).flac"></file>
+          <file name="03 - Control (Overlords House mix).flac"></file>
+          <file name="04 - Control (San Frandisco mix).flac"></file>
+          <file name="back.jpg"></file>
+          <file name="cover.control.jpg"></file>
+        </directory>
+        <directory name="Fallen Angel (Single)">
+          <file name="01 - Fallen Angel (Honeymoon Stitch mix).flac"></file>
+          <file name="02 - Fallen Angel (Perfecto mix).flac"></file>
+          <file name="03 - Fallen Angel (Muzik club vocal).flac"></file>
+          <file name="04 - Fallen Angel (Mykonos House mix).flac"></file>
+          <file name="accuraterip.traci lords.fallen angel.report.txt"></file>
+          <file name="back.jpg"></file>
+          <file name="cover.fallen-angel.jpg"></file>
+        </directory>
+      </directory>
+    </directory>
+    <file name="info.txt"></file>
+    <directory name="POP">
+      <directory name="Katy Perry">
+        <directory name="Teenage Dream">
+          <file name="1.01 - Teenage Dream.flac"></file>
+          <file name="1.02 - Last Friday Night (T.G.I.F.).flac"></file>
+          <file name="1.03 - California Gurls.flac"></file>
+          <file name="1.04 - Firework.flac"></file>
+          <file name="cover.teenage-dream.jpg"></file>
+          <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+        </directory>
+      </directory>
+      <directory name="Madonna">
+        <directory name="Bedtime Stories">
+          <file name="01 - Survival.flac"></file>
+          <file name="02 - Secret.flac"></file>
+          <file name="03 - Id Rather Be Your Lover.flac"></file>
+          <file name="04 - Dont Stop.flac"></file>
+          <file name="back.jpg"></file>
+          <file name="cover.bedtime-stories.jpg"></file>
+        </directory>
+        <directory name="Confessions on a Dance Floor">
+          <file name="01 - Hung Up.flac"></file>
+          <file name="02 - Get Together.flac"></file>
+          <file name="03 - Sorry.flac"></file>
+          <file name="04 - Future Lovers.flac"></file>
+          <file name="cover.confessions-on-a-dancefloor.jpg"></file>
+        </directory>
+        <directory name="Like a Virgin">
+          <file name="01 - Material Girl.flac"></file>
+          <file name="02 - Angel.flac"></file>
+          <file name="03 - Like a Virgin.flac"></file>
+          <file name="04 - Over and Over.flac"></file>
+          <file name="accuraterip.madonna.like a virgin.report.txt"></file>
+          <file name="cover.like-a-virgin.jpg"></file>
+        </directory>
+        <directory name="Madonna">
+          <file name="01. Lucky Star.flac"></file>
+          <file name="02. Borderline.flac"></file>
+          <file name="03. Burning Up.flac"></file>
+          <file name="04. I Know It.flac"></file>
+          <file name="cover.madonna.jpg"></file>
+          <directory name="Covers">
+            <file name="back.jpg"></file>
+            <file name="front.jpg"></file>
+            <file name="insert1.jpg"></file>
+            <file name="insert2.jpg"></file>
+            <file name="insert3.jpg"></file>
+            <file name="labelA.jpg"></file>
+            <file name="labelB.jpg"></file>
+          </directory>
+          <file name="Madonna - Madonna.cue"></file>
+          <file name="Madonna - Madonna.m3u"></file>
+          <file name="Madonna - Madonna-poster.jpg"></file>
+          <directory name="Signal">
+            <file name="A_signal.jpg"></file>
+            <file name="A_spectrum.jpg"></file>
+            <file name="B_signal.jpg"></file>
+            <file name="B_spectrum.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="Material Girl (Vinyl Single)">
+          <file name="A. Material Girl (Extended Dance Remix).flac"></file>
+          <file name="back.jpeg"></file>
+          <file name="B. Pretender.flac"></file>
+          <file name="cover.material-girl.jpg"></file>
+          <file name="side_a.jpeg"></file>
+          <directory name="Signal">
+            <file name="A_signal.jpg"></file>
+            <file name="B_signal.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="MDNA">
+          <file name="1.01 - Girl Gone Wild.flac"></file>
+          <file name="1.02 - Gang Bang.flac"></file>
+          <file name="1.03 - Im Addicted.flac"></file>
+          <file name="1.04 - Turn Up the Radio.flac"></file>
+          <file name="cover.mdna.jpg"></file>
+        </directory>
+        <directory name="Music">
+          <file name="01 - Music.flac"></file>
+          <file name="02 - Impressive Instant.flac"></file>
+          <file name="03 - Runaway Lover.flac"></file>
+          <file name="04 - I Deserve It.flac"></file>
+          <file name="accuraterip.madonna.music.report.txt"></file>
+          <file name="back.jpg"></file>
+          <file name="cover.music.jpg"></file>
+        </directory>
+      </directory>
+    </directory>
+    <directory name="PROGRESSIVE-HOUSE">
+      <directory name="Blue Amazon">
+        <directory name="Long Way Home (Vinyl Single)">
+          <file name="01 - Long Way Home (Blue Amazons Trip TV Mix).flac"></file>
+          <file name="02 - Long Way Home (Kayestone Remix).flac"></file>
+          <file name="cover.long-way-home.jpg"></file>
+        </directory>
+        <directory name="The Javelin">
+          <file name="01 - Intro.flac"></file>
+          <file name="02 - Never Forget.flac"></file>
+          <file name="03 - Searching.flac"></file>
+          <file name="04 - The Runner.flac"></file>
+          <file name="accuraterip.blue amazon.the javelin.report.txt"></file>
+          <file name="cover.the-javelin.jpg"></file>
+        </directory>
+      </directory>
+      <directory name="Halo Varga">
+        <directory name="Future! (Disk One) (Vinyl Single)">
+          <file name="1.01 - Future! (original mix).flac"></file>
+          <file name="1.02 - Future! (16B remix).flac"></file>
+          <file name="cover.future.jpg"></file>
+        </directory>
+        <directory name="Future! (Single)">
+          <file name="01 - Future! (Original Mix).flac"></file>
+          <file name="02 - Future! (16B Remix).flac"></file>
+          <file name="03 - Future! (Three N One presents 16C+ Remix).flac"></file>
+          <file name="04 - Future! (Jaimy &amp; Kenny D Remix).flac"></file>
+          <file name="accuraterip.halo varga.future.report.txt"></file>
+          <file name="cover.future.jpg"></file>
+        </directory>
+      </directory>
+      <directory name="Jam &amp; Spoon">
+        <directory name="Stella 1999-1992- How Stella Got Her Groove Back (Single)">
+          <file name="01 - How Stella Got Her Groove Back (video-radio mix).flac"></file>
+          <file name="02 - How Stella Got Her Groove Back (Storm mix).flac"></file>
+          <file name="03 - How Stella Got Her Groove Back (Return of Stella 99 - Jam &amp; Spoon mix).flac"></file>
+          <file name="04 - How Stella Got Her Groove Back (Nalin &amp; Kane mix).flac"></file>
+          <file name="accuraterip.jam &amp; spoon.stella 1999-1992 - how stella got her groove back.report.txt"></file>
+          <file name="cover.stella.jpg"></file>
+        </directory>
+        <directory name="Tripomatic Fairytales">
+          <file name="01 - Heart Of Africa.flac"></file>
+          <file name="02 - Odyssey To Anyoona.flac"></file>
+          <file name="03 - Two Spys In The House Of Love.flac"></file>
+          <file name="04 - Stella.flac"></file>
+          <file name="cover.tripomatic-fairytales.jpg"></file>
+          <file name="MyTag.Jam &amp; Spoon.Tripomatic Fairytales 2001.txt"></file>
+          <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+        </directory>
+      </directory>
+      <directory name="Sasha">
+        <directory name="Airdrawndagger">
+          <file name="01 - Drempels.flac"></file>
+          <file name="02 - Mr Tiddles.flac"></file>
+          <file name="03 - Magnetic North.flac"></file>
+          <file name="04 - Cloud Cuckoo.flac"></file>
+          <file name="cover.airdrawndagger.jpg"></file>
+        </directory>
+        <directory name="Fundacion NYC">
+          <file name="01 - Rise of the Machine.flac"></file>
+          <file name="02 - Four Squares.flac"></file>
+          <file name="03 - Another Way (Richard Davies mix).flac"></file>
+          <file name="04 - Tides (feat. Bajka) (Cs Movement #1) (Carl Craig remix).flac"></file>
+          <file name="accuraterip.sasha.fundacion nyc.report.txt"></file>
+          <file name="cover.fundacion-nyc.jpg"></file>
+        </directory>
+        <directory name="Involver">
+          <file name="01 - Talk Amongst Yourselves.flac"></file>
+          <file name="02 - Dorset Perception.flac"></file>
+          <file name="03 - These Days.flac"></file>
+          <file name="04 - What Are You to Me.flac"></file>
+          <file name="accuraterip.sasha.involver.report.txt"></file>
+          <file name="cover.involver.jpg"></file>
+        </directory>
+      </directory>
+    </directory>
+    <directory name="RETRO-WAVE">
+      <directory name="Chromatics">
+        <directory name="Night Drive">
+          <file name="A1 - The Telephone Call.flac"></file>
+          <file name="A2 - Night Drive.flac"></file>
+          <file name="cover.night-drive.jpg"></file>
+          <file name="vinyl-info.night-drive.txt"></file>
+        </directory>
+      </directory>
+      <directory name="College">
+        <directory name="Northern Council">
+          <file name="A1 - Incident.flac"></file>
+          <file name="A2 - The Zemlya Expedition.flac"></file>
+          <file name="cover.northern-council.jpg"></file>
+          <file name="vinyl-info.northern-council.txt"></file>
+        </directory>
+        <directory name="Teenage Color">
+          <file name="A1 - Can You Kiss Me First.flac"></file>
+          <file name="A2 - Teenage Color.flac"></file>
+          <file name="vinyl-info.teenage-color.txt"></file>
+        </directory>
+      </directory>
+      <directory name="Electric Youth">
+        <directory name="Innerworld">
+          <file name="A1 - Before Life.flac"></file>
+          <file name="A2 - Runaway.flac"></file>
+          <file name="vinyl-info.innerworld.txt"></file>
+        </directory>
+      </directory>
+    </directory>
+    <directory name="rock">
+      <directory name="GOTHIC-ROCK">
+        <directory name="Fields Of The Nephilim">
+          <directory name="Ceromonies Ad Mortem Ad Vitam">
+            <file name="1.01 - Shroud (Exordium).flac"></file>
+            <file name="1.02 - Straight to the Light.flac"></file>
+            <file name="1.03 - From the Fire.flac"></file>
+            <file name="1.04 - Penetration.flac"></file>
+            <file name="cover.ceremonies-ad-mortem-ad-vitam.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="Earth Inferno">
+            <file name="01 - For Her Light - At The Gates Of Silent Memory (Paradise Regained).flac"></file>
+            <file name="02 - Moonchild.flac"></file>
+            <file name="03 - Submission.flac"></file>
+            <file name="04 - Preacher Man.flac"></file>
+            <file name="cover.earth-inferno.jpg"></file>
+          </directory>
+          <directory name="Elizium">
+            <file name="01 - (Dead but Dreaming).flac"></file>
+            <file name="02 - For Her Light.flac"></file>
+            <file name="03 - At the Gates of Silent Memory.flac"></file>
+            <file name="04 - (Paradise Regained).flac"></file>
+            <file name="accuraterip.fields of the nephilim.elizium.report.txt"></file>
+            <file name="cover.elizium.jpg"></file>
+          </directory>
+          <directory name="From Gehenna to Here">
+            <file name="01 - Trees Come Down.flac"></file>
+            <file name="02 - Back in Gehenna.flac"></file>
+            <file name="03 - Darkcell.flac"></file>
+            <file name="04 - Laura.flac"></file>
+            <file name="accuraterip.fields of the nephilim.from gehenna to here.report.txt"></file>
+            <file name="cover.from-gehenna-to-here.jpg"></file>
+          </directory>
+          <directory name="Mourning Sun">
+            <file name="01 - Shroud (Exordium).flac"></file>
+            <file name="02 - Straight to the Light.flac"></file>
+            <file name="03 - New Gold Dawn.flac"></file>
+            <file name="04 - Requiem (Le veilleur silencieux).flac"></file>
+            <file name="back.jpg"></file>
+            <file name="cover.mourning-sun.jpg"></file>
+          </directory>
+          <directory name="The Nephilim">
+            <file name="01 - Endemoniada.flac"></file>
+            <file name="02 - The Watchman.flac"></file>
+            <file name="03 - Phobia.flac"></file>
+            <file name="04 - Moonchild.flac"></file>
+            <file name="cover.the-nephilim.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+          </directory>
+        </directory>
+      </directory>
+      <directory name="INDIE-ROCK">
+        <directory name="All About Eve">
+          <directory name="All About Eve">
+            <file name="01 - Flowers In Our Hair.flac"></file>
+            <file name="02 - Gypsy Dance.flac"></file>
+            <file name="03 - In the Clouds.flac"></file>
+            <file name="04 - Marthas Harbour.flac"></file>
+            <file name="cover.all-about-eve.jpg"></file>
+          </directory>
+          <directory name="Scarlet And Other Stories">
+            <file name="01 - Road To Your Soul.flac"></file>
+            <file name="02 - Dream Now.flac"></file>
+            <file name="03 - Gold And Silver.flac"></file>
+            <file name="04 - Scarlet.flac"></file>
+            <file name="cover.scarlet-and-other-stories.jpg"></file>
+          </directory>
+          <directory name="Touched by Jesus">
+            <file name="01 - Strange Way.flac"></file>
+            <file name="02 - Farewell Mr Sorrow.flac"></file>
+            <file name="03 - Wishing the Hours Away.flac"></file>
+            <file name="04 - Touched by Jesus.flac"></file>
+            <file name="cover.touched-by-jesus.jpg"></file>
+          </directory>
+          <directory name="Ultraviolet">
+            <file name="01 - Phased.flac"></file>
+            <file name="02 - Yesterday Goodbye.flac"></file>
+            <file name="03 - Mine.flac"></file>
+            <file name="04 - Freeze.flac"></file>
+            <file name="cover.ultraviolet.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="New Model Army">
+          <directory name="Impurity">
+            <file name="01 - Get Me Out.flac"></file>
+            <file name="02 - Space.flac"></file>
+            <file name="03 - Innocence.flac"></file>
+            <file name="04 - Purity.flac"></file>
+            <file name="back.jpg"></file>
+            <file name="cover.impurity.jpg"></file>
+          </directory>
+          <directory name="No Rest for the Wicked">
+            <file name="01 - Frightened.flac"></file>
+            <file name="02 - Ambition.flac"></file>
+            <file name="03 - Grandmothers Footsteps.flac"></file>
+            <file name="04 - Better Than Them.flac"></file>
+            <file name="accuraterip.new model army.no rest for the wicked.report.txt"></file>
+            <file name="cover.no-rest-for-the-wicked.jpg"></file>
+          </directory>
+          <directory name="Thunder And Consolation">
+            <file name="01 - I Love The World.flac"></file>
+            <file name="02 - Stupid Questions.flac"></file>
+            <file name="03 - 225.flac"></file>
+            <file name="04 - Inheritance.flac"></file>
+            <file name="cover.thunder-and-consolation.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="Radiohead">
+          <directory name="Amnesiac">
+            <file name="1.01 - Packt Like Sardines in a Crushd Tin Box.flac"></file>
+            <file name="1.02 - Pyramid Song.flac"></file>
+            <file name="1.03 - Pulk-Pull Revolving Doors.flac"></file>
+            <file name="1.04 - You and Whose Army.flac"></file>
+            <file name="cover.amnesiac.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="A Moon Shaped Pool">
+            <file name="1.01 - Burn the Witch.flac"></file>
+            <file name="1.02 - Daydreaming.flac"></file>
+            <file name="1.03 - Decks Dark.flac"></file>
+            <file name="1.04 - Desert Island Disk.flac"></file>
+            <file name="cove-a-moon-shaped-pool.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="Hail to the Thief. (The Gloaming.)">
+            <file name="01 - 2 + 2 = 5 (The Lukewarm.).flac"></file>
+            <file name="02 - Sit Down. Stand Up. (Snakes &amp; Ladders.).flac"></file>
+            <file name="03 - Sail to the Moon. (Brush the Cobwebs Out of the Sky.).flac"></file>
+            <file name="04 - Backdrifts. (Honeymoon Is Over.).flac"></file>
+            <file name="accuraterip.radiohead.hail to the thief.report.txt"></file>
+            <file name="cover.hail-to-the-thief.jpg"></file>
+          </directory>
+          <directory name="In Rainbows">
+            <file name="01 - 15 Step.flac"></file>
+            <file name="02 - Bodysnatchers.flac"></file>
+            <file name="03 - Nude.flac"></file>
+            <file name="04 - Weird Fishes-Arpeggi.flac"></file>
+            <file name="cover.in-rainbows.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="Kid A">
+            <file name="1.01 - Everything in Its Right Place.flac"></file>
+            <file name="1.02 - Kid A.flac"></file>
+            <file name="1.03 - The National Anthem.flac"></file>
+            <file name="1.04 - How to Disappear Completely.flac"></file>
+            <file name="cover.kid-a.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="OK Computer">
+            <file name="01 - Airbag.flac"></file>
+            <file name="02 - Paranoid Android.flac"></file>
+            <file name="03 - Subterranean Homesick Alien.flac"></file>
+            <file name="04 - Exit Music (for a Film).flac"></file>
+            <file name="accuraterip.radiohead.ok computer.report.txt"></file>
+            <file name="cover.ok-computer.jpg"></file>
+          </directory>
+        </directory>
+      </directory>
+      <directory name="metal">
+        <directory name="dark">
+          <directory name="HEAVY-METAL">
+            <directory name="Black Sabbath">
+              <directory name="Heaven and Hell">
+                <file name="01 - Neon Knights.flac"></file>
+                <file name="02 - Children of the Sea.flac"></file>
+                <file name="03 - Lady Evil.flac"></file>
+                <file name="04 - Heaven and Hell.flac"></file>
+                <file name="cover.heaven-and-hell.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="Mob Rules">
+                <file name="01 - Turn Up The Night.flac"></file>
+                <file name="02 - Voodoo.flac"></file>
+                <file name="03 - The Sign Of The Southern Cross.flac"></file>
+                <file name="04 - E5150.flac"></file>
+                <file name="accuraterip.black sabbath.mob rules.report.txt"></file>
+                <file name="back.jpg"></file>
+                <file name="cover.mob-rules.jpg"></file>
+              </directory>
+            </directory>
+            <directory name="Iron Maiden">
+              <directory name="Killers">
+                <file name="01 - The Ides of March.flac"></file>
+                <file name="02 - Wrathchild.flac"></file>
+                <file name="03 - Murders in the Rue Morgue.flac"></file>
+                <file name="04 - Another Life.flac"></file>
+                <file name="cover.killers.jpg"></file>
+              </directory>
+              <directory name="Piece Of Mind">
+                <file name="01 - Where Eagles Dare.flac"></file>
+                <file name="02 - Revelations.flac"></file>
+                <file name="03 - Flight of Icarus.flac"></file>
+                <file name="04 - Die With Your Boots On.flac"></file>
+                <file name="cover.peace-of-mind.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="Somewhere In Time">
+                <file name="01 - Caught Somewhere In Time.flac"></file>
+                <file name="02 - Wasted Years.flac"></file>
+                <file name="03 - Sea Of Madness.flac"></file>
+                <file name="04 - Heaven Can Wait.flac"></file>
+                <file name="cover.somewhere-in-time.jpg"></file>
+              </directory>
+              <directory name="The Number of the Beast">
+                <file name="01 - Invaders.flac"></file>
+                <file name="02 - Children of the Damned.flac"></file>
+                <file name="03 - The Prisoner.flac"></file>
+                <file name="04 - 22 Acacia Avenue.flac"></file>
+                <file name="cover.the-number-of-the-beast.jpg"></file>
+              </directory>
+            </directory>
+            <directory name="Mötley Crüe">
+              <directory name="Dr Feelgood">
+                <file name="1.01 - T.N.T. (Terror n Tinseltown).flac"></file>
+                <file name="1.02 - Dr. Feelgood.flac"></file>
+                <file name="1.03 - Slice of Your Pie.flac"></file>
+                <file name="1.04 - Rattlesnake Shake.flac"></file>
+                <file name="cover.dr-feelgood.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="Shout at the Devil">
+                <file name="01 - In The Beginning.flac"></file>
+                <file name="02 - Shout at the Devil.flac"></file>
+                <file name="03 - Looks That Kill.flac"></file>
+                <file name="04 - Bastard.flac"></file>
+                <file name="cover.shout-at-the-devil.jpg"></file>
+                <file name="MyTag.Motley Crue.Shout at the Devil.txt"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="Theatre of Pain">
+                <file name="01 - City Boy Blues.flac"></file>
+                <file name="02 - Smokin in the Boys Room.flac"></file>
+                <file name="03 - Louder Than Hell.flac"></file>
+                <file name="04 - Keep Your Eye on the Money.flac"></file>
+                <file name="cover.theatre-of-pain.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+            </directory>
+            <directory name="Ozzy Osbourne">
+              <directory name="Bark At The Moon">
+                <file name="01 - Rock N Roll Rebel.flac"></file>
+                <file name="02 - Bark At The Moon.flac"></file>
+                <file name="03 - Youre No Different.flac"></file>
+                <file name="04 - Now You See It (Now You Dont).flac"></file>
+                <file name="cover.bark-at-the-moon.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="Blizzard Of Ozz">
+                <file name="01 - I Dont Know.flac"></file>
+                <file name="02 - Crazy Train.flac"></file>
+                <file name="03 - Goodbye To Romance.flac"></file>
+                <file name="04 - Dee.flac"></file>
+                <file name="cover.blizzard-of-ozz.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="The Ultimate Sin">
+                <file name="01 - The Ultimate Sin.flac"></file>
+                <file name="02 - Secret Loser.flac"></file>
+                <file name="03 - Never Know Why.flac"></file>
+                <file name="04 - Thank God For The Bomb.flac"></file>
+                <file name="cover.the-ultimate-sin.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+            </directory>
+          </directory>
+          <file name="_segments.def.infex.txt"></file>
+          <directory name="THRASH-METAL">
+            <directory name="Megadeth">
+              <directory name="Peace Sells But Whos Buying">
+                <file name="01 - Wake Up Dead.flac"></file>
+                <file name="02 - The Conjuring.flac"></file>
+                <file name="03 - Peace Sells.flac"></file>
+                <file name="04 - Devils Island.flac"></file>
+                <file name="cover.peace-sells-but-whos-buying.jpg"></file>
+                <file name="MyTag.Megadeth.Peace Sells...But Whos Buying.txt"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="Rust In Peace">
+                <file name="01 - Holy Wars...The Punishment Due.flac"></file>
+                <file name="02 - Hangar 18.flac"></file>
+                <file name="03 - Take No Prisoners.flac"></file>
+                <file name="04 - Five Magics.flac"></file>
+                <file name="cove.rust-in-peace.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+              <directory name="So Far, So Good ... So What!">
+                <file name="01 - Into The Lungs Of Hell.flac"></file>
+                <file name="02 - Set The World Afire.flac"></file>
+                <file name="03 - Anarchy In The UK.flac"></file>
+                <file name="04 - Mary Jane.flac"></file>
+                <file name="cover.so-far-so-good-so-what.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+            </directory>
+            <directory name="Metallica">
+              <directory name="Master of Puppets">
+                <file name="01 - Battery.flac"></file>
+                <file name="02 - Master of Puppets.flac"></file>
+                <file name="03 - The Thing That Should Not Be.flac"></file>
+                <file name="04 - Welcome Home (Sanitarium).flac"></file>
+                <file name="cover.master-of-puppets.jpg"></file>
+              </directory>
+              <directory name="Ride the Lightning">
+                <file name="01 - Fight Fire With Fire.flac"></file>
+                <file name="02 - Ride the Lightning.flac"></file>
+                <file name="03 - For Whom the Bell Tolls.flac"></file>
+                <file name="04 - Fade to Black.flac"></file>
+                <file name="accuraterip.metallica.ride the lightning.report.txt"></file>
+                <file name="cover.ride-the-lightning.jpg"></file>
+              </directory>
+              <directory name="The Black Album">
+                <file name="1.01 - Enter Sandman.flac"></file>
+                <file name="1.02 - Sad But True.flac"></file>
+                <file name="1.03 - Holier Than Thou.flac"></file>
+                <file name="2.01 - The Unforgiven.flac"></file>
+                <file name="cover.the-black-album.jpg"></file>
+                <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.YAMAHA-AX-10.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+              </directory>
+            </directory>
+            <directory name="Slayer">
+              <directory name="South of Heaven">
+                <file name="01 - South of Heaven.flac"></file>
+                <file name="02 - Silent Scream.flac"></file>
+                <file name="03 - Live Undead.flac"></file>
+                <file name="04 - Behind the Crooked Cross.flac"></file>
+                <file name="cover.south-of-heaven.jpg"></file>
+              </directory>
+            </directory>
+          </directory>
+        </directory>
+        <directory name="HARD-METAL">
+          <directory name="Def Leppard">
+            <directory name="Hysteria">
+              <file name="01 - Women.flac"></file>
+              <file name="02 - Rocket.flac"></file>
+              <file name="03 - Animal.flac"></file>
+              <file name="04 - Love Bites.flac"></file>
+              <file name="back.jpg"></file>
+              <file name="cover.hysteria.jpg"></file>
+            </directory>
+            <directory name="On Through the Night">
+              <file name="01 - Rock Brigade.flac"></file>
+              <file name="02 - Hello America.flac"></file>
+              <file name="03 - Sorrow Is a Woman.flac"></file>
+              <file name="04 - It Could Be You.flac"></file>
+              <file name="cover.on-through-the-night.jpg"></file>
+            </directory>
+            <directory name="Pyromania">
+              <file name="01 - Rock! Rock! (Till You Drop).flac"></file>
+              <file name="02 - Photograph.flac"></file>
+              <file name="03 - Stagefright.flac"></file>
+              <file name="04 - Too Late for Love.flac"></file>
+              <file name="cover.pyromania.jpg"></file>
+            </directory>
+          </directory>
+          <directory name="Van Halen">
+            <directory name="1984">
+              <file name="01 - 1984.flac"></file>
+              <file name="02 - Jump.flac"></file>
+              <file name="03 - Panama.flac"></file>
+              <file name="04 - Top Jimmy.flac"></file>
+              <file name="cover.1984.jpg"></file>
+              <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+            </directory>
+            <directory name="Van Halen">
+              <file name="01 - Runnin With The Devil.flac"></file>
+              <file name="02 - Eruption.flac"></file>
+              <file name="03 - You Really Got Me.flac"></file>
+              <file name="04 - Aint Talkin Bout Love.flac"></file>
+              <file name="coverb.van halen.van halen.album.jpg"></file>
+              <file name="cover.van halen.jpg"></file>
+              <file name="cover.van-halen.jpg"></file>
+              <file name="info.van halen.van halen.album.jpg"></file>
+              <file name="inside.van halen.van halen.album.jpg"></file>
+              <file name="tracklist.van halen.van halen.album.jpg"></file>
+              <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.txt"></file>
+            </directory>
+          </directory>
+          <directory name="Whitesnake">
+            <directory name="1987 25th Anniversary Edition">
+              <file name="01 - Still Of The Night.flac"></file>
+              <file name="02 - Give Me All Your Love.flac"></file>
+              <file name="03 - Bad Boys.flac"></file>
+              <file name="04 - Is This Love.flac"></file>
+              <file name="cover.1987-25th-anniversary.jpg"></file>
+              <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.txt"></file>
+            </directory>
+            <directory name="Slip Of The Tongue">
+              <file name="01 - Slip Of The Tongue.flac"></file>
+              <file name="02 - Judgement Day.flac"></file>
+              <file name="03 - Fool For Your Loving.flac"></file>
+              <file name="04 - Now Youre Gone.flac"></file>
+              <file name="back.jpg"></file>
+              <file name="cover.slip-of-the-tongue.jpg"></file>
+              <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.txt"></file>
+            </directory>
+          </directory>
+        </directory>
+        <file name="_segments.def.infex.txt"></file>
+      </directory>
+      <directory name="PROGRESSIVE-ROCK">
+        <directory name="Marillion">
+          <directory name="Clutching At Straws">
+            <file name="01 - Hotel Hobbies.flac"></file>
+            <file name="02 - Warm Wet Circles.flac"></file>
+            <file name="03 - That Time Of The Night (The Short Straw).flac"></file>
+            <file name="04 - Just For The Record.flac"></file>
+            <file name="cover.clutching-at-straws.jpg"></file>
+            <file name="front.jpg"></file>
+            <file name="Marillion - Tourbook - Clutching At Straws - Winter Of 1987-88 01.jpg"></file>
+            <file name="vinyl-info.ORTOFON-2M-BLUE.SL1210.DJM500.BALANCE.REASON.SPINCLEAN.MAX-GAIN.txt"></file>
+          </directory>
+          <directory name="Fugazi">
+            <file name="01 - Assassing.flac"></file>
+            <file name="02 - Punch &amp; Judy.flac"></file>
+            <file name="03 - Jigsaw.flac"></file>
+            <file name="04 - Emerald Lies.flac"></file>
+            <file name="cover.fugazi.jpg"></file>
+          </directory>
+          <directory name="Misplaced Childhood">
+            <file name="01 - Pseudo Silk Kimono.flac"></file>
+            <file name="02 - Kayleigh.flac"></file>
+            <file name="03 - Lavender.flac"></file>
+            <file name="04 - Bitter Suite- I. Brief Encounter, II. Lost Weekend, III. Blue Angel.flac"></file>
+            <file name="cover.misplaced-childhood.jpg"></file>
+          </directory>
+          <directory name="Script for a Jesters Tear">
+            <file name="01 - Script for a Jesters Tear.flac"></file>
+            <file name="02 - He Knows You Know.flac"></file>
+            <file name="03 - The Web.flac"></file>
+            <file name="04 - Garden Party.flac"></file>
+            <file name="cover.script-for-a-jesters-tear.jpg"></file>
+          </directory>
+        </directory>
+        <directory name="Pink Floyd">
+          <directory name="A Momentary Lapse of Reason">
+            <file name="01 - Signs of Life.flac"></file>
+            <file name="02 - Learning to Fly.flac"></file>
+            <file name="03 - The Dogs of War.flac"></file>
+            <file name="04 - One Slip.flac"></file>
+            <file name="accuraterip.pink floyd.a momentary lapse of reason.report.txt"></file>
+            <file name="back.jpg"></file>
+            <file name="cover.a-momentary-lapse-of-reason.jpg"></file>
+          </directory>
+          <directory name="The Dark Side Of The Moon">
+            <file name="1.01 - Speak To Me.flac"></file>
+            <file name="1.02 - Breathe (In The Air).flac"></file>
+            <file name="1.03 - On The Run.flac"></file>
+            <file name="1.04 - Time.flac"></file>
+            <file name="accuraterip.pink floyd.dark side of the moon.disc 1.report.txt"></file>
+            <file name="cover.the-dark-side-of-the-moon.jpg"></file>
+          </directory>
+          <directory name="The Wall">
+            <file name="1.01 - In The Flesh.flac"></file>
+            <file name="1.02 - The Thin Ice.flac"></file>
+            <file name="1.03 - Another Brick In The Wall (Part 1).flac"></file>
+            <file name="1.04 - The Happiest Days Of Our Lives.flac"></file>
+            <file name="cover.the-wall.jpg"></file>
+          </directory>
+          <directory name="Wish You Were Here">
+            <file name="1.01 - Shine On You Crazy Diamond (parts I-V).flac"></file>
+            <file name="1.02 - Welcome To The Machine.flac"></file>
+            <file name="1.03 - Have A Cigar.flac"></file>
+            <file name="1.04 - Wish You Were Here.flac"></file>
+            <file name="accuraterip.pink floyd.wish you were here.disc 1.report.txt"></file>
+            <file name="cover.wish-you-were-here.jpg"></file>
+          </directory>
+        </directory>
+      </directory>
+      <file name="_segments.rock.def.infex.txt"></file>
+      <file name="_segments.rock.dynamic.infex.txt"></file>
+    </directory>
+    <file name="_segments.root.infex.txt"></file>
+  </directory>
+  <report>
+    <directories>177</directories>
+    <files>656</files>
+  </report>
+</tree>
