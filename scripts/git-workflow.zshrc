@@ -3,6 +3,18 @@ get-def-branch() {
   echo master
 }
 
+are-you-sure() {
+  echo "👾 Are you sure❓ (type 'y' to confirm)"
+  read squashed
+
+  if [ $squashed = "y" ]; then
+    return 0
+  else
+    echo "⛔ Aborted!"
+    return 1
+  fi
+}
+
 startfeat() {
   if [[ -n $1 ]]; then
     echo "===> 🚀 START FEATURE: '🎀 $1'"
@@ -46,6 +58,11 @@ endfeat() {
 }
 
 push-feat() {
+  are-you-sure
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+
   local current_branch=$(git_current_branch)
   local default_branch=$(get-def-branch)
 
@@ -66,7 +83,20 @@ push-feat() {
 
 # release <semantic-version>, !!! do not specify the v prefix, added automatically
 release() {
+  are-you-sure
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+
   if [[ -n $1 ]]; then
+    if ! [[ $1 =~ '^\d' ]] then
+      echo "!!! ⛔ Aborted! invalid tag"
+      return 1
+    fi
+
+    # these string initialisers should probably e changed, don't
+    # need the surrounding quotes, but it works so why fiddle?
+    #
     local version_number=v$1
     local current_branch=$(git_current_branch)
     local default_branch=$(get-def-branch)
@@ -123,6 +153,11 @@ release() {
 
 # push-tag <semantic-version>, !!! do not specify the v prefix, added automatically
 tag-rel() {
+  are-you-sure
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+
   if [[ -n $1 ]]; then
     local version_number="v$1"
     local current_branch=$(git_current_branch)
