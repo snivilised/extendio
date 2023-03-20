@@ -27,6 +27,10 @@ startfeat() {
 }
 
 endfeat() {
+  if ! are-you-sure $1; then
+    return 1
+  fi
+
   local feature_branch=$(git_current_branch)
   local default_branch=$(get-def-branch)
 
@@ -58,8 +62,7 @@ endfeat() {
 }
 
 push-feat() {
-  are-you-sure
-  if [ $? -ne 0 ]; then
+  if ! are-you-sure $1; then
     return 1
   fi
 
@@ -81,16 +84,23 @@ push-feat() {
   return 0
 }
 
+function check-tag() {
+  local rel_tag=$1
+  if ! [[ $rel_tag =~ ^[0-9] ]]; then
+    echo "!!! ⛔ Aborted! invalid tag"
+    return 1
+  fi
+  return 0
+}
+
 # release <semantic-version>, !!! do not specify the v prefix, added automatically
 release() {
-  are-you-sure
-  if [ $? -ne 0 ]; then
+  if ! are-you-sure $1; then
     return 1
   fi
 
   if [[ -n $1 ]]; then
-    if ! [[ $1 =~ '^\d' ]] then
-      echo "!!! ⛔ Aborted! invalid tag"
+    if ! check-tag $1; then
       return 1
     fi
 
@@ -153,8 +163,7 @@ release() {
 
 # push-tag <semantic-version>, !!! do not specify the v prefix, added automatically
 tag-rel() {
-  are-you-sure
-  if [ $? -ne 0 ]; then
+  if ! are-you-sure $1; then
     return 1
   fi
 
