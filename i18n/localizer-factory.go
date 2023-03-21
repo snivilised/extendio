@@ -12,17 +12,17 @@ import (
 )
 
 type LocalizerFactory struct {
-	provider CreateLocaliser
+	Provider LocalizerProvider
 }
 
 func (f LocalizerFactory) New(li *LanguageInfo) *i18n.Localizer {
 
-	return lo.TernaryF(f.provider.Query(li.Current),
+	return lo.TernaryF(f.Provider.Query(li.Current),
 		func() *i18n.Localizer {
 			return f.create(li)
 		},
 		func() *i18n.Localizer {
-			return f.provider.Create(li)
+			return f.Provider.Create(li)
 		},
 	)
 }

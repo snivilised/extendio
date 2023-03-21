@@ -7,9 +7,16 @@ import (
 	"golang.org/x/text/language"
 )
 
+// TODO: rename Translator name to something that is not ISomething. Might have
+// to rename Translator to something else
+type Translator interface {
+	Localise(data Localisable) string
+	LanguageInfoRef() utils.RoProp[LanguageInfo]
+}
+
 var DefaultLanguage = utils.NewRoProp(language.BritishEnglish)
-var tx *Translator
-var TxRef utils.RoProp[*Translator] = utils.NewRoProp(tx)
+var tx Translator
+var TxRef utils.RoProp[Translator] = utils.NewRoProp(tx)
 
 type localizerLookup map[string]*i18n.Localizer
 
@@ -75,21 +82,25 @@ func newLanguageInfo(o *UseOptions) *LanguageInfo {
 // registered Localizers. The data parameter must be a go template
 // defining the input parameters and the translatable message content.
 func Text(data Localisable) string {
-	return tx.localise(data)
+	return tx.Localise(data)
 }
 
-// Translator provides the translation implementation used by the
+// i18nTranslator provides the translation implementation used by the
 // Text function
-type Translator struct {
+type i18nTranslator struct {
 	mx              localizerMultiplexor
-	LanguageInfoRef utils.RoProp[LanguageInfo]
+	languageInfoRef utils.RoProp[LanguageInfo]
+}
+
+func (t *i18nTranslator) LanguageInfoRef() utils.RoProp[LanguageInfo] {
+	return t.languageInfoRef
 }
 
 func nativeLocalizer(li *LanguageInfo) *i18n.Localizer {
 	liRef := utils.NewRoProp(*li)
 
 	factory := LocalizerFactory{
-		provider: &translationProvider{
+		Provider: &translationProvider{
 			languageInfoRef: liRef,
 		},
 	}
@@ -101,16 +112,16 @@ func nativeLocalizer(li *LanguageInfo) *i18n.Localizer {
 
 // NewSingularTranslator create Translator with the single localizer which
 // represents the client's package.
-func NewSingularTranslator(li *LanguageInfo) *Translator {
+func NewSingularTranslator(li *LanguageInfo) Translator {
 	liRef := utils.NewRoProp(*li)
 	native := nativeLocalizer(li)
 	single := &singleLocalizer{
 		localizer: native,
 	}
 
-	return &Translator{
+	return &i18nTranslator{
 		mx:              single,
-		LanguageInfoRef: liRef,
+		languageInfoRef: liRef,
 	}
 }
 
@@ -119,7 +130,7 @@ func NewSingularTranslator(li *LanguageInfo) *Translator {
 // Translator will be created with the single localizer which represents
 // the client's package. If foreign localizers are present, then
 // these are added as registered localizers.
-func NewMultiTranslator(li *LanguageInfo, aliens ...*LocalizerInfo) *Translator {
+func NewMultiTranslator(li *LanguageInfo, aliens ...*LocalizerInfo) *i18nTranslator {
 	liRef := utils.NewRoProp(*li)
 	native := nativeLocalizer(li)
 	multi := &multipleLocalizers{}
@@ -140,13 +151,13 @@ func NewMultiTranslator(li *LanguageInfo, aliens ...*LocalizerInfo) *Translator 
 		}
 	}
 
-	return &Translator{
+	return &i18nTranslator{
 		mx:              multi,
-		LanguageInfoRef: liRef,
+		languageInfoRef: liRef,
 	}
 }
 
-func (t *Translator) localise(data Localisable) string {
+func (t *i18nTranslator) Localise(data Localisable) string {
 	return t.mx.localise(data)
 }
 
