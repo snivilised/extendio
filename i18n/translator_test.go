@@ -48,7 +48,7 @@ var _ = Describe("Translator", Ordered, func() {
 					o.Path = l10nPath
 				})).Error().To(BeNil())
 				Expect(TxRef.IsNone()).To(BeFalse())
-				Expect(TxRef.Get().LanguageInfoRef.Get().Current).To(Equal(language.AmericanEnglish))
+				Expect(TxRef.Get().LanguageInfoRef().Get().Current).To(Equal(language.AmericanEnglish))
 			})
 		})
 
@@ -58,7 +58,7 @@ var _ = Describe("Translator", Ordered, func() {
 					o.Tag = language.BritishEnglish
 				})).Error().To(BeNil())
 				Expect(TxRef.IsNone()).To(BeFalse())
-				Expect(TxRef.Get().LanguageInfoRef.Get().Current).To(Equal(language.BritishEnglish))
+				Expect(TxRef.Get().LanguageInfoRef().Get().Current).To(Equal(language.BritishEnglish))
 			})
 		})
 

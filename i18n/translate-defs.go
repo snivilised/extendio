@@ -70,8 +70,8 @@ type LanguageInfo struct {
 // UseOptionFn functional options function required by Use.
 type UseOptionFn func(*UseOptions)
 
-// CreateLocaliser
-type CreateLocaliser interface {
+// LocalizerProvider
+type LocalizerProvider interface {
 	Query(tag language.Tag) bool
 	Create(li *LanguageInfo) *i18n.Localizer
 }
