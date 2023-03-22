@@ -22,7 +22,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		_ = Use(func(o *UseOptions) {
+		Use(func(o *UseOptions) {
 			o.Tag = DefaultLanguage.Get()
 		})
 	})

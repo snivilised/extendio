@@ -21,7 +21,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		_ = Use(func(o *UseOptions) {
+		Use(func(o *UseOptions) {
 			o.Tag = DefaultLanguage.Get()
 		})
 	})

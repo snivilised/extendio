@@ -89,7 +89,7 @@ import (
 type ExtendioTemplData struct{}
 
 func (td ExtendioTemplData) SourceId() string {
-	return EXTENDIO_SOURCE_ID
+	return SOURCE_ID
 }
 
 // ====================================================================

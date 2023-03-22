@@ -11,61 +11,47 @@ import (
 	"golang.org/x/text/language"
 )
 
-type LocalizerFactory struct {
-	Provider LocalizerProvider
-}
-
-func (f LocalizerFactory) New(li *LanguageInfo) *i18n.Localizer {
-
-	return lo.TernaryF(f.Provider.Query(li.Current),
-		func() *i18n.Localizer {
-			return f.create(li)
-		},
-		func() *i18n.Localizer {
-			return f.Provider.Create(li)
-		},
-	)
-}
-
-func (f LocalizerFactory) create(li *LanguageInfo) *i18n.Localizer {
-	bundle := i18n.NewBundle(li.Current)
+func createLocalizer(lang *LanguageInfo, sourceId string) *i18n.Localizer {
+	bundle := i18n.NewBundle(lang.Tag)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
-	if li.Current != li.Default {
-		filename := lo.TernaryF(li.Name == "",
-			func() string {
-				return fmt.Sprintf("active.%v.json", li.Current)
-			},
-			func() string {
-				return fmt.Sprintf("%v.active.%v.json", li.Name, li.Current)
-			},
-		)
-		resolved, _ := filepath.Abs(li.Path)
-
-		directory := lo.TernaryF(li.Path != "",
-			func() string {
-				return resolved
-			},
-			func() string {
-				exe, _ := os.Executable()
-				return filepath.Dir(exe)
-			},
-		)
-		path := filepath.Join(directory, filename)
+	if lang.Tag != lang.Default {
+		name := lang.From.Sources[sourceId].Name
+		path := resolveBundlePath(lang, name)
 		_, err := bundle.LoadMessageFile(path)
 
 		if err != nil {
-			// Since, translations failed to load, we will never be in a situation where
-			// this error message is able to be generated in translated form, so
-			// we are forced to generate an error message in the default language.
-			//
-			panic(NewCouldNotLoadTranslationsNativeError(li.Current, path, err))
+			panic(NewCouldNotLoadTranslationsNativeError(lang.Tag, path, err))
 		}
 	}
 
-	supported := lo.Map(li.Supported, func(t language.Tag, _ int) string {
+	supported := lo.Map(lang.Supported, func(t language.Tag, _ int) string {
 		return t.String()
 	})
 
 	return i18n.NewLocalizer(bundle, supported...)
+}
+
+func resolveBundlePath(lang *LanguageInfo, dependencyName string) string {
+	filename := lo.TernaryF(dependencyName == "",
+		func() string {
+			return fmt.Sprintf("active.%v.json", lang.Tag)
+		},
+		func() string {
+			return fmt.Sprintf("%v.active.%v.json", dependencyName, lang.Tag)
+		},
+	)
+
+	resolved, _ := filepath.Abs(lang.From.Path)
+
+	directory := lo.TernaryF(lang.From.Path != "",
+		func() string {
+			return resolved
+		},
+		func() string {
+			exe, _ := os.Executable()
+			return filepath.Dir(exe)
+		},
+	)
+	return filepath.Join(directory, filename)
 }
