@@ -67,8 +67,31 @@ func NewLanguageNotAvailableNativeError(tag language.Tag) error {
 // NewFailedToCreateLocalizerNativeError creates an untranslated error to
 // indicate the Translator already contains a localizer for the source
 // specified. (internal error)
+
 func NewLocalizerAlreadyExistsNativeError(sourceId string) error {
 	return fmt.Errorf(
 		"i18n: localizer already exists for source: '%v'", sourceId,
+	)
+}
+
+// ❌ NoSourcesSpecified
+
+// Translator can't be created because no sources have been specified
+// in the LanguageInfo at .From.Source
+func NoSourcesSpecifiedNativeError() error {
+	return fmt.Errorf("i18n: no sources specified")
+}
+
+// ❌ MultipleSourcesSpecifiedForSingularTranslator
+func MultipleSourcesSpecifiedForSingularTranslatorNativeError(count int) error {
+	return fmt.Errorf(
+		"i18n: multiple sources (%v) have been specified for SingularTranslator", count,
+	)
+}
+
+// ❌ InsufficientSourcesSpecifiedForSingularTranslator
+func InsufficientSourcesSpecifiedForMultiTranslatorNativeError(count int) error {
+	return fmt.Errorf(
+		"i18n: insufficient sources (%v) have been specified for MultiTranslator", count,
 	)
 }

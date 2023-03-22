@@ -46,7 +46,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 
 	BeforeEach(func() {
 		ResetTx()
-		_ = Use(func(o *UseOptions) {
+		Use(func(o *UseOptions) {
 			o.Tag = DefaultLanguage.Get()
 		})
 	})

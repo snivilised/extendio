@@ -14,15 +14,19 @@ import (
 
 var _ = Describe("Text", Ordered, func() {
 	var (
-		repo string
-
-		l10nPath string
+		repo                string
+		l10nPath            string
+		testTranslationFile TranslationFiles
 	)
 
 	BeforeAll(func() {
 		repo = helpers.Repo("../..")
 		l10nPath = helpers.Path(repo, "Test/data/l10n")
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
+
+		testTranslationFile = TranslationFiles{
+			SOURCE_ID: TranslationSource{"test"},
+		}
 	})
 
 	BeforeEach(func() {
@@ -31,14 +35,15 @@ var _ = Describe("Text", Ordered, func() {
 
 	Context("native", func() {
 		BeforeEach(func() {
-			_ = Use(func(o *UseOptions) {
+			Use(func(o *UseOptions) {
 				o.Tag = DefaultLanguage.Get()
+				o.From.Sources = testTranslationFile
 			})
 		})
 
 		Context("given: ThirdPartyError", func() {
 			It("🧪 should: contain the third party error text", func() {
-				_ = Use(func(o *UseOptions) {
+				Use(func(o *UseOptions) {
 					o.Tag = language.BritishEnglish
 				})
 				err := NewThirdPartyErr(errors.New("computer says no"))
@@ -59,10 +64,10 @@ var _ = Describe("Text", Ordered, func() {
 
 	Context("foreign", func() {
 		BeforeEach(func() {
-			_ = Use(func(o *UseOptions) {
+			Use(func(o *UseOptions) {
 				o.Tag = language.AmericanEnglish
-				o.Name = "test"
-				o.Path = l10nPath
+				o.From.Path = l10nPath
+				o.From.Sources = testTranslationFile
 			})
 		})
 

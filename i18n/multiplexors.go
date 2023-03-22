@@ -2,8 +2,6 @@ package i18n
 
 import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/snivilised/extendio/xfs/utils"
-	"golang.org/x/text/language"
 )
 
 type multiplexor struct {
@@ -35,10 +33,10 @@ func (mx *multipleLocalizers) localise(data Localisable) string {
 }
 
 func (mx *multipleLocalizers) add(info *LocalizerInfo) error {
-	if _, found := mx.lookup[info.SourceId]; found {
-		return NewLocalizerAlreadyExistsNativeError(info.SourceId)
+	if _, found := mx.lookup[info.sourceId]; found {
+		return NewLocalizerAlreadyExistsNativeError(info.sourceId)
 	}
-	mx.lookup[info.SourceId] = info.Localizer
+	mx.lookup[info.sourceId] = info.Localizer
 	return nil
 }
 
@@ -48,19 +46,4 @@ func (mx *multipleLocalizers) find(id string) *i18n.Localizer {
 	}
 
 	panic(NewCouldNotFindLocalizerNativeError(id))
-}
-
-type translationProvider struct {
-	languageInfoRef utils.RoProp[LanguageInfo]
-}
-
-func (p *translationProvider) Query(tag language.Tag) bool {
-	return containsLanguage(p.languageInfoRef.Get().Supported, tag)
-}
-
-func (p *translationProvider) Create(li *LanguageInfo) *i18n.Localizer {
-	// create foreign localizer for the SourceId representing
-	// the dependency not supporting the requested language.
-	//
-	return nil
 }

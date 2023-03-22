@@ -2,6 +2,7 @@ package i18n_test
 
 import (
 	"fmt"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -14,15 +15,19 @@ import (
 
 var _ = Describe("Translator", Ordered, func() {
 	var (
-		repo string
-
-		l10nPath string
+		repo                string
+		l10nPath            string
+		testTranslationFile TranslationFiles
 	)
 
 	BeforeAll(func() {
 		repo = helpers.Repo("../..")
 		l10nPath = helpers.Path(repo, "Test/data/l10n")
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
+
+		testTranslationFile = TranslationFiles{
+			SOURCE_ID: TranslationSource{"test"},
+		}
 	})
 
 	BeforeEach(func() {
@@ -42,31 +47,40 @@ var _ = Describe("Translator", Ordered, func() {
 	Context("Use", func() {
 		When("requested language is available", func() {
 			It("🧪 should: create Translator", func() {
-				Expect(Use(func(o *UseOptions) {
+				Use(func(o *UseOptions) {
 					o.Tag = language.AmericanEnglish
-					o.Name = "test"
-					o.Path = l10nPath
-				})).Error().To(BeNil())
+					o.From.Path = l10nPath
+					o.From.Sources = testTranslationFile
+				})
 				Expect(TxRef.IsNone()).To(BeFalse())
-				Expect(TxRef.Get().LanguageInfoRef().Get().Current).To(Equal(language.AmericanEnglish))
+				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.AmericanEnglish))
 			})
 		})
 
 		When("requested language is the default", func() {
 			It("🧪 should: create Translator", func() {
-				Expect(Use(func(o *UseOptions) {
+				Use(func(o *UseOptions) {
 					o.Tag = language.BritishEnglish
-				})).Error().To(BeNil())
+				})
 				Expect(TxRef.IsNone()).To(BeFalse())
-				Expect(TxRef.Get().LanguageInfoRef().Get().Current).To(Equal(language.BritishEnglish))
+				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
 			})
 		})
 
 		When("requested language is NOT available", func() {
 			It("🧪 should: return error", func() {
-				Expect(Use(func(o *UseOptions) {
-					o.Tag = language.Spanish
-				})).Error().NotTo(BeNil())
+				defer func() {
+					pe := recover()
+					if err, ok := pe.(error); !ok || !strings.Contains(err.Error(), "not available") {
+						Fail("FAILED")
+					}
+				}()
+
+				requested := language.Spanish
+				Use(func(o *UseOptions) {
+					o.Tag = requested
+				})
+				Fail(fmt.Sprintf("❌ expected panic due to request language: '%v' not being supported", requested))
 			})
 		})
 	})
