@@ -108,7 +108,7 @@ var _ = Describe("Stack", func() {
 		It("🧪 should: return inner slice", func() {
 			with := []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet"}
 			stack := collections.NewStackWith(with)
-			content := stack.Context()
+			content := stack.Content()
 			Expect(content).To(Equal(with))
 		})
 	})

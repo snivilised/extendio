@@ -50,7 +50,7 @@ func (r *directoryTreeBuilder) pad() string {
 }
 
 func (r *directoryTreeBuilder) refill() string {
-	segments := r.stack.Context()
+	segments := r.stack.Content()
 	return filepath.Join(segments...)
 }
 
