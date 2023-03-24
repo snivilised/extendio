@@ -63,8 +63,8 @@ func (s *Stack[T]) IsEmpty() bool {
 	return len(s.content) == 0
 }
 
-// Context
-func (s *Stack[T]) Context() []T {
+// Content
+func (s *Stack[T]) Content() []T {
 	return s.content
 }
 
