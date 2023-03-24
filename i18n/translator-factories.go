@@ -47,7 +47,7 @@ func (f *SingularTranslatorFactory) New(lang *LanguageInfo) Translator {
 
 	liRef := utils.NewRoProp(*lang)
 	native := f.Create(lang, sourceId)
-	single := &singleLocalizer{
+	single := &singularContainer{
 		localizer: native,
 	}
 
@@ -77,8 +77,8 @@ func (f *MultiTranslatorFactory) New(lang *LanguageInfo) Translator {
 	f.setup(lang)
 
 	liRef := utils.NewRoProp(*lang)
-	multi := &multipleLocalizers{
-		lookup: make(localizerLookup),
+	multi := &multiContainer{
+		localizers: make(localizerContainer),
 	}
 
 	count := len(lang.From.Sources)
