@@ -16,7 +16,7 @@ var DefaultLanguage = utils.NewRoProp(language.BritishEnglish)
 var tx Translator
 var TxRef utils.RoProp[Translator] = utils.NewRoProp(tx)
 
-type localizerLookup map[string]*i18n.Localizer
+type localizerContainer map[string]*i18n.Localizer
 
 // Use, must be called by the client before any string data
 // can be translated. If the client requests the default
