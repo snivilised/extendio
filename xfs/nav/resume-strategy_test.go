@@ -194,9 +194,11 @@ var _ = Describe("Resume", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		Use(func(o *UseOptions) {
+		if err := Use(func(o *UseOptions) {
 			o.Tag = DefaultLanguage.Get()
-		})
+		}); err != nil {
+			Fail(err.Error())
+		}
 	})
 
 	DescribeTable("resume",

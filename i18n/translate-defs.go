@@ -58,6 +58,13 @@ type UseOptions struct {
 	//
 	From LoadFrom
 
+	// DefaultIsAcceptable controls whether an error is returned if the
+	// request language is not available. By default DefaultIsAcceptable
+	// is true so that the application continues in the default language
+	// even if the requested language is not available.
+	//
+	DefaultIsAcceptable bool
+
 	// Custom set-able by the client for what ever purpose is required.
 	//
 	Custom any
