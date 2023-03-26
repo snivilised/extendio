@@ -35,17 +35,22 @@ var _ = Describe("Text", Ordered, func() {
 
 	Context("native", func() {
 		BeforeEach(func() {
-			Use(func(o *UseOptions) {
+			if err := Use(func(o *UseOptions) {
 				o.Tag = DefaultLanguage.Get()
 				o.From.Sources = testTranslationFile
-			})
+			}); err != nil {
+				Fail(err.Error())
+			}
 		})
 
 		Context("given: ThirdPartyError", func() {
 			It("🧪 should: contain the third party error text", func() {
-				Use(func(o *UseOptions) {
+				if err := Use(func(o *UseOptions) {
 					o.Tag = language.BritishEnglish
-				})
+				}); err != nil {
+					Fail(err.Error())
+				}
+
 				err := NewThirdPartyErr(errors.New("computer says no"))
 				Expect(err.Error()).To(ContainSubstring("computer says no"))
 			})
@@ -64,11 +69,13 @@ var _ = Describe("Text", Ordered, func() {
 
 	Context("foreign", func() {
 		BeforeEach(func() {
-			Use(func(o *UseOptions) {
+			if err := Use(func(o *UseOptions) {
 				o.Tag = language.AmericanEnglish
 				o.From.Path = l10nPath
 				o.From.Sources = testTranslationFile
-			})
+			}); err != nil {
+				Fail(err.Error())
+			}
 		})
 
 		Context("Text", func() {

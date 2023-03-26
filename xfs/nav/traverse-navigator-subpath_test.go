@@ -16,9 +16,11 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		Use(func(o *UseOptions) {
+		if err := Use(func(o *UseOptions) {
 			o.Tag = DefaultLanguage.Get()
-		})
+		}); err != nil {
+			Fail(err.Error())
+		}
 	})
 
 	Context("sub-path", func() {

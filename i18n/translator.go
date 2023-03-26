@@ -29,8 +29,10 @@ type localizerContainer map[string]*i18n.Localizer
 // can even be called without specifying the Tag and in this case
 // the default language will be used. The client MUST call Use
 // before using any functionality in this package.
-func Use(options ...UseOptionFn) {
+func Use(options ...UseOptionFn) error {
+	var err error
 	o := &UseOptions{}
+	o.DefaultIsAcceptable = true
 	o.Tag = DefaultLanguage.Get()
 
 	for _, fo := range options {
@@ -39,9 +41,22 @@ func Use(options ...UseOptionFn) {
 	lang := NewLanguageInfo(o)
 
 	if !ContainsLanguage(lang.Supported, o.Tag) {
-		panic(NewLanguageNotAvailableNativeError(o.Tag))
+		if o.DefaultIsAcceptable {
+			o.Tag = DefaultLanguage.Get()
+			lang.Tag = o.Tag
+		} else {
+			err = NewFailedToCreateTranslatorNativeError(o.Tag)
+		}
 	}
 
+	if err == nil {
+		applyLanguage(lang)
+	}
+
+	return err
+}
+
+func applyLanguage(lang *LanguageInfo) {
 	// since extendio is not trying to provide foreign translations for any
 	// of its dependencies, we only need create a localizer for this module
 	// (extendio). If we do need to provide these additional translations,
@@ -52,15 +67,11 @@ func Use(options ...UseOptionFn) {
 
 	tx = factory.New(lang)
 	TxRef = utils.NewRoProp(tx)
-
-	if TxRef.IsNone() {
-		panic(NewFailedToCreateTranslatorNativeError(o.Tag))
-	}
 }
 
-// ResetTx, do not use, required for unit testing only and is not considered
-// part of the public api and may be removed without corresponding version
-// number change.
+// Deprecated: ResetTx, do not use, required for unit testing only and is
+// not considered part of the public api and may be removed without
+// corresponding version number change.
 func ResetTx() {
 	// having to do this smells a bit, but required so unit tests can
 	// remain isolated (this is why package globals are bad, but sometimes
@@ -73,9 +84,9 @@ func ResetTx() {
 	TxRef = utils.NewRoProp(tx)
 }
 
-// UseTx, do not use, required for unit testing only and is not considered
-// part of the public api and may be removed without corresponding version
-// number change.
+// Deprecated: UseTx, do not use, required for unit testing only and is
+// not considered part of the public api and may be removed without
+// corresponding version number change.
 func UseTx(with Translator, setters ...UseOptionFn) error {
 	o := &UseOptions{}
 	for _, fo := range setters {

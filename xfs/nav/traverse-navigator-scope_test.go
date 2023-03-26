@@ -18,9 +18,11 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		Use(func(o *UseOptions) {
+		if err := Use(func(o *UseOptions) {
 			o.Tag = DefaultLanguage.Get()
-		})
+		}); err != nil {
+			Fail(err.Error())
+		}
 	})
 
 	DescribeTable("scope",

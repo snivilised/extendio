@@ -2,7 +2,6 @@ package i18n_test
 
 import (
 	"fmt"
-	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -47,11 +46,13 @@ var _ = Describe("Translator", Ordered, func() {
 	Context("Use", func() {
 		When("requested language is available", func() {
 			It("🧪 should: create Translator", func() {
-				Use(func(o *UseOptions) {
+				if err := Use(func(o *UseOptions) {
 					o.Tag = language.AmericanEnglish
 					o.From.Path = l10nPath
 					o.From.Sources = testTranslationFile
-				})
+				}); err != nil {
+					Fail(err.Error())
+				}
 				Expect(TxRef.IsNone()).To(BeFalse())
 				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.AmericanEnglish))
 			})
@@ -59,28 +60,49 @@ var _ = Describe("Translator", Ordered, func() {
 
 		When("requested language is the default", func() {
 			It("🧪 should: create Translator", func() {
-				Use(func(o *UseOptions) {
+				if err := Use(func(o *UseOptions) {
 					o.Tag = language.BritishEnglish
-				})
+				}); err != nil {
+					Fail(err.Error())
+				}
 				Expect(TxRef.IsNone()).To(BeFalse())
 				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
 			})
 		})
 
-		When("requested language is NOT available", func() {
-			It("🧪 should: return error", func() {
-				defer func() {
-					pe := recover()
-					if err, ok := pe.(error); !ok || !strings.Contains(err.Error(), "not available") {
-						Fail("FAILED")
+		Context("DefaultIsAcceptable is true", func() {
+			When("requested language is NOT available", func() {
+				It("🧪 should: return NOT error", func() {
+					requested := language.Spanish
+					if err := Use(func(o *UseOptions) {
+						o.Tag = requested
+					}); err != nil {
+						Fail(
+							fmt.Sprintf(
+								"❌ request language: '%v' not supported, but default should be acceptable",
+								requested,
+							),
+						)
 					}
-				}()
-
-				requested := language.Spanish
-				Use(func(o *UseOptions) {
-					o.Tag = requested
 				})
-				Fail(fmt.Sprintf("❌ expected panic due to request language: '%v' not being supported", requested))
+			})
+		})
+
+		Context("DefaultIsAcceptable is false", func() {
+			When("requested language is NOT available", func() {
+				It("🧪 should: return error", func() {
+					requested := language.Spanish
+					if err := Use(func(o *UseOptions) {
+						o.DefaultIsAcceptable = false
+						o.Tag = requested
+					}); err == nil {
+						Fail(
+							fmt.Sprintf("❌ expected error due to request language: '%v' not being supported",
+								requested,
+							),
+						)
+					}
+				})
 			})
 		})
 	})
@@ -89,7 +111,7 @@ var _ = Describe("Translator", Ordered, func() {
 		Context("given: FailedToReadDirectoryContentsError", func() {
 			It("🧪 should: be identifiable via query function", func() {
 				reason := fmt.Errorf("file missing")
-				var err error = NewFailedToReadDirectoryContentsError("/foo/bar/", reason)
+				err := NewFailedToReadDirectoryContentsError("/foo/bar/", reason)
 				result := QueryFailedToReadDirectoryContentsError(err)
 				Expect(result).To(BeTrue())
 			})
@@ -98,7 +120,7 @@ var _ = Describe("Translator", Ordered, func() {
 		Context("given: NewFailedToResumeFromFileError", func() {
 			It("🧪 should: be identifiable via query function", func() {
 				reason := fmt.Errorf("file missing")
-				var err error = NewFailedToResumeFromFileError("/foo/bar/resume.json", reason)
+				err := NewFailedToResumeFromFileError("/foo/bar/resume.json", reason)
 				result := QueryFailedToResumeFromFileError(err)
 				Expect(result).To(BeTrue())
 			})
@@ -106,7 +128,7 @@ var _ = Describe("Translator", Ordered, func() {
 
 		Context("given: InvalidConfigEntryError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				var err error = NewInvalidConfigEntryError("foo", "Store/Logging/Path")
+				err := NewInvalidConfigEntryError("foo", "Store/Logging/Path")
 				result := QueryInvalidConfigEntryError(err)
 				Expect(result).To(BeTrue())
 			})
@@ -114,7 +136,7 @@ var _ = Describe("Translator", Ordered, func() {
 
 		Context("given: InvalidResumeStrategyError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				var err error = NewInvalidResumeStrategyError("foo")
+				err := NewInvalidResumeStrategyError("foo")
 				result := QueryInvalidResumeStrategyError(err)
 				Expect(result).To(BeTrue())
 			})
@@ -122,7 +144,7 @@ var _ = Describe("Translator", Ordered, func() {
 
 		Context("given: MissingCallbackError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				var err error = NewMissingCallbackError()
+				err := NewMissingCallbackError()
 				result := QueryMissingCallbackError(err)
 				Expect(result).To(BeTrue())
 			})
@@ -130,7 +152,7 @@ var _ = Describe("Translator", Ordered, func() {
 
 		Context("given: MissingCustomFilterDefinitionError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				var err error = NewMissingCustomFilterDefinitionError(
+				err := NewMissingCustomFilterDefinitionError(
 					"Options/Store/FilterDefs/Node/Custom",
 				)
 				result := QueryMissingCustomFilterDefinitionError(err)
@@ -140,7 +162,7 @@ var _ = Describe("Translator", Ordered, func() {
 
 		Context("given: NotADirectoryError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				var err error = NewNotADirectoryError("/foo/bar")
+				err := NewNotADirectoryError("/foo/bar")
 				result := QueryNotADirectoryError(err)
 				Expect(result).To(BeTrue())
 			})
@@ -148,7 +170,7 @@ var _ = Describe("Translator", Ordered, func() {
 
 		Context("given: SortFnFailedError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				var err error = NewSortFnFailedError()
+				err := NewSortFnFailedError()
 				result := QuerySortFnFailedError(err)
 				Expect(result).To(BeTrue())
 			})
@@ -156,7 +178,7 @@ var _ = Describe("Translator", Ordered, func() {
 
 		Context("given: UnknownMarshalFormatError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				var err error = NewUnknownMarshalFormatError(
+				err := NewUnknownMarshalFormatError(
 					"Options/Persist/Format", "jpg",
 				)
 				result := QueryUnknownMarshalFormatError(err)

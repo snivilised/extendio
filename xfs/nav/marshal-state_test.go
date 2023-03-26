@@ -46,9 +46,11 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 
 	BeforeEach(func() {
 		ResetTx()
-		Use(func(o *UseOptions) {
+		if err := Use(func(o *UseOptions) {
 			o.Tag = DefaultLanguage.Get()
-		})
+		}); err != nil {
+			Fail(err.Error())
+		}
 	})
 
 	Context("Marshal", func() {
