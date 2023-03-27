@@ -69,7 +69,7 @@ func applyLanguage(lang *LanguageInfo) {
 	TxRef = utils.NewRoProp(tx)
 }
 
-// Deprecated: ResetTx, do not use, required for unit testing only and is
+// ResetTx, do not use, required for unit testing only and is
 // not considered part of the public api and may be removed without
 // corresponding version number change.
 func ResetTx() {
@@ -84,7 +84,7 @@ func ResetTx() {
 	TxRef = utils.NewRoProp(tx)
 }
 
-// Deprecated: UseTx, do not use, required for unit testing only and is
+// UseTx, do not use, required for unit testing only and is
 // not considered part of the public api and may be removed without
 // corresponding version number change.
 func UseTx(with Translator, setters ...UseOptionFn) error {
