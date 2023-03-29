@@ -105,3 +105,8 @@ type LocalizerInfo struct {
 
 	sourceId string
 }
+
+// TranslatorFactory
+type TranslatorFactory interface {
+	New(lang *LanguageInfo) Translator
+}

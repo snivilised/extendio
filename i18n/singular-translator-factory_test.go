@@ -16,7 +16,7 @@ var _ = Describe("SingularTranslatorFactory", Ordered, func() {
 	var (
 		repo     string
 		l10nPath string
-		factory  xi18n.SingularTranslatorFactory
+		factory  xi18n.TranslatorFactory
 		from     xi18n.LoadFrom
 	)
 
@@ -27,7 +27,7 @@ var _ = Describe("SingularTranslatorFactory", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		factory = xi18n.SingularTranslatorFactory{}
+		factory = &xi18n.SingularTranslatorFactory{}
 	})
 
 	Context("given: dependency supports requested language", func() {
@@ -125,8 +125,8 @@ var _ = Describe("SingularTranslatorFactory", Ordered, func() {
 
 				When("custom function provided", func() {
 					It("🧪 should: use custom localizer creator", func() {
-						factory = xi18n.SingularTranslatorFactory{
-							TranslatorFactory: xi18n.TranslatorFactory{
+						factory = &xi18n.SingularTranslatorFactory{
+							AbstractTranslatorFactory: xi18n.AbstractTranslatorFactory{
 								Create: dummyLocalizer,
 							},
 						}

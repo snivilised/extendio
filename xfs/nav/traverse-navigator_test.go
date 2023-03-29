@@ -32,7 +32,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 	Context("Navigator", func() {
 		DescribeTable("Ensure Callback Invoked Once",
 			func(entry *naviTE) {
-				recording := recordingMap{}
+				recording := make(recordingMap)
 				visited := []string{}
 
 				once := nav.LabelledTraverseCallback{
@@ -288,7 +288,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 
 	DescribeTable("Folders With Files",
 		func(entry *naviTE) {
-			recording := recordingMap{}
+			recording := make(recordingMap)
 			visited := []string{}
 
 			once := nav.LabelledTraverseCallback{

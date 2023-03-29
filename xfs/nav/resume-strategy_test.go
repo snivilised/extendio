@@ -207,7 +207,7 @@ var _ = Describe("Resume", Ordered, func() {
 			invocations := map[nav.ResumeStrategyEnum]*strategyInvokeInfo{}
 
 			for _, strategyEn := range strategies {
-				recording := recordingMap{}
+				recording := make(recordingMap)
 				profile, ok := profiles[entry.profile]
 				if !ok {
 					Fail(fmt.Sprintf("bad test, missing profile for '%v'", entry.profile))

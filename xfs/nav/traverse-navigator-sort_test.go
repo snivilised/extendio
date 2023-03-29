@@ -28,7 +28,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 
 	DescribeTable("sort",
 		func(entry *sortTE) {
-			recording := recordingOrderMap{}
+			recording := make(recordingOrderMap)
 			counter := 0
 
 			recorder := nav.LabelledTraverseCallback{

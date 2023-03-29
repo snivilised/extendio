@@ -329,7 +329,7 @@ func universalDepthCallback(name string, maxDepth int) nav.LabelledTraverseCallb
 }
 
 func foldersCaseSensitiveCallback(first, second string) nav.LabelledTraverseCallback {
-	recording := recordingMap{}
+	recording := make(recordingMap)
 
 	return nav.LabelledTraverseCallback{
 		Label: "test folders case sensitive callback",
