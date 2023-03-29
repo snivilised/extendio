@@ -30,7 +30,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 
 	DescribeTable("GlobFilter",
 		func(entry *filterTE) {
-			recording := recordingMap{}
+			recording := make(recordingMap)
 			filterDefs := &nav.FilterDefinitions{
 				Node: nav.FilterDef{
 					Type:            nav.FilterTypeGlobEn,
@@ -187,7 +187,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 
 	DescribeTable("Filter Children (glob)",
 		func(entry *filterTE) {
-			recording := recordingMap{}
+			recording := make(recordingMap)
 			filterDefs := &nav.FilterDefinitions{
 				Children: nav.CompoundFilterDef{
 					Type:        nav.FilterTypeGlobEn,

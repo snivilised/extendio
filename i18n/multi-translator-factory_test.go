@@ -27,7 +27,7 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 	var (
 		repo     string
 		l10nPath string
-		factory  xi18n.MultiTranslatorFactory
+		factory  xi18n.TranslatorFactory
 		from     xi18n.LoadFrom
 	)
 
@@ -38,7 +38,7 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 	})
 
 	BeforeEach(func() {
-		factory = xi18n.MultiTranslatorFactory{}
+		factory = &xi18n.MultiTranslatorFactory{}
 	})
 
 	Context("given: dependency supports requested language", func() {
@@ -48,8 +48,8 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 			from = xi18n.LoadFrom{
 				Path: l10nPath,
 				Sources: xi18n.TranslationFiles{
-					xi18n.SOURCE_ID:    xi18n.TranslationSource{"test"},
-					GRAFFICO_SOURCE_ID: xi18n.TranslationSource{"test.graffico"},
+					xi18n.SOURCE_ID:    xi18n.TranslationSource{Name: "test"},
+					GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
 				},
 			}
 		})
@@ -102,8 +102,8 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 
 		When("custom function provided", func() {
 			It("🧪 should: use custom localizer creator", func() {
-				factory = xi18n.MultiTranslatorFactory{
-					TranslatorFactory: xi18n.TranslatorFactory{
+				factory = &xi18n.MultiTranslatorFactory{
+					AbstractTranslatorFactory: xi18n.AbstractTranslatorFactory{
 						Create: dummyLocalizer,
 					},
 				}
@@ -123,8 +123,10 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 				It("🧪 should: panic", func() {
 					defer func() {
 						pe := recover()
-						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(), "could not load translations") {
-							Fail(fmt.Sprintf("Incorrect error reported, when: invalid translation source specified 💥(%v)",
+						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
+							"could not load translations") {
+							Fail(fmt.Sprintf(
+								"Incorrect error reported, when: invalid translation source specified 💥(%v)",
 								err.Error()),
 							)
 						}
@@ -133,8 +135,8 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 					from = xi18n.LoadFrom{
 						Path: l10nPath,
 						Sources: xi18n.TranslationFiles{
-							xi18n.SOURCE_ID:    xi18n.TranslationSource{"scooby-doo"},
-							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{"test.graffico"},
+							xi18n.SOURCE_ID:    xi18n.TranslationSource{Name: "scooby-doo"},
+							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
 						},
 					}
 					local := xi18n.NewLanguageInfo(&xi18n.UseOptions{
@@ -150,8 +152,10 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 				It("🧪 should: panic", func() {
 					defer func() {
 						pe := recover()
-						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(), "could not find localizer for source") {
-							Fail(fmt.Sprintf("Incorrect error reported, when: message defined with non-existent source id 💥(%v)",
+						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
+							"could not find localizer for source") {
+							Fail(fmt.Sprintf(
+								"Incorrect error reported, when: message defined with non-existent source id 💥(%v)",
 								err.Error()),
 							)
 						}
@@ -172,8 +176,10 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 				It("🧪 should: panic", func() {
 					defer func() {
 						pe := recover()
-						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(), "insufficient sources") {
-							Fail(fmt.Sprintf("Incorrect error reported, when: insufficient number of sources have been specified 💥(%v)",
+						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
+							"insufficient sources") {
+							Fail(fmt.Sprintf(
+								"Incorrect error reported, when: insufficient number of sources have been specified 💥(%v)",
 								err.Error()),
 							)
 						}

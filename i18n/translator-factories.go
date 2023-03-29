@@ -10,11 +10,11 @@ import (
 // provide to override how an i18n Localizer is created.
 type LocalizerCreatorFn func(li *LanguageInfo, sourceId string) *i18n.Localizer
 
-type TranslatorFactory struct {
+type AbstractTranslatorFactory struct {
 	Create LocalizerCreatorFn
 }
 
-func (f *TranslatorFactory) setup(lang *LanguageInfo) {
+func (f *AbstractTranslatorFactory) setup(lang *LanguageInfo) {
 	if lang.From.Sources == nil {
 		lang.From.Sources = TranslationFiles{
 			SOURCE_ID: TranslationSource{},
@@ -29,7 +29,7 @@ func (f *TranslatorFactory) setup(lang *LanguageInfo) {
 // SingularTranslatorFactory creates Translator with the single localizer which
 // represents the client's package.
 type SingularTranslatorFactory struct {
-	TranslatorFactory
+	AbstractTranslatorFactory
 }
 
 func (f *SingularTranslatorFactory) New(lang *LanguageInfo) Translator {
@@ -70,7 +70,7 @@ func (f *SingularTranslatorFactory) New(lang *LanguageInfo) Translator {
 // name as the dependency would have created it for, then this file will
 // be loaded as per usual.
 type MultiTranslatorFactory struct {
-	TranslatorFactory
+	AbstractTranslatorFactory
 }
 
 func (f *MultiTranslatorFactory) New(lang *LanguageInfo) Translator {

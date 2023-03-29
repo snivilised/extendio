@@ -27,7 +27,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 
 	DescribeTable("scope",
 		func(entry *scopeTE) {
-			recording := recordingScopeMap{}
+			recording := make(recordingScopeMap)
 
 			scopeRecorder := nav.LabelledTraverseCallback{
 				Label: "test callback",

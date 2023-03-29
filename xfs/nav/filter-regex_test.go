@@ -31,7 +31,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 
 	DescribeTable("RegexFilter",
 		func(entry *filterTE) {
-			recording := recordingMap{}
+			recording := make(recordingMap)
 			filterDefs := &nav.FilterDefinitions{
 				Node: nav.FilterDef{
 					Type:            nav.FilterTypeRegexEn,
@@ -235,7 +235,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 
 	DescribeTable("Filter Children (regex)",
 		func(entry *filterTE) {
-			recording := recordingMap{}
+			recording := make(recordingMap)
 			filterDefs := &nav.FilterDefinitions{
 				Children: nav.CompoundFilterDef{
 					Type:        nav.FilterTypeRegexEn,
