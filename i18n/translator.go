@@ -57,13 +57,22 @@ func Use(options ...UseOptionFn) error {
 }
 
 func applyLanguage(lang *LanguageInfo) {
-	// since extendio is not trying to provide foreign translations for any
-	// of its dependencies, we only need create a localizer for this module
-	// (extendio). If we do need to provide these additional translations,
-	// then use NewMultiTranslator instead and then provide additional
-	// localizers.
-	//
-	factory := SingularTranslatorFactory{}
+	factory := lo.TernaryF(len(lang.From.Sources) > 1,
+		func() TranslatorFactory {
+			return &MultiTranslatorFactory{
+				AbstractTranslatorFactory: AbstractTranslatorFactory{
+					Create: lang.Create,
+				},
+			}
+		},
+		func() TranslatorFactory {
+			return &SingularTranslatorFactory{
+				AbstractTranslatorFactory: AbstractTranslatorFactory{
+					Create: lang.Create,
+				},
+			}
+		},
+	)
 
 	tx = factory.New(lang)
 	TxRef = utils.NewRoProp(tx)

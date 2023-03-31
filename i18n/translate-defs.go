@@ -65,6 +65,11 @@ type UseOptions struct {
 	//
 	DefaultIsAcceptable bool
 
+	// Create allows the client to  override the default function to create
+	// the i18n Localizer(s) (1 per language).
+	//
+	Create LocalizerCreatorFn
+
 	// Custom set-able by the client for what ever purpose is required.
 	//
 	Custom any

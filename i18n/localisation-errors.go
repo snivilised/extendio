@@ -74,14 +74,6 @@ func NewLocalizerAlreadyExistsNativeError(sourceId string) error {
 	)
 }
 
-// ❌ NoSourcesSpecified
-
-// Translator can't be created because no sources have been specified
-// in the LanguageInfo at .From.Source
-func NoSourcesSpecifiedNativeError() error {
-	return fmt.Errorf("i18n: no sources specified")
-}
-
 // ❌ MultipleSourcesSpecifiedForSingularTranslator
 func MultipleSourcesSpecifiedForSingularTranslatorNativeError(count int) error {
 	return fmt.Errorf(

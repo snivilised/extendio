@@ -16,9 +16,23 @@ type AbstractTranslatorFactory struct {
 
 func (f *AbstractTranslatorFactory) setup(lang *LanguageInfo) {
 	if lang.From.Sources == nil {
-		lang.From.Sources = TranslationFiles{
-			SOURCE_ID: TranslationSource{},
-		}
+		lang.From.Sources = make(TranslationFiles)
+	}
+
+	// By adding in the source for extendio, we relieve the client from having
+	// to do this. After-all, it should be taken as read that if the client is
+	// using extendio then the translations for extendio should be loaded,
+	// otherwise extendio will not be able to convey these translations to the
+	// client. The client app has to make sure that when their app is deployed,
+	// the translations file(s) for extendio are named as 'extendio', as you
+	// can see below, that that is the name assigned to the app name of the
+	// source. There is little value in making this customisable as this would
+	// just lead to confusion. If the client really wants to control the name
+	// of the translation file for extendio, they can provide an override
+	// 'Create' function on UseOptions.
+	//
+	if _, found := lang.From.Sources[SOURCE_ID]; !found {
+		lang.From.Sources[SOURCE_ID] = TranslationSource{Name: "extendio"}
 	}
 
 	if f.Create == nil {
@@ -36,13 +50,10 @@ func (f *SingularTranslatorFactory) New(lang *LanguageInfo) Translator {
 	f.setup(lang)
 
 	count := len(lang.From.Sources)
-	if (lang.From.Sources == nil) || (count == 0) {
-		panic(NoSourcesSpecifiedNativeError())
-	}
-
-	if len(lang.From.Sources) > 1 {
+	if count > 1 {
 		panic(MultipleSourcesSpecifiedForSingularTranslatorNativeError(count))
 	}
+
 	sourceId := lo.Keys(lang.From.Sources)[0]
 
 	liRef := utils.NewRoProp(*lang)
