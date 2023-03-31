@@ -56,7 +56,30 @@ func Use(options ...UseOptionFn) error {
 	return err
 }
 
+func verifyLanguage(lang *LanguageInfo) {
+	if lang.From.Sources == nil {
+		lang.From.Sources = make(TranslationFiles)
+	}
+
+	// By adding in the source for extendio, we relieve the client from having
+	// to do this. After-all, it should be taken as read that if the client is
+	// using extendio then the translations for extendio should be loaded,
+	// otherwise extendio will not be able to convey these translations to the
+	// client. The client app has to make sure that when their app is deployed,
+	// the translations file(s) for extendio are named as 'extendio', as you
+	// can see below, that that is the name assigned to the app name of the
+	// source. There is little value in making this customisable as this would
+	// just lead to confusion. If the client really wants to control the name
+	// of the translation file for extendio, they can provide an override
+	// 'Create' function on UseOptions.
+	//
+	if _, found := lang.From.Sources[SOURCE_ID]; !found {
+		lang.From.Sources[SOURCE_ID] = TranslationSource{Name: "extendio"}
+	}
+}
+
 func applyLanguage(lang *LanguageInfo) {
+	verifyLanguage(lang)
 	factory := lo.TernaryF(len(lang.From.Sources) > 1,
 		func() TranslatorFactory {
 			return &MultiTranslatorFactory{

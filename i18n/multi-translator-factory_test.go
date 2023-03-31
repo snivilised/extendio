@@ -48,6 +48,7 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 				},
 			}
 		})
+
 		Context("Default Language", func() {
 			BeforeEach(func() {
 				local = xi18n.NewLanguageInfo(&xi18n.UseOptions{
@@ -116,10 +117,10 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 
 		When("custom function provided", func() {
 			It("🧪 should: use custom localizer creator", func() {
-				dummy := dummyCreator{}
+				dummy := helpers.DummyCreator{}
 				factory = &xi18n.MultiTranslatorFactory{
 					AbstractTranslatorFactory: xi18n.AbstractTranslatorFactory{
-						Create: dummy.create,
+						Create: dummy.Create,
 					},
 				}
 				local = xi18n.NewLanguageInfo(&xi18n.UseOptions{
@@ -129,7 +130,7 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 				})
 
 				translator := factory.New(local)
-				Expect(dummy.invoked).To(BeTrue())
+				Expect(dummy.Invoked).To(BeTrue())
 				Expect(translator).ToNot(BeNil())
 			})
 		})
