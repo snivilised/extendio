@@ -91,6 +91,22 @@ var _ = Describe("SingularTranslatorFactory", Ordered, func() {
 							Expect(actual).To(Equal(expect))
 						})
 					})
+
+					When("No sources provided", func() {
+						It("🧪 should: create factory that contains the extendio source", func() {
+							from = xi18n.LoadFrom{
+								Path: l10nPath,
+							}
+
+							local = xi18n.NewLanguageInfo(&xi18n.UseOptions{
+								Tag:  language.BritishEnglish,
+								From: from,
+							})
+							translator := factory.New(local)
+							Expect(translator).ToNot(BeNil())
+							Expect(xi18n.UseTx(translator)).Error().To(BeNil())
+						})
+					})
 				})
 
 				Context("Foreign Language", func() {
@@ -125,9 +141,10 @@ var _ = Describe("SingularTranslatorFactory", Ordered, func() {
 
 				When("custom function provided", func() {
 					It("🧪 should: use custom localizer creator", func() {
+						dummy := dummyCreator{}
 						factory = &xi18n.SingularTranslatorFactory{
 							AbstractTranslatorFactory: xi18n.AbstractTranslatorFactory{
-								Create: dummyLocalizer,
+								Create: dummy.create,
 							},
 						}
 						local = xi18n.NewLanguageInfo(&xi18n.UseOptions{
@@ -137,6 +154,7 @@ var _ = Describe("SingularTranslatorFactory", Ordered, func() {
 						})
 
 						translator := factory.New(local)
+						Expect(dummy.invoked).To(BeTrue())
 						Expect(translator).ToNot(BeNil())
 					})
 				})
@@ -183,33 +201,6 @@ var _ = Describe("SingularTranslatorFactory", Ordered, func() {
 							data := WrongSourceIdTemplData{}
 							text := xi18n.Text(data)
 							Expect(text).To(Equal(data.Message().Other))
-						})
-					})
-
-					When("no sources specified have been specified", func() {
-						It("🧪 should: panic", func() {
-							defer func() {
-								pe := recover()
-								if err, ok := pe.(error); !ok || !strings.Contains(err.Error(), "no sources specified") {
-									Fail(fmt.Sprintf("Incorrect error reported, when: no sources specified sources have been specified 💥(%v)",
-										err.Error()),
-									)
-								}
-							}()
-
-							from = xi18n.LoadFrom{
-								Path:    l10nPath,
-								Sources: xi18n.TranslationFiles{},
-							}
-							local = xi18n.NewLanguageInfo(&xi18n.UseOptions{
-								Tag:  language.AmericanEnglish,
-								From: from,
-							})
-
-							translator := factory.New(local)
-							_ = xi18n.UseTx(translator)
-							_ = xi18n.Text(WrongSourceIdTemplData{})
-							Fail("❌ expected panic due to invalid path: 'FOO-BAR'")
 						})
 					})
 				})

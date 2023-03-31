@@ -3,14 +3,25 @@ package i18n_test
 import (
 	"fmt"
 
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/text/language"
 
 	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/utils"
 )
+
+type dummyCreator struct {
+	invoked bool
+}
+
+func (dc *dummyCreator) create(lang *xi18n.LanguageInfo, sourceId string) *i18n.Localizer {
+	dc.invoked = true
+	return &i18n.Localizer{}
+}
 
 var _ = Describe("Translator", Ordered, func() {
 	var (
@@ -103,6 +114,21 @@ var _ = Describe("Translator", Ordered, func() {
 						)
 					}
 				})
+			})
+		})
+
+		When("client provides Create function", func() {
+			It("🧪 should: create the localizer with the override", func() {
+				dummy := dummyCreator{}
+				if err := Use(func(o *UseOptions) {
+					o.Tag = language.BritishEnglish
+					o.Create = dummy.create
+				}); err != nil {
+					Fail(err.Error())
+				}
+				Expect(dummy.invoked).To(BeTrue())
+				Expect(TxRef.IsNone()).To(BeFalse())
+				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
 			})
 		})
 	})

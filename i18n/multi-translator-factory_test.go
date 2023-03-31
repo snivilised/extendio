@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/text/language"
@@ -18,10 +17,6 @@ const (
 	expectUS = "Found graffiti on sidewalk; primary color: 'Violet'"
 	expectGB = "Found graffiti on pavement; primary colour: 'Violet'"
 )
-
-func dummyLocalizer(lang *xi18n.LanguageInfo, sourceId string) *i18n.Localizer {
-	return &i18n.Localizer{}
-}
 
 var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 	var (
@@ -78,6 +73,25 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 					Expect(actual).To(Equal(expect))
 				})
 			})
+
+			When("extendio source not provided", func() {
+				It("🧪 should: create factory that contains the extendio source", func() {
+					from = xi18n.LoadFrom{
+						Path: l10nPath,
+						Sources: xi18n.TranslationFiles{
+							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+						},
+					}
+
+					local = xi18n.NewLanguageInfo(&xi18n.UseOptions{
+						Tag:  language.BritishEnglish,
+						From: from,
+					})
+					translator := factory.New(local)
+					Expect(translator).ToNot(BeNil())
+					Expect(xi18n.UseTx(translator)).Error().To(BeNil())
+				})
+			})
 		})
 
 		Context("Foreign Language", func() {
@@ -102,9 +116,10 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 
 		When("custom function provided", func() {
 			It("🧪 should: use custom localizer creator", func() {
+				dummy := dummyCreator{}
 				factory = &xi18n.MultiTranslatorFactory{
 					AbstractTranslatorFactory: xi18n.AbstractTranslatorFactory{
-						Create: dummyLocalizer,
+						Create: dummy.create,
 					},
 				}
 				local = xi18n.NewLanguageInfo(&xi18n.UseOptions{
@@ -114,6 +129,7 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 				})
 
 				translator := factory.New(local)
+				Expect(dummy.invoked).To(BeTrue())
 				Expect(translator).ToNot(BeNil())
 			})
 		})
