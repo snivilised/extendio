@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -84,4 +86,13 @@ func (f *CustomFilter) IsApplicable(item *nav.TraverseItem) bool {
 
 func (f *CustomFilter) Scope() nav.FilterScopeBiEnum {
 	return nav.ScopeAllEn
+}
+
+type DummyCreator struct {
+	Invoked bool
+}
+
+func (dc *DummyCreator) Create(lang *xi18n.LanguageInfo, sourceId string) *i18n.Localizer {
+	dc.Invoked = true
+	return &i18n.Localizer{}
 }

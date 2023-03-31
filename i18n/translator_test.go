@@ -3,31 +3,20 @@ package i18n_test
 import (
 	"fmt"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/text/language"
 
-	. "github.com/snivilised/extendio/i18n"
 	xi18n "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
-type dummyCreator struct {
-	invoked bool
-}
-
-func (dc *dummyCreator) create(lang *xi18n.LanguageInfo, sourceId string) *i18n.Localizer {
-	dc.invoked = true
-	return &i18n.Localizer{}
-}
-
 var _ = Describe("Translator", Ordered, func() {
 	var (
 		repo                string
 		l10nPath            string
-		testTranslationFile TranslationFiles
+		testTranslationFile xi18n.TranslationFiles
 	)
 
 	BeforeAll(func() {
@@ -35,20 +24,20 @@ var _ = Describe("Translator", Ordered, func() {
 		l10nPath = helpers.Path(repo, "Test/data/l10n")
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
 
-		testTranslationFile = TranslationFiles{
-			SOURCE_ID: TranslationSource{"test"},
+		testTranslationFile = xi18n.TranslationFiles{
+			xi18n.SOURCE_ID: xi18n.TranslationSource{"test"},
 		}
 	})
 
 	BeforeEach(func() {
-		ResetTx()
+		xi18n.ResetTx()
 	})
 
-	Context("TxRef.IsNone", func() {
+	Context("xi18n.TxRef.IsNone", func() {
 		When("not Use'd", func() {
 			It("🧪 should: be true", func() {
-				Expect(TxRef.IsNone()).To(BeTrue(),
-					"'Use' not invoked but TxRef.IsNone indicates, its still set?",
+				Expect(xi18n.TxRef.IsNone()).To(BeTrue(),
+					"'Use' not invoked but xi18n.TxRef.IsNone indicates, its still set?",
 				)
 			})
 		})
@@ -57,27 +46,27 @@ var _ = Describe("Translator", Ordered, func() {
 	Context("Use", func() {
 		When("requested language is available", func() {
 			It("🧪 should: create Translator", func() {
-				if err := Use(func(o *UseOptions) {
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
 					o.Tag = language.AmericanEnglish
 					o.From.Path = l10nPath
 					o.From.Sources = testTranslationFile
 				}); err != nil {
 					Fail(err.Error())
 				}
-				Expect(TxRef.IsNone()).To(BeFalse())
-				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.AmericanEnglish))
+				Expect(xi18n.TxRef.IsNone()).To(BeFalse())
+				Expect(xi18n.TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.AmericanEnglish))
 			})
 		})
 
 		When("requested language is the default", func() {
 			It("🧪 should: create Translator", func() {
-				if err := Use(func(o *UseOptions) {
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
 					o.Tag = language.BritishEnglish
 				}); err != nil {
 					Fail(err.Error())
 				}
-				Expect(TxRef.IsNone()).To(BeFalse())
-				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
+				Expect(xi18n.TxRef.IsNone()).To(BeFalse())
+				Expect(xi18n.TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
 			})
 		})
 
@@ -85,7 +74,7 @@ var _ = Describe("Translator", Ordered, func() {
 			When("requested language is NOT available", func() {
 				It("🧪 should: return NOT error", func() {
 					requested := language.Spanish
-					if err := Use(func(o *UseOptions) {
+					if err := xi18n.Use(func(o *xi18n.UseOptions) {
 						o.Tag = requested
 					}); err != nil {
 						Fail(
@@ -103,7 +92,7 @@ var _ = Describe("Translator", Ordered, func() {
 			When("requested language is NOT available", func() {
 				It("🧪 should: return error", func() {
 					requested := language.Spanish
-					if err := Use(func(o *UseOptions) {
+					if err := xi18n.Use(func(o *xi18n.UseOptions) {
 						o.DefaultIsAcceptable = false
 						o.Tag = requested
 					}); err == nil {
@@ -119,16 +108,36 @@ var _ = Describe("Translator", Ordered, func() {
 
 		When("client provides Create function", func() {
 			It("🧪 should: create the localizer with the override", func() {
-				dummy := dummyCreator{}
-				if err := Use(func(o *UseOptions) {
+				dummy := helpers.DummyCreator{}
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
 					o.Tag = language.BritishEnglish
-					o.Create = dummy.create
+					o.Create = dummy.Create
 				}); err != nil {
 					Fail(err.Error())
 				}
-				Expect(dummy.invoked).To(BeTrue())
-				Expect(TxRef.IsNone()).To(BeFalse())
-				Expect(TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
+				Expect(dummy.Invoked).To(BeTrue())
+				Expect(xi18n.TxRef.IsNone()).To(BeFalse())
+				Expect(xi18n.TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
+			})
+		})
+
+		When("extendio source not provided", func() {
+			It("🧪 should: create Translator", func() {
+				from := xi18n.LoadFrom{
+					Path: l10nPath,
+					Sources: xi18n.TranslationFiles{
+						GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+					},
+				}
+
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
+					o.Tag = language.BritishEnglish
+					o.From = from
+				}); err != nil {
+					Fail(err.Error())
+				}
+				Expect(xi18n.TxRef.IsNone()).To(BeFalse())
+				Expect(xi18n.TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
 			})
 		})
 	})
@@ -137,8 +146,8 @@ var _ = Describe("Translator", Ordered, func() {
 		Context("given: FailedToReadDirectoryContentsError", func() {
 			It("🧪 should: be identifiable via query function", func() {
 				reason := fmt.Errorf("file missing")
-				err := NewFailedToReadDirectoryContentsError("/foo/bar/", reason)
-				result := QueryFailedToReadDirectoryContentsError(err)
+				err := xi18n.NewFailedToReadDirectoryContentsError("/foo/bar/", reason)
+				result := xi18n.QueryFailedToReadDirectoryContentsError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
@@ -146,68 +155,68 @@ var _ = Describe("Translator", Ordered, func() {
 		Context("given: NewFailedToResumeFromFileError", func() {
 			It("🧪 should: be identifiable via query function", func() {
 				reason := fmt.Errorf("file missing")
-				err := NewFailedToResumeFromFileError("/foo/bar/resume.json", reason)
-				result := QueryFailedToResumeFromFileError(err)
+				err := xi18n.NewFailedToResumeFromFileError("/foo/bar/resume.json", reason)
+				result := xi18n.QueryFailedToResumeFromFileError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
 
 		Context("given: InvalidConfigEntryError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				err := NewInvalidConfigEntryError("foo", "Store/Logging/Path")
-				result := QueryInvalidConfigEntryError(err)
+				err := xi18n.NewInvalidConfigEntryError("foo", "Store/Logging/Path")
+				result := xi18n.QueryInvalidConfigEntryError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
 
 		Context("given: InvalidResumeStrategyError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				err := NewInvalidResumeStrategyError("foo")
-				result := QueryInvalidResumeStrategyError(err)
+				err := xi18n.NewInvalidResumeStrategyError("foo")
+				result := xi18n.QueryInvalidResumeStrategyError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
 
 		Context("given: MissingCallbackError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				err := NewMissingCallbackError()
-				result := QueryMissingCallbackError(err)
+				err := xi18n.NewMissingCallbackError()
+				result := xi18n.QueryMissingCallbackError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
 
 		Context("given: MissingCustomFilterDefinitionError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				err := NewMissingCustomFilterDefinitionError(
+				err := xi18n.NewMissingCustomFilterDefinitionError(
 					"Options/Store/FilterDefs/Node/Custom",
 				)
-				result := QueryMissingCustomFilterDefinitionError(err)
+				result := xi18n.QueryMissingCustomFilterDefinitionError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
 
 		Context("given: NotADirectoryError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				err := NewNotADirectoryError("/foo/bar")
-				result := QueryNotADirectoryError(err)
+				err := xi18n.NewNotADirectoryError("/foo/bar")
+				result := xi18n.QueryNotADirectoryError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
 
 		Context("given: SortFnFailedError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				err := NewSortFnFailedError()
-				result := QuerySortFnFailedError(err)
+				err := xi18n.NewSortFnFailedError()
+				result := xi18n.QuerySortFnFailedError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
 
 		Context("given: UnknownMarshalFormatError", func() {
 			It("🧪 should: be identifiable via query function", func() {
-				err := NewUnknownMarshalFormatError(
+				err := xi18n.NewUnknownMarshalFormatError(
 					"Options/Persist/Format", "jpg",
 				)
-				result := QueryUnknownMarshalFormatError(err)
+				result := xi18n.QueryUnknownMarshalFormatError(err)
 				Expect(result).To(BeTrue())
 			})
 		})
