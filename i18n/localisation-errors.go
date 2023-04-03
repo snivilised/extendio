@@ -62,18 +62,6 @@ func NewLanguageNotAvailableNativeError(tag language.Tag) error {
 	)
 }
 
-// ❌ LocalizerAlreadyExists
-
-// NewFailedToCreateLocalizerNativeError creates an untranslated error to
-// indicate the Translator already contains a localizer for the source
-// specified. (internal error)
-
-func NewLocalizerAlreadyExistsNativeError(sourceId string) error {
-	return fmt.Errorf(
-		"i18n: localizer already exists for source: '%v'", sourceId,
-	)
-}
-
 // ❌ MultipleSourcesSpecifiedForSingularTranslator
 func MultipleSourcesSpecifiedForSingularTranslatorNativeError(count int) error {
 	return fmt.Errorf(
