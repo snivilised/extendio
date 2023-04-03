@@ -34,7 +34,7 @@ func (mc *multiContainer) localise(data Localisable) string {
 
 func (mc *multiContainer) add(info *LocalizerInfo) error {
 	if _, found := mc.localizers[info.sourceId]; found {
-		return NewLocalizerAlreadyExistsNativeError(info.sourceId)
+		return nil
 	}
 	mc.localizers[info.sourceId] = info.Localizer
 	return nil

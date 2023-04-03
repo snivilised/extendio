@@ -18,6 +18,22 @@ const (
 	expectGB = "Found graffiti on pavement; primary colour: 'Violet'"
 )
 
+// This is an example of how a client library should implement
+// their Use function. In this particular case, the addition
+// source is already present, so the result of AppendSources
+// will contain the source id of the duplicated dependency, ie
+// "test.graffico", which is simply ignored as it should be.
+func clientUse(options ...xi18n.UseOptionFn) error {
+	o := append(options, func(uo *xi18n.UseOptions) {
+		_ = uo.From.AppendSources(&xi18n.TranslationFiles{
+			GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+				Name: "test.graffico",
+			},
+		})
+	})
+	return xi18n.Use(o...)
+}
+
 var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 	var (
 		repo     string
@@ -91,6 +107,41 @@ var _ = Describe("MultiTranslatorFactory", Ordered, func() {
 					translator := factory.New(local)
 					Expect(translator).ToNot(BeNil())
 					Expect(xi18n.UseTx(translator)).Error().To(BeNil())
+				})
+			})
+
+			When("duplicate sources for the same dependency", func() {
+				It("🧪 should: return duplicate", func() {
+					from = xi18n.LoadFrom{
+						Path: l10nPath,
+						Sources: xi18n.TranslationFiles{
+							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+								Name: "test.graffico",
+							},
+						},
+					}
+					duplicates := from.AppendSources(&xi18n.TranslationFiles{
+						GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+							Name: "test.graffico",
+						},
+					})
+					Expect(duplicates[0]).To(Equal("test.graffico"))
+				})
+			})
+
+			When("client Use function uses a dependency already registered", func() {
+				It("🧪 should: ignore the duplicate", func() {
+					err := clientUse(func(uo *xi18n.UseOptions) {
+						uo.From = xi18n.LoadFrom{
+							Path: l10nPath,
+							Sources: xi18n.TranslationFiles{
+								GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+									Name: "test.graffico",
+								},
+							},
+						}
+					})
+					Expect(err).Error().To(BeNil())
 				})
 			})
 		})
