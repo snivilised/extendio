@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -391,9 +392,10 @@ type errorTE struct {
 }
 
 func readDirFakeError(dirname string) ([]fs.DirEntry, error) {
-
 	entries := []fs.DirEntry{}
-	err := errors.New("fake read error")
+	path := "/foo/bar"
+	reason := errors.New("access denied")
+	err := i18n.NewFailedToReadDirectoryContentsError(path, reason)
 	return entries, err
 }
 

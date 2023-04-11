@@ -8,7 +8,7 @@ import (
 
 // LocalizerCreatorFn represents the signature of the function can optionally
 // provide to override how an i18n Localizer is created.
-type LocalizerCreatorFn func(li *LanguageInfo, sourceId string) *i18n.Localizer
+type LocalizerCreatorFn func(li *LanguageInfo, sourceId string) (*i18n.Localizer, error)
 
 type AbstractTranslatorFactory struct {
 	Create LocalizerCreatorFn
@@ -22,24 +22,24 @@ func (f *AbstractTranslatorFactory) setup(lang *LanguageInfo) {
 	}
 }
 
-// SingularTranslatorFactory creates Translator with the single localizer which
+// singularTranslatorFactory creates Translator with the single localizer which
 // represents the client's package.
-type SingularTranslatorFactory struct {
+type singularTranslatorFactory struct {
 	AbstractTranslatorFactory
 }
 
-func (f *SingularTranslatorFactory) New(lang *LanguageInfo) Translator {
+func (f *singularTranslatorFactory) New(lang *LanguageInfo) Translator {
 	f.setup(lang)
-
-	count := len(lang.From.Sources)
-	if count > 1 {
-		panic(MultipleSourcesSpecifiedForSingularTranslatorNativeError(count))
-	}
 
 	sourceId := lo.Keys(lang.From.Sources)[0]
 
 	liRef := utils.NewRoProp(*lang)
-	native := f.Create(lang, sourceId)
+	native, err := f.Create(lang, sourceId)
+
+	if err != nil {
+		panic(err)
+	}
+
 	single := &singularContainer{
 		localizer: native,
 	}
@@ -50,9 +50,9 @@ func (f *SingularTranslatorFactory) New(lang *LanguageInfo) Translator {
 	}
 }
 
-// MultiTranslatorFactory creates a translator instance from the provided
+// multiTranslatorFactory creates a translator instance from the provided
 // Localizers. If the client library needs to provide localizers for itself
-// and at least 1 dependency, then they should use MultiTranslatorFactory
+// and at least 1 dependency, then they should use multiTranslatorFactory
 // specify appropriate information concerning where to load the translation
 // files from, otherwise SingularTranslatorFactory should be used.
 //
@@ -62,11 +62,11 @@ func (f *SingularTranslatorFactory) New(lang *LanguageInfo) Translator {
 // language, but we load the client provided translation file at the same
 // name as the dependency would have created it for, then this file will
 // be loaded as per usual.
-type MultiTranslatorFactory struct {
+type multiTranslatorFactory struct {
 	AbstractTranslatorFactory
 }
 
-func (f *MultiTranslatorFactory) New(lang *LanguageInfo) Translator {
+func (f *multiTranslatorFactory) New(lang *LanguageInfo) Translator {
 	f.setup(lang)
 
 	liRef := utils.NewRoProp(*lang)
@@ -74,20 +74,17 @@ func (f *MultiTranslatorFactory) New(lang *LanguageInfo) Translator {
 		localizers: make(localizerContainer),
 	}
 
-	count := len(lang.From.Sources)
-	if len(lang.From.Sources) < 2 {
-		panic(InsufficientSourcesSpecifiedForMultiTranslatorNativeError(count))
-	}
-
 	for id := range lang.From.Sources {
-		localizer := f.Create(lang, id)
-
-		err := multi.add(&LocalizerInfo{
-			sourceId:  id,
-			Localizer: localizer,
-		})
+		localizer, err := f.Create(lang, id)
 
 		if err != nil {
+			panic(err)
+		}
+
+		if err := multi.add(&LocalizerInfo{
+			sourceId:  id,
+			Localizer: localizer,
+		}); err != nil {
 			panic(err)
 		}
 	}

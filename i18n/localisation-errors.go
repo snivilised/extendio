@@ -32,16 +32,6 @@ func NewCouldNotLoadTranslationsNativeError(tag language.Tag, path string, reaso
 	)
 }
 
-// ❌ FailedToCreateLocalizer
-
-// NewFailedToCreateLocalizerNativeError creates an untranslated error to
-// indicate failure to create a localizer instance
-func NewFailedToCreateLocalizerNativeError(tag language.Tag, sourceId string) error {
-	return fmt.Errorf(
-		"i18n: failed to create localizer for Language '%v', dependency: '%v'", tag, sourceId,
-	)
-}
-
 // ❌ FailedToCreateTranslator
 
 // NewFailedToCreateTranslatorNativeError creates an untranslated error to
@@ -49,29 +39,5 @@ func NewFailedToCreateLocalizerNativeError(tag language.Tag, sourceId string) er
 func NewFailedToCreateTranslatorNativeError(tag language.Tag) error {
 	return fmt.Errorf(
 		"i18n: failed to create translator for language '%v'", tag,
-	)
-}
-
-// ❌ LanguageNotAvailable
-
-// NewLanguageNotAvailableNativeError creates an untranslated error to indicate
-// the requested language s not available
-func NewLanguageNotAvailableNativeError(tag language.Tag) error {
-	return fmt.Errorf(
-		"i18n: language '%v' not available", tag,
-	)
-}
-
-// ❌ MultipleSourcesSpecifiedForSingularTranslator
-func MultipleSourcesSpecifiedForSingularTranslatorNativeError(count int) error {
-	return fmt.Errorf(
-		"i18n: multiple sources (%v) have been specified for SingularTranslator", count,
-	)
-}
-
-// ❌ InsufficientSourcesSpecifiedForSingularTranslator
-func InsufficientSourcesSpecifiedForMultiTranslatorNativeError(count int) error {
-	return fmt.Errorf(
-		"i18n: insufficient sources (%v) have been specified for MultiTranslator", count,
 	)
 }
