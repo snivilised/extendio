@@ -40,7 +40,7 @@ func Use(options ...UseOptionFn) error {
 	}
 	lang := NewLanguageInfo(o)
 
-	if !ContainsLanguage(lang.Supported, o.Tag) {
+	if !containsLanguage(lang.Supported, o.Tag) {
 		if o.DefaultIsAcceptable {
 			o.Tag = DefaultLanguage.Get()
 			lang.Tag = o.Tag
@@ -50,7 +50,7 @@ func Use(options ...UseOptionFn) error {
 	}
 
 	if err == nil {
-		applyLanguage(lang)
+		err = applyLanguage(lang)
 	}
 
 	return err
@@ -78,18 +78,20 @@ func verifyLanguage(lang *LanguageInfo) {
 	}
 }
 
-func applyLanguage(lang *LanguageInfo) {
+func applyLanguage(lang *LanguageInfo) error {
+	var result error
+
 	verifyLanguage(lang)
 	factory := lo.TernaryF(len(lang.From.Sources) > 1,
 		func() TranslatorFactory {
-			return &MultiTranslatorFactory{
+			return &multiTranslatorFactory{
 				AbstractTranslatorFactory: AbstractTranslatorFactory{
 					Create: lang.Create,
 				},
 			}
 		},
 		func() TranslatorFactory {
-			return &SingularTranslatorFactory{
+			return &singularTranslatorFactory{
 				AbstractTranslatorFactory: AbstractTranslatorFactory{
 					Create: lang.Create,
 				},
@@ -99,6 +101,8 @@ func applyLanguage(lang *LanguageInfo) {
 
 	tx = factory.New(lang)
 	TxRef = utils.NewRoProp(tx)
+
+	return result
 }
 
 // ResetTx, do not use, required for unit testing only and is
@@ -114,25 +118,6 @@ func ResetTx() {
 	//
 	tx = nil
 	TxRef = utils.NewRoProp(tx)
-}
-
-// UseTx, do not use, required for unit testing only and is
-// not considered part of the public api and may be removed without
-// corresponding version number change.
-func UseTx(with Translator, setters ...UseOptionFn) error {
-	o := &UseOptions{}
-	for _, fo := range setters {
-		fo(o)
-	}
-
-	tx = with
-	TxRef = utils.NewRoProp(tx)
-
-	if TxRef.IsNone() {
-		return NewFailedToCreateTranslatorNativeError(o.Tag)
-	}
-
-	return nil
 }
 
 // NewLanguageInfo gets a new instance of Language info from the use options
@@ -171,7 +156,7 @@ func (t *i18nTranslator) Localise(data Localisable) string {
 	return t.mx.localise(data)
 }
 
-func ContainsLanguage(languages SupportedLanguages, tag language.Tag) bool {
+func containsLanguage(languages SupportedLanguages, tag language.Tag) bool {
 
 	return lo.ContainsBy(languages, func(t language.Tag) bool {
 		return t == tag

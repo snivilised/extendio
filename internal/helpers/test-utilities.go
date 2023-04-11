@@ -92,7 +92,7 @@ type DummyCreator struct {
 	Invoked bool
 }
 
-func (dc *DummyCreator) Create(lang *xi18n.LanguageInfo, sourceId string) *i18n.Localizer {
+func (dc *DummyCreator) Create(lang *xi18n.LanguageInfo, sourceId string) (*i18n.Localizer, error) {
 	dc.Invoked = true
-	return &i18n.Localizer{}
+	return &i18n.Localizer{}, nil
 }

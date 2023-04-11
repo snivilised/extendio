@@ -11,7 +11,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func createLocalizer(lang *LanguageInfo, sourceId string) *i18n.Localizer {
+func createLocalizer(lang *LanguageInfo, sourceId string) (*i18n.Localizer, error) {
 	bundle := i18n.NewBundle(lang.Tag)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
@@ -20,8 +20,8 @@ func createLocalizer(lang *LanguageInfo, sourceId string) *i18n.Localizer {
 		path := resolveBundlePath(lang, name)
 		_, err := bundle.LoadMessageFile(path)
 
-		if err != nil {
-			panic(NewCouldNotLoadTranslationsNativeError(lang.Tag, path, err))
+		if (err != nil) && (!lang.DefaultIsAcceptable) {
+			return nil, NewCouldNotLoadTranslationsNativeError(lang.Tag, path, err)
 		}
 	}
 
@@ -29,7 +29,7 @@ func createLocalizer(lang *LanguageInfo, sourceId string) *i18n.Localizer {
 		return t.String()
 	})
 
-	return i18n.NewLocalizer(bundle, supported...)
+	return i18n.NewLocalizer(bundle, supported...), nil
 }
 
 func resolveBundlePath(lang *LanguageInfo, dependencyName string) string {
