@@ -50,8 +50,6 @@ type skipTE struct {
 
 type listenTE struct {
 	naviTE
-	// start      nav.Listener
-	// stop       nav.Listener
 	listenDefs *nav.ListenDefinitions
 	incStart   bool
 	incStop    bool
@@ -113,13 +111,14 @@ func musico() string {
 		result := filepath.Join(great, "Test", "data", "MUSICO")
 
 		utils.Must(helpers.Ensure(result))
+
 		return result
 	}
+
 	panic("could not get root path")
 }
 
 func logo() nav.LoggingOptions {
-
 	return nav.LoggingOptions{
 		Enabled:         true,
 		Path:            helpers.Log(),
@@ -136,7 +135,6 @@ const IsExtended = true
 const NotExtended = false
 
 func begin(em string) nav.BeginHandler {
-
 	return func(state *nav.NavigationState) {
 		state.Logger.Get().Info("💧 Beginning Traversal (client side)",
 			log.String("Root", state.Root.Get()),
@@ -152,8 +150,8 @@ func begin(em string) nav.BeginHandler {
 }
 
 func universalCallback(name string, extended bool) nav.LabelledTraverseCallback {
-
 	ex := lo.Ternary(extended, "-EX", "")
+
 	return nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -176,8 +174,8 @@ func universalCallback(name string, extended bool) nav.LabelledTraverseCallback 
 }
 
 func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
-
 	ex := lo.Ternary(extended, "-EX", "")
+
 	return nav.LabelledTraverseCallback{
 		Label: "folders callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -191,7 +189,6 @@ func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
 				name, ex, depth, actualNoChildren, item.Path,
 			)
 			Expect(item.Info.IsDir()).To(BeTrue())
-			// Expect(actualNoChildren).To(Equal(expectedNoChildren))
 
 			if extended {
 				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
@@ -205,8 +202,8 @@ func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
 }
 
 func filesCallback(name string, extended bool) nav.LabelledTraverseCallback {
-
 	ex := lo.Ternary(extended, "-EX", "")
+
 	return nav.LabelledTraverseCallback{
 		Label: "files callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -224,7 +221,6 @@ func filesCallback(name string, extended bool) nav.LabelledTraverseCallback {
 // === scope
 
 func universalScopeCallback(name string) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -238,7 +234,6 @@ func universalScopeCallback(name string) nav.LabelledTraverseCallback {
 }
 
 func foldersScopeCallback(name string) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test folders callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -253,7 +248,6 @@ func foldersScopeCallback(name string) nav.LabelledTraverseCallback {
 }
 
 func filesScopeCallback(name string) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test files callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -270,7 +264,6 @@ func filesScopeCallback(name string) nav.LabelledTraverseCallback {
 // === sort
 
 func universalSortCallback(name string) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -284,7 +277,6 @@ func universalSortCallback(name string) nav.LabelledTraverseCallback {
 }
 
 func foldersSortCallback(name string) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test folders sort callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -299,7 +291,6 @@ func foldersSortCallback(name string) nav.LabelledTraverseCallback {
 }
 
 func filesSortCallback(name string) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test files sort callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -314,7 +305,6 @@ func filesSortCallback(name string) nav.LabelledTraverseCallback {
 }
 
 func universalDepthCallback(name string, maxDepth int) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test universal depth callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -359,7 +349,6 @@ func foldersCaseSensitiveCallback(first, second string) nav.LabelledTraverseCall
 // === skip
 
 func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
-
 	return nav.LabelledTraverseCallback{
 		Label: "test skip folder callback",
 		Fn: func(item *nav.TraverseItem) error {
@@ -377,12 +366,12 @@ func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
 }
 
 func subscribes(subscription nav.TraverseSubscription, de fs.DirEntry) bool {
+	isAnySubscription := (subscription == nav.SubscribeAny)
 
-	any := (subscription == nav.SubscribeAny)
 	files := (subscription == nav.SubscribeFiles) && (!de.IsDir())
 	folders := ((subscription == nav.SubscribeFolders) || subscription == nav.SubscribeFoldersWithFiles) && (de.IsDir())
 
-	return any || files || folders
+	return isAnySubscription || files || folders
 }
 
 // === errors
@@ -396,11 +385,11 @@ func readDirFakeError(dirname string) ([]fs.DirEntry, error) {
 	path := "/foo/bar"
 	reason := errors.New("access denied")
 	err := i18n.NewFailedToReadDirectoryContentsError(path, reason)
+
 	return entries, err
 }
 
 func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error) {
-
 	return func(dirname string) ([]fs.DirEntry, error) {
 		if strings.HasSuffix(dirname, name) {
 			return readDirFakeError(dirname)
@@ -410,9 +399,9 @@ func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error)
 	}
 }
 
-func errorCallback(name string, extended bool, hasError bool) nav.LabelledTraverseCallback {
-
+func errorCallback(name string, extended, hasError bool) nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
+
 	return nav.LabelledTraverseCallback{
 		Label: "test error callback",
 		Fn: func(item *nav.TraverseItem) error {

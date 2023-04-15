@@ -31,13 +31,16 @@ type localizerContainer map[string]*i18n.Localizer
 // before using any functionality in this package.
 func Use(options ...UseOptionFn) error {
 	var err error
+
 	o := &UseOptions{}
+
 	o.DefaultIsAcceptable = true
 	o.Tag = DefaultLanguage.Get()
 
 	for _, fo := range options {
 		fo(o)
 	}
+
 	lang := NewLanguageInfo(o)
 
 	if !containsLanguage(lang.Supported, o.Tag) {
@@ -50,7 +53,7 @@ func Use(options ...UseOptionFn) error {
 	}
 
 	if err == nil {
-		err = applyLanguage(lang)
+		applyLanguage(lang)
 	}
 
 	return err
@@ -73,14 +76,12 @@ func verifyLanguage(lang *LanguageInfo) {
 	// of the translation file for extendio, they can provide an override
 	// 'Create' function on UseOptions.
 	//
-	if _, found := lang.From.Sources[SOURCE_ID]; !found {
-		lang.From.Sources[SOURCE_ID] = TranslationSource{Name: "extendio"}
+	if _, found := lang.From.Sources[ExtendioSourceID]; !found {
+		lang.From.Sources[ExtendioSourceID] = TranslationSource{Name: "extendio"}
 	}
 }
 
-func applyLanguage(lang *LanguageInfo) error {
-	var result error
-
+func applyLanguage(lang *LanguageInfo) {
 	verifyLanguage(lang)
 	factory := lo.TernaryF(len(lang.From.Sources) > 1,
 		func() TranslatorFactory {
@@ -101,8 +102,6 @@ func applyLanguage(lang *LanguageInfo) error {
 
 	tx = factory.New(lang)
 	TxRef = utils.NewRoProp(tx)
-
-	return result
 }
 
 // ResetTx, do not use, required for unit testing only and is
@@ -157,7 +156,6 @@ func (t *i18nTranslator) Localise(data Localisable) string {
 }
 
 func containsLanguage(languages SupportedLanguages, tag language.Tag) bool {
-
 	return lo.ContainsBy(languages, func(t language.Tag) bool {
 		return t == tag
 	})

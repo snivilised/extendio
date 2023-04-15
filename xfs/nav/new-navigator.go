@@ -4,7 +4,7 @@ import (
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
 
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 type navigatorFactory struct{}
@@ -13,7 +13,7 @@ func (f navigatorFactory) new(fn ...TraverseOptionFn) TraverseNavigator {
 	o := composeTraverseOptions(fn...)
 
 	if o.Callback.Fn == nil {
-		panic(NewMissingCallbackError())
+		panic(xi18n.NewMissingCallbackError())
 	}
 
 	impl := navigatorImplFactory{}.new(o)
@@ -33,9 +33,9 @@ func (f navigatorFactory) new(fn ...TraverseOptionFn) TraverseNavigator {
 type navigatorImplFactory struct{}
 
 func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
-	doInvoke := o.Store.Subscription != SubscribeFiles
-
 	var impl navigatorImpl
+
+	doInvoke := o.Store.Subscription != SubscribeFiles
 	deFactory := directoryEntriesFactory{}
 	agent := agentFactory{}.new(&agentFactoryParams{
 		o:         o,
@@ -74,7 +74,6 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 }
 
 func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[log.Logger] {
-
 	return log.NewLogger(&log.LoggerInfo{
 		Rotation: log.Rotation{
 			Filename:       o.Store.Logging.Path,

@@ -37,20 +37,16 @@ type navigationFrame struct {
 // needs a custom ListenTriggers instance, therefore it requires a push.
 //
 
-func (f *navigationFrame) decorate(label string, decorator *LabelledTraverseCallback) *LabelledTraverseCallback {
+func (f *navigationFrame) decorate(_ string, decorator *LabelledTraverseCallback) {
 	// this method doesn't do much, but it needs to be made explicit because it
 	// is easy to setup the callback decoration chain incorrectly resulting in
 	// stack overflow due to infinite recursion. Its easy to search when decoration is
 	// occurring in the code base, just search for decorate or go to references.
 	//
-	previous := f.client
 	f.client = *decorator
-
-	return &previous
 }
 
 func (f *navigationFrame) save(active *ActiveState) {
-
 	active.Root = f.root.Get()
 	active.NodePath = f.currentPath.Get()
 	active.Depth = f.periscope.depth()
@@ -58,7 +54,6 @@ func (f *navigationFrame) save(active *ActiveState) {
 }
 
 func (f *navigationFrame) collate() *TraverseResult {
-
 	return &TraverseResult{
 		Metrics: &f.metrics._metrics,
 	}

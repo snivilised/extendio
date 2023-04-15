@@ -9,8 +9,6 @@ import (
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/utils"
 	"golang.org/x/text/language"
-
-	. "github.com/snivilised/extendio/i18n"
 )
 
 const (
@@ -22,7 +20,7 @@ var _ = Describe("Text", Ordered, func() {
 	var (
 		repo                string
 		l10nPath            string
-		testTranslationFile TranslationFiles
+		testTranslationFile xi18n.TranslationFiles
 	)
 
 	BeforeAll(func() {
@@ -30,19 +28,19 @@ var _ = Describe("Text", Ordered, func() {
 		l10nPath = helpers.Path(repo, "Test/data/l10n")
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
 
-		testTranslationFile = TranslationFiles{
-			SOURCE_ID: TranslationSource{"test"},
+		testTranslationFile = xi18n.TranslationFiles{
+			xi18n.ExtendioSourceID: xi18n.TranslationSource{"test"},
 		}
 	})
 
 	BeforeEach(func() {
-		ResetTx()
+		xi18n.ResetTx()
 	})
 
 	Context("Default Language", func() {
 		BeforeEach(func() {
-			if err := Use(func(o *UseOptions) {
-				o.Tag = DefaultLanguage.Get()
+			if err := xi18n.Use(func(o *xi18n.UseOptions) {
+				o.Tag = xi18n.DefaultLanguage.Get()
 				o.From.Sources = testTranslationFile
 			}); err != nil {
 				Fail(err.Error())
@@ -51,20 +49,20 @@ var _ = Describe("Text", Ordered, func() {
 
 		Context("given: ThirdPartyError", func() {
 			It("🧪 should: contain the third party error text", func() {
-				if err := Use(func(o *UseOptions) {
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
 					o.Tag = language.BritishEnglish
 				}); err != nil {
 					Fail(err.Error())
 				}
 
-				err := NewThirdPartyErr(errors.New("computer says no"))
+				err := xi18n.NewThirdPartyErr(errors.New("computer says no"))
 				Expect(err.Error()).To(ContainSubstring("computer says no"))
 			})
 
 			Context("Text", func() {
 				Context("given: a template data instance", func() {
 					It("🧪 should: evaluate translated text", func() {
-						Expect(Text(ThirdPartyErrorTemplData{
+						Expect(xi18n.Text(xi18n.ThirdPartyErrorTemplData{
 							Error: errors.New("out of stock"),
 						})).NotTo(BeNil())
 					})
@@ -75,7 +73,7 @@ var _ = Describe("Text", Ordered, func() {
 
 	Context("Foreign Language", func() {
 		BeforeEach(func() {
-			if err := Use(func(o *UseOptions) {
+			if err := xi18n.Use(func(o *xi18n.UseOptions) {
 				o.Tag = language.AmericanEnglish
 				o.From.Path = l10nPath
 				o.From.Sources = testTranslationFile
@@ -87,11 +85,11 @@ var _ = Describe("Text", Ordered, func() {
 		Context("Text", func() {
 			Context("given: a template data instance", func() {
 				It("🧪 should: evaluate translated text(internationalization)", func() {
-					Expect(Text(InternationalisationTemplData{})).To(Equal("internationalization"))
+					Expect(xi18n.Text(xi18n.InternationalisationTemplData{})).To(Equal("internationalization"))
 				})
 
 				It("🧪 should: evaluate translated text(localization)", func() {
-					Expect(Text(LocalisationTemplData{})).To(Equal("localization"))
+					Expect(xi18n.Text(xi18n.LocalisationTemplData{})).To(Equal("localization"))
 				})
 			})
 		})
@@ -100,13 +98,13 @@ var _ = Describe("Text", Ordered, func() {
 	Context("Multiple Sources", func() {
 		Context("Foreign Language", func() {
 			It("🧪 should: translate text with the correct localizer", func() {
-				if err := Use(func(o *UseOptions) {
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
 					o.Tag = language.AmericanEnglish
 					o.From = xi18n.LoadFrom{
 						Path: l10nPath,
 						Sources: xi18n.TranslationFiles{
-							xi18n.SOURCE_ID:    xi18n.TranslationSource{Name: "test"},
-							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
+							GrafficoSourceID:       xi18n.TranslationSource{Name: "test.graffico"},
 						},
 					}
 				}); err != nil {
@@ -128,14 +126,14 @@ var _ = Describe("Text", Ordered, func() {
 					o.From = xi18n.LoadFrom{
 						Path: l10nPath,
 						Sources: xi18n.TranslationFiles{
-							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+							GrafficoSourceID: xi18n.TranslationSource{Name: "test.graffico"},
 						},
 					}
 				}); err != nil {
 					Fail(err.Error())
 				}
 
-				actual := xi18n.Text(InternationalisationTemplData{})
+				actual := xi18n.Text(xi18n.InternationalisationTemplData{})
 				Expect(actual).To(Equal("internationalisation"))
 			})
 		})

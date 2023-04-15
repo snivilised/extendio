@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 type stateMarshallerJSON struct {
@@ -16,7 +16,7 @@ type stateMarshallerJSON struct {
 func (m *stateMarshallerJSON) marshal(path string) error {
 	bytes, err := json.MarshalIndent(
 		m.ps,
-		JSON_MARSHAL_NO_PREFIX, JSON_MARSHAL_2SPACES_INDENT,
+		JSONMarshallNoPrefix, JSONMarshall2SpacesIndent,
 	)
 
 	if err == nil {
@@ -27,28 +27,28 @@ func (m *stateMarshallerJSON) marshal(path string) error {
 }
 
 func (m *stateMarshallerJSON) unmarshal(path string) error {
-	if bytes, err := os.ReadFile(path); err == nil {
+	bytes, err := os.ReadFile(path)
+
+	if err == nil {
 		m.o = GetDefaultOptions()
 		m.ps = new(persistState)
-		if err = json.Unmarshal(bytes, &m.ps); err == nil {
+
+		err = json.Unmarshal(bytes, &m.ps)
+
+		if err == nil {
 			m.o.Store = *m.ps.Store
 			m.restore(m.o, m.ps.Active)
 			m.o.afterUserOptions()
 			m.validate()
-
-			return nil
-		} else {
-			return err
 		}
-	} else {
-		return err
 	}
+
+	return err
 }
 
 func (m *stateMarshallerJSON) validate() {
-
 	if m.o.Callback.Fn == nil {
-		panic(NewMissingCallbackError())
+		panic(xi18n.NewMissingCallbackError())
 	}
 }
 
@@ -57,8 +57,9 @@ func writeBytes(bytes []byte, path string) error {
 		defer file.Close()
 
 		_, e := file.Write(bytes)
+
 		return e
-	} else {
-		return nil
 	}
+
+	return nil
 }

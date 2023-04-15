@@ -8,11 +8,11 @@ import (
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
 
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 const (
-	_FOLLOWING_SIBLINGS = true
+	followingSiblings = true
 )
 
 type spawnStrategy struct {
@@ -51,14 +51,15 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) (*TraverseResult, err
 		//
 		return &TraverseResult{}, nil
 	}
-	parent, child := utils.SplitParent(conclusion.current)
 
+	parent, child := utils.SplitParent(conclusion.current)
 	following := s.following(&followingParams{
 		parent:    parent,
 		anchor:    child,
 		order:     s.o.Store.Behaviours.Sort.DirectoryEntryOrder,
 		inclusive: conclusion.inclusive,
 	})
+
 	following.siblings.sort(&following.siblings.Files)
 	following.siblings.sort(&following.siblings.Folders)
 
@@ -72,6 +73,7 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) (*TraverseResult, err
 	if !utils.IsNil(err) {
 		return compoundResult, err
 	}
+
 	conclusion.current = parent
 	conclusion.inclusive = false
 
@@ -96,6 +98,7 @@ func (s *spawnStrategy) seed(params *seedParams) (*TraverseResult, error) {
 	})
 
 	compoundResult := &TraverseResult{}
+
 	for _, entry := range *params.entries {
 		topPath := filepath.Join(params.parent, entry.Name())
 
@@ -106,6 +109,7 @@ func (s *spawnStrategy) seed(params *seedParams) (*TraverseResult, error) {
 			return compoundResult, err
 		}
 	}
+
 	return compoundResult, compoundResult.err
 }
 
@@ -121,21 +125,19 @@ type followingParams struct {
 }
 
 func (s *spawnStrategy) following(params *followingParams) *shard {
-
 	entries, err := s.o.Hooks.ReadDirectory(params.parent)
 
 	if err != nil {
-		panic(NewFailedToReadDirectoryContentsError(params.parent, err))
+		panic(xi18n.NewFailedToReadDirectoryContentsError(params.parent, err))
 	}
 
 	groups := lo.GroupBy(entries, func(item fs.DirEntry) bool {
-
 		if params.inclusive {
 			return item.Name() >= params.anchor
 		}
 		return item.Name() > params.anchor
 	})
-	siblings := groups[_FOLLOWING_SIBLINGS]
+	siblings := groups[followingSiblings]
 
 	de := s.deFactory.new(
 		&directoryEntriesFactoryParams{

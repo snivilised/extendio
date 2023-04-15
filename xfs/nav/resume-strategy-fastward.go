@@ -94,6 +94,7 @@ func (s *fastwardStrategy) detach(frame *navigationFrame) {
 	if s.ps.Active.Listen == ListenFastward {
 		panic(NewInvalidResumeStateTransitionNativeError("ListenFastward"))
 	}
+
 	frame.listener.transition(s.ps.Active.Listen)
 }
 

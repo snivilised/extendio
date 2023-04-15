@@ -13,7 +13,6 @@ type navigatorController struct {
 }
 
 func (c *navigatorController) makeFrame() *navigationFrame {
-
 	o := c.impl.options()
 	c.frame = &navigationFrame{
 		root:        utils.VarProp[string]{},
@@ -24,11 +23,11 @@ func (c *navigatorController) makeFrame() *navigationFrame {
 		periscope:   &navigationPeriscope{},
 		metrics:     navigationMetricsFactory{}.new(),
 	}
+
 	return c.frame
 }
 
 func (c *navigatorController) init() {
-
 	c.ns = &NavigationState{
 		Filters: c.frame.filters,
 		Root:    &c.frame.root,
@@ -81,6 +80,7 @@ func (c *navigatorController) save(path string) error {
 	}
 
 	marshaller := (&marshallerFactory{}).new(o, state)
+
 	return marshaller.marshal(path)
 }
 

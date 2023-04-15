@@ -19,13 +19,14 @@ import (
 // will contain the source id of the duplicated dependency, ie
 // "test.graffico", which is simply ignored as it should be.
 func clientUse(options ...xi18n.UseOptionFn) error {
-	o := append(options, func(uo *xi18n.UseOptions) {
+	o := append(options, func(uo *xi18n.UseOptions) { //nolint:gocritic // no alternative known
 		_ = uo.From.AppendSources(&xi18n.TranslationFiles{
-			GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+			GrafficoSourceID: xi18n.TranslationSource{
 				Name: "test.graffico",
 			},
 		})
 	})
+
 	return xi18n.Use(o...)
 }
 
@@ -42,7 +43,7 @@ var _ = Describe("Translator", Ordered, func() {
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
 
 		testTranslationFile = xi18n.TranslationFiles{
-			xi18n.SOURCE_ID: xi18n.TranslationSource{"test"},
+			xi18n.ExtendioSourceID: xi18n.TranslationSource{"test"},
 		}
 	})
 
@@ -66,13 +67,13 @@ var _ = Describe("Translator", Ordered, func() {
 				from := xi18n.LoadFrom{
 					Path: l10nPath,
 					Sources: xi18n.TranslationFiles{
-						GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+						GrafficoSourceID: xi18n.TranslationSource{
 							Name: "test.graffico",
 						},
 					},
 				}
 				duplicates := from.AppendSources(&xi18n.TranslationFiles{
-					GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+					GrafficoSourceID: xi18n.TranslationSource{
 						Name: "test.graffico",
 					},
 				})
@@ -86,7 +87,7 @@ var _ = Describe("Translator", Ordered, func() {
 					uo.From = xi18n.LoadFrom{
 						Path: l10nPath,
 						Sources: xi18n.TranslationFiles{
-							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{
+							GrafficoSourceID: xi18n.TranslationSource{
 								Name: "test.graffico",
 							},
 						},
@@ -180,7 +181,7 @@ var _ = Describe("Translator", Ordered, func() {
 				from := xi18n.LoadFrom{
 					Path: l10nPath,
 					Sources: xi18n.TranslationFiles{
-						GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+						GrafficoSourceID: xi18n.TranslationSource{Name: "test.graffico"},
 					},
 				}
 
@@ -205,8 +206,8 @@ var _ = Describe("Translator", Ordered, func() {
 						o.From = xi18n.LoadFrom{
 							Path: l10nPath,
 							Sources: xi18n.TranslationFiles{
-								xi18n.SOURCE_ID:    xi18n.TranslationSource{Name: "scooby-doo"},
-								GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+								xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "scooby-doo"},
+								GrafficoSourceID:       xi18n.TranslationSource{Name: "test.graffico"},
 							},
 						}
 					}); err != nil {
@@ -232,7 +233,7 @@ var _ = Describe("Translator", Ordered, func() {
 							o.Tag = language.AmericanEnglish
 							o.From = xi18n.LoadFrom{
 								Sources: xi18n.TranslationFiles{
-									GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+									GrafficoSourceID: xi18n.TranslationSource{Name: "test.graffico"},
 								},
 							}
 						})
@@ -263,8 +264,8 @@ var _ = Describe("Translator", Ordered, func() {
 							o.From = xi18n.LoadFrom{
 								Path: l10nPath,
 								Sources: xi18n.TranslationFiles{
-									xi18n.SOURCE_ID:    xi18n.TranslationSource{Name: "scooby-doo"},
-									GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+									xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "scooby-doo"},
+									GrafficoSourceID:       xi18n.TranslationSource{Name: "test.graffico"},
 								},
 							}
 						}); err == nil {
@@ -283,8 +284,8 @@ var _ = Describe("Translator", Ordered, func() {
 							o.From = xi18n.LoadFrom{
 								Path: l10nPath,
 								Sources: xi18n.TranslationFiles{
-									xi18n.SOURCE_ID:    xi18n.TranslationSource{Name: "scooby-doo"},
-									GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+									xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "scooby-doo"},
+									GrafficoSourceID:       xi18n.TranslationSource{Name: "test.graffico"},
 								},
 							}
 						}); err == nil {
@@ -311,12 +312,12 @@ var _ = Describe("Translator", Ordered, func() {
 						o.Tag = language.AmericanEnglish
 						o.From.Path = l10nPath
 						o.From.Sources = xi18n.TranslationFiles{
-							xi18n.SOURCE_ID: xi18n.TranslationSource{Name: "test"},
+							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
 						}
 					}); err != nil {
 						Fail(err.Error())
 					}
-					actual := xi18n.Text(WrongSourceIdTemplData{})
+					actual := xi18n.Text(WrongSourceIDTemplData{})
 					Expect(actual).To(Equal("Message with wrong id"))
 				})
 			})
@@ -337,13 +338,13 @@ var _ = Describe("Translator", Ordered, func() {
 						o.Tag = language.AmericanEnglish
 						o.From.Path = l10nPath
 						o.From.Sources = xi18n.TranslationFiles{
-							xi18n.SOURCE_ID:    xi18n.TranslationSource{Name: "test"},
-							GRAFFICO_SOURCE_ID: xi18n.TranslationSource{Name: "test.graffico"},
+							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
+							GrafficoSourceID:       xi18n.TranslationSource{Name: "test.graffico"},
 						}
 					}); err != nil {
 						Fail(err.Error())
 					}
-					_ = xi18n.Text(WrongSourceIdTemplData{})
+					_ = xi18n.Text(WrongSourceIDTemplData{})
 					Fail("❌ expected panic due to invalid path: 'FOO-BAR'")
 				})
 			})

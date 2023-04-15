@@ -12,7 +12,6 @@ package nav
 // sure the DoExtend value is set to true in the options, otherwise a panic will occur due to the
 // filter attempting to de-reference the Extension on the TraverseItem.
 func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
-
 	if o.Store.FilterDefs != nil {
 		frame.filters = &NavigationFilters{}
 
@@ -25,9 +24,9 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 				Fn: func(item *TraverseItem) error {
 					if frame.filters.Node.IsMatch(item) {
 						return decorated.Fn(item)
-					} else {
-						item.skip = true
 					}
+
+					item.skip = true
 					return nil
 				},
 			}

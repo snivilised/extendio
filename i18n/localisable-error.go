@@ -19,6 +19,8 @@ func QueryGeneric[T any](method string, target error) bool {
 	if !ok {
 		return false
 	}
+
 	none := []reflect.Value{}
+
 	return reflect.ValueOf(&nativeIf).Elem().MethodByName(method).Call(none)[0].Bool()
 }

@@ -3,17 +3,17 @@ package nav
 import (
 	"fmt"
 
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
 func newNodeFilter(def *FilterDef) TraverseFilter {
 	var (
 		filter          TraverseFilter
-		ifNotApplicable bool = true
+		ifNotApplicable = true
 	)
 
-	switch def.IfNotApplicable {
+	switch def.IfNotApplicable { //nolint:exhaustive // already accounted for
 	case TriStateBoolTrueEn:
 		ifNotApplicable = true
 
@@ -21,7 +21,7 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 		ifNotApplicable = false
 	}
 
-	switch def.Type {
+	switch def.Type { //nolint:exhaustive // default case is present
 	case FilterTypeRegexEn:
 		filter = &RegexFilter{
 			Filter: Filter{
@@ -46,7 +46,7 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 
 	case FilterTypeCustomEn:
 		if utils.IsNil(def.Custom) {
-			panic(NewMissingCustomFilterDefinitionError("Options/Store/FilterDefs/Node/Custom"))
+			panic(xi18n.NewMissingCustomFilterDefinitionError("Options/Store/FilterDefs/Node/Custom"))
 		}
 
 		filter = def.Custom
@@ -56,6 +56,7 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 	}
 
 	filter.Validate()
+
 	return filter
 }
 
@@ -84,11 +85,14 @@ func newCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 
 	case FilterTypeCustomEn:
 		if utils.IsNil(def.Custom) {
-			panic(NewMissingCustomFilterDefinitionError("Options/Store/FilterDefs/Children/Custom"))
+			panic(xi18n.NewMissingCustomFilterDefinitionError("Options/Store/FilterDefs/Children/Custom"))
 		}
 
 		filter = def.Custom
+
+	case FilterTypeUndefinedEn:
 	}
+
 	filter.Validate()
 
 	return filter

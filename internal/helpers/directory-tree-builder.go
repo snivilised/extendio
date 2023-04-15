@@ -14,6 +14,7 @@ import (
 )
 
 const offset = 2
+const tabSize = 2
 
 type directoryTreeBuilder struct {
 	root    string
@@ -34,6 +35,7 @@ func (r *directoryTreeBuilder) read() (*Directory, error) {
 
 	var tree Tree
 	err = xml.Unmarshal(data, &tree)
+
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +48,7 @@ func (r *directoryTreeBuilder) status(path string) string {
 }
 
 func (r *directoryTreeBuilder) pad() string {
-	return string(bytes.Repeat([]byte{' '}, (r.depth+offset)*2))
+	return string(bytes.Repeat([]byte{' '}, (r.depth+offset)*tabSize))
 }
 
 func (r *directoryTreeBuilder) refill() string {
@@ -85,14 +87,17 @@ func (r *directoryTreeBuilder) walk() error {
 	if err != nil {
 		return err
 	}
+
 	r.full = r.root
+
 	return r.dir(*top)
 }
 
-func (r *directoryTreeBuilder) dir(dir Directory) error {
+func (r *directoryTreeBuilder) dir(dir Directory) error { //nolint:gocritic // performance is not an issue
 	r.inc(dir.Name)
 
 	_, dn := utils.SplitParent(dir.Name)
+
 	if r.write {
 		err := os.MkdirAll(r.full, os.ModePerm)
 
@@ -100,6 +105,7 @@ func (r *directoryTreeBuilder) dir(dir Directory) error {
 			return err
 		}
 	}
+
 	r.show(r.full, "📂", dn)
 
 	for _, directory := range dir.Directories {
@@ -108,6 +114,7 @@ func (r *directoryTreeBuilder) dir(dir Directory) error {
 			return err
 		}
 	}
+
 	for _, file := range dir.Files {
 		fp := Path(r.full, file.Name)
 
@@ -117,9 +124,12 @@ func (r *directoryTreeBuilder) dir(dir Directory) error {
 				return err
 			}
 		}
+
 		r.show(fp, "  📜", file.Name)
 	}
+
 	r.dec()
+
 	return nil
 }
 
@@ -141,22 +151,22 @@ type File struct {
 	Text    string   `xml:",chardata"`
 }
 
-const DO_WRITE = true
+const doWrite = true
 
 func Ensure(root string) error {
-
 	repo := Repo("../..")
 	index := Path(repo, "Test/data/musico-index.xml")
 
 	if utils.FolderExists(root) {
 		return nil
 	}
+
 	parent, _ := utils.SplitParent(root)
 	builder := directoryTreeBuilder{
 		root:  root,
 		stack: collections.NewStackWith([]string{parent}),
 		index: index,
-		write: DO_WRITE,
+		write: doWrite,
 	}
 
 	return builder.walk()

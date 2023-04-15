@@ -5,18 +5,18 @@ import (
 	"golang.org/x/text/language"
 )
 
-// SOURCE_ID the id that represents this module. If client want
+// ExtendioSourceID the id that represents this module. If client want
 // to provides translations for languages that extendio does not, then
 // the localizer the create created for this purpose should use this
-// SourceId. So whenever the Text function is used on templates defined
+// SourceID. So whenever the Text function is used on templates defined
 // inside this module, the translation process is directed to use the
-// correct i18n.Localizer (identified by the SourceId). The Source is
+// correct i18n.Localizer (identified by the SourceID). The Source is
 // statically defined for all templates defined in extendio.
-const SOURCE_ID = "github.com/snivilised/extendio"
+const ExtendioSourceID = "github.com/snivilised/extendio"
 
 type Localisable interface {
 	Message() *i18n.Message
-	SourceId() string
+	SourceID() string
 }
 
 type SupportedLanguages []language.Tag
@@ -45,6 +45,7 @@ type LoadFrom struct {
 // translator.
 func (lf *LoadFrom) AppendSources(appendFiles *TranslationFiles) []string {
 	duplicates := []string{}
+
 	for id, source := range *appendFiles {
 		if _, found := lf.Sources[id]; found {
 			duplicates = append(duplicates, source.Name)
@@ -52,9 +53,11 @@ func (lf *LoadFrom) AppendSources(appendFiles *TranslationFiles) []string {
 			lf.Sources[id] = source
 		}
 	}
+
 	if len(duplicates) > 0 {
 		return duplicates
 	}
+
 	return nil
 }
 
@@ -126,7 +129,7 @@ type LocalizerInfo struct {
 	//
 	Localizer *i18n.Localizer
 
-	sourceId string
+	sourceID string
 }
 
 // TranslatorFactory
