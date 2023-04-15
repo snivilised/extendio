@@ -36,7 +36,6 @@ type TraverseItem struct {
 
 // clone makes shallow copy of TraverseItem (except the error).
 func (ti *TraverseItem) clone() *TraverseItem {
-
 	return &TraverseItem{
 		Path: ti.Path, Entry: ti.Entry, Info: ti.Info, Extension: ti.Extension, Children: ti.Children,
 	}
@@ -102,6 +101,7 @@ func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
 			}
 		}
 	}
+
 	return r, r.err
 }
 

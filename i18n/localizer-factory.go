@@ -11,12 +11,12 @@ import (
 	"golang.org/x/text/language"
 )
 
-func createLocalizer(lang *LanguageInfo, sourceId string) (*i18n.Localizer, error) {
+func createLocalizer(lang *LanguageInfo, sourceID string) (*i18n.Localizer, error) {
 	bundle := i18n.NewBundle(lang.Tag)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	if lang.Tag != lang.Default {
-		name := lang.From.Sources[sourceId].Name
+		name := lang.From.Sources[sourceID].Name
 		path := resolveBundlePath(lang, name)
 		_, err := bundle.LoadMessageFile(path)
 
@@ -53,5 +53,6 @@ func resolveBundlePath(lang *LanguageInfo, dependencyName string) string {
 			return filepath.Dir(exe)
 		},
 	)
+
 	return filepath.Join(directory, filename)
 }

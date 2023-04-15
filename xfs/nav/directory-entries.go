@@ -4,7 +4,7 @@ import (
 	"io/fs"
 
 	"github.com/samber/lo"
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 // DirectoryEntryOrderEnum determines what order a directories
@@ -28,12 +28,13 @@ type directoryEntriesFactoryParams struct {
 }
 
 func (directoryEntriesFactory) new(params *directoryEntriesFactoryParams) *DirectoryEntries {
-
 	instance := DirectoryEntries{
 		Options: params.o,
 		Order:   params.order,
 	}
+
 	instance.arrange(params.entries)
+
 	return &instance
 }
 
@@ -56,19 +57,20 @@ func (e *DirectoryEntries) arrange(entries *[]fs.DirEntry) {
 	if e.Folders == nil {
 		e.Folders = []fs.DirEntry{}
 	}
+
 	if e.Files == nil {
 		e.Files = []fs.DirEntry{}
 	}
 }
 
 func (e *DirectoryEntries) all() *[]fs.DirEntry {
-
 	result := []fs.DirEntry{}
+
 	switch e.Order {
 	case DirectoryEntryOrderFoldersFirstEn:
-		result = append(e.Folders, e.Files...)
+		result = append(e.Folders, e.Files...) //nolint:gocritic // no alternative known
 	case DirectoryEntryOrderFilesFirstEn:
-		result = append(e.Files, e.Folders...)
+		result = append(e.Files, e.Folders...) //nolint:gocritic // no alternative known
 	}
 
 	return &result
@@ -76,6 +78,6 @@ func (e *DirectoryEntries) all() *[]fs.DirEntry {
 
 func (e *DirectoryEntries) sort(entries *[]fs.DirEntry) {
 	if err := e.Options.Hooks.Sort(*entries); err != nil {
-		panic(NewSortFnFailedError())
+		panic(xi18n.NewSortFnFailedError())
 	}
 }

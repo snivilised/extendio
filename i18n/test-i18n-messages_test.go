@@ -5,13 +5,13 @@ import (
 )
 
 const (
-	GRAFFICO_SOURCE_ID = "github.com/snivilised/graffico"
+	GrafficoSourceID = "github.com/snivilised/graffico"
 )
 
 type GrafficoData struct{}
 
-func (td GrafficoData) SourceId() string {
-	return GRAFFICO_SOURCE_ID
+func (td GrafficoData) SourceID() string {
+	return GrafficoSourceID
 }
 
 // 🧊 Pavement Graffiti Report
@@ -32,16 +32,16 @@ func (td PavementGraffitiReportTemplData) Message() *i18n.Message {
 
 // ☢️ Wrong Source Id
 
-// WrongSourceIdTemplData
-type WrongSourceIdTemplData struct {
+// WrongSourceIDTemplData
+type WrongSourceIDTemplData struct {
 	GrafficoData
 }
 
-func (td WrongSourceIdTemplData) SourceId() string {
+func (td WrongSourceIDTemplData) SourceID() string {
 	return "FOO-BAR"
 }
 
-func (td WrongSourceIdTemplData) Message() *i18n.Message {
+func (td WrongSourceIDTemplData) Message() *i18n.Message {
 	return &i18n.Message{
 		ID:          "wrong-source-id.graffico.unit-test",
 		Description: "Incorrect Source Id for which doesn't match the one n the localizer",

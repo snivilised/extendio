@@ -2,7 +2,7 @@ package nav
 
 import (
 	"github.com/snivilised/extendio/collections"
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 // ListenHandler
@@ -55,7 +55,6 @@ func (l *navigationListener) init() {
 }
 
 func (l *navigationListener) makeStates(params *listenStatesParams) {
-
 	// The listen states are aware of the raw callback, because frame.client
 	// denotes the decorated client which may incorporate the listener callback.
 	// If the client simply called frame.client, then there would be an infinite
@@ -90,12 +89,13 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 						// loop because the detach has performed a state transition.
 						//
 						return params.frame.client.Fn(item)
-					} else {
-						panic(NewMissingListenDetacherFunctionNativeError("fastward"))
 					}
-				} else {
-					item.skip = true
+
+					panic(NewMissingListenDetacherFunctionNativeError("fastward"))
 				}
+
+				item.skip = true
+
 				return nil
 			},
 		},
@@ -112,8 +112,10 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 					if params.o.Store.Behaviours.Listen.InclusiveStart {
 						return params.frame.raw.Fn(item)
 					}
+
 					return nil
 				}
+
 				return nil
 			},
 		},
@@ -139,7 +141,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 		ListenRetired: LabelledTraverseCallback{
 			Label: "ListenRetired decorator",
 			Fn: func(item *TraverseItem) error {
-				return NewTerminateTraverseError()
+				return xi18n.NewTerminateTraverseError()
 			},
 		},
 	}
@@ -156,7 +158,6 @@ func (l *navigationListener) decorate(params *listenStatesParams) {
 	// Since we know these, listenStatesParams does not have to include
 	// the decorated member.
 	//
-
 	decorator := &LabelledTraverseCallback{
 		Label: "listener decorator",
 		Fn: func(item *TraverseItem) error {
@@ -176,7 +177,6 @@ type initialListenerState struct {
 }
 
 func backfill(defs *ListenDefinitions) *initialListenerState {
-
 	state := initialListenerState{
 		initialState: ListenDeaf,
 	}
@@ -224,7 +224,6 @@ func backfill(defs *ListenDefinitions) *initialListenerState {
 }
 
 func (l *navigationListener) dispose() *ListenTriggers {
-
 	previous, _ := l.resumeStack.Pop()
 	l.triggers, _ = l.resumeStack.Current()
 

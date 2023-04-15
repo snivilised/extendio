@@ -114,7 +114,6 @@ func (n *notificationsSink) init(notifications *Notifications) {
 }
 
 func (n *notificationsSink) mute(notifyEn notificationBiEnum, values ...bool) {
-
 	if notifyEn == notificationUndefinedEn {
 		panic(NewInvalidNotificationMuteRequestedNativeError(fmt.Sprintf("%v", notifyEn)))
 	}

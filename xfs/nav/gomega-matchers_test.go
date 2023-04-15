@@ -37,12 +37,14 @@ func (m *IsCurrentRegexMatchMatcher) Match(actual interface{}) (bool, error) {
 func (m *IsCurrentRegexMatchMatcher) FailureMessage(actual interface{}) string {
 	item, _ := actual.(*nav.TraverseItem)
 	filter, _ := m.filter.(*nav.RegexFilter)
+
 	return fmt.Sprintf("🔥 Expected\n\t%v\nto match regex\n\t%v\n", item.Extension.Name, filter.Source())
 }
 
 func (m *IsCurrentRegexMatchMatcher) NegatedFailureMessage(actual interface{}) string {
 	item, _ := actual.(*nav.TraverseItem)
 	filter, _ := m.filter.(*nav.RegexFilter)
+
 	return fmt.Sprintf("🔥 Expected\n\t%v\nNOT to match regex\n\t%v\n", item.Extension.Name, filter.Source())
 }
 
@@ -76,11 +78,13 @@ func (m *IsCurrentGlobMatchMatcher) Match(actual interface{}) (bool, error) {
 func (m *IsCurrentGlobMatchMatcher) FailureMessage(actual interface{}) string {
 	item, _ := actual.(*nav.TraverseItem)
 	filter, _ := m.filter.(*nav.GlobFilter)
+
 	return fmt.Sprintf("🔥 Expected\n\t%v\nto match glob\n\t%v\n", item.Extension.Name, filter.Source())
 }
 
 func (m *IsCurrentGlobMatchMatcher) NegatedFailureMessage(actual interface{}) string {
 	item, _ := actual.(*nav.TraverseItem)
 	filter, _ := m.filter.(*nav.GlobFilter)
+
 	return fmt.Sprintf("🔥 Expected\n\t%v\nNOT to match glob\n\t%v\n", item.Extension.Name, filter.Source())
 }

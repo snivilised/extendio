@@ -5,7 +5,6 @@ type universalNavigator struct {
 }
 
 func (n *universalNavigator) top(frame *navigationFrame, root string) (*TraverseResult, error) {
-
 	return n.agent.top(&agentTopParams{
 		impl:  n,
 		frame: frame,
@@ -21,6 +20,7 @@ func (n *universalNavigator) traverse(params *traverseParams) error {
 			Frame:   params.frame},
 		)
 	}()
+
 	navi := &NavigationInfo{
 		Options: n.o,
 		Item:    params.item,
@@ -47,8 +47,8 @@ func (n *universalNavigator) traverse(params *traverseParams) error {
 	} else {
 		entries = &DirectoryEntries{}
 	}
-	sorted := entries.all()
 
+	sorted := entries.all()
 	n.o.Hooks.Extend(navi, entries)
 
 	if le := n.agent.proxy(params.item, params.frame); le != nil ||
@@ -58,6 +58,7 @@ func (n *universalNavigator) traverse(params *traverseParams) error {
 			//
 			le = nil
 		}
+
 		return le
 	}
 
@@ -68,13 +69,12 @@ func (n *universalNavigator) traverse(params *traverseParams) error {
 		readErr: readErr,
 	}); exit {
 		return err
-	} else {
-
-		return n.agent.traverse(&agentTraverseParams{
-			impl:     n,
-			contents: sorted,
-			parent:   params.item,
-			frame:    params.frame,
-		})
 	}
+
+	return n.agent.traverse(&agentTraverseParams{
+		impl:     n,
+		contents: sorted,
+		parent:   params.item,
+		frame:    params.frame,
+	})
 }

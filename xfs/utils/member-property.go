@@ -173,7 +173,7 @@ func isPropNil[T any](value T, zeroable bool) bool {
 		return true
 	}
 
-	switch refK {
+	switch refK { //nolint:exhaustive // other cases handled below by design
 	case
 		reflect.Chan,
 		reflect.Func,
@@ -184,5 +184,6 @@ func isPropNil[T any](value T, zeroable bool) bool {
 		reflect.UnsafePointer:
 		return IsNil(value)
 	}
+
 	return !zeroable && refV.IsZero()
 }

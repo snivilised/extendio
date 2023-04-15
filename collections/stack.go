@@ -2,7 +2,6 @@ package collections
 
 // NewStack
 func NewStack[T any]() *Stack[T] {
-
 	return &Stack[T]{
 		content: []T{},
 	}
@@ -30,6 +29,7 @@ func (s *Stack[T]) Pop() (T, error) {
 		var zero T
 		return zero, NewStackIsEmptyNativeError()
 	}
+
 	item := s.pop()
 
 	return item, nil
@@ -40,6 +40,7 @@ func (s *Stack[T]) MustPop() T {
 	if s.IsEmpty() {
 		panic(NewStackIsEmptyNativeError())
 	}
+
 	return s.pop()
 }
 

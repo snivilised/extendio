@@ -16,9 +16,9 @@ import (
 // NewFailedToCreateLocalizerNativeError creates an untranslated error to
 // indicate the Translator already contains a localizer for the source
 // specified. (internal error)
-func NewCouldNotFindLocalizerNativeError(sourceId string) error {
+func NewCouldNotFindLocalizerNativeError(sourceID string) error {
 	return fmt.Errorf(
-		"i18n: could not find localizer for source: '%v'", sourceId,
+		"i18n: could not find localizer for source: '%v'", sourceID,
 	)
 }
 

@@ -6,7 +6,7 @@ import (
 
 // add new zap fields as and when they are required
 
-func String(key string, val string) Field {
+func String(key, val string) Field {
 	return zap.String(key, val)
 }
 

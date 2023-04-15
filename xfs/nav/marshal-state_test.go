@@ -17,14 +17,14 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 	var (
 		root       string
 		jroot      string
-		toJsonPath string
+		toJSONPath string
 		filterDefs nav.FilterDefinitions
 	)
 
 	BeforeAll(func() {
 		root = musico()
 		jroot = helpers.JoinCwd("Test", "json")
-		toJsonPath = helpers.Path(jroot, "test-state-marshal.json")
+		toJSONPath = helpers.Path(jroot, "test-state-marshal.json")
 
 		filterDefs = nav.FilterDefinitions{
 			Node: nav.FilterDef{
@@ -73,7 +73,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					}
 				}).Run()
 
-				err := session.Save(toJsonPath)
+				err := session.Save(toJSONPath)
 				Expect(err).To(BeNil())
 			})
 		})
@@ -107,7 +107,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					}
 				}).Run()
 
-				_ = session.Save(toJsonPath)
+				_ = session.Save(toJSONPath)
 
 				Fail(fmt.Sprintf("❌ expected panic due to %v", entry.errorContains))
 			},

@@ -11,6 +11,7 @@ func Exists(path string) bool {
 	if _, err := os.Stat(path); err == nil {
 		result = true
 	}
+
 	return result
 }
 

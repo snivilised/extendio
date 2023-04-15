@@ -82,8 +82,7 @@ type overrideListenerInfo struct {
 	ps       *persistState
 }
 
-func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
-
+func (b *bootstrapper) initResume(ps *persistState) {
 	if b.rc == nil {
 		err := NewResumeControllerNotSetNativeError("bootstrapper.initResume")
 		b.nc.impl.logger().Error(err.Error())
@@ -95,8 +94,8 @@ func (b *bootstrapper) initResume(o *TraverseOptions, ps *persistState) {
 		frame: b.nc.frame,
 		rc:    b.rc,
 	}
-	b.nc.frame.metrics.load(ps.Active)
 
+	b.nc.frame.metrics.load(ps.Active)
 	b.rc.strategy.init(strategyParams)
 	b.detacher = b.rc
 }

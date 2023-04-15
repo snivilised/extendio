@@ -349,10 +349,10 @@ var _ = Describe("Property", func() {
 					w := &widget{
 						gold: utils.VarProp[nugget]{Field: nugget{66}},
 					}
-					copy := w.gold.Get()
-					Expect(copy.size).To(Equal(66))
+					clone := w.gold.Get()
+					Expect(clone.size).To(Equal(66))
 
-					copy.size = 42
+					clone.size = 42
 					Expect(w.gold.Get().size).To(Equal(66))
 				})
 			})

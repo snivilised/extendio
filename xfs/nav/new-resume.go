@@ -3,7 +3,7 @@ package nav
 import (
 	"fmt"
 
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 // ResumerInfo
@@ -24,8 +24,8 @@ func (f resumerFactory) new(info *ResumerInfo) (*resumeController, error) {
 	if err != nil {
 		return nil, err
 	}
-	o := marshaller.o
 
+	o := marshaller.o
 	impl := navigatorImplFactory{}.new(o)
 	navigator := &navigatorController{
 		impl: impl,
@@ -50,7 +50,7 @@ func (f resumerFactory) new(info *ResumerInfo) (*resumeController, error) {
 		rc: resumerCtrl,
 	}
 	booter.init()
-	booter.initResume(o, marshaller.ps)
+	booter.initResume(marshaller.ps)
 
 	return resumerCtrl, nil
 }
@@ -66,10 +66,10 @@ type createStrategyParams struct {
 
 func (f strategyFactory) new(params *createStrategyParams) resumeStrategy {
 	var strategy resumeStrategy
+
 	deFactory := &directoryEntriesFactory{}
 
-	switch params.strategyEn {
-
+	switch params.strategyEn { //nolint:exhaustive // default case is present
 	case ResumeStrategySpawnEn:
 		strategy = &spawnStrategy{
 			baseStrategy: baseStrategy{
@@ -79,6 +79,7 @@ func (f strategyFactory) new(params *createStrategyParams) resumeStrategy {
 				deFactory: deFactory,
 			},
 		}
+
 	case ResumeStrategyFastwardEn:
 		strategy = &fastwardStrategy{
 			baseStrategy: baseStrategy{
@@ -90,7 +91,7 @@ func (f strategyFactory) new(params *createStrategyParams) resumeStrategy {
 		}
 
 	default:
-		panic(NewInvalidResumeStrategyError(fmt.Sprintf("%v", params.strategyEn)))
+		panic(xi18n.NewInvalidResumeStrategyError(fmt.Sprintf("%v", params.strategyEn)))
 	}
 
 	return strategy

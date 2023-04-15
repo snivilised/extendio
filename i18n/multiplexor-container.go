@@ -29,15 +29,15 @@ type multiContainer struct {
 }
 
 func (mc *multiContainer) localise(data Localisable) string {
-	return mc.invoke(mc.find(data.SourceId()), data)
+	return mc.invoke(mc.find(data.SourceID()), data)
 }
 
-func (mc *multiContainer) add(info *LocalizerInfo) error {
-	if _, found := mc.localizers[info.sourceId]; found {
-		return nil
+func (mc *multiContainer) add(info *LocalizerInfo) {
+	if _, found := mc.localizers[info.sourceID]; found {
+		return
 	}
-	mc.localizers[info.sourceId] = info.Localizer
-	return nil
+
+	mc.localizers[info.sourceID] = info.Localizer
 }
 
 func (mc *multiContainer) find(id string) *i18n.Localizer {

@@ -24,29 +24,29 @@ type strategyInvokeInfo struct {
 }
 
 const (
-	NOTHING                         = ""
-	RESUME_AT_TEENAGE_COLOR         = "RETRO-WAVE/College/Teenage Color"
-	RESUME_AT_CAN_YOU_KISS_ME_FIRST = "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac"
-	START_AT_ELECTRIC_YOUTH         = "Electric Youth"
-	START_AT_BEFORE_LIFE            = "A1 - Before Life.flac"
-	START_AT_CLIENT_ALREADY_ACTIVE  = "this value doesn't matter"
+	Nothing                    = ""
+	ResumeAtTeenageColor       = "RETRO-WAVE/College/Teenage Color"
+	ResumeAtCanYouKissMeFirst  = "RETRO-WAVE/College/Teenage Color/A1 - Can You Kiss Me First.flac"
+	StartAtElectricYouth       = "Electric Youth"
+	StartAtBeforeLife          = "A1 - Before Life.flac"
+	StartAtClientAlreadyActive = "this value doesn't matter"
 )
 
 var (
 	prohibited = map[string]string{
-		"RETRO-WAVE":                      NOTHING,
-		"Chromatics":                      NOTHING,
-		"Night Drive":                     NOTHING,
-		"A1 - The Telephone Call.flac":    NOTHING,
-		"A2 - Night Drive.flac":           NOTHING,
-		"cover.night-drive.jpg":           NOTHING,
-		"vinyl-info.night-drive.txt":      NOTHING,
-		"College":                         NOTHING,
-		"Northern Council":                NOTHING,
-		"A1 - Incident.flac":              NOTHING,
-		"A2 - The Zemlya Expedition.flac": NOTHING,
-		"cover.northern-council.jpg":      NOTHING,
-		"vinyl-info.northern-council.txt": NOTHING,
+		"RETRO-WAVE":                      Nothing,
+		"Chromatics":                      Nothing,
+		"Night Drive":                     Nothing,
+		"A1 - The Telephone Call.flac":    Nothing,
+		"A2 - Night Drive.flac":           Nothing,
+		"cover.night-drive.jpg":           Nothing,
+		"vinyl-info.night-drive.txt":      Nothing,
+		"College":                         Nothing,
+		"Northern Council":                Nothing,
+		"A1 - Incident.flac":              Nothing,
+		"A2 - The Zemlya Expedition.flac": Nothing,
+		"cover.northern-council.jpg":      Nothing,
+		"vinyl-info.northern-council.txt": Nothing,
 	}
 	filteredListenFlacs = []string{
 		"A1 - Before Life.flac",
@@ -181,16 +181,13 @@ var _ = Describe("Resume", Ordered, func() {
 	var (
 		root         string
 		jroot        string
-		fromJsonPath string
+		fromJSONPath string
 	)
 
 	BeforeAll(func() {
 		root = musico()
 		jroot = helpers.JoinCwd("Test", "json")
-		fromJsonPath = strings.Join(
-			[]string{jroot, "resume-state.json"},
-			string(filepath.Separator),
-		)
+		fromJSONPath = helpers.Path(jroot, "resume-state.json")
 	})
 
 	BeforeEach(func() {
@@ -286,7 +283,7 @@ var _ = Describe("Resume", Ordered, func() {
 				}
 
 				session := &nav.ResumeSession{
-					Path:     fromJsonPath,
+					Path:     fromJSONPath,
 					Strategy: strategyEn,
 				}
 				result, _ := session.Configure(restore).Run()
@@ -342,10 +339,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenPending,
 			},
-			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			clientListenAt: StartAtElectricYouth,
 			profile:        "-> universal(pending): unfiltered",
 			log:            true,
 		}),
@@ -357,7 +354,7 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenActive,
 			},
 			// For these scenarios (START_AT_CLIENT_ALREADY_ACTIVE), since
@@ -367,7 +364,7 @@ var _ = Describe("Resume", Ordered, func() {
 			// listen value is a historical event, so the value defined here is a moot
 			// point.
 			//
-			clientListenAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			clientListenAt: StartAtClientAlreadyActive,
 			profile:        "-> universal(active): unfiltered",
 		}),
 
@@ -378,10 +375,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenPending,
 			},
-			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			clientListenAt: StartAtElectricYouth,
 			profile:        "-> folders(pending): unfiltered",
 		}),
 
@@ -392,10 +389,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenActive,
 			},
-			clientListenAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			clientListenAt: StartAtClientAlreadyActive,
 			profile:        "-> folders(active): unfiltered",
 		}),
 
@@ -406,10 +403,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				resumeAt:    ResumeAtCanYouKissMeFirst,
 				listenState: nav.ListenPending,
 			},
-			clientListenAt: START_AT_BEFORE_LIFE,
+			clientListenAt: StartAtBeforeLife,
 			profile:        "-> files(pending): unfiltered",
 		}),
 
@@ -420,10 +417,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				resumeAt:    ResumeAtCanYouKissMeFirst,
 				listenState: nav.ListenActive,
 			},
-			clientListenAt: START_AT_CLIENT_ALREADY_ACTIVE,
+			clientListenAt: StartAtClientAlreadyActive,
 			profile:        "-> files(active): unfiltered",
 		}),
 
@@ -436,7 +433,7 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenDeaf,
 			},
 			profile: "-> universal: filtered",
@@ -449,7 +446,7 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenDeaf,
 			},
 			profile: "-> folders: filtered",
@@ -462,7 +459,7 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				resumeAt:    ResumeAtCanYouKissMeFirst,
 				listenState: nav.ListenDeaf,
 			},
 			profile: "-> files: filtered",
@@ -477,10 +474,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenPending,
 			},
-			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			clientListenAt: StartAtElectricYouth,
 			profile:        "-> universal: listen pending and filtered",
 		}),
 
@@ -491,10 +488,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeAny,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenActive,
 			},
-			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			clientListenAt: StartAtElectricYouth,
 			profile:        "-> universal: filtered",
 		}),
 
@@ -505,10 +502,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenPending,
 			},
-			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			clientListenAt: StartAtElectricYouth,
 			profile:        "-> folders: listen pending and filtered",
 		}),
 
@@ -519,10 +516,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFolders,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_TEENAGE_COLOR,
+				resumeAt:    ResumeAtTeenageColor,
 				listenState: nav.ListenActive,
 			},
-			clientListenAt: START_AT_ELECTRIC_YOUTH,
+			clientListenAt: StartAtElectricYouth,
 			profile:        "-> folders: filtered",
 		}),
 
@@ -533,10 +530,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				resumeAt:    ResumeAtCanYouKissMeFirst,
 				listenState: nav.ListenPending,
 			},
-			clientListenAt: START_AT_BEFORE_LIFE,
+			clientListenAt: StartAtBeforeLife,
 			profile:        "-> files: listen pending and filtered",
 		}),
 
@@ -547,10 +544,10 @@ var _ = Describe("Resume", Ordered, func() {
 				subscription: nav.SubscribeFiles,
 			},
 			active: activeTE{
-				resumeAt:    RESUME_AT_CAN_YOU_KISS_ME_FIRST,
+				resumeAt:    ResumeAtCanYouKissMeFirst,
 				listenState: nav.ListenActive,
 			},
-			clientListenAt: START_AT_BEFORE_LIFE,
+			clientListenAt: StartAtBeforeLife,
 			profile:        "-> files: filtered",
 		}),
 	)

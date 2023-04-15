@@ -8,8 +8,8 @@ const (
 )
 
 const (
-	JSON_MARSHAL_NO_PREFIX      = ""
-	JSON_MARSHAL_2SPACES_INDENT = "  "
+	JSONMarshallNoPrefix      = ""
+	JSONMarshall2SpacesIndent = "  "
 )
 
 type PersistFilterDef struct {

@@ -88,8 +88,8 @@ import (
 
 type ExtendioTemplData struct{}
 
-func (td ExtendioTemplData) SourceId() string {
-	return SOURCE_ID
+func (td ExtendioTemplData) SourceID() string {
+	return ExtendioSourceID
 }
 
 // ====================================================================
@@ -563,7 +563,6 @@ type ThirdPartyError struct {
 
 // NewThirdPartyErr creates a ThirdPartyErr
 func NewThirdPartyErr(err error) ThirdPartyError {
-
 	return ThirdPartyError{
 		LocalisableError: LocalisableError{
 			Data: ThirdPartyErrorTemplData{
@@ -607,12 +606,13 @@ func (e UnknownMarshalFormatError) UnknownMarshalFormat() bool {
 }
 
 // NewUnknownMarshalFormatError creates a UnknownMarshalFormatError
-func NewUnknownMarshalFormatError(format string, at string) UnknownMarshalFormatError {
+func NewUnknownMarshalFormatError(format, at string) UnknownMarshalFormatError {
 	return UnknownMarshalFormatError{
 		LocalisableError: LocalisableError{
 			Data: UnknownMarshalFormatTemplData{
-				Format: format,
-				At:     at,
+				ExtendioTemplData: ExtendioTemplData{},
+				Format:            format,
+				At:                at,
 			},
 		},
 	}

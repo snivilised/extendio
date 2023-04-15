@@ -205,6 +205,7 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	for _, functionalOption := range fn {
 		functionalOption(o)
 	}
+
 	o.afterUserOptions()
 
 	return o
@@ -226,6 +227,12 @@ func (o *TraverseOptions) Clone() *TraverseOptions {
 	clone := deepcopy.Copy(o)
 	return clone.(*TraverseOptions)
 }
+
+const (
+	defaultMaxSizeInMb    = 50
+	defaultMaxNoOfBackups = 3
+	defaultMaxAgeInDays   = 28
+)
 
 // GetDefaultOptions
 func GetDefaultOptions() *TraverseOptions {
@@ -251,9 +258,9 @@ func GetDefaultOptions() *TraverseOptions {
 				TimeStampFormat: "2006-01-02 15:04:05",
 				Level:           log.InfoLevel,
 				Rotation: LogRotationOptions{
-					MaxSizeInMb:    50,
-					MaxNoOfBackups: 3,
-					MaxAgeInDays:   28,
+					MaxSizeInMb:    defaultMaxSizeInMb,
+					MaxNoOfBackups: defaultMaxNoOfBackups,
+					MaxAgeInDays:   defaultMaxAgeInDays,
 				},
 			},
 		},

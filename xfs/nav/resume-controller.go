@@ -7,7 +7,6 @@ type resumeController struct {
 }
 
 func (c *resumeController) Continue() (*TraverseResult, error) {
-
 	return c.strategy.resume(&strategyResumeInfo{
 		nc: c.navigator,
 		ps: c.ps,

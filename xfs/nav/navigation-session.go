@@ -1,7 +1,7 @@
 package nav
 
 import (
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 type traverseSession interface {
@@ -74,7 +74,6 @@ type ResumeSession struct {
 
 // Configure is the pre run stage for a resume session
 func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *ActiveState)) NavigationRunner {
-
 	info := &ResumerInfo{
 		RestorePath: s.Path,
 		Restorer:    restore,
@@ -85,8 +84,9 @@ func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *Activ
 	s.resumer, err = resumerFactory{}.new(info)
 
 	if err != nil {
-		panic(NewFailedToResumeFromFileError(s.Path, err))
+		panic(xi18n.NewFailedToResumeFromFileError(s.Path, err))
 	}
+
 	return &resumeRunner{
 		sessionRunner: sessionRunner{
 			session: s,

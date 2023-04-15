@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/samber/lo"
-	. "github.com/snivilised/extendio/i18n"
+	xi18n "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
@@ -41,16 +41,17 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 	params.frame.reset()
 
 	info, err := a.o.Hooks.QueryStatus(params.top)
+
 	var le error
+
 	if err != nil {
-		// change LocalisableError to ThirdPartyError
 		item := &TraverseItem{
-			Path: params.top, Info: info, Error: NewThirdPartyErr(err),
+			Path: params.top, Info: info, Error: xi18n.NewThirdPartyErr(err),
 			Children: []fs.DirEntry{},
 		}
+
 		le = a.proxy(item, params.frame)
 	} else {
-
 		item := &TraverseItem{
 			Path: params.top, Info: info,
 			Children: []fs.DirEntry{},
@@ -95,13 +96,12 @@ type agentNotifyParams struct {
 }
 
 func (a *navigationAgent) notify(params *agentNotifyParams) (bool, error) {
-
 	exit := false
-	if params.readErr != nil {
 
+	if params.readErr != nil {
 		if a.doInvoke.Get() {
 			item2 := params.item.clone()
-			item2.Error = NewThirdPartyErr(params.readErr)
+			item2.Error = xi18n.NewThirdPartyErr(params.readErr)
 
 			// Second call, to report ReadDir error
 			//
@@ -109,10 +109,11 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (bool, error) {
 				if QuerySkipDirError(params.readErr) && (item2.Entry != nil && item2.Entry.IsDir()) {
 					params.readErr = nil
 				}
-				return true, NewThirdPartyErr(params.readErr)
+
+				return true, xi18n.NewThirdPartyErr(params.readErr)
 			}
 		} else {
-			return true, NewThirdPartyErr(params.readErr)
+			return true, xi18n.NewThirdPartyErr(params.readErr)
 		}
 	}
 
@@ -132,9 +133,11 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) error {
 		info, err := entry.Info()
 
 		var le error
+
 		if le != nil {
-			le = NewThirdPartyErr(err)
+			le = xi18n.NewThirdPartyErr(err)
 		}
+
 		child := TraverseItem{
 			Path: path, Info: info, Entry: entry, Error: le,
 			Children: []fs.DirEntry{},
@@ -147,9 +150,11 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) error {
 			if QuerySkipDirError(le) {
 				break
 			}
+
 			return le
 		}
 	}
+
 	return nil
 }
 

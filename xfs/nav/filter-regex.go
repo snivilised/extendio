@@ -24,8 +24,9 @@ func (f *RegexFilter) Validate() {
 // IsMatch
 func (f *RegexFilter) IsMatch(item *TraverseItem) bool {
 	if f.IsApplicable(item) {
-		return f.invert(f.rex.Match([]byte(item.Extension.Name)))
+		return f.invert(f.rex.Match([]byte(item.Extension.Name))) //nolint:gocritic // solution unknown
 	}
+
 	return f.ifNotApplicable
 }
 
@@ -42,6 +43,6 @@ func (f *CompoundRegexFilter) Validate() {
 
 func (f *CompoundRegexFilter) Matching(children []fs.DirEntry) []fs.DirEntry {
 	return lo.Filter(children, func(entry fs.DirEntry, index int) bool {
-		return f.invert(f.rex.Match([]byte(entry.Name())))
+		return f.invert(f.rex.Match([]byte(entry.Name()))) //nolint:gocritic // solution unknown
 	})
 }

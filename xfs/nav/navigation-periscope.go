@@ -12,7 +12,6 @@ type navigationPeriscope struct {
 }
 
 func (p *navigationPeriscope) scope(isLeaf bool) FilterScopeBiEnum {
-
 	result := ScopeIntermediateEn
 
 	// Root=0

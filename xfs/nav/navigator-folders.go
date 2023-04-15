@@ -11,7 +11,6 @@ type foldersNavigator struct {
 }
 
 func (n *foldersNavigator) top(frame *navigationFrame, root string) (*TraverseResult, error) {
-
 	return n.agent.top(&agentTopParams{
 		impl:  n,
 		frame: frame,
@@ -27,6 +26,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 			Frame:   params.frame},
 		)
 	}()
+
 	navi := &NavigationInfo{
 		Options: n.o,
 		Item:    params.item,
@@ -44,8 +44,8 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 	entries.sort(&folders)
 
 	if n.o.Store.Subscription == SubscribeFoldersWithFiles {
-
 		var files []fs.DirEntry
+
 		if params.frame.filters == nil {
 			files = entries.Files
 		} else {
@@ -68,6 +68,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 			//
 			le = nil
 		}
+
 		return le
 	}
 
@@ -78,13 +79,12 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 		readErr: readErr,
 	}); exit {
 		return err
-	} else {
-
-		return n.agent.traverse(&agentTraverseParams{
-			impl:     n,
-			contents: &folders,
-			parent:   params.item,
-			frame:    params.frame,
-		})
 	}
+
+	return n.agent.traverse(&agentTraverseParams{
+		impl:     n,
+		contents: &folders,
+		parent:   params.item,
+		frame:    params.frame,
+	})
 }

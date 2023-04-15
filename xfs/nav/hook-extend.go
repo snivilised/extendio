@@ -12,12 +12,14 @@ import (
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
 func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
-
 	if navi.Item.Extension != nil {
 		panic(NewItemAlreadyExtendedNativeError(navi.Item.Path))
 	}
-	isLeaf := false
-	var scope FilterScopeBiEnum
+
+	var (
+		scope  FilterScopeBiEnum
+		isLeaf bool
+	)
 
 	if navi.Item.IsDir() {
 		isLeaf = len(entries.Folders) == 0

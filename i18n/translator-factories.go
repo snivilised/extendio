@@ -8,7 +8,7 @@ import (
 
 // LocalizerCreatorFn represents the signature of the function can optionally
 // provide to override how an i18n Localizer is created.
-type LocalizerCreatorFn func(li *LanguageInfo, sourceId string) (*i18n.Localizer, error)
+type LocalizerCreatorFn func(li *LanguageInfo, sourceID string) (*i18n.Localizer, error)
 
 type AbstractTranslatorFactory struct {
 	Create LocalizerCreatorFn
@@ -31,10 +31,10 @@ type singularTranslatorFactory struct {
 func (f *singularTranslatorFactory) New(lang *LanguageInfo) Translator {
 	f.setup(lang)
 
-	sourceId := lo.Keys(lang.From.Sources)[0]
+	sourceID := lo.Keys(lang.From.Sources)[0]
 
 	liRef := utils.NewRoProp(*lang)
-	native, err := f.Create(lang, sourceId)
+	native, err := f.Create(lang, sourceID)
 
 	if err != nil {
 		panic(err)
@@ -81,12 +81,10 @@ func (f *multiTranslatorFactory) New(lang *LanguageInfo) Translator {
 			panic(err)
 		}
 
-		if err := multi.add(&LocalizerInfo{
-			sourceId:  id,
+		multi.add(&LocalizerInfo{
+			sourceID:  id,
 			Localizer: localizer,
-		}); err != nil {
-			panic(err)
-		}
+		})
 	}
 
 	return &i18nTranslator{
