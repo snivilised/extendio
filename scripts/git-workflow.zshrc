@@ -94,7 +94,8 @@ function check-tag() {
 }
 
 # release <semantic-version>, !!! do not specify the v prefix, added automatically
-release() {
+# should be run from the root directory otherwise relative paths won't work properly.
+function release() {
   if ! are-you-sure $1; then
     return 1
   fi
@@ -107,9 +108,19 @@ release() {
     # these string initialisers should probably e changed, don't
     # need the surrounding quotes, but it works so why fiddle?
     #
+    local raw_version=$1
     local version_number=v$1
     local current_branch=$(git_current_branch)
     local default_branch=$(get-def-branch)
+
+    if [[ $raw_version == v* ]]; then
+      # the # in ${raw_version#v} is a parameter expansion operator
+      # that removes the shortest match of the pattern "v" from the beginning
+      # of the string variable.
+      #
+      version_number=$raw_version
+      raw_version=${raw_version#v}
+    fi
 
     if [ $current_branch != $default_branch ]; then
       echo "!!! ⛔ Aborted! not on default($default_branch) branch; current($current_branch)"
@@ -136,6 +147,16 @@ release() {
       if [ $? -ne 0 ]; then
         echo "!!! ⛔ Aborted! Failed to git add VERSION file"
         return
+      fi
+
+      if [ -e ./VERSION-PATH ]; then
+        local version_path=$(more ./VERSION-PATH)
+        echo $raw_version > $version_path
+        git add $version_path
+        if [ $? -ne 0 ]; then
+          echo "!!! ⛔ Aborted! Failed to git add VERSION-PATH file ($version_path)"
+          return
+        fi
       fi
 
       git commit -m "Bump version to $version_number"
