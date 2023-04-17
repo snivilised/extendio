@@ -361,4 +361,4 @@ The ___Start___ and ___Stop___ conditions are defined using `ListenBy`, eg:
 
 See:
 
-- [Github Development Workflow](./doc/GITHUB-DEV.md)
+- [Github Development Workflow](./resources/doc/GITHUB-DEV.md)
