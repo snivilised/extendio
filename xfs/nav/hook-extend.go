@@ -62,4 +62,4 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 	navi.Item.Extension.SubPath = subpath
 }
 
-func nullExtendHookFn(params *NavigationInfo, entries *DirectoryEntries) {}
+func nullExtendHookFn(_ *NavigationInfo, _ *DirectoryEntries) {}

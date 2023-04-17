@@ -7,7 +7,7 @@ import (
 
 type nullDetacher struct{}
 
-func (d *nullDetacher) detach(frame *navigationFrame) {
+func (d *nullDetacher) detach(_ *navigationFrame) {
 
 }
 
@@ -100,6 +100,6 @@ func (b *bootstrapper) initResume(ps *persistState) {
 	b.detacher = b.rc
 }
 
-func (b *bootstrapper) detach(frame *navigationFrame) {
+func (b *bootstrapper) detach(_ *navigationFrame) {
 	b.detacher.detach(b.nc.frame)
 }

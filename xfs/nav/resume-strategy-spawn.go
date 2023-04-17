@@ -19,7 +19,7 @@ type spawnStrategy struct {
 	baseStrategy
 }
 
-func (s *spawnStrategy) init(params *strategyInitParams) {}
+func (s *spawnStrategy) init(_ *strategyInitParams) {}
 
 func (s *spawnStrategy) resume(info *strategyResumeInfo) (*TraverseResult, error) {
 	s.nc.frame.root.Set(info.ps.Active.Root)
