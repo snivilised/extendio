@@ -7,7 +7,7 @@ import (
 
 type nullDetacher struct{}
 
-func (d *nullDetacher) detach(frame *navigationFrame) {
+func (d *nullDetacher) detach(_ *navigationFrame) {
 
 }
 

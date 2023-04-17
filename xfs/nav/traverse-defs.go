@@ -73,13 +73,13 @@ type LabelledTraverseCallback struct {
 }
 
 // AscendancyHandler defines the signatures of ascend/descend handlers
-type AscendancyHandler func(item *TraverseItem)
+type AscendancyHandler func(_ *TraverseItem)
 
 // BeginHandler life cycle event handler, invoked before start of traversal
-type BeginHandler func(state *NavigationState)
+type BeginHandler func(_ *NavigationState)
 
 // EndHandler life cycle event handler, invoked at end of traversal
-type EndHandler func(result *TraverseResult)
+type EndHandler func(_ *TraverseResult)
 
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
@@ -107,8 +107,8 @@ func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
 
 // TraverseNavigator interface to the main traverse instance.
 type TraverseNavigator interface {
-	walk(root string) (*TraverseResult, error)
-	save(path string) error
+	walk(_ string) (*TraverseResult, error)
+	save(_ string) error
 	finish() error
 }
 
@@ -120,8 +120,8 @@ type traverseParams struct {
 type navigatorImpl interface {
 	options() *TraverseOptions
 	logger() log.Logger
-	top(frame *navigationFrame, root string) (*TraverseResult, error)
-	traverse(params *traverseParams) error
+	top(_ *navigationFrame, _ string) (*TraverseResult, error)
+	traverse(_ *traverseParams) error
 	finish() error
 }
 
@@ -141,10 +141,10 @@ type SubPathInfo struct {
 
 // ClientLogger
 type ClientLogger interface {
-	Debug(msg string, fields ...log.Field)
-	Info(msg string, fields ...log.Field)
-	Warn(msg string, fields ...log.Field)
-	Error(msg string, fields ...log.Field)
+	Debug(_ string, _ ...log.Field)
+	Info(_ string, _ ...log.Field)
+	Warn(_ string, _ ...log.Field)
+	Error(_ string, _ ...log.Field)
 }
 
 type TriStateBoolEnum uint

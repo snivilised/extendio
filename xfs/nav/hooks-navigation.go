@@ -47,7 +47,7 @@ func LstatHookFn(path string) (fs.FileInfo, error) {
 
 // CaseSensitiveSortHookFn hook function for case sensitive directory traversal. A
 // directory of "a" will be visited after a sibling directory "B".
-func CaseSensitiveSortHookFn(entries []fs.DirEntry, custom ...any) error {
+func CaseSensitiveSortHookFn(entries []fs.DirEntry, _ ...any) error {
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].Name() < entries[j].Name()
 	})
@@ -57,7 +57,7 @@ func CaseSensitiveSortHookFn(entries []fs.DirEntry, custom ...any) error {
 
 // CaseInSensitiveSortHookFn hook function for case insensitive directory traversal. A
 // directory of "a" will be visited before a sibling directory "B".
-func CaseInSensitiveSortHookFn(entries []fs.DirEntry, custom ...any) error {
+func CaseInSensitiveSortHookFn(entries []fs.DirEntry, _ ...any) error {
 	sort.Slice(entries, func(i, j int) bool {
 		return strings.ToLower(entries[i].Name()) < strings.ToLower(entries[j].Name())
 	})

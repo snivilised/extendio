@@ -73,7 +73,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test callback",
-						Fn: func(item *nav.TraverseItem) error {
+						Fn: func(_ *nav.TraverseItem) error {
 							return nil
 						},
 					}
@@ -165,7 +165,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			_, _ = session.Configure(func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = entry.subscription
-				o.Hooks.Sort = func(entries []fs.DirEntry, custom ...any) error {
+				o.Hooks.Sort = func(entries []fs.DirEntry, _ ...any) error {
 
 					return errors.New("fake sort error")
 				}
