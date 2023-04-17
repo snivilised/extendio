@@ -140,7 +140,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 
 		ListenRetired: LabelledTraverseCallback{
 			Label: "ListenRetired decorator",
-			Fn: func(item *TraverseItem) error {
+			Fn: func(_ *TraverseItem) error {
 				return xi18n.NewTerminateTraverseError()
 			},
 		},

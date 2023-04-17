@@ -265,10 +265,10 @@ func GetDefaultOptions() *TraverseOptions {
 			},
 		},
 		Notify: Notifications{
-			OnBegin:   func(state *NavigationState) {},
-			OnEnd:     func(result *TraverseResult) {},
-			OnDescend: func(item *TraverseItem) {},
-			OnAscend:  func(item *TraverseItem) {},
+			OnBegin:   func(_ *NavigationState) {},
+			OnEnd:     func(_ *TraverseResult) {},
+			OnDescend: func(_ *TraverseItem) {},
+			OnAscend:  func(_ *TraverseItem) {},
 		},
 		Hooks: TraverseHooks{
 			QueryStatus:   LstatHookFn,

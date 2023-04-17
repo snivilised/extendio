@@ -67,7 +67,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = nav.LabelledTraverseCallback{
 						Label: "test marshal state callback",
-						Fn: func(item *nav.TraverseItem) error {
+						Fn: func(_ *nav.TraverseItem) error {
 							return nil
 						},
 					}

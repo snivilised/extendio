@@ -37,7 +37,7 @@ func (m *HaveSizeMatcher) FailureMessage(actual interface{}) string {
 	return fmt.Sprintf("🔥 Expected stack to have size: %v\n", m.size)
 }
 
-func (m *HaveSizeMatcher) NegatedFailureMessage(actual interface{}) string {
+func (m *HaveSizeMatcher) NegatedFailureMessage(_ interface{}) string {
 	return fmt.Sprintf("🔥 Expected stack NOT to have size: %v\n", m.size)
 }
 
@@ -65,11 +65,11 @@ func (m *HaveCurrentMatcher) Match(actual interface{}) (bool, error) {
 	return current == m.current, nil
 }
 
-func (m *HaveCurrentMatcher) FailureMessage(actual interface{}) string {
+func (m *HaveCurrentMatcher) FailureMessage(_ interface{}) string {
 	return fmt.Sprintf("🔥 Expected stack to have current value of: %v\n", m.current)
 }
 
-func (m *HaveCurrentMatcher) NegatedFailureMessage(actual interface{}) string {
+func (m *HaveCurrentMatcher) NegatedFailureMessage(_ interface{}) string {
 	return fmt.Sprintf("🔥 Expected stack NOT to have current value of: %v\n", m.current)
 }
 
@@ -111,13 +111,13 @@ func (m *HavePoppedMatcher) Match(actual interface{}) (bool, error) {
 	return result, nil
 }
 
-func (m *HavePoppedMatcher) FailureMessage(actual interface{}) string {
+func (m *HavePoppedMatcher) FailureMessage(_ interface{}) string {
 	return fmt.Sprintf("🔥 Expected stack to\n\thave size: %v\n\tand popped item: %v\n",
 		m.size, m.actualItem,
 	)
 }
 
-func (m *HavePoppedMatcher) NegatedFailureMessage(actual interface{}) string {
+func (m *HavePoppedMatcher) NegatedFailureMessage(_ interface{}) string {
 	return fmt.Sprintf("🔥 Expected stack NOT to\n\thave size: %v\n\tand popped item: %v\n",
 		m.size, m.actualItem,
 	)
