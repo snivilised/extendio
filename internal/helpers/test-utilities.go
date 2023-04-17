@@ -87,7 +87,7 @@ func (f *CustomFilter) IsMatch(item *nav.TraverseItem) bool {
 	return false
 }
 
-func (f *CustomFilter) IsApplicable(item *nav.TraverseItem) bool {
+func (f *CustomFilter) IsApplicable(_ *nav.TraverseItem) bool {
 	return true
 }
 
@@ -99,7 +99,7 @@ type DummyCreator struct {
 	Invoked bool
 }
 
-func (dc *DummyCreator) Create(lang *xi18n.LanguageInfo, sourceID string) (*i18n.Localizer, error) {
+func (dc *DummyCreator) Create(_ *xi18n.LanguageInfo, _ string) (*i18n.Localizer, error) {
 	dc.Invoked = true
 
 	return &i18n.Localizer{}, nil

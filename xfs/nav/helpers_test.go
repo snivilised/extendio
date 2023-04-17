@@ -380,7 +380,7 @@ type errorTE struct {
 	naviTE
 }
 
-func readDirFakeError(dirname string) ([]fs.DirEntry, error) {
+func readDirFakeError(_ string) ([]fs.DirEntry, error) {
 	entries := []fs.DirEntry{}
 	path := "/foo/bar"
 	reason := errors.New("access denied")

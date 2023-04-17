@@ -30,10 +30,10 @@ type resumeAttachParams struct {
 }
 
 type resumeStrategy interface {
-	init(params *strategyInitParams)
-	attach(params *resumeAttachParams)
-	detach(frame *navigationFrame)
-	resume(info *strategyResumeInfo) (*TraverseResult, error)
+	init(_ *strategyInitParams)
+	attach(_ *resumeAttachParams)
+	detach(_ *navigationFrame)
+	resume(_ *strategyResumeInfo) (*TraverseResult, error)
 	finish() error
 }
 
@@ -44,12 +44,12 @@ type baseStrategy struct {
 	deFactory *directoryEntriesFactory
 }
 
-func (s *baseStrategy) attach(params *resumeAttachParams) {}
-func (s *baseStrategy) detach(frame *navigationFrame)     {}
+func (s *baseStrategy) attach(_ *resumeAttachParams) {}
+func (s *baseStrategy) detach(_ *navigationFrame)    {}
 func (s *baseStrategy) finish() error {
 	return s.nc.finish()
 }
 
 type resumeDetacher interface {
-	detach(frame *navigationFrame)
+	detach(_ *navigationFrame)
 }

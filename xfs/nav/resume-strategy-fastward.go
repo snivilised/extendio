@@ -24,7 +24,7 @@ func (l *fastwardListener) IsMatch(item *TraverseItem) bool {
 	return item.Path == l.target
 }
 
-func (l *fastwardListener) IsApplicable(item *TraverseItem) bool {
+func (l *fastwardListener) IsApplicable(_ *TraverseItem) bool {
 	return true
 }
 

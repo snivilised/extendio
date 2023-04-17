@@ -381,7 +381,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.FilterDefs = filterDefs
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
-					Fn: func(item *nav.TraverseItem) error {
+					Fn: func(_ *nav.TraverseItem) error {
 						return nil
 					},
 				}
@@ -435,7 +435,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
-					Fn: func(item *nav.TraverseItem) error {
+					Fn: func(_ *nav.TraverseItem) error {
 						return nil
 					},
 				}
