@@ -8,7 +8,7 @@ import (
 
 type Translator interface {
 	Localise(data Localisable) string
-	LanguageInfoRef() utils.RoProp[LanguageInfo]
+	LanguageInfoRef() utils.RoProp[*LanguageInfo]
 	negotiate(other Translator) Translator
 }
 
@@ -146,10 +146,10 @@ func Text(data Localisable) string {
 // Text function
 type i18nTranslator struct {
 	mx              localizerMultiplexor
-	languageInfoRef utils.RoProp[LanguageInfo]
+	languageInfoRef utils.RoProp[*LanguageInfo]
 }
 
-func (t *i18nTranslator) LanguageInfoRef() utils.RoProp[LanguageInfo] {
+func (t *i18nTranslator) LanguageInfoRef() utils.RoProp[*LanguageInfo] {
 	return t.languageInfoRef
 }
 

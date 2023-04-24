@@ -98,6 +98,29 @@ var _ = Describe("Translator", Ordered, func() {
 		})
 	})
 
+	Context("AppendSources", func() {
+		Context("given: Translator exists", func() {
+			It("🧪 should: be able to add source", func() {
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
+					o.Tag = language.AmericanEnglish
+					o.From.Path = l10nPath
+					o.From.Sources = testTranslationFile
+				}); err != nil {
+					Fail(err.Error())
+				}
+
+				additional := make(xi18n.TranslationFiles)
+				additional[GrafficoSourceID] = xi18n.TranslationSource{
+					Name: "test.graffico",
+				}
+
+				xi18n.TxRef.Get().LanguageInfoRef().Get().From.AppendSources(&additional)
+				_, found := xi18n.TxRef.Get().LanguageInfoRef().Get().From.Sources[GrafficoSourceID]
+				Expect(found).To(BeTrue())
+			})
+		})
+	})
+
 	Context("Use", func() {
 		When("requested language is available", func() {
 			It("🧪 should: create Translator", func() {
