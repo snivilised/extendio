@@ -43,7 +43,7 @@ var _ = Describe("Translator", Ordered, func() {
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
 
 		testTranslationFile = xi18n.TranslationFiles{
-			xi18n.ExtendioSourceID: xi18n.TranslationSource{"test"},
+			xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
 		}
 	})
 
@@ -195,6 +195,61 @@ var _ = Describe("Translator", Ordered, func() {
 				Expect(xi18n.TxRef.Get().LanguageInfoRef().Get().Tag).To(Equal(language.BritishEnglish))
 			})
 		})
+
+		When("use invoked multiple times", func() {
+			Context("given: new source already present", func() {
+				It("🧪 should: ignore subsequent use source", func() {
+					if err := xi18n.Use(func(o *xi18n.UseOptions) {
+						o.Tag = language.AmericanEnglish
+						o.From.Path = l10nPath
+						o.From.Sources = xi18n.TranslationFiles{
+							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
+						}
+					}); err != nil {
+						Fail(err.Error())
+					}
+
+					if err := xi18n.Use(func(o *xi18n.UseOptions) {
+						o.Tag = language.AmericanEnglish
+						o.From.Path = "/foo-bar"
+						o.From.Sources = xi18n.TranslationFiles{
+							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
+						}
+					}); err != nil {
+						Fail(err.Error())
+					}
+				})
+			})
+
+			Context("given: new source already NOT already present", func() {
+				It("🧪 should: add new source", func() {
+					if err := xi18n.Use(func(o *xi18n.UseOptions) {
+						o.Tag = language.AmericanEnglish
+						o.From.Path = l10nPath
+						o.From.Sources = xi18n.TranslationFiles{
+							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
+						}
+					}); err != nil {
+						Fail(err.Error())
+					}
+
+					if err := xi18n.Use(func(o *xi18n.UseOptions) {
+						o.Tag = language.AmericanEnglish
+						o.From.Path = l10nPath
+						o.From.Sources = xi18n.TranslationFiles{
+							GrafficoSourceID: xi18n.TranslationSource{Name: "test.graffico"},
+						}
+					}); err != nil {
+						Fail(err.Error())
+					}
+
+					actual := xi18n.Text(PavementGraffitiReportTemplData{
+						Primary: "Violet",
+					})
+					Expect(actual).To(Equal(expectUS))
+				})
+			})
+		})
 	})
 
 	Context("Error Scenarios", func() {
@@ -294,59 +349,32 @@ var _ = Describe("Translator", Ordered, func() {
 					})
 				})
 			})
-
-			XContext("could not load translations for", func() {
-
-			})
 		})
 
 		When("message defined with non-existent source id", func() {
-			Context("single source", func() {
-				It("🧪 should: return default string", func() {
-					// the singular translator does not check source ids, so
-					// won't report an error if the source id of the message
-					// does not correspond to the localizer. This is not currently
-					// deemed to be problem worth actioning. (May change in future
-					// though)
-					if err := xi18n.Use(func(o *xi18n.UseOptions) {
-						o.Tag = language.AmericanEnglish
-						o.From.Path = l10nPath
-						o.From.Sources = xi18n.TranslationFiles{
-							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
-						}
-					}); err != nil {
-						Fail(err.Error())
+			It("🧪 should: panic", func() {
+				defer func() {
+					pe := recover()
+					if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
+						"could not find localizer for source") {
+						Fail(fmt.Sprintf(
+							"Incorrect error reported, when: message defined with non-existent source id 💥(%v)",
+							err.Error()),
+						)
 					}
-					actual := xi18n.Text(WrongSourceIDTemplData{})
-					Expect(actual).To(Equal("Message with wrong id"))
-				})
-			})
-
-			Context("multi sources", func() {
-				It("🧪 should: panic", func() {
-					defer func() {
-						pe := recover()
-						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
-							"could not find localizer for source") {
-							Fail(fmt.Sprintf(
-								"Incorrect error reported, when: message defined with non-existent source id 💥(%v)",
-								err.Error()),
-							)
-						}
-					}()
-					if err := xi18n.Use(func(o *xi18n.UseOptions) {
-						o.Tag = language.AmericanEnglish
-						o.From.Path = l10nPath
-						o.From.Sources = xi18n.TranslationFiles{
-							xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
-							GrafficoSourceID:       xi18n.TranslationSource{Name: "test.graffico"},
-						}
-					}); err != nil {
-						Fail(err.Error())
+				}()
+				if err := xi18n.Use(func(o *xi18n.UseOptions) {
+					o.Tag = language.AmericanEnglish
+					o.From.Path = l10nPath
+					o.From.Sources = xi18n.TranslationFiles{
+						xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
+						GrafficoSourceID:       xi18n.TranslationSource{Name: "test.graffico"},
 					}
-					_ = xi18n.Text(WrongSourceIDTemplData{})
-					Fail("❌ expected panic due to invalid path: 'FOO-BAR'")
-				})
+				}); err != nil {
+					Fail(err.Error())
+				}
+				_ = xi18n.Text(WrongSourceIDTemplData{})
+				Fail("❌ expected panic due to invalid path: 'FOO-BAR'")
 			})
 		})
 	})

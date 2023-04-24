@@ -11,7 +11,7 @@ import (
 // which by definition means translated content can't be served to the client using
 // the requested locale and therefore have to be displayed untranslated.
 
-// ❌ CouldNotFindLocalizer
+// ❌ Could Not Find Localizer
 
 // NewFailedToCreateLocalizerNativeError creates an untranslated error to
 // indicate the Translator already contains a localizer for the source
@@ -32,7 +32,7 @@ func NewCouldNotLoadTranslationsNativeError(tag language.Tag, path string, reaso
 	)
 }
 
-// ❌ FailedToCreateTranslator
+// ❌ Failed To Create Translator
 
 // NewFailedToCreateTranslatorNativeError creates an untranslated error to
 // indicate failure to create a Translator instance

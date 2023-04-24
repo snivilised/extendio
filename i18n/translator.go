@@ -10,6 +10,7 @@ import (
 type Translator interface {
 	Localise(data Localisable) string
 	LanguageInfoRef() utils.RoProp[LanguageInfo]
+	negotiate(other Translator) Translator
 }
 
 var DefaultLanguage = utils.NewRoProp(language.BritishEnglish)
@@ -83,25 +84,27 @@ func verifyLanguage(lang *LanguageInfo) {
 
 func applyLanguage(lang *LanguageInfo) {
 	verifyLanguage(lang)
-	factory := lo.TernaryF(len(lang.From.Sources) > 1,
-		func() TranslatorFactory {
-			return &multiTranslatorFactory{
-				AbstractTranslatorFactory: AbstractTranslatorFactory{
-					Create: lang.Create,
-				},
-			}
+	factory := &multiTranslatorFactory{
+		AbstractTranslatorFactory: AbstractTranslatorFactory{
+			Create: lang.Create,
+			legacy: tx,
 		},
-		func() TranslatorFactory {
-			return &singularTranslatorFactory{
-				AbstractTranslatorFactory: AbstractTranslatorFactory{
-					Create: lang.Create,
-				},
-			}
-		},
-	)
+	}
 
-	tx = factory.New(lang)
+	newTranslator := factory.New(lang)
+	tx = negotiateTranslators(tx, newTranslator)
+
 	TxRef = utils.NewRoProp(tx)
+}
+
+func negotiateTranslators(legacyTX, incomingTX Translator) Translator {
+	result := incomingTX
+
+	if legacyTX != nil {
+		result = legacyTX.negotiate(incomingTX)
+	}
+
+	return result
 }
 
 // ResetTx, do not use, required for unit testing only and is
@@ -159,4 +162,25 @@ func containsLanguage(languages SupportedLanguages, tag language.Tag) bool {
 	return lo.ContainsBy(languages, func(t language.Tag) bool {
 		return t == tag
 	})
+}
+
+func (t *i18nTranslator) negotiate(legacy Translator) Translator {
+	if legacy == nil {
+		return t
+	}
+
+	// the legacy Translator overrides incoming, this allows unit tests
+	// to remain in control
+	//
+	legacyLang := legacy.LanguageInfoRef().Get()
+	incomingLang := t.LanguageInfoRef().Get()
+
+	if len(legacyLang.From.Sources) == 0 {
+		legacyLang.From.Sources = incomingLang.From.Sources
+		legacyLang.From.Path = incomingLang.From.Path
+	} else {
+		_ = legacyLang.From.AppendSources(&incomingLang.From.Sources)
+	}
+
+	return legacy
 }
