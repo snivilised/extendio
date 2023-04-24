@@ -2,6 +2,7 @@ package i18n_test
 
 import (
 	"errors"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -11,10 +12,43 @@ import (
 	"golang.org/x/text/language"
 )
 
+type textTE struct {
+	message           string
+	path              string
+	sourcePath        string
+	name              string
+	defaultAcceptable bool
+}
+
 const (
 	expectUS = "Found graffiti on sidewalk; primary color: 'Violet'"
 	expectGB = "Found graffiti on pavement; primary colour: 'Violet'"
 )
+
+func testTranslationPath(entry *textTE) string {
+	// this test form required, because DescribeTable can't be used
+	// due to not being able to setup state correctly, eg l10nPath
+	//
+	if err := xi18n.Use(func(o *xi18n.UseOptions) {
+		o.Tag = language.AmericanEnglish
+		o.DefaultIsAcceptable = entry.defaultAcceptable
+		o.From = xi18n.LoadFrom{
+			Path: entry.path,
+			Sources: xi18n.TranslationFiles{
+				GrafficoSourceID: xi18n.TranslationSource{
+					Path: entry.sourcePath,
+					Name: "test.graffico",
+				},
+			},
+		}
+	}); err != nil {
+		Fail(err.Error())
+	}
+
+	return xi18n.Text(PavementGraffitiReportTemplData{
+		Primary: "Violet",
+	})
+}
 
 var _ = Describe("Text", Ordered, func() {
 	var (
@@ -29,7 +63,7 @@ var _ = Describe("Text", Ordered, func() {
 		Expect(utils.FolderExists(l10nPath)).To(BeTrue())
 
 		testTranslationFile = xi18n.TranslationFiles{
-			xi18n.ExtendioSourceID: xi18n.TranslationSource{"test"},
+			xi18n.ExtendioSourceID: xi18n.TranslationSource{Name: "test"},
 		}
 	})
 
@@ -135,6 +169,60 @@ var _ = Describe("Text", Ordered, func() {
 
 				actual := xi18n.Text(xi18n.InternationalisationTemplData{})
 				Expect(actual).To(Equal("internationalisation"))
+			})
+		})
+	})
+
+	Context("translation source contains path", func() {
+		Context("Foreign Language", func() {
+			Context("given: source path exists", func() {
+				It("🧪 should: create localizer from source path", func() {
+					actual := testTranslationPath(&textTE{
+						sourcePath:        l10nPath,
+						defaultAcceptable: true,
+					})
+
+					Expect(actual).To(Equal(expectUS))
+				})
+			})
+
+			Context("given: path exists", func() {
+				It("🧪 should: create localizer from path", func() {
+					actual := testTranslationPath(&textTE{
+						path:              l10nPath,
+						defaultAcceptable: true,
+					})
+
+					Expect(actual).To(Equal(expectUS))
+				})
+			})
+
+			Context("given: neither path exists", func() {
+				It("🧪 should: create localizer using default language", func() {
+					actual := testTranslationPath(&textTE{
+						defaultAcceptable: true,
+					})
+
+					Expect(actual).To(Equal(expectGB))
+				})
+			})
+
+			Context("given: neither path exists", func() {
+				It("🧪 should: create localizer using default language", func() {
+					defer func() {
+						pe := recover()
+						if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
+							"could not load translations for") {
+							Fail("translation file not available with exe")
+						}
+					}()
+
+					_ = testTranslationPath(&textTE{
+						defaultAcceptable: false,
+					})
+
+					Fail("❌ expected panic due translation file not available with exe")
+				})
 			})
 		})
 	})

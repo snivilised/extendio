@@ -8,6 +8,7 @@ import (
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/samber/lo"
+	"github.com/snivilised/extendio/xfs/utils"
 	"golang.org/x/text/language"
 )
 
@@ -16,8 +17,8 @@ func createLocalizer(lang *LanguageInfo, sourceID string) (*i18n.Localizer, erro
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	if lang.Tag != lang.Default {
-		name := lang.From.Sources[sourceID].Name
-		path := resolveBundlePath(lang, name)
+		txSource := lang.From.Sources[sourceID]
+		path := resolveBundlePath(lang, txSource)
 		_, err := bundle.LoadMessageFile(path)
 
 		if (err != nil) && (!lang.DefaultIsAcceptable) {
@@ -32,20 +33,24 @@ func createLocalizer(lang *LanguageInfo, sourceID string) (*i18n.Localizer, erro
 	return i18n.NewLocalizer(bundle, supported...), nil
 }
 
-func resolveBundlePath(lang *LanguageInfo, dependencyName string) string {
-	filename := lo.TernaryF(dependencyName == "",
+func resolveBundlePath(lang *LanguageInfo, txSource TranslationSource) string {
+	filename := lo.TernaryF(txSource.Name == "",
 		func() string {
 			return fmt.Sprintf("active.%v.json", lang.Tag)
 		},
 		func() string {
-			return fmt.Sprintf("%v.active.%v.json", dependencyName, lang.Tag)
+			return fmt.Sprintf("%v.active.%v.json", txSource.Name, lang.Tag)
 		},
 	)
 
-	resolved, _ := filepath.Abs(lang.From.Path)
+	path := lo.Ternary(txSource.Path != "" && utils.FolderExists(txSource.Path),
+		txSource.Path,
+		lang.From.Path,
+	)
 
-	directory := lo.TernaryF(lang.From.Path != "",
+	directory := lo.TernaryF(path != "" && utils.FolderExists(path),
 		func() string {
+			resolved, _ := filepath.Abs(path)
 			return resolved
 		},
 		func() string {

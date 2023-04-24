@@ -296,7 +296,7 @@ func QueryInvalidResumeStrategyError(target error) bool {
 	return QueryGeneric[InvalidResumeStrategyErrorBehaviourQuery]("InvalidResumeStrategy", target)
 }
 
-// ❌ MissingCallback
+// ❌ Missing Callback
 
 // missing callback (internal)
 type MissingCallbackTemplData struct {
@@ -344,7 +344,7 @@ func QueryMissingCallbackError(target error) bool {
 	return QueryGeneric[MissingCallbackBehaviourQuery]("MissingCallback", target)
 }
 
-// ❌ MissingCustomFilterDefinition
+// ❌ Missing Custom Filter Definition
 
 // Missing custom filter definition (config)
 type MissingCustomFilterDefinitionTemplData struct {
@@ -395,7 +395,7 @@ func QueryMissingCustomFilterDefinitionError(target error) bool {
 	return QueryGeneric[MissingCustomFilterDefinitionBehaviourQuery]("MissingCustomFilterDefinition", target)
 }
 
-// ❌ NotADirectory
+// ❌ Not A Directory
 
 // NotADirectoryTemplData path is not a directory
 type NotADirectoryTemplData struct {
@@ -444,7 +444,7 @@ func QueryNotADirectoryError(target error) bool {
 	return QueryGeneric[NotADirectoryErrorBehaviourQuery]("NotADirectory", target)
 }
 
-// ❌ SortFnFailed
+// ❌ Sort Fn Failed
 
 // sort function failed (internal)
 type SortFnFailedTemplData struct {
@@ -490,7 +490,7 @@ func QuerySortFnFailedError(target error) bool {
 	return QueryGeneric[SortFnFailedBehaviourQuery]("SortFnFailed", target)
 }
 
-// ❌ TerminateTraverse
+// ❌ Terminate Traverse
 
 // terminate traverse
 type TerminateTraverseTemplData struct {
@@ -538,7 +538,7 @@ func QueryTerminateTraverseError(target error) bool {
 	return QueryGeneric[SortFnFailedBehaviourQuery]("TerminateTraverse", target)
 }
 
-// ❌ ThirdPartyError
+// ❌ Third Party Error
 
 // ThirdPartyErrorTemplData third party un-translated error
 type ThirdPartyErrorTemplData struct {
@@ -572,7 +572,7 @@ func NewThirdPartyErr(err error) ThirdPartyError {
 	}
 }
 
-// ❌ UnknownMarshalFormat
+// ❌ Unknown Marshal Format
 
 // UnknownMarshalFormatTemplData unknown marshall format specified in config by user
 type UnknownMarshalFormatTemplData struct {

@@ -2,7 +2,6 @@ package i18n
 
 import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/samber/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
@@ -12,6 +11,7 @@ type LocalizerCreatorFn func(li *LanguageInfo, sourceID string) (*i18n.Localizer
 
 type AbstractTranslatorFactory struct {
 	Create LocalizerCreatorFn
+	legacy Translator
 }
 
 func (f *AbstractTranslatorFactory) setup(lang *LanguageInfo) {
@@ -22,39 +22,8 @@ func (f *AbstractTranslatorFactory) setup(lang *LanguageInfo) {
 	}
 }
 
-// singularTranslatorFactory creates Translator with the single localizer which
-// represents the client's package.
-type singularTranslatorFactory struct {
-	AbstractTranslatorFactory
-}
-
-func (f *singularTranslatorFactory) New(lang *LanguageInfo) Translator {
-	f.setup(lang)
-
-	sourceID := lo.Keys(lang.From.Sources)[0]
-
-	liRef := utils.NewRoProp(*lang)
-	native, err := f.Create(lang, sourceID)
-
-	if err != nil {
-		panic(err)
-	}
-
-	single := &singularContainer{
-		localizer: native,
-	}
-
-	return &i18nTranslator{
-		mx:              single,
-		languageInfoRef: liRef,
-	}
-}
-
 // multiTranslatorFactory creates a translator instance from the provided
-// Localizers. If the client library needs to provide localizers for itself
-// and at least 1 dependency, then they should use multiTranslatorFactory
-// specify appropriate information concerning where to load the translation
-// files from, otherwise SingularTranslatorFactory should be used.
+// Localizers.
 //
 // Note, in the case where a source client wants to provide a localizer
 // for a language that one of ite dependencies does not support, then

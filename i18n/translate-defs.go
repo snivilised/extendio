@@ -64,6 +64,7 @@ func (lf *LoadFrom) AppendSources(appendFiles *TranslationFiles) []string {
 type TranslationSource struct {
 	// Name of dependency's translation file
 	Name string
+	Path string
 }
 
 // TranslationFiles maps a source id to a TranslationSource
@@ -125,7 +126,6 @@ type localizerMultiplexor interface {
 type LocalizerInfo struct {
 	// Localizer by default created internally, but can be overridden by
 	// the client if they provide a create function to the Translator Factory
-	// (either SingularTranslatorFactory or MultiTranslatorFactory)
 	//
 	Localizer *i18n.Localizer
 
