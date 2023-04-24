@@ -12,7 +12,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func createLocalizer(lang *LanguageInfo, sourceID string) (*i18n.Localizer, error) {
+func createLocalizer(lang *LanguageInfo, sourceID string) (*Localizer, error) {
 	bundle := i18n.NewBundle(lang.Tag)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 

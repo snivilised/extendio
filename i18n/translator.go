@@ -1,7 +1,6 @@
 package i18n
 
 import (
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 	"golang.org/x/text/language"
@@ -17,7 +16,7 @@ var DefaultLanguage = utils.NewRoProp(language.BritishEnglish)
 var tx Translator
 var TxRef utils.RoProp[Translator] = utils.NewRoProp(tx)
 
-type localizerContainer map[string]*i18n.Localizer
+type localizerContainer map[string]*Localizer
 
 // Use, must be called by the client before any string data
 // can be translated. If the client requests the default

@@ -1,13 +1,12 @@
 package i18n
 
 import (
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
 // LocalizerCreatorFn represents the signature of the function can optionally
 // provide to override how an i18n Localizer is created.
-type LocalizerCreatorFn func(li *LanguageInfo, sourceID string) (*i18n.Localizer, error)
+type LocalizerCreatorFn func(li *LanguageInfo, sourceID string) (*Localizer, error)
 
 type AbstractTranslatorFactory struct {
 	Create LocalizerCreatorFn

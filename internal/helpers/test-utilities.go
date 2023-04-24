@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	xi18n "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -99,8 +98,8 @@ type DummyCreator struct {
 	Invoked bool
 }
 
-func (dc *DummyCreator) Create(_ *xi18n.LanguageInfo, _ string) (*i18n.Localizer, error) {
+func (dc *DummyCreator) Create(_ *xi18n.LanguageInfo, _ string) (*xi18n.Localizer, error) {
 	dc.Invoked = true
 
-	return &i18n.Localizer{}, nil
+	return &xi18n.Localizer{}, nil
 }
