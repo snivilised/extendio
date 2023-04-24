@@ -5,6 +5,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+type Message = i18n.Message
+type Localizer = i18n.Localizer
+type LocalizeConfig = i18n.LocalizeConfig
+
 // ExtendioSourceID the id that represents this module. If client want
 // to provides translations for languages that extendio does not, then
 // the localizer the create created for this purpose should use this
@@ -15,7 +19,7 @@ import (
 const ExtendioSourceID = "github.com/snivilised/extendio"
 
 type Localisable interface {
-	Message() *i18n.Message
+	Message() *Message
 	SourceID() string
 }
 
@@ -127,7 +131,7 @@ type LocalizerInfo struct {
 	// Localizer by default created internally, but can be overridden by
 	// the client if they provide a create function to the Translator Factory
 	//
-	Localizer *i18n.Localizer
+	Localizer *Localizer
 
 	sourceID string
 }

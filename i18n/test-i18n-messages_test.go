@@ -1,7 +1,7 @@
 package i18n_test
 
 import (
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 const (
