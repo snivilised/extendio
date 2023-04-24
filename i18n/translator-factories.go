@@ -37,7 +37,7 @@ type multiTranslatorFactory struct {
 func (f *multiTranslatorFactory) New(lang *LanguageInfo) Translator {
 	f.setup(lang)
 
-	liRef := utils.NewRoProp(*lang)
+	liRef := utils.NewRoProp(lang)
 	multi := &multiContainer{
 		localizers: make(localizerContainer),
 	}
