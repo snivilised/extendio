@@ -57,6 +57,7 @@ func (f *multiTranslatorFactory) New(lang *LanguageInfo) Translator {
 
 	return &i18nTranslator{
 		mx:              multi,
+		languageInfo:    lang,
 		languageInfoRef: liRef,
 	}
 }

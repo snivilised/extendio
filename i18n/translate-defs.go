@@ -44,25 +44,11 @@ type LoadFrom struct {
 	Sources TranslationFiles
 }
 
-// AppendSources is designed to be used by dependencies that need to add
-// their own dependencies to the Sources that are to be used to create the
-// translator.
-func (lf *LoadFrom) AppendSources(appendFiles *TranslationFiles) []string {
-	duplicates := []string{}
-
-	for id, source := range *appendFiles {
-		if _, found := lf.Sources[id]; found {
-			duplicates = append(duplicates, source.Name)
-		} else {
-			lf.Sources[id] = source
-		}
+// AddSource adds a translation source
+func (lf *LoadFrom) AddSource(sourceID string, source *TranslationSource) {
+	if _, found := lf.Sources[sourceID]; !found {
+		lf.Sources[sourceID] = *source
 	}
-
-	if len(duplicates) > 0 {
-		return duplicates
-	}
-
-	return nil
 }
 
 type TranslationSource struct {
@@ -122,9 +108,9 @@ type LanguageInfo struct {
 // UseOptionFn functional options function required by Use.
 type UseOptionFn func(*UseOptions)
 
-type localizerMultiplexor interface {
-	localise(data Localisable) string
-}
+// type localizerMultiplexor interface {
+// 	localise(data Localisable) string
+// }
 
 // LocalizerInfo
 type LocalizerInfo struct {

@@ -10,6 +10,7 @@ type Translator interface {
 	Localise(data Localisable) string
 	LanguageInfoRef() utils.RoProp[*LanguageInfo]
 	negotiate(other Translator) Translator
+	add(info *LocalizerInfo, source *TranslationSource)
 }
 
 var DefaultLanguage = utils.NewRoProp(language.BritishEnglish)
@@ -145,7 +146,8 @@ func Text(data Localisable) string {
 // i18nTranslator provides the translation implementation used by the
 // Text function
 type i18nTranslator struct {
-	mx              localizerMultiplexor
+	mx              *multiContainer
+	languageInfo    *LanguageInfo
 	languageInfoRef utils.RoProp[*LanguageInfo]
 }
 
@@ -163,23 +165,32 @@ func containsLanguage(languages SupportedLanguages, tag language.Tag) bool {
 	})
 }
 
-func (t *i18nTranslator) negotiate(legacy Translator) Translator {
-	if legacy == nil {
-		return t
+func (t *i18nTranslator) negotiate(incomingTX Translator) Translator {
+	incomingLang := incomingTX.LanguageInfoRef().Get()
+	legacyLang := t.LanguageInfoRef().Get()
+	incTX, ok := incomingTX.(*i18nTranslator)
+
+	if !ok {
+		panic("unexpected incoming translator instance (not i18nTranslator)")
 	}
 
-	// the legacy Translator overrides incoming, this allows unit tests
-	// to remain in control
-	//
-	legacyLang := legacy.LanguageInfoRef().Get()
-	incomingLang := t.LanguageInfoRef().Get()
+	legacySources := legacyLang.From.Sources
+	incomingSources := incomingLang.From.Sources
 
-	if len(legacyLang.From.Sources) == 0 {
-		legacyLang.From.Sources = incomingLang.From.Sources
-		legacyLang.From.Path = incomingLang.From.Path
-	} else {
-		_ = legacyLang.From.AppendSources(&incomingLang.From.Sources)
+	for sourceID, source := range incomingSources {
+		if _, found := legacySources[sourceID]; !found {
+			s := source // copy required to avoid "implicit memory aliasing in for loop"
+			t.add(&LocalizerInfo{
+				Localizer: incTX.mx.localizers[sourceID],
+				sourceID:  sourceID,
+			}, &s)
+		}
 	}
 
-	return legacy
+	return t
+}
+
+func (t *i18nTranslator) add(info *LocalizerInfo, source *TranslationSource) {
+	t.mx.add(info)
+	t.languageInfo.From.AddSource(info.sourceID, source)
 }
