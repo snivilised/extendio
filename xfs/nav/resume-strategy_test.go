@@ -200,7 +200,6 @@ var _ = Describe("Resume", Ordered, func() {
 
 	DescribeTable("resume",
 		func(entry *resumeTE) {
-
 			invocations := map[nav.ResumeStrategyEnum]*strategyInvokeInfo{}
 
 			for _, strategyEn := range strategies {
@@ -210,7 +209,7 @@ var _ = Describe("Resume", Ordered, func() {
 					Fail(fmt.Sprintf("bad test, missing profile for '%v'", entry.profile))
 				}
 
-				restore := func(o *nav.TraverseOptions, active *nav.ActiveState) {
+				restorer := func(o *nav.TraverseOptions, active *nav.ActiveState) {
 					// synthetic assignments: The client should not perform these
 					// types of assignments. Only being done here for testing purposes
 					// to avoid the need to create many restore files
@@ -282,11 +281,12 @@ var _ = Describe("Resume", Ordered, func() {
 					}
 				}
 
-				session := &nav.ResumeSession{
+				var session nav.TraverseSession = &nav.ResumeSession{
 					Path:     fromJSONPath,
+					Restorer: restorer,
 					Strategy: strategyEn,
 				}
-				result, _ := session.Configure(restore).Run()
+				result, _ := session.Init().Run()
 
 				if profile.mandatory != nil {
 					for _, name := range profile.mandatory {
@@ -304,7 +304,7 @@ var _ = Describe("Resume", Ordered, func() {
 			}
 
 			for _, strategyEn := range strategies {
-				fmt.Printf("💡💡 invocations(%v) - files:%v, folders:%v\n",
+				GinkgoWriter.Printf("💡💡 invocations(%v) - files:%v, folders:%v\n",
 					themes[strategyEn].label,
 					invocations[strategyEn].files,
 					invocations[strategyEn].folders,

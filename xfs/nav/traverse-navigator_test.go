@@ -54,17 +54,18 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				callback := lo.Ternary(entry.once, once, lo.Ternary(entry.visit, visitor, entry.callback))
 
 				path := helpers.Path(root, entry.relative)
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-
-				result, _ := session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = entry.subscription
 					o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
 					o.Store.DoExtend = entry.extended
 					o.Callback = callback
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				result, _ := session.Init().Run()
 
 				if entry.visit {
 					_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
@@ -303,16 +304,18 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			}
 
 			path := helpers.Path(root, entry.relative)
-			session := nav.PrimarySession{
-				Path: path,
-			}
-			result, _ := session.Configure(func(o *nav.TraverseOptions) {
+			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Sort.IsCaseSensitive = entry.caseSensitive
 				o.Store.DoExtend = entry.extended
 				o.Callback = once
-			}).Run()
+			}
+			session := nav.PrimarySession{
+				Path:     path,
+				OptionFn: optionFn,
+			}
+			result, _ := session.Init().Run()
 
 			if entry.visit {
 				_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {

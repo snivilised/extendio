@@ -35,13 +35,15 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					_ = recover()
 				}()
 
-				session := &nav.PrimarySession{
-					Path: root,
-				}
-				_ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeAny
-				})
+				}
+				session := &nav.PrimarySession{
+					Path:     root,
+					OptionFn: optionFn,
+				}
+				_ = session.Init()
 
 				Fail("❌ expected panic due to missing callback")
 				Expect(false)
@@ -58,10 +60,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 				const relative = "RETRO-WAVE"
 				path := helpers.Path(root, relative)
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.Extend = func(navi *nav.NavigationInfo, entries *nav.DirectoryEntries) {
@@ -77,7 +76,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							return nil
 						},
 					}
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 
 				Fail("❌ expected panic due to item already being extended")
 			})
@@ -92,10 +96,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 				const relative = "RETRO-WAVE"
 				path := helpers.Path(root, relative)
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
@@ -110,7 +111,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							return item.Error
 						},
 					}
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 
 				Expect(len(recording)).To(Equal(2))
 				Expect(recording[0]).To(BeNil())
@@ -122,31 +128,35 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			It("🧪 should: invoke callback with immediate read error", func() {
 				const relative = "RETRO-WAVE"
 				path := helpers.Path(root, relative)
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeError
 					o.Store.DoExtend = true
 					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.Store.DoExtend, false)
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 
 			It("🧪 should: invoke callback with error at ...", func() {
 				const relative = "RETRO-WAVE"
 				path := helpers.Path(root, relative)
-				session := nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
 					o.Store.DoExtend = true
 					o.Callback = errorCallback("(FILES):ERR-AT", o.Store.DoExtend, false)
-				}).Run()
+				}
+				session := nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 		})
 	})
@@ -159,10 +169,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 			const relative = "RETRO-WAVE"
 			path := helpers.Path(root, relative)
-			session := &nav.PrimarySession{
-				Path: path,
-			}
-			_, _ = session.Configure(func(o *nav.TraverseOptions) {
+			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = entry.subscription
 				o.Hooks.Sort = func(entries []fs.DirEntry, _ ...any) error {
@@ -171,7 +178,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}
 				o.Store.DoExtend = true
 				o.Callback = errorCallback("SORT-ERR", o.Store.DoExtend, false)
-			}).Run()
+			}
+			session := &nav.PrimarySession{
+				Path:     path,
+				OptionFn: optionFn,
+			}
+			_, _ = session.Init().Run()
 
 			Fail("❌ expected panic due to sort error")
 		},
@@ -188,17 +200,19 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			It("🧪 should: halt traversal", func() {
 				const relative = "RETRO-WAVE"
 				path := helpers.Path(root, relative)
-				session := nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
 					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.Store.DoExtend, true)
-				}).Run()
+				}
+				session := nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 		})
 	})
@@ -214,10 +228,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				}
 				const relative = "RETRO-WAVE"
 				path := helpers.Path(root, relative)
-				session := nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.FilterDefs = &nav.FilterDefinitions{
 						Node: filterDef,
@@ -230,7 +241,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							return nil
 						},
 					}
-				}).Run()
+				}
+				session := nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 		})
 	})

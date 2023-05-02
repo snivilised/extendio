@@ -28,30 +28,34 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 		Context("folder navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
 				path := helpers.Path(root, "RETRO-WAVE")
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.DoExtend = true
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 		})
 
 		Context("universal navigator", func() {
 			It("🧪 should: not invoke skipped folder descendants", func() {
 				path := helpers.Path(root, "RETRO-WAVE")
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.DoExtend = true
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 		})
 	})
@@ -59,14 +63,16 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 	DescribeTable("skip",
 		func(entry *skipTE) {
 			path := helpers.Path(root, "RETRO-WAVE")
-			session := &nav.PrimarySession{
-				Path: path,
-			}
-			_, _ = session.Configure(func(o *nav.TraverseOptions) {
+			optionFn := func(o *nav.TraverseOptions) {
 				o.Store.Subscription = entry.subscription
 				o.Callback = skipFolderCallback("College", "Northern Council")
 				o.Notify.OnBegin = begin("🛡️")
-			}).Run()
+			}
+			session := &nav.PrimarySession{
+				Path:     path,
+				OptionFn: optionFn,
+			}
+			_, _ = session.Init().Run()
 		},
 		func(entry *skipTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

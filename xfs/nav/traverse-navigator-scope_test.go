@@ -42,15 +42,17 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 			}
 
 			path := helpers.Path(root, entry.relative)
-			session := &nav.PrimarySession{
-				Path: path,
-			}
-			_, _ = session.Configure(func(o *nav.TraverseOptions) {
+			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.DoExtend = true
 				o.Callback = scopeRecorder
-			}).Run()
+			}
+			session := &nav.PrimarySession{
+				Path:     path,
+				OptionFn: optionFn,
+			}
+			_, _ = session.Init().Run()
 
 			for name, expected := range entry.expectedScopes {
 				actual := recording[name]

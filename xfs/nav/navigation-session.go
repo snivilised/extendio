@@ -4,8 +4,9 @@ import (
 	xi18n "github.com/snivilised/extendio/i18n"
 )
 
-type traverseSession interface {
-	run() (*TraverseResult, error)
+type TraverseSession interface {
+	Init() NavigationRunner
+	Run() (*TraverseResult, error)
 }
 
 type NavigationRunner interface {
@@ -13,35 +14,31 @@ type NavigationRunner interface {
 }
 
 type sessionRunner struct {
-	session traverseSession
+	session TraverseSession
+}
+
+// Run executes the traversal session
+func (r *sessionRunner) Run() (*TraverseResult, error) {
+	return r.session.Run()
 }
 
 type primaryRunner struct {
 	sessionRunner
 }
 
-// Run invokes the traversal run for a primary session
-func (r *primaryRunner) Run() (*TraverseResult, error) {
-	return r.session.run()
-}
-
 type resumeRunner struct {
 	sessionRunner
 }
 
-// Run invokes the traversal run for a resume session
-func (r *resumeRunner) Run() (*TraverseResult, error) {
-	return r.session.run()
-}
-
+// PrimarySession
 type PrimarySession struct {
 	Path      string
+	OptionFn  TraverseOptionFn
 	navigator TraverseNavigator
 }
 
-// Configure is the pre run stage for a primary session
-func (s *PrimarySession) Configure(fn ...TraverseOptionFn) NavigationRunner {
-	s.navigator = navigatorFactory{}.new(fn...)
+func (s *PrimarySession) Init() NavigationRunner {
+	s.navigator = navigatorFactory{}.new(s.OptionFn)
 
 	return &primaryRunner{
 		sessionRunner: sessionRunner{
@@ -56,7 +53,7 @@ func (s *PrimarySession) Save(path string) error {
 	return s.navigator.save(path)
 }
 
-func (s *PrimarySession) run() (*TraverseResult, error) {
+func (s *PrimarySession) Run() (*TraverseResult, error) {
 	defer s.finish()
 
 	return s.navigator.walk(s.Path)
@@ -66,22 +63,45 @@ func (s *PrimarySession) finish() {
 	_ = s.navigator.finish()
 }
 
+// ResumeSession represents a traversal that is invoked as a result
+// of the user needing to resume a previously interrupted navigation
+// session.
 type ResumeSession struct {
 	Path     string
+	Restorer func(o *TraverseOptions, active *ActiveState)
 	Strategy ResumeStrategyEnum
 	resumer  *resumeController
 }
 
-// Configure is the pre run stage for a resume session
-func (s *ResumeSession) Configure(restore func(o *TraverseOptions, active *ActiveState)) NavigationRunner {
-	info := &ResumerInfo{
+func (s *ResumeSession) Init() NavigationRunner {
+	var err error
+
+	s.resumer, err = resumerFactory{}.new(&ResumerInfo{
+		RestorePath: s.Path,
+		Restorer:    s.Restorer,
+		Strategy:    s.Strategy,
+	})
+
+	if err != nil {
+		panic(xi18n.NewFailedToResumeFromFileError(s.Path, err))
+	}
+
+	return &resumeRunner{
+		sessionRunner: sessionRunner{
+			session: s,
+		},
+	}
+}
+
+// Restore is the pre run stage for a resume session
+func (s *ResumeSession) Restore(restore func(o *TraverseOptions, active *ActiveState)) NavigationRunner {
+	var err error
+
+	s.resumer, err = resumerFactory{}.new(&ResumerInfo{
 		RestorePath: s.Path,
 		Restorer:    restore,
 		Strategy:    s.Strategy,
-	}
-
-	var err error
-	s.resumer, err = resumerFactory{}.new(info)
+	})
 
 	if err != nil {
 		panic(xi18n.NewFailedToResumeFromFileError(s.Path, err))
@@ -100,7 +120,7 @@ func (s *ResumeSession) Save(path string) error {
 	return s.resumer.navigator.save(path)
 }
 
-func (s *ResumeSession) run() (*TraverseResult, error) {
+func (s *ResumeSession) Run() (*TraverseResult, error) {
 	defer s.finish()
 
 	return s.resumer.Continue()

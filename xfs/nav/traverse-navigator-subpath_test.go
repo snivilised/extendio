@@ -33,10 +33,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					"A1 - The Telephone Call.flac": helpers.Normalise("/Chromatics/Night Drive/"),
 				}
 				path := helpers.Path(root, "RETRO-WAVE")
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.Behaviours.SubPath.KeepTrailingSep = true
@@ -56,7 +53,12 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 							return nil
 						},
 					}
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 
 			When("using RootItemSubPath", func() {
@@ -68,10 +70,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						"03 - Lush 3-1.flac":          helpers.Normalise("/ELECTRONICA/Orbital/Orbital 2 (The Brown Album)/03 - Lush 3-1.flac"),
 					}
 					path := helpers.Path(root, "edm")
-					session := &nav.PrimarySession{
-						Path: path,
-					}
-					_, _ = session.Configure(func(o *nav.TraverseOptions) {
+					optionFn := func(o *nav.TraverseOptions) {
 						o.Notify.OnBegin = begin("🛡️")
 						o.Store.Subscription = nav.SubscribeAny
 						o.Hooks.FolderSubPath = nav.RootItemSubPath
@@ -91,7 +90,12 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 								return nil
 							},
 						}
-					}).Run()
+					}
+					session := &nav.PrimarySession{
+						Path:     path,
+						OptionFn: optionFn,
+					}
+					_, _ = session.Init().Run()
 				})
 			})
 		})
@@ -105,10 +109,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					"A1 - Before Life.flac": helpers.Normalise("/Electric Youth/Innerworld"),
 				}
 				path := helpers.Path(root, "RETRO-WAVE")
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Behaviours.SubPath.KeepTrailingSep = false
 					o.Store.Subscription = nav.SubscribeAny
@@ -126,7 +127,12 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 							return nil
 						},
 					}
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, _ = session.Init().Run()
 			})
 		})
 	})
