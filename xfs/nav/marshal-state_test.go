@@ -57,11 +57,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 		Context("given: correct config", func() {
 			It("🧪 should: write options in JSON", func() {
 				path := helpers.Path(root, "RETRO-WAVE")
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
@@ -71,9 +67,15 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 							return nil
 						},
 					}
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
 
+				_, _ = session.Init().Run()
 				err := session.Save(toJSONPath)
+
 				Expect(err).To(BeNil())
 			})
 		})
@@ -91,11 +93,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 				}()
 
 				path := helpers.Path(root, entry.relative)
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-
-				_, _ = session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
@@ -105,8 +103,13 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 							return nil
 						},
 					}
-				}).Run()
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
 
+				_, _ = session.Init().Run()
 				_ = session.Save(toJSONPath)
 
 				Fail(fmt.Sprintf("❌ expected panic due to %v", entry.errorContains))

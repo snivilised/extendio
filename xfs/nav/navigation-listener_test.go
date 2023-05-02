@@ -28,10 +28,7 @@ var _ = Describe("Listener", Ordered, func() {
 	DescribeTable("Listener",
 		func(entry *listenTE) {
 			path := helpers.Path(root, entry.relative)
-			session := &nav.PrimarySession{
-				Path: path,
-			}
-			_, _ = session.Configure(func(o *nav.TraverseOptions) {
+			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Store.Behaviours.Listen.InclusiveStart = entry.incStart
@@ -75,7 +72,12 @@ var _ = Describe("Listener", Ordered, func() {
 						return nil
 					},
 				}
-			}).Run()
+			}
+			var session nav.TraverseSession = &nav.PrimarySession{
+				Path:     path,
+				OptionFn: optionFn,
+			}
+			_, _ = session.Init().Run()
 
 			reason := fmt.Sprintf("❌ remaining: '%v'", strings.Join(entry.mandatory, ", "))
 			Expect(len(entry.mandatory)).To(Equal(0), reason)
@@ -210,10 +212,7 @@ var _ = Describe("Listener", Ordered, func() {
 	Context("given: Early Exit", func() {
 		It("should: exit early (folders)", func() {
 			path := helpers.Path(root, "")
-			session := &nav.PrimarySession{
-				Path: path,
-			}
-			_, _ = session.Configure(func(o *nav.TraverseOptions) {
+			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFolders
 				o.Store.ListenDefs = nav.ListenDefinitions{
@@ -229,15 +228,18 @@ var _ = Describe("Listener", Ordered, func() {
 				}
 				o.Store.DoExtend = true
 				o.Callback = foldersCallback("EARLY-EXIT-😴", o.Store.DoExtend)
-			}).Run()
+			}
+			session := &nav.PrimarySession{
+				Path:     path,
+				OptionFn: optionFn,
+			}
+
+			_, _ = session.Init().Run()
 		})
 
 		It("should: exit early (files)", func() {
 			path := helpers.Path(root, "")
-			session := &nav.PrimarySession{
-				Path: path,
-			}
-			_, _ = session.Configure(func(o *nav.TraverseOptions) {
+			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = nav.SubscribeFiles
 				o.Store.ListenDefs = nav.ListenDefinitions{
@@ -253,7 +255,12 @@ var _ = Describe("Listener", Ordered, func() {
 				}
 				o.Store.DoExtend = true
 				o.Callback = filesCallback("EARLY-EXIT-😴", o.Store.DoExtend)
-			}).Run()
+			}
+			session := &nav.PrimarySession{
+				Path:     path,
+				OptionFn: optionFn,
+			}
+			_, _ = session.Init().Run()
 		})
 	})
 
@@ -261,10 +268,7 @@ var _ = Describe("Listener", Ordered, func() {
 		Context("given: filter and listen both active", func() {
 			It("🧪 should: apply filter within the listen range", func() {
 				path := helpers.Path(root, "edm/ELECTRONICA")
-				session := &nav.PrimarySession{
-					Path: path,
-				}
-				result, _ := session.Configure(func(o *nav.TraverseOptions) {
+				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.FilterDefs = &nav.FilterDefinitions{
@@ -321,8 +325,12 @@ var _ = Describe("Listener", Ordered, func() {
 						},
 					}
 					o.Store.Logging = logo()
-				}).Run()
-
+				}
+				session := &nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				result, _ := session.Init().Run()
 				files := (*result.Metrics)[nav.MetricNoFilesEn].Count
 				folders := (*result.Metrics)[nav.MetricNoFoldersEn].Count
 
