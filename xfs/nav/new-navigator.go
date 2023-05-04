@@ -41,6 +41,7 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 		o:         o,
 		doInvoke:  doInvoke,
 		deFactory: deFactory,
+		handler:   &notifyCallbackErrorHandler{},
 	})
 	logger := f.makeLogger(o)
 

@@ -14,12 +14,14 @@ type agentFactoryParams struct {
 	doInvoke  bool
 	o         *TraverseOptions
 	deFactory directoryEntriesFactory
+	handler   fileSystemErrorHandler
 }
 
 func (agentFactory) new(params *agentFactoryParams) *navigationAgent {
 	instance := navigationAgent{
 		doInvoke: utils.NewRoProp(params.doInvoke),
 		o:        params.o,
+		handler:  params.handler,
 	}
 
 	return &instance
@@ -29,6 +31,7 @@ type navigationAgent struct {
 	doInvoke  utils.RoProp[bool]
 	o         *TraverseOptions
 	deFactory directoryEntriesFactory
+	handler   fileSystemErrorHandler
 }
 
 type agentTopParams struct {
@@ -45,12 +48,13 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 	var le error
 
 	if err != nil {
-		item := &TraverseItem{
-			Path: params.top, Info: info, Error: xi18n.NewThirdPartyErr(err),
-			Children: []fs.DirEntry{},
-		}
-
-		le = a.proxy(item, params.frame)
+		le = a.handler.accept(&fileSystemErrorParams{
+			err:   err,
+			path:  params.top,
+			info:  info,
+			agent: a,
+			frame: params.frame,
+		})
 	} else {
 		item := &TraverseItem{
 			Path: params.top, Info: info,
@@ -64,9 +68,7 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 	}
 
 	result := params.frame.collate()
-	if QuerySkipDirError(le) {
-		result.err = le
-	}
+	result.err = le
 
 	return result, result.err
 }
@@ -165,12 +167,25 @@ func (a *navigationAgent) proxy(item *TraverseItem, frame *navigationFrame) erro
 	// can be decorated. Only the callback on the frame should ever be invoked.
 	//
 	frame.currentPath.Set(item.Path)
-	result := frame.client.Fn(item)
+	clientErr := frame.client.Fn(item)
 
-	if !item.skip {
+	if !item.skip && item.Error == nil {
 		metricEn := lo.Ternary(item.IsDir(), MetricNoFoldersEn, MetricNoFilesEn)
 		frame.metrics.tick(metricEn)
 	}
 
-	return result
+	if clientErr == nil && item.Error == nil {
+		return nil
+	}
+
+	var resultErr error
+
+	switch {
+	case item.Error != nil:
+		resultErr = item.Error
+	default:
+		resultErr = clientErr
+	}
+
+	return resultErr
 }

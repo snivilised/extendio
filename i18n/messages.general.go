@@ -9,7 +9,7 @@ type InternationalisationTemplData struct {
 
 func (td InternationalisationTemplData) Message() *Message {
 	return &Message{
-		ID:          "internationalisation.general.extendio",
+		ID:          "internationalisation.general",
 		Description: "Internationalisation",
 		Other:       "internationalisation",
 	}
@@ -24,7 +24,7 @@ type LocalisationTemplData struct {
 
 func (td LocalisationTemplData) Message() *Message {
 	return &Message{
-		ID:          "localisation.general.extendio",
+		ID:          "localisation.general",
 		Description: "Localisation",
 		Other:       "localisation",
 	}
