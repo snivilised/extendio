@@ -89,7 +89,6 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	})
 
 	Context("read error", func() {
-
 		Context("navigator-folders", func() {
 			It("🧪 should: invoke callback with error", func() {
 				recording := []error{}
@@ -219,7 +218,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 	Context("Extension error", func() {
 		When("filter defined without setting DoExtend=true", func() {
-			It("should: not panic", func() {
+			It("🧪 should: not panic", func() {
 				filterDef := nav.FilterDef{
 					Type:        nav.FilterTypeGlobEn,
 					Description: "flac files",
@@ -247,6 +246,58 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					OptionFn: optionFn,
 				}
 				_, _ = session.Init().Run()
+			})
+		})
+	})
+
+	Context("Path not found error", func() {
+		When("client callback does NOT return an error", func() {
+			It("🧪 should: return path not found error", func() {
+				const path = "/foo"
+				optionFn := func(o *nav.TraverseOptions) {
+					o.Store.Subscription = nav.SubscribeAny
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test callback",
+						Fn: func(item *nav.TraverseItem) error {
+							GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
+							return nil
+						},
+					}
+				}
+				session := nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, err := session.Init().Run()
+				query := QueryPathNotFoundError(err)
+				Expect(query).To(BeTrue(),
+					fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
+				)
+			})
+		})
+
+		When("client callback also returns an error", func() {
+			It("🧪 should: return path not found error", func() {
+				const path = "/foo"
+				optionFn := func(o *nav.TraverseOptions) {
+					o.Store.Subscription = nav.SubscribeAny
+					o.Callback = nav.LabelledTraverseCallback{
+						Label: "test callback",
+						Fn: func(item *nav.TraverseItem) error {
+							GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
+							return errors.New("client callback error")
+						},
+					}
+				}
+				session := nav.PrimarySession{
+					Path:     path,
+					OptionFn: optionFn,
+				}
+				_, err := session.Init().Run()
+				query := QueryPathNotFoundError(err)
+				Expect(query).To(BeTrue(),
+					fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
+				)
 			})
 		})
 	})

@@ -101,7 +101,7 @@ type FailedToReadDirectoryContentsTemplData struct {
 
 func (td FailedToReadDirectoryContentsTemplData) Message() *Message {
 	return &Message{
-		ID:          "failed-to-read-directory-contents.extendio.nav",
+		ID:          "failed-to-read-directory-contents.error",
 		Description: "Failed to read directory contents from the path specified",
 		Other:       "failed to read directory contents '{{.Path}}' (reason: {{.Reason}})",
 	}
@@ -152,7 +152,7 @@ type FailedToResumeFromFileTemplData struct {
 
 func (td FailedToResumeFromFileTemplData) Message() *Message {
 	return &Message{
-		ID:          "failed-to-resume-from-file.extendio.nav",
+		ID:          "failed-to-resume-from-file.error",
 		Description: "Failed to resume traverse operation from the resume file specified",
 		Other:       "failed to resume from file '{{.Path}}' (reason: {{.Reason}})",
 	}
@@ -203,7 +203,7 @@ type InvalidConfigEntryTemplData struct {
 
 func (td InvalidConfigEntryTemplData) Message() *Message {
 	return &Message{
-		ID:          "invalid-config.entry.extendio.nav",
+		ID:          "invalid-config-entry.error",
 		Description: "Invalid entry specified in config at the location specified",
 		Other:       "invalid entry '{{.Value}}' specified in config at {{.At}}",
 	}
@@ -253,7 +253,7 @@ type InvalidResumeStrategyTemplData struct {
 
 func (td InvalidResumeStrategyTemplData) Message() *Message {
 	return &Message{
-		ID:          "invalid-resume-strategy.internal.extendio.nav",
+		ID:          "invalid-resume-strategy.internal.error",
 		Description: "Invalid resume strategy specified",
 		Other:       "invalid resume strategy '{{.Value}}' specified",
 	}
@@ -301,7 +301,7 @@ type MissingCallbackTemplData struct {
 
 func (td MissingCallbackTemplData) Message() *Message {
 	return &Message{
-		ID:          "missing-callback.internal.extendio",
+		ID:          "missing-callback.internal.error",
 		Description: "Missing callback (internal error)",
 		Other:       "missing callback (internal error)",
 	}
@@ -350,7 +350,7 @@ type MissingCustomFilterDefinitionTemplData struct {
 
 func (td MissingCustomFilterDefinitionTemplData) Message() *Message {
 	return &Message{
-		ID:          "missing-custom-filter-definition.config.extendio",
+		ID:          "missing-custom-filter-definition.config.error",
 		Description: "Missing custom filter definition (config error)",
 		Other:       "missing custom filter definition at {{.At}} (config error)",
 	}
@@ -391,6 +391,57 @@ func QueryMissingCustomFilterDefinitionError(target error) bool {
 	return QueryGeneric[MissingCustomFilterDefinitionBehaviourQuery]("MissingCustomFilterDefinition", target)
 }
 
+// ❌ PathNotFound indicates path does not exist
+
+// PathNotFoundTemplData is
+type PathNotFoundTemplData struct {
+	ExtendioTemplData
+	Name string
+	Path string
+}
+
+func (td PathNotFoundTemplData) Message() *Message {
+	return &Message{
+		ID:          "path-not-found.error",
+		Description: "Directory or file path is does not exist",
+		Other:       "{{.Name}} path not found ({{.Path}})",
+	}
+}
+
+// PathNotFoundErrorBehaviourQuery used to query if an error is:
+// "File system foo is ..."
+type PathNotFoundErrorBehaviourQuery interface {
+	IsPathNotFound() bool
+}
+
+type PathNotFoundError struct {
+	LocalisableError
+}
+
+// PathNotFound enables the client to check if error is PathNotFoundError
+// via QueryPathNotFoundError
+func (e PathNotFoundError) IsPathNotFound() bool {
+	return true
+}
+
+// NewPathNotFoundError creates a PathNotFoundError
+func NewPathNotFoundError(name, path string) PathNotFoundError {
+	return PathNotFoundError{
+		LocalisableError: LocalisableError{
+			Data: PathNotFoundTemplData{
+				Name: name,
+				Path: path,
+			},
+		},
+	}
+}
+
+// QueryPathNotFoundError helper function to enable identification of
+// an error via its behaviour, rather than by its type.
+func QueryPathNotFoundError(target error) bool {
+	return QueryGeneric[PathNotFoundErrorBehaviourQuery]("IsPathNotFound", target)
+}
+
 // ❌ Not A Directory
 
 // NotADirectoryTemplData path is not a directory
@@ -401,7 +452,7 @@ type NotADirectoryTemplData struct {
 
 func (td NotADirectoryTemplData) Message() *Message {
 	return &Message{
-		ID:          "not-a-directory.extendio.nav",
+		ID:          "not-a-directory.error",
 		Description: "File system path is not a directory",
 		Other:       "file system path '{{.Path}}', is not a directory",
 	}
@@ -449,7 +500,7 @@ type SortFnFailedTemplData struct {
 
 func (td SortFnFailedTemplData) Message() *Message {
 	return &Message{
-		ID:          "sort-fn-failed.internal.extendio.nav",
+		ID:          "sort-fn-failed.internal.error",
 		Description: "Sort function failed (internal error)",
 		Other:       "sort function failed (internal error)",
 	}
@@ -496,7 +547,7 @@ type TerminateTraverseTemplData struct {
 
 func (td TerminateTraverseTemplData) Message() *Message {
 	return &Message{
-		ID:          "terminate-traverse.extendio.nav",
+		ID:          "terminate-traverse.error",
 		Description: "Traversal terminated",
 		Other:       "terminate traversal: '{{.Reason}}'",
 	}
@@ -545,7 +596,7 @@ type ThirdPartyErrorTemplData struct {
 
 func (td ThirdPartyErrorTemplData) Message() *Message {
 	return &Message{
-		ID:          "third-party-error.extendio",
+		ID:          "third-party.error",
 		Description: "These errors are generated by dependencies that don't support localisation",
 		Other:       "third party error: '{{.Error}}'",
 	}
@@ -579,7 +630,7 @@ type UnknownMarshalFormatTemplData struct {
 
 func (td UnknownMarshalFormatTemplData) Message() *Message {
 	return &Message{
-		ID:          "unknown-marshal-format.config.extendio.nav",
+		ID:          "unknown-marshal-format.config.error",
 		Description: "Unknown marshal format specified",
 		Other:       "unknown marshal format {{.Format}} specified at {{.At}}",
 	}

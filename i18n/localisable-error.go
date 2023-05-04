@@ -14,6 +14,10 @@ func (le LocalisableError) Error() string {
 }
 
 func QueryGeneric[T any](method string, target error) bool {
+	if target == nil {
+		return false
+	}
+
 	nativeIf, ok := target.(T)
 
 	if !ok {
