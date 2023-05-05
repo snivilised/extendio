@@ -162,3 +162,8 @@ type CompoundFilterDef struct {
 	// PersistenceRestorer)
 	Custom CompoundTraverseFilter `json:"-"`
 }
+
+type compoundCounters struct {
+	filteredIn  uint
+	filteredOut uint
+}

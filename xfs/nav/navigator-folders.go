@@ -27,12 +27,15 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 		)
 	}()
 
+	var compoundCounts *compoundCounters
+
 	navi := &NavigationInfo{
 		Options: n.o,
 		Item:    params.item,
 		Frame:   params.frame,
 	}
 	n.descend(navi)
+
 	// for the folders navigator, we ignore the user defined setting in
 	// n.o.Store.Behaviours.Sort.DirectoryEntryOrder, as we're only interested in
 	// folders and therefore force to use DirectoryEntryOrderFoldersFirstEn instead
@@ -46,6 +49,9 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 	if n.o.Store.Subscription == SubscribeFoldersWithFiles {
 		var files []fs.DirEntry
 
+		allFilesCount := len(entries.Files)
+		filteredIn := 0
+
 		if params.frame.filters == nil {
 			files = entries.Files
 		} else {
@@ -53,6 +59,12 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 				func() []fs.DirEntry { return entries.Files },
 				func() []fs.DirEntry { return params.frame.filters.Children.Matching(entries.Files) },
 			)
+			filteredIn = len(files)
+		}
+
+		compoundCounts = &compoundCounters{
+			filteredIn:  uint(filteredIn),
+			filteredOut: uint(allFilesCount - filteredIn),
 		}
 
 		entries.sort(&files)
@@ -61,7 +73,11 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 
 	n.o.Hooks.Extend(navi, entries)
 
-	if le := n.agent.proxy(params.item, params.frame); le != nil ||
+	if le := n.agent.proxy(&agentProxyParams{
+		item:           params.item,
+		frame:          params.frame,
+		compoundCounts: compoundCounts,
+	}); le != nil ||
 		(params.item.Entry != nil && !params.item.Entry.IsDir()) {
 		if QuerySkipDirError(le) && params.item.Entry.IsDir() {
 			// Successfully skipped directory

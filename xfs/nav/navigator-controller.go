@@ -47,7 +47,7 @@ func (c *navigatorController) walk(root string) (*TraverseResult, error) {
 	result, err := c.impl.top(c.frame, root)
 
 	fields := []log.Field{}
-	for _, m := range *result.Metrics {
+	for _, m := range result.Metrics.collection {
 		fields = append(fields, log.Uint(m.Name, m.Count))
 	}
 

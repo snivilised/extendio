@@ -331,8 +331,8 @@ var _ = Describe("Listener", Ordered, func() {
 					OptionFn: optionFn,
 				}
 				result, _ := session.Init().Run()
-				files := (*result.Metrics)[nav.MetricNoFilesEn].Count
-				folders := (*result.Metrics)[nav.MetricNoFoldersEn].Count
+				files := result.Metrics.Count(nav.MetricNoFilesInvokedEn)
+				folders := result.Metrics.Count(nav.MetricNoFoldersInvokedEn)
 
 				GinkgoWriter.Printf("---> 🍕🍕 Metrics, files:'%v', folders:'%v'\n",
 					files, folders,

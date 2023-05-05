@@ -298,8 +298,8 @@ var _ = Describe("Resume", Ordered, func() {
 				}
 
 				invocations[strategyEn] = &strategyInvokeInfo{
-					files:   (*result.Metrics)[nav.MetricNoFilesEn].Count,
-					folders: (*result.Metrics)[nav.MetricNoFoldersEn].Count,
+					files:   result.Metrics.Count(nav.MetricNoFilesInvokedEn),
+					folders: result.Metrics.Count(nav.MetricNoFoldersInvokedEn),
 				}
 			}
 

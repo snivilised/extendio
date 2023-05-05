@@ -107,7 +107,10 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (bool, error) {
 
 			// Second call, to report ReadDir error
 			//
-			if le := a.proxy(item2, params.frame); le != nil {
+			if le := a.proxy(&agentProxyParams{
+				item:  item2,
+				frame: params.frame,
+			}); le != nil {
 				if QuerySkipDirError(params.readErr) && (item2.Entry != nil && item2.Entry.IsDir()) {
 					params.readErr = nil
 				}
@@ -160,29 +163,46 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) error {
 	return nil
 }
 
-func (a *navigationAgent) proxy(item *TraverseItem, frame *navigationFrame) error {
+type agentProxyParams struct {
+	item           *TraverseItem
+	frame          *navigationFrame
+	compoundCounts *compoundCounters
+}
+
+func (a *navigationAgent) proxy(params *agentProxyParams) error {
 	// proxy is the correct way to invoke the client callback, because it takes into
 	// account any active decorations such as listening and filtering. It should be noted
 	// that the Callback on the options represents the client defined function which
 	// can be decorated. Only the callback on the frame should ever be invoked.
 	//
-	frame.currentPath.Set(item.Path)
-	clientErr := frame.client.Fn(item)
+	params.frame.currentPath.Set(params.item.Path)
+	clientErr := params.frame.client.Fn(params.item)
+	isDirectory := params.item.IsDir()
 
-	if !item.skip && item.Error == nil {
-		metricEn := lo.Ternary(item.IsDir(), MetricNoFoldersEn, MetricNoFilesEn)
-		frame.metrics.tick(metricEn)
+	if params.item.Error == nil {
+		if params.item.filteredOut {
+			metricEn := lo.Ternary(isDirectory, MetricNoFoldersFilteredOutEn, MetricNoFilesFilteredOutEn)
+			params.frame.metrics.tick(metricEn)
+		} else {
+			metricEn := lo.Ternary(isDirectory, MetricNoFoldersInvokedEn, MetricNoFilesInvokedEn)
+			params.frame.metrics.tick(metricEn)
+		}
+
+		if params.compoundCounts != nil {
+			params.frame.metrics.post(MetricNoChildFilesFoundEn, params.compoundCounts.filteredIn)
+			params.frame.metrics.post(MetricNoChildFilesFilteredOutEn, params.compoundCounts.filteredOut)
+		}
 	}
 
-	if clientErr == nil && item.Error == nil {
+	if clientErr == nil && params.item.Error == nil {
 		return nil
 	}
 
 	var resultErr error
 
 	switch {
-	case item.Error != nil:
-		resultErr = item.Error
+	case params.item.Error != nil:
+		resultErr = params.item.Error
 	default:
 		resultErr = clientErr
 	}

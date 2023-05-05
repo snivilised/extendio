@@ -1,12 +1,16 @@
 package nav
 
 import (
+	"time"
+
 	xi18n "github.com/snivilised/extendio/i18n"
 )
 
 type TraverseSession interface {
 	Init() NavigationRunner
 	Run() (*TraverseResult, error)
+	StartedAt() time.Time
+	Elapsed() time.Duration
 }
 
 type NavigationRunner interface {
@@ -30,8 +34,22 @@ type resumeRunner struct {
 	sessionRunner
 }
 
+type session struct {
+	startAt  time.Time
+	duration time.Duration
+}
+
+func (s *session) start() {
+	s.startAt = time.Now()
+}
+
+func (s *session) finish(_ *TraverseResult, _ error) {
+	s.duration = time.Since(s.startAt)
+}
+
 // PrimarySession
 type PrimarySession struct {
+	session
 	Path      string
 	OptionFn  TraverseOptionFn
 	navigator TraverseNavigator
@@ -53,13 +71,25 @@ func (s *PrimarySession) Save(path string) error {
 	return s.navigator.save(path)
 }
 
-func (s *PrimarySession) Run() (*TraverseResult, error) {
-	defer s.finish()
+func (s *PrimarySession) Run() (result *TraverseResult, err error) {
+	defer s.finish(result, err)
+
+	s.session.start()
 
 	return s.navigator.walk(s.Path)
 }
 
-func (s *PrimarySession) finish() {
+func (s *PrimarySession) StartedAt() time.Time {
+	return s.startAt
+}
+
+func (s *PrimarySession) Elapsed() time.Duration {
+	return s.duration
+}
+
+func (s *PrimarySession) finish(result *TraverseResult, err error) {
+	defer s.session.finish(result, err)
+
 	_ = s.navigator.finish()
 }
 
@@ -67,6 +97,7 @@ func (s *PrimarySession) finish() {
 // of the user needing to resume a previously interrupted navigation
 // session.
 type ResumeSession struct {
+	session
 	Path     string
 	Restorer func(o *TraverseOptions, active *ActiveState)
 	Strategy ResumeStrategyEnum
@@ -120,12 +151,24 @@ func (s *ResumeSession) Save(path string) error {
 	return s.resumer.navigator.save(path)
 }
 
-func (s *ResumeSession) Run() (*TraverseResult, error) {
-	defer s.finish()
+func (s *ResumeSession) Run() (result *TraverseResult, err error) {
+	defer s.finish(result, err)
+
+	s.session.start()
 
 	return s.resumer.Continue()
 }
 
-func (s *ResumeSession) finish() {
+func (s *ResumeSession) StartedAt() time.Time {
+	return s.startAt
+}
+
+func (s *ResumeSession) Elapsed() time.Duration {
+	return s.duration
+}
+
+func (s *ResumeSession) finish(result *TraverseResult, err error) {
+	defer s.session.finish(result, err)
+
 	_ = s.resumer.finish()
 }

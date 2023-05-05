@@ -11,7 +11,7 @@ type navigationFrame struct {
 	filters     *NavigationFilters
 	notifiers   notificationsSink
 	periscope   *navigationPeriscope
-	metrics     *navigationMetrics
+	metrics     *NavigationMetrics
 }
 
 // attach/decorate
@@ -55,7 +55,7 @@ func (f *navigationFrame) save(active *ActiveState) {
 
 func (f *navigationFrame) collate() *TraverseResult {
 	return &TraverseResult{
-		Metrics: &f.metrics._metrics,
+		Metrics: f.metrics,
 	}
 }
 

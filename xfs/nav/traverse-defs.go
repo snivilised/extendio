@@ -25,19 +25,23 @@ type ExtendedItem struct {
 // to know that when its function is called back, they will be no DirEntry
 // for the root entity.
 type TraverseItem struct {
-	Path      string
-	Entry     fs.DirEntry   // contains a FileInfo via Info() function
-	Info      fs.FileInfo   // optional file info instance
-	Extension *ExtendedItem // extended information about the file system node, if requested
-	Error     error
-	Children  []fs.DirEntry
-	skip      bool
+	Path        string
+	Entry       fs.DirEntry   // contains a FileInfo via Info() function
+	Info        fs.FileInfo   // optional file info instance
+	Extension   *ExtendedItem // extended information about the file system node, if requested
+	Error       error
+	Children    []fs.DirEntry
+	filteredOut bool
 }
 
 // clone makes shallow copy of TraverseItem (except the error).
 func (ti *TraverseItem) clone() *TraverseItem {
 	return &TraverseItem{
-		Path: ti.Path, Entry: ti.Entry, Info: ti.Info, Extension: ti.Extension, Children: ti.Children,
+		Path:      ti.Path,
+		Entry:     ti.Entry,
+		Info:      ti.Info,
+		Extension: ti.Extension,
+		Children:  ti.Children,
 	}
 }
 
@@ -83,8 +87,9 @@ type EndHandler func(_ *TraverseResult)
 
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
-	Metrics *MetricCollection
-	err     error
+	Metrics *NavigationMetrics
+	// collection *MetricCollection
+	err error
 }
 
 func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
@@ -96,8 +101,8 @@ func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
 		if r.Metrics == nil {
 			r.Metrics = other.Metrics
 		} else {
-			for k, v := range *other.Metrics {
-				(*r.Metrics)[k].Count += v.Count
+			for k, v := range other.Metrics.collection {
+				(r.Metrics.collection)[k].Count += v.Count
 			}
 		}
 	}

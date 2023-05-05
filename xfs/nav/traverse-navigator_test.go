@@ -67,6 +67,9 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				}
 				result, _ := session.Init().Run()
 
+				_ = session.StartedAt()
+				_ = session.Elapsed()
+
 				if entry.visit {
 					_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
 						if subscribes(entry.subscription, de) {
@@ -84,9 +87,9 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					Expect(every).To(BeTrue())
 				}
 
-				Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+				Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
 					"Incorrect no of files")
-				Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+				Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
 					"Incorrect no of folders")
 			},
 			func(entry *naviTE) string {
@@ -345,9 +348,9 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(n))
 			}
 
-			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
 				"Incorrect no of files")
-			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
 				"Incorrect no of folders")
 		},
 		func(entry *naviTE) string {

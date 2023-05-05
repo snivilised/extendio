@@ -59,7 +59,10 @@ func (n *filesNavigator) traverse(params *traverseParams) error {
 
 		// Effectively, this is the file only filter
 		//
-		return n.agent.proxy(params.item, params.frame)
+		return n.agent.proxy(&agentProxyParams{
+			item:  params.item,
+			frame: params.frame,
+		})
 	}
 
 	if exit, err := n.agent.notify(&agentNotifyParams{

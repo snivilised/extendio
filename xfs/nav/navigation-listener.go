@@ -94,7 +94,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 					panic(NewMissingListenDetacherFunctionNativeError("fastward"))
 				}
 
-				item.skip = true
+				item.filteredOut = true
 
 				return nil
 			},
