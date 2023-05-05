@@ -33,12 +33,15 @@ func (h *notifyCallbackErrorHandler) accept(params *fileSystemErrorParams) error
 		},
 	)
 
-	callbackErr := params.agent.proxy(&TraverseItem{
-		Path:     params.path,
-		Info:     params.info,
-		Error:    err,
-		Children: []fs.DirEntry{},
-	}, params.frame)
+	callbackErr := params.agent.proxy(&agentProxyParams{
+		item: &TraverseItem{
+			Path:     params.path,
+			Info:     params.info,
+			Error:    err,
+			Children: []fs.DirEntry{},
+		},
+		frame: params.frame,
+	})
 
 	return callbackErr
 }

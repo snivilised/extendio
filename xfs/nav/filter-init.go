@@ -26,7 +26,7 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 						return decorated.Fn(item)
 					}
 
-					item.skip = true
+					item.filteredOut = true
 					return nil
 				},
 			}

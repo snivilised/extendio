@@ -51,11 +51,12 @@ func (n *universalNavigator) traverse(params *traverseParams) error {
 	sorted := entries.all()
 	n.o.Hooks.Extend(navi, entries)
 
-	if le := n.agent.proxy(params.item, params.frame); le != nil ||
+	if le := n.agent.proxy(&agentProxyParams{
+		item:  params.item,
+		frame: params.frame,
+	}); le != nil ||
 		(params.item.Entry != nil && !params.item.Entry.IsDir()) {
 		if QuerySkipDirError(le) && params.item.Entry.IsDir() {
-			// Successfully skipped directory
-			//
 			le = nil
 		}
 

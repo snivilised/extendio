@@ -96,9 +96,9 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				}
 			}
 
-			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
 				"Incorrect no of files")
-			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
 				"Incorrect no of folders")
 		},
 		func(entry *filterTE) string {
@@ -301,9 +301,9 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(n))
 			}
 
-			Expect((*result.Metrics)[nav.MetricNoFilesEn].Count).To(Equal(entry.expectedNoOf.files),
+			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
 				"Incorrect no of files")
-			Expect((*result.Metrics)[nav.MetricNoFoldersEn].Count).To(Equal(entry.expectedNoOf.folders),
+			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
 				"Incorrect no of folders")
 		},
 		func(entry *filterTE) string {
