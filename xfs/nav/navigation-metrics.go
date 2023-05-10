@@ -9,7 +9,7 @@ const (
 	//
 	MetricNoFilesInvokedEn MetricEnum = iota
 
-	// MetricNoFilesFilteredOutEn
+	// MetricNoFilesFilteredOutEn represents the no of files filtered out
 	//
 	MetricNoFilesFilteredOutEn
 
@@ -17,7 +17,7 @@ const (
 	//
 	MetricNoFoldersInvokedEn
 
-	// MetricNoFoldersFilteredOutEn
+	// MetricNoFoldersFilteredOutEn represents the no of folders filtered out
 	//
 	MetricNoFoldersFilteredOutEn
 
