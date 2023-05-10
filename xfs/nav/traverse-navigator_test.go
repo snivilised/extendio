@@ -327,11 +327,8 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					}
 					return nil
 				})
-			}
 
-			if entry.visit {
 				every := lo.EveryBy(visited, func(p string) bool {
-
 					segments := strings.Split(p, string(filepath.Separator))
 					name, err := lo.Last(segments)
 
@@ -345,13 +342,20 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			}
 
 			for n, actualNoChildren := range entry.expectedNoOf.children {
-				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(n))
+				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(
+					fmt.Sprintf("folder: '%v'", n)),
+				)
 			}
 
 			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
 				"Incorrect no of files")
 			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
 				"Incorrect no of folders")
+
+			sum := lo.Sum(lo.Values(entry.expectedNoOf.children))
+			Expect(result.Metrics.Count(nav.MetricNoChildFilesFoundEn)).To(Equal(uint(sum)),
+				helpers.Reason("Incorrect total no of child files"),
+			)
 		},
 		func(entry *naviTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

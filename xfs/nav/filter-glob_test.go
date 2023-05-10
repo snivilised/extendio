@@ -99,6 +99,11 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				"Incorrect no of files")
 			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
 				"Incorrect no of folders")
+
+			sum := lo.Sum(lo.Values(entry.expectedNoOf.children))
+			Expect(result.Metrics.Count(nav.MetricNoChildFilesFoundEn)).To(Equal(uint(sum)),
+				helpers.Reason("Incorrect total no of child files"),
+			)
 		},
 		func(entry *filterTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

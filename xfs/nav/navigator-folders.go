@@ -50,7 +50,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 		var files []fs.DirEntry
 
 		allFilesCount := len(entries.Files)
-		filteredIn := 0
+		filteredIn := allFilesCount
 
 		if params.frame.filters == nil {
 			files = entries.Files
