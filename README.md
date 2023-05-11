@@ -359,6 +359,14 @@ The ___Start___ and ___Stop___ conditions are defined using `ListenBy`, eg:
 
 ## 🔨 Development
 
+___RxGo___
+
+<p align="left">
+  <a href="https://rxjs.dev/guide/overview"><img src="https://avatars.githubusercontent.com/u/6407041?s=200&v=4" width="50" /></a>
+</p>
+
+To support concurrency features, Extendio uses the reactive model provided by [RxGo](https://github.com/ReactiveX/RxGo). However, since ___RxGo___ seems to be a dead project with its last release in April 2021 and its unit tests not currently running successfully, the decision has been made to re-implement this locally. One of the main reasons for the project no longer being actively maintained is the release of generics feature in Go version 1.18, and supporting generics in RxGo would require significant effort to re-write the entire library. While work on this has begun, it's unclear when this will be delivered. Despite this, the reactive model's support for concurrency is highly valued, and Extendio aims to make use of a minimal functionality set for parallel processing during directory traversal. The goal is to replace it with the next version of RxGo when it becomes available.
+
 See:
 
 - [Github Development Workflow](./resources/doc/GITHUB-DEV.md)

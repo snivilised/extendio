@@ -14,6 +14,7 @@ require (
 require (
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
+	go.uber.org/goleak v1.2.1 // indirect
 	golang.org/x/tools v0.8.0 // indirect
 )
 
@@ -23,6 +24,7 @@ require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/pkg/errors v0.9.1
+	github.com/teivah/onecontext v1.3.0
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
