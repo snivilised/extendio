@@ -1,10 +1,13 @@
-//nolint:gocritic // commented out code
-package rx_test
+//nolint:gocritic,revive,wsl,nolintlint,staticcheck // commented out code
+package rxgo_test
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/snivilised/extendio/rx"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"github.com/snivilised/extendio/rxgo"
 )
 
 // AssertPredicate is a custom predicate based on the items.
@@ -190,93 +193,91 @@ func parseAssertions[T any](assertions ...RxAssert[T]) RxAssert[T] {
 	return ass
 }
 
-// Assert asserts the result of an iterable against a list of assertions.
-func Assert[T any](_ context.Context, _ rx.Iterable[T], _ ...RxAssert[T]) {
-	// 	ass := parseAssertions(assertions...)
+func Assert[T any](ctx context.Context, iterable rxgo.Iterable[T], assertions ...RxAssert[T]) (bool, error) {
+	ass := parseAssertions(assertions...)
+	got := make([]T, 0)
+	errs := make([]error, 0)
+	observe := iterable.Observe()
 
-	// 	got := make([]interface{}, 0)
-	// 	errs := make([]error, 0)
+loop:
+	for {
+		select {
+		case <-ctx.Done():
+			break loop
+		case item, ok := <-observe:
+			if !ok {
+				break loop
+			}
+			if item.Error() {
+				errs = append(errs, item.E)
+			} else {
+				got = append(got, item.V)
+			}
+		}
+	}
 
-	// 	observe := iterable.Observe()
-	// loop:
-	// 	for {
-	// 		select {
-	// 		case <-ctx.Done():
-	// 			break loop
-	// 		case item, ok := <-observe:
-	// 			if !ok {
-	// 				break loop
-	// 			}
-	// 			if item.Error() {
-	// 				errs = append(errs, item.E)
-	// 			} else {
-	// 				got = append(got, item.V)
-	// 			}
-	// 		}
-	// 	}
+	if checked, predicates := ass.customPredicatesToBeChecked(); checked {
+		for _, predicate := range predicates {
+			err := predicate(got)
+			if err != nil {
+				Fail(err.Error())
+			}
+		}
+	}
+	if checkHasItems, expectedItems := ass.itemsToBeChecked(); checkHasItems {
+		Expect(got).To(Equal(expectedItems))
+	}
+	if checkHasItemsNoOrder, itemsNoOrder := ass.itemsNoOrderedToBeChecked(); checkHasItemsNoOrder {
+		m := make(map[interface{}]interface{})
+		for _, v := range itemsNoOrder {
+			m[v] = nil
+		}
 
-	// 	if checked, predicates := ass.customPredicatesToBeChecked(); checked {
-	// 		for _, predicate := range predicates {
-	// 			err := predicate(got)
-	// 			if err != nil {
-	// 				Fail(err.Error())
-	// 			}
-	// 		}
-	// 	}
-	// 	if checkHasItems, expectedItems := ass.itemsToBeChecked(); checkHasItems {
-	// 		Expect(1).To(Equal(1)) // REMOVE ME
-	// 		assert.Equal(t, expectedItems, got)
-	// 	}
-	// 	if checkHasItemsNoOrder, itemsNoOrder := ass.itemsNoOrderedToBeChecked(); checkHasItemsNoOrder {
-	// 		m := make(map[interface{}]interface{})
-	// 		for _, v := range itemsNoOrder {
-	// 			m[v] = nil
-	// 		}
+		for _, v := range got {
+			delete(m, v)
+		}
+		if len(m) != 0 {
+			Fail(fmt.Sprintf("missing elements: %v'", got))
+		}
+	}
 
-	//		for _, v := range got {
-	//			delete(m, v)
-	//		}
-	//		if len(m) != 0 {
-	//			assert.Fail(t, "missing elements", "%v", got)
-	//		}
-	//	}
-	//
-	//	if checkHasItem, value := ass.itemToBeChecked(); checkHasItem {
-	//		length := len(got)
-	//		if length != 1 {
-	//			assert.FailNow(t, "wrong number of items", "expected 1, got %d", length)
-	//		}
-	//		assert.Equal(t, value, got[0])
-	//	}
-	//
-	//	if ass.noItemsToBeChecked() {
-	//		assert.Equal(t, 0, len(got))
-	//	}
-	//
-	//	if ass.someItemsToBeChecked() {
-	//		assert.NotEqual(t, 0, len(got))
-	//	}
-	//
-	//	if checkHasRaisedError, expectedError := ass.raisedErrorToBeChecked(); checkHasRaisedError {
-	//		if expectedError == nil {
-	//			assert.Equal(t, 0, len(errs))
-	//		} else {
-	//			if len(errs) == 0 {
-	//				assert.FailNow(t, "no error raised", "expected %v", expectedError)
-	//			}
-	//			assert.Equal(t, expectedError, errs[0])
-	//		}
-	//	}
-	//
-	//	if checkHasRaisedErrors, expectedErrors := ass.raisedErrorsToBeChecked(); checkHasRaisedErrors {
-	//		assert.Equal(t, expectedErrors, errs)
-	//	}
-	//
-	//	if checkHasRaisedAnError, expectedError := ass.raisedAnErrorToBeChecked(); checkHasRaisedAnError {
-	//		assert.Nil(t, expectedError)
-	//	}
-	//
-	//	if ass.notRaisedErrorToBeChecked() {
-	//		assert.Equal(t, 0, len(errs))
-	//	}
+	if checkHasItem, value := ass.itemToBeChecked(); checkHasItem {
+		length := len(got)
+		if length != 1 {
+			Fail(fmt.Sprintf("wrong number of items, expected 1, got %v", length))
+		}
+		Expect(value).To(Equal(got[0]))
+	}
+
+	if ass.noItemsToBeChecked() {
+		Expect(got[0]).To(Equal(0))
+	}
+
+	if ass.someItemsToBeChecked() {
+		Expect(len(got)).NotTo(Equal(0))
+	}
+
+	if checkHasRaisedError, expectedError := ass.raisedErrorToBeChecked(); checkHasRaisedError {
+		if expectedError == nil {
+			Expect(0).To(Equal(len(errs)))
+		} else {
+			if len(errs) == 0 {
+				Fail(fmt.Sprintf("no error raised, expected %v", expectedError))
+			}
+			Expect(expectedError).To(Equal(errs[0]))
+		}
+	}
+
+	if checkHasRaisedErrors, expectedErrors := ass.raisedErrorsToBeChecked(); checkHasRaisedErrors {
+		Expect(expectedErrors).To(Equal(errs))
+	}
+
+	if checkHasRaisedAnError, expectedError := ass.raisedAnErrorToBeChecked(); checkHasRaisedAnError {
+		Expect(expectedError).Error().To(BeNil())
+	}
+
+	if ass.notRaisedErrorToBeChecked() {
+		Expect(len(errs)).To(Equal(0))
+	}
+	return true, nil
 }

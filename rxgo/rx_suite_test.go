@@ -1,4 +1,5 @@
-package rx_test
+//nolint:gocritic // foo bar
+package rxgo_test
 
 import (
 	"testing"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestRx(t *testing.T) {
+	// defer goleak.VerifyNone(t)
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Rx Suite")
 }
