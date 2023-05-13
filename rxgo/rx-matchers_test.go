@@ -17,47 +17,62 @@ type RxObservable[T any] struct {
 	observable rxgo.Observable[T]
 }
 
-type RxMatcher struct {
+type RxMatcher[T any] struct {
 	Name string
+	ass  *rxAssert[T]
 }
 
-func (m *RxMatcher) FailureMessage(actual interface{}) string {
+func (m *RxMatcher[T]) Match(actual interface{}) (bool, error) {
+	matcher, ok := actual.(RxObservable[T])
+	if !ok {
+		return false, fmt.Errorf("❌ expected an %T (%T)", matcher, actual)
+	}
+
+	return Assert[T](matcher.context, matcher.observable, m.ass)
+}
+
+func (m *RxMatcher[T]) FailureMessage(actual interface{}) string {
 	// TODO: improve this message, using actual
 	//
 	return fmt.Sprintf("🔥 Expected\n\t\n%v to match\n\t\n", m.Name)
 }
 
-func (m *RxMatcher) NegatedFailureMessage(actual interface{}) string {
+func (m *RxMatcher[T]) NegatedFailureMessage(actual interface{}) string {
 	// TODO: improve this message, using actual
 	//
 	return fmt.Sprintf("🔥 Expected\n\t\n%v NOT to match\n\t\n", m.Name)
 }
 
 type HasItemsMatcher[T any] struct {
-	RxMatcher
-	ass *rxAssert[T]
+	RxMatcher[T]
 }
 
 func MatchHasItems[T any](expected ...T) GomegaMatcher {
 	if ass, ok := HasItems(expected...).(*rxAssert[T]); ok {
 		return &HasItemsMatcher[T]{
-			RxMatcher: RxMatcher{
+			RxMatcher: RxMatcher[T]{
 				Name: "HasItems",
+				ass:  ass,
 			},
-			ass: ass,
 		}
 	}
 
-	// TODO: should this be a panic instead?
-	//
-	return nil
+	panic("invalid expected in MatchHasItems test")
 }
 
-func (m *HasItemsMatcher[T]) Match(actual interface{}) (bool, error) {
-	matcher, ok := actual.(RxObservable[T])
-	if !ok {
-		return false, fmt.Errorf("❌ expected an RxObservable (%T)", matcher)
+type HasNoErrorMatcher[T any] struct {
+	RxMatcher[T]
+}
+
+func MatchHasNoError[T any](expected ...T) GomegaMatcher {
+	if ass, ok := HasNoError[T]().(*rxAssert[T]); ok {
+		return &HasNoErrorMatcher[T]{
+			RxMatcher: RxMatcher[T]{
+				Name: "HasNoError",
+				ass:  ass,
+			},
+		}
 	}
 
-	return Assert[T](matcher.context, matcher.observable, m.ass)
+	panic("invalid expected in MatchHasNoError test")
 }
