@@ -3,6 +3,10 @@ get-def-branch() {
   echo master
 }
 
+function get-tracking-branch() {
+  git config branch.$(git_current_branch).remote
+}
+
 are-you-sure() {
   echo "👾 Are you sure❓ (type 'y' to confirm)"
   read squashed
@@ -13,6 +17,21 @@ are-you-sure() {
     echo "⛔ Aborted!"
     return 1
   fi
+}
+
+function check-upstream-branch() {
+  local upstream_branch=$(get-tracking-branch)
+  local feature_branch=$(git_current_branch)
+
+  if [ -z "$upstream_branch" ]; then
+    echo "===> 🐛 No upstream branch detected for : '🎀 $feature_branch'"
+    are-you-sure
+    if [ $? -ne 0 ]; then
+      return 1
+    fi
+  fi
+
+  return 0
 }
 
 startfeat() {
@@ -28,6 +47,11 @@ startfeat() {
 
 endfeat() {
   if ! are-you-sure $1; then
+    return 1
+  fi
+
+  check-upstream-branch
+  if [ $? -ne 0 ]; then
     return 1
   fi
 
