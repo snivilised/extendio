@@ -407,11 +407,7 @@ func errorCallback(name string, extended, hasError bool) nav.LabelledTraverseCal
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
 
-			if extended {
-				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
-			} else {
-				Expect(item.Extension).To(BeNil(), helpers.Reason(item.Path))
-			}
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 			if hasError {
 				Expect(item.Error).ToNot(BeNil())
 			}

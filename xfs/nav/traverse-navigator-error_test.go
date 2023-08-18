@@ -251,53 +251,85 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 	})
 
 	Context("Path not found error", func() {
-		When("client callback does NOT return an error", func() {
-			It("🧪 should: return path not found error", func() {
-				const path = "/foo"
-				optionFn := func(o *nav.TraverseOptions) {
-					o.Store.Subscription = nav.SubscribeAny
-					o.Callback = nav.LabelledTraverseCallback{
-						Label: "test callback",
-						Fn: func(item *nav.TraverseItem) error {
-							GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
-							return nil
-						},
+		Context("and: DoExtend not set", func() {
+			When("client callback does NOT return an error", func() {
+				It("🧪 should: return path not found error", func() {
+					const path = "/foo"
+					optionFn := func(o *nav.TraverseOptions) {
+						o.Store.Subscription = nav.SubscribeAny
+						o.Callback = nav.LabelledTraverseCallback{
+							Label: "test callback",
+							Fn: func(item *nav.TraverseItem) error {
+								GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
+								return nil
+							},
+						}
 					}
-				}
-				session := nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, err := session.Init().Run()
-				query := QueryPathNotFoundError(err)
-				Expect(query).To(BeTrue(),
-					fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
-				)
+					session := nav.PrimarySession{
+						Path:     path,
+						OptionFn: optionFn,
+					}
+					_, err := session.Init().Run()
+					query := QueryPathNotFoundError(err)
+					Expect(query).To(BeTrue(),
+						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
+					)
+				})
+			})
+
+			When("client callback also returns an error", func() {
+				It("🧪 should: return path not found error", func() {
+					const path = "/foo"
+					optionFn := func(o *nav.TraverseOptions) {
+						o.Store.Subscription = nav.SubscribeAny
+						o.Callback = nav.LabelledTraverseCallback{
+							Label: "test callback",
+							Fn: func(item *nav.TraverseItem) error {
+								GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
+								return errors.New("client callback error")
+							},
+						}
+					}
+					session := nav.PrimarySession{
+						Path:     path,
+						OptionFn: optionFn,
+					}
+					_, err := session.Init().Run()
+					query := QueryPathNotFoundError(err)
+					Expect(query).To(BeTrue(),
+						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
+					)
+				})
 			})
 		})
 
-		When("client callback also returns an error", func() {
-			It("🧪 should: return path not found error", func() {
-				const path = "/foo"
-				optionFn := func(o *nav.TraverseOptions) {
-					o.Store.Subscription = nav.SubscribeAny
-					o.Callback = nav.LabelledTraverseCallback{
-						Label: "test callback",
-						Fn: func(item *nav.TraverseItem) error {
-							GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
-							return errors.New("client callback error")
-						},
+		Context("and: DoExtend IS set", func() {
+			Context("and: callback attempts to access extension", func() {
+				It("🧪 should: not panic due to nil pointer dereference", func() {
+					const path = "/foo"
+					optionFn := func(o *nav.TraverseOptions) {
+						o.Store.DoExtend = true
+						o.Store.Subscription = nav.SubscribeAny
+						o.Callback = nav.LabelledTraverseCallback{
+							Label: "test callback",
+							Fn: func(item *nav.TraverseItem) error {
+								GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
+								_ = item.Extension.Name
+
+								return nil
+							},
+						}
 					}
-				}
-				session := nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, err := session.Init().Run()
-				query := QueryPathNotFoundError(err)
-				Expect(query).To(BeTrue(),
-					fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
-				)
+					session := nav.PrimarySession{
+						Path:     path,
+						OptionFn: optionFn,
+					}
+					_, err := session.Init().Run()
+					query := QueryPathNotFoundError(err)
+					Expect(query).To(BeTrue(),
+						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
+					)
+				})
 			})
 		})
 	})
