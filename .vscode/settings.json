@@ -46,6 +46,7 @@
     "nolintlint",
     "onecontext",
     "prealloc",
+    "rabbitweed",
     "repath",
     "Resumer",
     "rxgo",
@@ -63,6 +64,7 @@
     "usao",
     "varcheck",
     "xname",
+    "xpander",
     "Zemlya",
     "Zeroable"
   ]
