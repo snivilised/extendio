@@ -19,20 +19,20 @@ type RPEntry struct {
 }
 
 var fakeHome = filepath.Join(string(filepath.Separator), "home", "rabbitweed")
-var fakeAbs = filepath.Join(string(filepath.Separator), "home", "rabbitweed", "music", "xpander")
-var fakeUpAbs = filepath.Join(string(filepath.Separator), "home", "rabbitweed", "music")
+var fakeAbsCwd = filepath.Join(string(filepath.Separator), "home", "rabbitweed", "music", "xpander")
+var fakeAbsParent = filepath.Join(string(filepath.Separator), "home", "rabbitweed", "music")
 
-func fakeHomeResolver() string {
-	return fakeHome
+func fakeHomeResolver() (string, error) {
+	return fakeHome, nil
 }
 
 func fakeAbsResolver(path string) (string, error) {
 	if strings.HasPrefix(path, "..") {
-		return filepath.Join(fakeUpAbs, path[2:]), nil
+		return filepath.Join(fakeAbsParent, path[2:]), nil
 	}
 
 	if strings.HasPrefix(path, ".") {
-		return filepath.Join(fakeAbs, path[1:]), nil
+		return filepath.Join(fakeAbsCwd, path[1:]), nil
 	}
 
 	return path, nil
@@ -41,19 +41,19 @@ func fakeAbsResolver(path string) (string, error) {
 var _ = Describe("ResolvePath", func() {
 	DescribeTable("Overrides provided",
 		func(entry *RPEntry) {
-			overrides := utils.ResolveOverrides{
+			mocks := utils.ResolveMocks{
 				HomeFunc: fakeHomeResolver,
 				AbsFunc:  fakeAbsResolver,
 			}
 
 			if filepath.Separator == '/' {
-				actual := utils.ResolvePath(entry.path, overrides)
+				actual := utils.ResolvePath(entry.path, mocks)
 				Expect(actual).To(Equal(entry.expect))
 			} else {
 				normalisedPath := strings.ReplaceAll(entry.path, "/", string(filepath.Separator))
 				normalisedExpect := strings.ReplaceAll(entry.expect, "/", string(filepath.Separator))
 
-				actual := utils.ResolvePath(normalisedPath, overrides)
+				actual := utils.ResolvePath(normalisedPath, mocks)
 				Expect(actual).To(Equal(normalisedExpect))
 			}
 		},
@@ -85,6 +85,12 @@ var _ = Describe("ResolvePath", func() {
 			path:   "../foo",
 			expect: "/home/rabbitweed/music/foo",
 		}),
+		Entry(nil, &RPEntry{
+			given:  "path is relative to grand parent",
+			should: "replace ~ with home path",
+			path:   "../../foo",
+			expect: "/home/rabbitweed/foo",
+		}),
 	)
 
 	When("No overrides provided", func() {
@@ -94,9 +100,21 @@ var _ = Describe("ResolvePath", func() {
 			})
 		})
 
-		Context("and: abs", func() {
+		Context("and: abs cwd", func() {
 			It("🧪 should: not fail", func() {
 				utils.ResolvePath("./")
+			})
+		})
+
+		Context("and: abs parent", func() {
+			It("🧪 should: not fail", func() {
+				utils.ResolvePath("../")
+			})
+		})
+
+		Context("and: abs grand parent", func() {
+			It("🧪 should: not fail", func() {
+				utils.ResolvePath("../..")
 			})
 		})
 	})
