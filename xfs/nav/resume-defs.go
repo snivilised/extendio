@@ -21,6 +21,7 @@ type strategyInitParams struct {
 type strategyResumeInfo struct {
 	ps *persistState
 	nc *navigatorController
+	ai *AsyncInfo
 }
 
 type resumeAttachParams struct {
@@ -42,6 +43,12 @@ type baseStrategy struct {
 	ps        *persistState
 	nc        *navigatorController
 	deFactory *directoryEntriesFactory
+}
+
+func (s *baseStrategy) ensync(ai *AsyncInfo) {
+	if ai != nil {
+		s.nc.impl.ensync(s.nc.frame, ai)
+	}
 }
 
 func (s *baseStrategy) attach(_ *resumeAttachParams) {}
