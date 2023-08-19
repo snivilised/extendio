@@ -2,6 +2,7 @@ package nav_test
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"math"
 	"os"
@@ -365,6 +366,16 @@ func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
 	}
 }
 
+func asyncCallback(name string) nav.LabelledTraverseCallback {
+	return nav.LabelledTraverseCallback{
+		Label: "test async callback",
+		Fn: func(item *nav.TraverseItem) error {
+			fmt.Printf("---> ⏩ ON-ASYNC-CALLBACK(%v) '%v'\n", name, item.Path)
+
+			return nil
+		},
+	}
+}
 func subscribes(subscription nav.TraverseSubscription, de fs.DirEntry) bool {
 	isAnySubscription := (subscription == nav.SubscribeAny)
 

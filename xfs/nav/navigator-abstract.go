@@ -1,8 +1,13 @@
 package nav
 
 import (
+	"fmt"
+	"io/fs"
+
+	"github.com/google/uuid"
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
+	"github.com/snivilised/lorax/async"
 )
 
 type navigator struct {
@@ -13,6 +18,42 @@ type navigator struct {
 
 func (n *navigator) options() *TraverseOptions {
 	return n.o
+}
+
+func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
+	decorated := frame.client
+	decorator := &LabelledTraverseCallback{
+		Label: "async decorator",
+		Fn: func(item *TraverseItem) error {
+			fmt.Printf("---> 🐬 ASYNC-CALLBACK: '%v' \n", item.Path)
+
+			var err error
+			select {
+			case <-ai.Ctx.Done():
+				err = fs.SkipDir
+			default:
+				j := TraverseItemJob{
+					ID: fmt.Sprintf("JOB-ID:%v", uuid.NewString()),
+					Input: TraverseItemInput{
+						Item: item,
+						Fn:   decorated.Fn,
+					},
+					SequenceNo: -999,
+				}
+
+				select {
+				case <-ai.Ctx.Done():
+					err = fs.SkipDir
+
+				case ai.JobsChanOut <- async.Job[TraverseItemInput](j):
+				}
+			}
+
+			return err
+		},
+	}
+
+	frame.decorate("async decorator", decorator)
 }
 
 func (n *navigator) logger() log.Logger {

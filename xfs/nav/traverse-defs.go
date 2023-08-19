@@ -112,7 +112,7 @@ func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
 
 // TraverseNavigator interface to the main traverse instance.
 type TraverseNavigator interface {
-	walk(_ string) (*TraverseResult, error)
+	walk(_ string, _ ...*AsyncInfo) (*TraverseResult, error)
 	save(_ string) error
 	finish() error
 }
@@ -125,6 +125,7 @@ type traverseParams struct {
 type navigatorImpl interface {
 	options() *TraverseOptions
 	logger() log.Logger
+	ensync(_ *navigationFrame, _ *AsyncInfo)
 	top(_ *navigationFrame, _ string) (*TraverseResult, error)
 	traverse(_ *traverseParams) error
 	finish() error

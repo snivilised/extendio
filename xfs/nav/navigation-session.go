@@ -1,29 +1,57 @@
 package nav
 
 import (
+	"fmt"
+	"runtime"
 	"time"
 
 	xi18n "github.com/snivilised/extendio/i18n"
 )
 
+const (
+	MinNoWorkers = 1
+	MaxNoWorkers = 100
+)
+
 type TraverseSession interface {
 	Init() NavigationRunner
-	Run() (*TraverseResult, error)
+	Run(ai ...*AsyncInfo) (*TraverseResult, error)
 	StartedAt() time.Time
 	Elapsed() time.Duration
 }
 
 type NavigationRunner interface {
-	Run() (*TraverseResult, error)
+	Run(ai ...*AsyncInfo) (*TraverseResult, error)
+	WithCPUPool() NavigationRunner
+	WithPool(now int) NavigationRunner
 }
 
 type sessionRunner struct {
-	session TraverseSession
+	session     TraverseSession
+	accelerator navigationAccelerator
 }
 
 // Run executes the traversal session
-func (r *sessionRunner) Run() (*TraverseResult, error) {
+func (r *sessionRunner) Run(ai ...*AsyncInfo) (*TraverseResult, error) {
+	if r.accelerator.noWorkers > 0 && len(ai) > 0 {
+		r.accelerator.start(ai[0])
+		return r.session.Run(ai[0])
+	}
+
 	return r.session.Run()
+}
+
+func (r *sessionRunner) WithPool(now int) NavigationRunner {
+	if now >= MinNoWorkers && now <= MaxNoWorkers {
+		r.accelerator.noWorkers = now
+	}
+
+	return r
+}
+
+func (r *sessionRunner) WithCPUPool() NavigationRunner {
+	r.accelerator.noWorkers = runtime.NumCPU()
+	return r
 }
 
 type primaryRunner struct {
@@ -43,7 +71,14 @@ func (s *session) start() {
 	s.startAt = time.Now()
 }
 
-func (s *session) finish(_ *TraverseResult, _ error) {
+func (s *session) finish(_ *TraverseResult, _ error, ai ...*AsyncInfo) {
+	defer func() {
+		if len(ai) > 0 {
+			fmt.Printf("---> 😈😈😈 defer session.finish\n")
+			close(ai[0].JobsChanOut)
+		}
+	}()
+
 	s.duration = time.Since(s.startAt)
 }
 
@@ -71,12 +106,12 @@ func (s *PrimarySession) Save(path string) error {
 	return s.navigator.save(path)
 }
 
-func (s *PrimarySession) Run() (result *TraverseResult, err error) {
-	defer s.finish(result, err)
+func (s *PrimarySession) Run(ai ...*AsyncInfo) (result *TraverseResult, err error) {
+	defer s.finish(result, err, ai...)
 
 	s.session.start()
 
-	return s.navigator.walk(s.Path)
+	return s.navigator.walk(s.Path, ai...)
 }
 
 func (s *PrimarySession) StartedAt() time.Time {
@@ -87,8 +122,8 @@ func (s *PrimarySession) Elapsed() time.Duration {
 	return s.duration
 }
 
-func (s *PrimarySession) finish(result *TraverseResult, err error) {
-	defer s.session.finish(result, err)
+func (s *PrimarySession) finish(result *TraverseResult, err error, ai ...*AsyncInfo) {
+	defer s.session.finish(result, err, ai...)
 
 	_ = s.navigator.finish()
 }
@@ -101,13 +136,13 @@ type ResumeSession struct {
 	Path     string
 	Restorer func(o *TraverseOptions, active *ActiveState)
 	Strategy ResumeStrategyEnum
-	resumer  *resumeController
+	rc       *resumeController
 }
 
 func (s *ResumeSession) Init() NavigationRunner {
 	var err error
 
-	s.resumer, err = resumerFactory{}.new(&ResumerInfo{
+	s.rc, err = resumerFactory{}.new(&ResumerInfo{
 		RestorePath: s.Path,
 		Restorer:    s.Restorer,
 		Strategy:    s.Strategy,
@@ -128,7 +163,7 @@ func (s *ResumeSession) Init() NavigationRunner {
 func (s *ResumeSession) Restore(restore func(o *TraverseOptions, active *ActiveState)) NavigationRunner {
 	var err error
 
-	s.resumer, err = resumerFactory{}.new(&ResumerInfo{
+	s.rc, err = resumerFactory{}.new(&ResumerInfo{
 		RestorePath: s.Path,
 		Restorer:    restore,
 		Strategy:    s.Strategy,
@@ -148,15 +183,15 @@ func (s *ResumeSession) Restore(restore func(o *TraverseOptions, active *ActiveS
 // Save persists the current state for a resume session, that allows
 // a subsequent run to complete the resume.
 func (s *ResumeSession) Save(path string) error {
-	return s.resumer.navigator.save(path)
+	return s.rc.navigator.save(path)
 }
 
-func (s *ResumeSession) Run() (result *TraverseResult, err error) {
-	defer s.finish(result, err)
+func (s *ResumeSession) Run(ai ...*AsyncInfo) (result *TraverseResult, err error) {
+	defer s.finish(result, err, ai...)
 
 	s.session.start()
 
-	return s.resumer.Continue()
+	return s.rc.Continue(ai...)
 }
 
 func (s *ResumeSession) StartedAt() time.Time {
@@ -167,8 +202,8 @@ func (s *ResumeSession) Elapsed() time.Duration {
 	return s.duration
 }
 
-func (s *ResumeSession) finish(result *TraverseResult, err error) {
-	defer s.session.finish(result, err)
+func (s *ResumeSession) finish(result *TraverseResult, err error, ai ...*AsyncInfo) {
+	defer s.session.finish(result, err, ai...)
 
-	_ = s.resumer.finish()
+	_ = s.rc.finish()
 }
