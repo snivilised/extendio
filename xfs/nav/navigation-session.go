@@ -76,6 +76,7 @@ func (s *session) finish(_ *TraverseResult, _ error, ai ...*AsyncInfo) {
 		if len(ai) > 0 {
 			fmt.Printf("---> 😈😈😈 defer session.finish\n")
 			close(ai[0].JobsChanOut)
+			ai[0].Wg.Done()
 		}
 	}()
 
@@ -111,7 +112,7 @@ func (s *PrimarySession) Run(ai ...*AsyncInfo) (result *TraverseResult, err erro
 
 	s.session.start()
 
-	return s.navigator.walk(s.Path, ai...)
+	return s.navigator.walk(s.Path)
 }
 
 func (s *PrimarySession) StartedAt() time.Time {
