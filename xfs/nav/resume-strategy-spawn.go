@@ -30,10 +30,6 @@ func (s *spawnStrategy) resume(info *strategyResumeInfo) (*TraverseResult, error
 		log.String("resume-at-path", resumeAt),
 	)
 
-	if info.ai != nil {
-		s.ensync(info.ai)
-	}
-
 	return s.conclude(&concludeInfo{
 		active:    info.ps.Active,
 		root:      info.ps.Active.Root,

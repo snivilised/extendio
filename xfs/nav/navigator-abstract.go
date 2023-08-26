@@ -3,6 +3,7 @@ package nav
 import (
 	"fmt"
 	"io/fs"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/snivilised/extendio/internal/log"
@@ -25,7 +26,16 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 	decorator := &LabelledTraverseCallback{
 		Label: "async decorator",
 		Fn: func(item *TraverseItem) error {
-			fmt.Printf("---> 🐬 ASYNC-CALLBACK: '%v' \n", item.Path)
+			defer func() {
+				pe := recover()
+				if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
+					"send on closed channel") {
+					fmt.Printf("---> ☠️☠️☠️ ENSYNC-NAV-CALLBACK(panic on close): '%v' (err:'%v')\n",
+						item.Path, pe,
+					)
+				}
+			}()
+			fmt.Printf("---> 🐬 ENSYNC-NAV-CALLBACK: '%v' \n", item.Path)
 
 			var err error
 			select {
@@ -46,6 +56,11 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 					err = fs.SkipDir
 
 				case ai.JobsChanOut <- async.Job[TraverseItemInput](j):
+					//
+					// intermittent panic: send on closed channel, in fastward resume scenarios
+					// 'gr:observable-navigator'
+
+					fmt.Printf("-->> 🍆🍆 sending job(%v)\n", j.ID)
 				}
 			}
 

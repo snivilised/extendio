@@ -39,6 +39,10 @@ func (c *navigatorController) logger() log.Logger {
 	return c.impl.logger()
 }
 
+func (c *navigatorController) ensync(ai *AsyncInfo) {
+	c.impl.ensync(c.frame, ai)
+}
+
 func (c *navigatorController) walk(root string) (*TraverseResult, error) {
 	c.frame.root.Set(root)
 	c.impl.logger().Info("walk", log.String("root", root))
