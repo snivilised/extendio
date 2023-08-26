@@ -74,9 +74,9 @@ func (s *session) start() {
 func (s *session) finish(_ *TraverseResult, _ error, ai ...*AsyncInfo) {
 	defer func() {
 		if len(ai) > 0 {
-			fmt.Printf("---> 😈😈😈 defer session.finish\n")
-			close(ai[0].JobsChanOut)
-			ai[0].Wg.Done()
+			fmt.Printf("---> observable navigator 😈😈😈 defer session.finish (CLOSE(JobsChanOut)/QUIT)\n")
+			close(ai[0].JobsChanOut) // ⚠️ fastward: intermittent panic on close
+			ai[0].Quitter.Done(ai[0].NavigatorRoutineName)
 		}
 	}()
 
@@ -111,6 +111,10 @@ func (s *PrimarySession) Run(ai ...*AsyncInfo) (result *TraverseResult, err erro
 	defer s.finish(result, err, ai...)
 
 	s.session.start()
+
+	if len(ai) > 0 {
+		s.navigator.ensync(ai[0])
+	}
 
 	return s.navigator.walk(s.Path)
 }
@@ -191,6 +195,10 @@ func (s *ResumeSession) Run(ai ...*AsyncInfo) (result *TraverseResult, err error
 	defer s.finish(result, err, ai...)
 
 	s.session.start()
+
+	if len(ai) > 0 {
+		s.rc.navigator.ensync(ai[0])
+	}
 
 	return s.rc.Continue(ai...)
 }

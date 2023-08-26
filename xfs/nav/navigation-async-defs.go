@@ -2,7 +2,6 @@ package nav
 
 import (
 	"context"
-	"sync"
 
 	"github.com/snivilised/lorax/async"
 )
@@ -27,9 +26,11 @@ type TraverseItemStreamR async.JobStreamR[TraverseItemJobOutput]
 type TraverseItemStreamW async.JobStreamW[TraverseItemJobOutput]
 
 type AsyncInfo struct {
-	Ctx          context.Context
-	Wg           *sync.WaitGroup
-	JobsChanOut  TraverseItemJobStream
-	OutputsChOut async.OutputStreamW[TraverseOutput] // consume this???
-	NoWorkers    int
+	Ctx                  context.Context
+	NavigatorRoutineName async.GoRoutineName
+	Wgex                 async.WaitGroupEx
+	Adder                async.AssistedAdder
+	Quitter              async.AssistedQuitter
+	JobsChanOut          TraverseItemJobStream
+	OutputsChOut         async.OutputStreamW[TraverseOutput] // consume this???
 }

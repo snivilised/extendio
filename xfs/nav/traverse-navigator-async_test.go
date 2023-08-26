@@ -2,7 +2,6 @@ package nav_test
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/fortytw2/leaktest"
@@ -35,11 +34,11 @@ const (
 	// we use a large job queue size to prevent blocking as these unit
 	// tests don't have a consumer
 	JobsChSize    = 50
-	OutputsChSize = 20
+	OutputsChSize = 50
 )
 
 // TODO: rename this file to navigation-async_test.go
-var _ = XDescribe("navigation", Ordered, func() {
+var _ = Describe("navigation", Ordered, func() {
 	var (
 		root         string
 		jroot        string
@@ -68,13 +67,15 @@ var _ = XDescribe("navigation", Ordered, func() {
 		func(ctx SpecContext, entry *asyncTE) {
 			defer leaktest.Check(GinkgoT())()
 
-			var wg sync.WaitGroup
+			var (
+				wgex async.WaitGroupEx
+			)
 
 			path := helpers.Path(root, "RETRO-WAVE")
 			optionFn := func(o *nav.TraverseOptions) {
 				o.Store.Subscription = nav.SubscribeFolders
 				o.Store.DoExtend = true
-				o.Callback = asyncCallback("WithCPUPool/primary session")
+				o.Callback = asyncCallback("async primary session")
 				o.Notify.OnBegin = begin("🛡️")
 			}
 
@@ -113,22 +114,28 @@ var _ = XDescribe("navigation", Ordered, func() {
 				entry.operator(runner)
 			}
 
+			navigatorRoutineName := async.GoRoutineName("✨ observable-navigator")
+			wgex = async.NewAnnotatedWaitGroup("🍂 traversal")
+			wgex.Add(1, navigatorRoutineName)
 			_, err := runner.Run(&nav.AsyncInfo{
-				Ctx:          ctx,
-				Wg:           &wg,
-				JobsChanOut:  jobsChOut,
-				OutputsChOut: outputsChOut,
+				Ctx:                  ctx,
+				NavigatorRoutineName: navigatorRoutineName,
+				Wgex:                 wgex,
+				Adder:                wgex,
+				Quitter:              wgex,
+				JobsChanOut:          jobsChOut,
+				OutputsChOut:         outputsChOut,
 			})
-			wg.Add(1)
 
-			wg.Wait()
+			wgex.Wait("👾 test-main")
+
 			Expect(err).To(BeNil())
 		},
 		func(entry *asyncTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v', should: '%v'", entry.given, entry.should)
 		},
 
-		Entry(nil, &asyncTE{ // Timeout
+		Entry(nil, &asyncTE{
 			given:  "PrimarySession WithCPUPool",
 			should: "run with context",
 			operator: func(r nav.NavigationRunner) nav.NavigationRunner {
@@ -136,7 +143,7 @@ var _ = XDescribe("navigation", Ordered, func() {
 			},
 		}, SpecTimeout(time.Second*2)),
 
-		Entry(nil, &asyncTE{ // Timeout
+		Entry(nil, &asyncTE{
 			given:  "PrimarySession WithPool",
 			should: "run with context",
 			operator: func(r nav.NavigationRunner) nav.NavigationRunner {
@@ -144,8 +151,9 @@ var _ = XDescribe("navigation", Ordered, func() {
 			},
 		}, SpecTimeout(time.Second*2)),
 
-		Entry(nil, &asyncTE{ // -ve wg counter
-			// 🔥 panic: send on closed channel
+		Entry(nil, &asyncTE{
+			// 🔥 panic: send on closed channel; this is intermittent
+			// probably a race condition
 			//
 			resume: &asyncResumeTE{
 				Strategy: nav.ResumeStrategyFastwardEn,
@@ -158,7 +166,7 @@ var _ = XDescribe("navigation", Ordered, func() {
 			},
 		}, SpecTimeout(time.Second*2)),
 
-		Entry(nil, &asyncTE{ // -ve wg counter
+		Entry(nil, &asyncTE{
 			resume: &asyncResumeTE{
 				Strategy: nav.ResumeStrategySpawnEn,
 				Listen:   nav.ListenDeaf,

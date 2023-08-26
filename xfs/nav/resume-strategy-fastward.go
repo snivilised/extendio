@@ -105,10 +105,6 @@ func (s *fastwardStrategy) resume(info *strategyResumeInfo) (*TraverseResult, er
 		log.String("resume-at-path", resumeAt),
 	)
 
-	if info.ai != nil {
-		s.ensync(info.ai)
-	}
-
 	// fast-forward doesn't need to restore the entire state, eg, the
 	// Depth can begin as per usual, without being restored.
 	//
