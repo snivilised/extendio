@@ -13,7 +13,7 @@ require (
 
 require (
 	github.com/fortytw2/leaktest v1.3.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/snivilised/lorax v0.2.5
 )
 
