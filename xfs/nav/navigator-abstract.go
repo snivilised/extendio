@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"github.com/snivilised/lorax/boost"
 )
 
 type navigator struct {
@@ -42,7 +41,7 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 			case <-ai.Ctx.Done():
 				err = fs.SkipDir
 			default:
-				j := TraverseItemJob{
+				job := TraverseItemJob{
 					ID: fmt.Sprintf("JOB-ID:%v", uuid.NewString()),
 					Input: TraverseItemInput{
 						Item: item,
@@ -55,12 +54,12 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 				case <-ai.Ctx.Done():
 					err = fs.SkipDir
 
-				case ai.JobsChanOut <- boost.Job[TraverseItemInput](j):
+				case ai.JobsChanOut <- job:
 					//
 					// intermittent panic: send on closed channel, in fastward resume scenarios
 					// 'gr:observable-navigator'
 
-					fmt.Printf("-->> 🍆🍆 sending job(%v)\n", j.ID)
+					fmt.Printf("-->> 🍆🍆 sending job(%v)\n", job.ID)
 				}
 			}
 

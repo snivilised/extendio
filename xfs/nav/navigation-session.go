@@ -113,7 +113,7 @@ func (s *session) finish(_ *TraverseResult, _ error, ai ...*AsyncInfo) {
 		if len(ai) > 0 {
 			fmt.Printf("---> observable navigator 😈😈😈 defer session.finish (CLOSE(JobsChanOut)/QUIT)\n")
 			close(ai[0].JobsChanOut) // ⚠️ fastward: intermittent panic on close
-			ai[0].Quitter.Done(ai[0].NavigatorRoutineName)
+			ai[0].WaitAQ.Done(ai[0].NavigatorRoutineName)
 		}
 	}()
 
