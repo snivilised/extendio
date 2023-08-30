@@ -1,19 +1,17 @@
 package nav
 
-import (
-	"github.com/snivilised/lorax/async"
-)
+import "github.com/snivilised/lorax/boost"
 
 type navigationAccelerator struct {
 	active      bool
 	noWorkers   int
-	outputChOut async.OutputStream[TraverseOutput]
-	pool        *async.WorkerPool[TraverseItemInput, TraverseOutput]
+	outputChOut boost.OutputStream[TraverseOutput]
+	pool        *boost.WorkerPool[TraverseItemInput, TraverseOutput]
 }
 
 func (a *navigationAccelerator) start(ai *AsyncInfo) {
-	a.pool = async.NewWorkerPool[TraverseItemInput, TraverseOutput](
-		&async.NewWorkerPoolParams[TraverseItemInput, TraverseOutput]{
+	a.pool = boost.NewWorkerPool[TraverseItemInput, TraverseOutput](
+		&boost.NewWorkerPoolParams[TraverseItemInput, TraverseOutput]{
 			NoWorkers: a.noWorkers,
 			Exec:      workerExecutive,
 			JobsCh:    ai.JobsChanOut,
@@ -29,10 +27,10 @@ func (a *navigationAccelerator) start(ai *AsyncInfo) {
 	go a.pool.Start(ai.Ctx, a.outputChOut)
 }
 
-func workerExecutive(job async.Job[TraverseItemInput]) (async.JobOutput[TraverseOutput], error) {
+func workerExecutive(job boost.Job[TraverseItemInput]) (boost.JobOutput[TraverseOutput], error) {
 	err := job.Input.Fn(job.Input.Item)
 
-	return async.JobOutput[TraverseOutput]{
+	return boost.JobOutput[TraverseOutput]{
 		Payload: TraverseOutput{
 			Item:  job.Input.Item,
 			Error: err,

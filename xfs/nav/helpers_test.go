@@ -366,11 +366,11 @@ func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
 	}
 }
 
-func asyncCallback(name string) nav.LabelledTraverseCallback {
+func boostCallback(name string) nav.LabelledTraverseCallback {
 	return nav.LabelledTraverseCallback{
-		Label: "test async callback",
+		Label: "test boost callback",
 		Fn: func(item *nav.TraverseItem) error {
-			fmt.Printf("---> ⏩ ON-ASYNC-CALLBACK(%v) '%v'\n", name, item.Path)
+			fmt.Printf("---> ⏩ ON-boost-CALLBACK(%v) '%v'\n", name, item.Path)
 
 			return nil
 		},

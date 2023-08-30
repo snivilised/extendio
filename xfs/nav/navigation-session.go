@@ -7,7 +7,7 @@ import (
 
 	"github.com/samber/lo"
 	xi18n "github.com/snivilised/extendio/i18n"
-	"github.com/snivilised/lorax/async"
+	"github.com/snivilised/lorax/boost"
 )
 
 const (
@@ -25,7 +25,7 @@ type TraverseSession interface {
 type RunnerOperators interface {
 	WithCPUPool() NavigationRunner
 	WithPool(now int) NavigationRunner
-	Consume(outputCh async.OutputStream[TraverseOutput]) NavigationRunner
+	Consume(outputCh boost.OutputStream[TraverseOutput]) NavigationRunner
 }
 
 type NavigationRunner interface {
@@ -68,18 +68,18 @@ func (r *sessionRunner) WithCPUPool() NavigationRunner {
 	return r
 }
 
-func CreateTraverseOutputCh(outputChSize int) async.OutputStream[TraverseOutput] {
+func CreateTraverseOutputCh(outputChSize int) boost.OutputStream[TraverseOutput] {
 	return lo.TernaryF(outputChSize > 0,
-		func() async.OutputStream[TraverseOutput] {
-			return make(async.OutputStream[TraverseOutput], outputChSize)
+		func() boost.OutputStream[TraverseOutput] {
+			return make(boost.OutputStream[TraverseOutput], outputChSize)
 		},
-		func() async.OutputStream[TraverseOutput] {
+		func() boost.OutputStream[TraverseOutput] {
 			return nil
 		},
 	)
 }
 
-func (r *sessionRunner) Consume(outputCh async.OutputStream[TraverseOutput]) NavigationRunner {
+func (r *sessionRunner) Consume(outputCh boost.OutputStream[TraverseOutput]) NavigationRunner {
 	if !r.accelerator.active {
 		panic(fmt.Errorf(
 			"worker pool acceleration not active; ensure With(CPU)Pool specified before Consume",

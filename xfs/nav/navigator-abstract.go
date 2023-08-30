@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
-	"github.com/snivilised/lorax/async"
+	"github.com/snivilised/lorax/boost"
 )
 
 type navigator struct {
@@ -24,7 +24,7 @@ func (n *navigator) options() *TraverseOptions {
 func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 	decorated := frame.client
 	decorator := &LabelledTraverseCallback{
-		Label: "async decorator",
+		Label: "boost decorator",
 		Fn: func(item *TraverseItem) error {
 			defer func() {
 				pe := recover()
@@ -55,7 +55,7 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 				case <-ai.Ctx.Done():
 					err = fs.SkipDir
 
-				case ai.JobsChanOut <- async.Job[TraverseItemInput](j):
+				case ai.JobsChanOut <- boost.Job[TraverseItemInput](j):
 					//
 					// intermittent panic: send on closed channel, in fastward resume scenarios
 					// 'gr:observable-navigator'
@@ -68,7 +68,7 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 		},
 	}
 
-	frame.decorate("async decorator", decorator)
+	frame.decorate("boost decorator", decorator)
 }
 
 func (n *navigator) logger() log.Logger {
