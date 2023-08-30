@@ -15,7 +15,7 @@ func (a *navigationAccelerator) start(ai *AsyncInfo) {
 			NoWorkers: a.noWorkers,
 			Exec:      workerExecutive,
 			JobsCh:    ai.JobsChanOut,
-			Quitter:   ai.Quitter,
+			WaitAQ:    ai.WaitAQ,
 		})
 
 	// We are handing over ownership of this channel (ai.OutputsChIn) to the pool as
