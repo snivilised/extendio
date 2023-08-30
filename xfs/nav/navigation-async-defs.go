@@ -19,18 +19,16 @@ type TraverseOutput struct {
 	Item  *TraverseItem
 	Error error
 }
-
-type TraverseItemJobOutput async.JobOutput[TraverseOutput]
-type TraverseItemStream async.JobStream[TraverseItemJobOutput]
-type TraverseItemStreamR async.JobStreamR[TraverseItemJobOutput]
-type TraverseItemStreamW async.JobStreamW[TraverseItemJobOutput]
+type TraverseItemOutput async.JobOutput[TraverseOutput]
+type TraverseItemOutputStream async.OutputStream[TraverseOutput]
+type TraverseItemOutputStreamR async.OutputStreamR[TraverseOutput]
+type TraverseItemOutputStreamW async.OutputStreamW[TraverseOutput]
 
 type AsyncInfo struct {
 	Ctx                  context.Context
 	NavigatorRoutineName async.GoRoutineName
-	Wgex                 async.WaitGroupEx
-	Adder                async.AssistedAdder
-	Quitter              async.AssistedQuitter
+	Adder                async.AnnotatedWgAdder
+	Quitter              async.AnnotatedWgQuitter
+	WaitAQ               async.AnnotatedWgAQ
 	JobsChanOut          TraverseItemJobStream
-	OutputsChOut         async.OutputStreamW[TraverseOutput] // consume this???
 }
