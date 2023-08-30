@@ -5,7 +5,9 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/samber/lo"
 	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/lorax/async"
 )
 
 const (
@@ -20,10 +22,15 @@ type TraverseSession interface {
 	Elapsed() time.Duration
 }
 
-type NavigationRunner interface {
-	Run(ai ...*AsyncInfo) (*TraverseResult, error)
+type RunnerOperators interface {
 	WithCPUPool() NavigationRunner
 	WithPool(now int) NavigationRunner
+	Consume(outputCh async.OutputStream[TraverseOutput]) NavigationRunner
+}
+
+type NavigationRunner interface {
+	RunnerOperators
+	Run(ai ...*AsyncInfo) (*TraverseResult, error)
 }
 
 type sessionRunner struct {
@@ -33,7 +40,7 @@ type sessionRunner struct {
 
 // Run executes the traversal session
 func (r *sessionRunner) Run(ai ...*AsyncInfo) (*TraverseResult, error) {
-	if r.accelerator.noWorkers > 0 && len(ai) > 0 {
+	if r.accelerator.active {
 		r.accelerator.start(ai[0])
 		return r.session.Run(ai[0])
 	}
@@ -42,15 +49,45 @@ func (r *sessionRunner) Run(ai ...*AsyncInfo) (*TraverseResult, error) {
 }
 
 func (r *sessionRunner) WithPool(now int) NavigationRunner {
+	r.accelerator.active = true
 	if now >= MinNoWorkers && now <= MaxNoWorkers {
 		r.accelerator.noWorkers = now
+	} else {
+		panic(fmt.Errorf("no of workers requested (%v) is out of range ('%v' - '%v')",
+			now, MinNoWorkers, MaxNoWorkers),
+		)
 	}
 
 	return r
 }
 
 func (r *sessionRunner) WithCPUPool() NavigationRunner {
+	r.accelerator.active = true
 	r.accelerator.noWorkers = runtime.NumCPU()
+
+	return r
+}
+
+func CreateTraverseOutputCh(outputChSize int) async.OutputStream[TraverseOutput] {
+	return lo.TernaryF(outputChSize > 0,
+		func() async.OutputStream[TraverseOutput] {
+			return make(async.OutputStream[TraverseOutput], outputChSize)
+		},
+		func() async.OutputStream[TraverseOutput] {
+			return nil
+		},
+	)
+}
+
+func (r *sessionRunner) Consume(outputCh async.OutputStream[TraverseOutput]) NavigationRunner {
+	if !r.accelerator.active {
+		panic(fmt.Errorf(
+			"worker pool acceleration not active; ensure With(CPU)Pool specified before Consume",
+		))
+	}
+
+	r.accelerator.outputChOut = outputCh
+
 	return r
 }
 
