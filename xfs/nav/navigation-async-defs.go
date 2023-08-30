@@ -3,32 +3,32 @@ package nav
 import (
 	"context"
 
-	"github.com/snivilised/lorax/async"
+	"github.com/snivilised/lorax/boost"
 )
 
 type TraverseItemInput struct {
 	Item *TraverseItem
 	Fn   TraverseCallback
 }
-type TraverseItemJob async.Job[TraverseItemInput]
-type TraverseItemJobStream async.JobStream[TraverseItemInput]
-type TraverseItemJobStreamR async.JobStreamR[TraverseItemInput]
-type TraverseItemJobStreamW async.JobStreamW[TraverseItemInput]
+type TraverseItemJob boost.Job[TraverseItemInput]
+type TraverseItemJobStream boost.JobStream[TraverseItemInput]
+type TraverseItemJobStreamR boost.JobStreamR[TraverseItemInput]
+type TraverseItemJobStreamW boost.JobStreamW[TraverseItemInput]
 
 type TraverseOutput struct {
 	Item  *TraverseItem
 	Error error
 }
-type TraverseItemOutput async.JobOutput[TraverseOutput]
-type TraverseItemOutputStream async.OutputStream[TraverseOutput]
-type TraverseItemOutputStreamR async.OutputStreamR[TraverseOutput]
-type TraverseItemOutputStreamW async.OutputStreamW[TraverseOutput]
+type TraverseItemOutput boost.JobOutput[TraverseOutput]
+type TraverseItemOutputStream boost.OutputStream[TraverseOutput]
+type TraverseItemOutputStreamR boost.OutputStreamR[TraverseOutput]
+type TraverseItemOutputStreamW boost.OutputStreamW[TraverseOutput]
 
 type AsyncInfo struct {
 	Ctx                  context.Context
-	NavigatorRoutineName async.GoRoutineName
-	Adder                async.AnnotatedWgAdder
-	Quitter              async.AnnotatedWgQuitter
-	WaitAQ               async.AnnotatedWgAQ
+	NavigatorRoutineName boost.GoRoutineName
+	Adder                boost.AnnotatedWgAdder
+	Quitter              boost.AnnotatedWgQuitter
+	WaitAQ               boost.AnnotatedWgAQ
 	JobsChanOut          TraverseItemJobStream
 }
