@@ -179,7 +179,7 @@ var _ = Describe("navigation", Ordered, func() {
 			defer leaktest.Check(GinkgoT())()
 
 			var (
-				wgex boost.WaitGroupAn
+				wgan boost.WaitGroupAn
 			)
 
 			path := helpers.Path(root, "RETRO-WAVE")
@@ -190,14 +190,12 @@ var _ = Describe("navigation", Ordered, func() {
 				entry.operator(runner)
 			}
 
-			wgex = boost.NewAnnotatedWaitGroup("🍂 traversal")
-			wgex.Add(1, navigatorRoutineName)
+			wgan = boost.NewAnnotatedWaitGroup("🍂 traversal")
+			wgan.Add(1, navigatorRoutineName)
 			_, err := runner.Run(&nav.AsyncInfo{
 				Ctx:                  ctx,
 				NavigatorRoutineName: navigatorRoutineName,
-				Adder:                wgex,
-				Quitter:              wgex,
-				WaitAQ:               wgex,
+				WaitAQ:               wgan,
 				JobsChanOut:          jobsChOut,
 			})
 
@@ -205,11 +203,11 @@ var _ = Describe("navigation", Ordered, func() {
 			if outputCh != nil {
 				consumer = StartConsumer[nav.TraverseOutput](
 					ctx,
-					wgex,
+					wgan,
 					outputCh,
 				)
 			}
-			wgex.Wait("👾 test-main")
+			wgan.Wait("👾 test-main")
 
 			if consumer != nil {
 				fmt.Printf("---> 📌📌📌 consumer.count: '%v'\n", consumer.Count)
@@ -321,7 +319,7 @@ var _ = Describe("navigation", Ordered, func() {
 				Fail("🔥 invalid test; error fragment not specified")
 			}
 
-			var wgex boost.WaitGroupAn
+			var wgan boost.WaitGroupAn
 
 			path := helpers.Path(root, "RETRO-WAVE")
 			session := getSession(&entry.boostTE, root, path, fromJSONPath)
@@ -331,14 +329,12 @@ var _ = Describe("navigation", Ordered, func() {
 				entry.operator(runner)
 			}
 
-			wgex = boost.NewAnnotatedWaitGroup("🍂 traversal")
-			wgex.Add(1, navigatorRoutineName)
+			wgan = boost.NewAnnotatedWaitGroup("🍂 traversal")
+			wgan.Add(1, navigatorRoutineName)
 			_, _ = runner.Run(&nav.AsyncInfo{
 				Ctx:                  ctx,
 				NavigatorRoutineName: navigatorRoutineName,
-				Adder:                wgex,
-				Quitter:              wgex,
-				WaitAQ:               wgex,
+				WaitAQ:               wgan,
 				JobsChanOut:          jobsChOut,
 			})
 

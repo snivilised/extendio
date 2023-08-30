@@ -22,7 +22,7 @@ func (a *navigationAccelerator) start(ai *AsyncInfo) {
 	// its go routine will write to it, knows when no more data is available
 	// and thus knows when to close it.
 	//
-	ai.Adder.Add(1, a.pool.RoutineName)
+	ai.WaitAQ.Add(1, a.pool.RoutineName)
 
 	go a.pool.Start(ai.Ctx, a.outputChOut)
 }
