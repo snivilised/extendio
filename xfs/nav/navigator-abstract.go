@@ -26,12 +26,17 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 		Label: "boost decorator",
 		Fn: func(item *TraverseItem) error {
 			defer func() {
-				pe := recover()
-				if err, ok := pe.(error); !ok || !strings.Contains(err.Error(),
-					"send on closed channel") {
-					fmt.Printf("---> ☠️☠️☠️ ENSYNC-NAV-CALLBACK(panic on close): '%v' (err:'%v')\n",
-						item.Path, pe,
-					)
+				if pe := recover(); pe != nil {
+					if err, ok := pe.(error); ok || strings.Contains(err.Error(),
+						"send on closed channel") {
+						fmt.Printf("---> ☠️☠️☠️ ENSYNC-NAV-CALLBACK(panic on close): '%v' (err:'%v')\n",
+							item.Path, pe,
+						)
+					} else {
+						// Let panic propagate to whoever can handle it
+						//
+						panic(pe)
+					}
 				}
 			}()
 			fmt.Printf("---> 🐬 ENSYNC-NAV-CALLBACK: '%v' \n", item.Path)
