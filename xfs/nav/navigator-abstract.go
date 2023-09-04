@@ -38,7 +38,7 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 
 			var err error
 			select {
-			case <-ai.Ctx.Done():
+			case <-ai.Context.Done():
 				err = fs.SkipDir
 			default:
 				job := TraverseItemJob{
@@ -51,7 +51,7 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 				}
 
 				select {
-				case <-ai.Ctx.Done():
+				case <-ai.Context.Done():
 					err = fs.SkipDir
 
 				case ai.JobsChanOut <- job:
