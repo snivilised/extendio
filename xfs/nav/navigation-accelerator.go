@@ -1,6 +1,11 @@
 package nav
 
-import "github.com/snivilised/lorax/boost"
+import (
+	"context"
+	"fmt"
+
+	"github.com/snivilised/lorax/boost"
+)
 
 type navigationAccelerator struct {
 	active      bool
@@ -24,7 +29,17 @@ func (a *navigationAccelerator) start(ai *AsyncInfo) {
 	//
 	ai.WaitAQ.Add(1, a.pool.RoutineName)
 
-	go a.pool.Start(ai.Ctx, a.outputChOut)
+	go a.pool.Start(ai.Context, a.outputChOut)
+}
+
+func (a *navigationAccelerator) finish(_ context.CancelFunc,
+	ai *AsyncInfo,
+) {
+	// TODO: parentCancel, for the time being don't invoke the cancel func
+	//
+	fmt.Printf("---> observable navigator 😈😈😈 defer session.finish (CLOSE(JobsChanOut)/QUIT)\n")
+	close(ai.JobsChanOut) // ⚠️ fastward: intermittent panic on close
+	ai.WaitAQ.Done(ai.NavigatorRoutineName)
 }
 
 func workerExecutive(job boost.Job[TraverseItemInput]) (boost.JobOutput[TraverseOutput], error) {
