@@ -17,17 +17,17 @@ func (f navigatorFactory) new(fn ...TraverseOptionFn) TraverseNavigator {
 	}
 
 	impl := navigatorImplFactory{}.new(o)
-	ctrl := &navigatorController{
+	nc := &navigationController{
 		impl: impl,
 	}
 
 	booter := bootstrapper{
 		o:  o,
-		nc: ctrl,
+		nc: nc,
 	}
 	booter.init()
 
-	return ctrl
+	return nc
 }
 
 type navigatorImplFactory struct{}
@@ -48,7 +48,8 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 	switch o.Store.Subscription {
 	case SubscribeAny:
 		impl = &universalNavigator{
-			navigator: navigator{o: o,
+			navigator: navigator{
+				o:     o,
 				agent: agent,
 				log:   logger,
 			},
@@ -56,7 +57,8 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 
 	case SubscribeFolders, SubscribeFoldersWithFiles:
 		impl = &foldersNavigator{
-			navigator: navigator{o: o,
+			navigator: navigator{
+				o:     o,
 				agent: agent,
 				log:   logger,
 			},
@@ -64,7 +66,8 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 
 	case SubscribeFiles:
 		impl = &filesNavigator{
-			navigator: navigator{o: o,
+			navigator: navigator{
+				o:     o,
 				agent: agent,
 				log:   logger,
 			},

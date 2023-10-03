@@ -54,11 +54,11 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						},
 					}
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 
 			When("using RootItemSubPath", func() {
@@ -91,11 +91,11 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 							},
 						}
 					}
-					session := &nav.PrimarySession{
-						Path:     path,
-						OptionFn: optionFn,
-					}
-					_, _ = session.Init().Run()
+
+					_, _ = nav.New().Primary(&nav.Prime{
+						Path:      path,
+						OptionsFn: optionFn,
+					}).Run()
 				})
 			})
 		})
@@ -128,11 +128,11 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						},
 					}
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 		})
 	})

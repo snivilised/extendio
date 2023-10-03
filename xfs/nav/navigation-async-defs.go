@@ -25,7 +25,7 @@ type TraverseItemOutputStreamR = boost.OutputStreamR[TraverseOutput]
 type TraverseItemOutputStreamW = boost.OutputStreamW[TraverseOutput]
 
 type AsyncInfo struct {
-	Context context.Context
+	Context context.Context // this will be retired, instead passed into Run
 
 	// this doesn't seem right, the client shouldn't have to specify
 	// the routine name for the navigator; should be a readonly prop

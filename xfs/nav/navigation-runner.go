@@ -1,7 +1,6 @@
 package nav
 
 import (
-	"context"
 	"fmt"
 	"runtime"
 
@@ -14,57 +13,6 @@ const (
 	MaxNoWorkers = 100
 )
 
-type RunnerOperators interface {
-	WithCPUPool() NavigationRunner
-	WithPool(now int) NavigationRunner
-	Consume(outputCh boost.OutputStream[TraverseOutput]) NavigationRunner
-}
-
-type NavigationRunner interface {
-	RunnerOperators
-	Run(ai ...*AsyncInfo) (*TraverseResult, error)
-}
-
-type sessionRunner struct {
-	session     TraverseSession
-	accelerator navigationAccelerator
-}
-
-// Run executes the traversal session
-func (r *sessionRunner) Run(ai ...*AsyncInfo) (*TraverseResult, error) {
-	if r.accelerator.active {
-		var fakeCancel context.CancelFunc // This is not real, don't invoke it
-		defer r.accelerator.finish(fakeCancel, ai[0])
-
-		r.accelerator.start(ai[0])
-
-		return r.session.Run(ai[0])
-	}
-
-	return r.session.Run()
-}
-
-func (r *sessionRunner) WithPool(now int) NavigationRunner {
-	r.accelerator.active = true
-	if now >= MinNoWorkers && now <= MaxNoWorkers {
-		r.accelerator.noWorkers = now
-	} else {
-		// TODO: turn this into an i18n error
-		panic(fmt.Errorf("no of workers requested (%v) is out of range ('%v' - '%v')",
-			now, MinNoWorkers, MaxNoWorkers),
-		)
-	}
-
-	return r
-}
-
-func (r *sessionRunner) WithCPUPool() NavigationRunner {
-	r.accelerator.active = true
-	r.accelerator.noWorkers = runtime.NumCPU()
-
-	return r
-}
-
 func CreateTraverseOutputCh(outputChSize int) boost.OutputStream[TraverseOutput] {
 	return lo.TernaryF(outputChSize > 0,
 		func() boost.OutputStream[TraverseOutput] {
@@ -76,23 +24,96 @@ func CreateTraverseOutputCh(outputChSize int) boost.OutputStream[TraverseOutput]
 	)
 }
 
-func (r *sessionRunner) Consume(outputCh boost.OutputStream[TraverseOutput]) NavigationRunner {
-	if !r.accelerator.active {
-		// TODO: turn this into an i18n error
-		panic(fmt.Errorf(
-			"worker pool acceleration not active; ensure With(CPU)Pool specified before Consume",
-		))
-	}
+type Runnable interface {
+	Run(args ...any) (*TraverseResult, error)
+}
 
-	r.accelerator.outputChOut = outputCh
+type AccelerationOperators interface {
+	Runnable
+	NoW(now int) AccelerationOperators
+	Consume(outputCh boost.OutputStream[TraverseOutput]) AccelerationOperators
+}
+
+type SessionRunner interface {
+	Primary(info *Prime) NavigationRunner
+	Resume(info *Resumption) NavigationRunner
+}
+
+type NavigationRunner interface {
+	AccelerationOperators
+	WithPool(ai *AsyncInfo) AccelerationOperators
+	Save(path string) error
+}
+
+func New() SessionRunner {
+	return &runner{}
+}
+
+type runner struct {
+	session TraverseSession
+	sync    *acceleratedSync
+}
+
+func (r *runner) Primary(info *Prime) NavigationRunner {
+	r.session = &Primary{
+		Path:     info.Path,
+		OptionFn: info.OptionsFn,
+	}
 
 	return r
 }
 
-type primaryRunner struct {
-	sessionRunner
+func (r *runner) Resume(info *Resumption) NavigationRunner {
+	r.session = &Resume{
+		RestorePath: info.RestorePath,
+		Restorer:    info.Restorer,
+		Strategy:    info.Strategy,
+	}
+
+	return r
 }
 
-type resumeRunner struct {
-	sessionRunner
+func (r *runner) WithPool(ai *AsyncInfo) AccelerationOperators {
+	r.sync = &acceleratedSync{
+		ai:        ai,
+		noWorkers: runtime.NumCPU(),
+	}
+
+	return r
+}
+
+func (r *runner) Save(path string) error {
+	return r.session.Save(path)
+}
+
+func (r *runner) NoW(now int) AccelerationOperators {
+	if now >= MinNoWorkers && now <= MaxNoWorkers {
+		r.sync.noWorkers = now
+	} else {
+		// TODO: turn this into an i18n error
+		panic(fmt.Errorf("no of workers requested (%v) is out of range ('%v' - '%v')",
+			now, MinNoWorkers, MaxNoWorkers),
+		)
+	}
+
+	return r
+}
+
+func (r *runner) Consume(outputCh boost.OutputStream[TraverseOutput]) AccelerationOperators {
+	r.sync.outputChOut = outputCh
+
+	return r
+}
+
+func (r *runner) Run(args ...any) (*TraverseResult, error) {
+	sync := lo.TernaryF(r.sync == nil,
+		func() NavigationSync {
+			return &inlineSync{}
+		},
+		func() NavigationSync {
+			return r.sync
+		},
+	)
+
+	return r.session.run(sync, args...)
 }

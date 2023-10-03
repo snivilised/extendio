@@ -1,6 +1,7 @@
 package nav
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"strings"
@@ -20,7 +21,14 @@ func (n *navigator) options() *TraverseOptions {
 	return n.o
 }
 
-func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
+func (n *navigator) ensync(
+	ctx context.Context,
+	cancel context.CancelFunc,
+	frame *navigationFrame,
+	ai *AsyncInfo,
+) {
+	_ = cancel
+
 	decorated := frame.client
 	decorator := &LabelledTraverseCallback{
 		Label: "boost decorator",
@@ -43,7 +51,7 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 
 			var err error
 			select {
-			case <-ai.Context.Done():
+			case <-ctx.Done():
 				err = fs.SkipDir
 			default:
 				job := TraverseItemJob{
@@ -56,7 +64,7 @@ func (n *navigator) ensync(frame *navigationFrame, ai *AsyncInfo) {
 				}
 
 				select {
-				case <-ai.Context.Done():
+				case <-ctx.Done():
 					err = fs.SkipDir
 
 				case ai.JobsChanOut <- job:

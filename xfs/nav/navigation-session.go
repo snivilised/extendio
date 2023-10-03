@@ -7,11 +7,13 @@ import (
 )
 
 type TraverseSession interface {
-	Init() NavigationRunner
-	Run(ai ...*AsyncInfo) (*TraverseResult, error)
 	StartedAt() time.Time
 	Elapsed() time.Duration
+	run(sync NavigationSync, args ...any) (*TraverseResult, error)
+	Save(path string) error
 }
+
+type sessionCallback func() (*TraverseResult, error)
 
 type session struct {
 	startAt  time.Time
@@ -26,136 +28,111 @@ func (s *session) finish(_ *TraverseResult, _ error) {
 	s.duration = time.Since(s.startAt)
 }
 
-// PrimarySession
-type PrimarySession struct {
+// Primary
+type Primary struct {
 	session
 	Path      string
 	OptionFn  TraverseOptionFn
 	navigator TraverseNavigator
 }
 
-func (s *PrimarySession) Init() NavigationRunner {
+func (s *Primary) init() {
 	s.navigator = navigatorFactory{}.new(s.OptionFn)
-
-	return &primaryRunner{
-		sessionRunner: sessionRunner{
-			session: s,
-		},
-	}
 }
 
 // Save persists the current state for a primary session, that allows
 // a subsequent run to complete the resume.
-func (s *PrimarySession) Save(path string) error {
+func (s *Primary) Save(path string) error {
 	return s.navigator.save(path)
 }
 
-func (s *PrimarySession) Run(ai ...*AsyncInfo) (result *TraverseResult, err error) {
+func (s *Primary) run(sync NavigationSync, args ...any) (result *TraverseResult, err error) {
 	defer s.finish(result, err)
 
-	s.session.start()
+	s.start()
+	s.init()
 
-	if len(ai) > 0 {
-		s.navigator.ensync(ai[0])
-	}
-
-	return s.navigator.walk(s.Path)
+	return sync.Run(
+		func() (*TraverseResult, error) {
+			return s.navigator.walk(s.Path)
+		},
+		s.navigator,
+		args...,
+	)
 }
 
-func (s *PrimarySession) StartedAt() time.Time {
+func (s *Primary) StartedAt() time.Time {
 	return s.startAt
 }
 
-func (s *PrimarySession) Elapsed() time.Duration {
+func (s *Primary) Elapsed() time.Duration {
 	return s.duration
 }
 
-func (s *PrimarySession) finish(result *TraverseResult, err error) {
+func (s *Primary) finish(result *TraverseResult, err error) {
 	defer s.session.finish(result, err)
 
-	_ = s.navigator.finish()
+	if s.navigator != nil {
+		_ = s.navigator.finish()
+	}
 }
 
-// ResumeSession represents a traversal that is invoked as a result
+// Resume represents a traversal that is invoked as a result
 // of the user needing to resume a previously interrupted navigation
 // session.
-type ResumeSession struct {
+type Resume struct {
 	session
-	Path     string
-	Restorer func(o *TraverseOptions, active *ActiveState)
-	Strategy ResumeStrategyEnum
-	rc       *resumeController
+	RestorePath string
+	Restorer    func(o *TraverseOptions, active *ActiveState)
+	Strategy    ResumeStrategyEnum
+	rsc         *resumeStrategyController
 }
 
-func (s *ResumeSession) Init() NavigationRunner {
+func (s *Resume) init() {
 	var err error
 
-	s.rc, err = resumerFactory{}.new(&ResumerInfo{
-		RestorePath: s.Path,
+	s.rsc, err = resumerFactory{}.new(&Resumption{
+		RestorePath: s.RestorePath,
 		Restorer:    s.Restorer,
 		Strategy:    s.Strategy,
 	})
 
 	if err != nil {
-		panic(xi18n.NewFailedToResumeFromFileError(s.Path, err))
-	}
-
-	return &resumeRunner{
-		sessionRunner: sessionRunner{
-			session: s,
-		},
-	}
-}
-
-// Restore is the pre run stage for a resume session
-func (s *ResumeSession) Restore(restore func(o *TraverseOptions, active *ActiveState)) NavigationRunner {
-	var err error
-
-	s.rc, err = resumerFactory{}.new(&ResumerInfo{
-		RestorePath: s.Path,
-		Restorer:    restore,
-		Strategy:    s.Strategy,
-	})
-
-	if err != nil {
-		panic(xi18n.NewFailedToResumeFromFileError(s.Path, err))
-	}
-
-	return &resumeRunner{
-		sessionRunner: sessionRunner{
-			session: s,
-		},
+		panic(xi18n.NewFailedToResumeFromFileError(s.RestorePath, err))
 	}
 }
 
 // Save persists the current state for a resume session, that allows
 // a subsequent run to complete the resume.
-func (s *ResumeSession) Save(path string) error {
-	return s.rc.navigator.save(path)
+func (s *Resume) Save(path string) error {
+	return s.rsc.nc.save(path)
 }
 
-func (s *ResumeSession) Run(ai ...*AsyncInfo) (result *TraverseResult, err error) {
+func (s *Resume) run(sync NavigationSync, args ...any) (result *TraverseResult, err error) {
 	defer s.finish(result, err)
 
-	s.session.start()
+	s.init()
+	s.start()
 
-	if len(ai) > 0 {
-		s.rc.navigator.ensync(ai[0])
-	}
-
-	return s.rc.Continue(ai...)
+	return sync.Run(
+		func() (*TraverseResult, error) {
+			return s.rsc.run()
+		},
+		s.rsc.nc,
+		args...,
+	)
 }
 
-func (s *ResumeSession) StartedAt() time.Time {
+func (s *Resume) StartedAt() time.Time {
 	return s.startAt
 }
 
-func (s *ResumeSession) Elapsed() time.Duration {
+func (s *Resume) Elapsed() time.Duration {
 	return s.duration
 }
 
-func (s *ResumeSession) finish(result *TraverseResult, err error) {
+func (s *Resume) finish(result *TraverseResult, err error) {
 	defer s.session.finish(result, err)
 
-	_ = s.rc.finish()
+	_ = s.rsc.finish()
 }

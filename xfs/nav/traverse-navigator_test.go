@@ -61,14 +61,14 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					o.Store.DoExtend = entry.extended
 					o.Callback = callback
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				result, _ := session.Init().Run()
 
-				_ = session.StartedAt()
-				_ = session.Elapsed()
+				result, _ := nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
+
+				// _ = session.StartedAt()
+				// _ = session.Elapsed()
 
 				if entry.visit {
 					_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
@@ -314,11 +314,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				o.Store.DoExtend = entry.extended
 				o.Callback = once
 			}
-			session := nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			result, _ := session.Init().Run()
+			result, _ := nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			if entry.visit {
 				_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
