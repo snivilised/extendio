@@ -39,11 +39,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeAny
 				}
-				session := &nav.PrimarySession{
-					Path:     root,
-					OptionFn: optionFn,
-				}
-				_ = session.Init()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      root,
+					OptionsFn: optionFn,
+				}).Run()
 
 				Fail("❌ expected panic due to missing callback")
 				Expect(false)
@@ -77,11 +77,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						},
 					}
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 
 				Fail("❌ expected panic due to item already being extended")
 			})
@@ -111,11 +111,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						},
 					}
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 
 				Expect(len(recording)).To(Equal(2))
 				Expect(recording[0]).To(BeNil())
@@ -134,11 +134,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.Store.DoExtend, false)
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 
 			It("🧪 should: invoke callback with error at ...", func() {
@@ -151,11 +151,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Store.DoExtend = true
 					o.Callback = errorCallback("(FILES):ERR-AT", o.Store.DoExtend, false)
 				}
-				session := nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 		})
 	})
@@ -178,11 +178,10 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = errorCallback("SORT-ERR", o.Store.DoExtend, false)
 			}
-			session := &nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			_, _ = session.Init().Run()
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			Fail("❌ expected panic due to sort error")
 		},
@@ -207,11 +206,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					}
 					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.Store.DoExtend, true)
 				}
-				session := nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 		})
 	})
@@ -241,11 +240,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						},
 					}
 				}
-				session := nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 		})
 	})
@@ -265,11 +264,11 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							},
 						}
 					}
-					session := nav.PrimarySession{
-						Path:     path,
-						OptionFn: optionFn,
-					}
-					_, err := session.Init().Run()
+					_, err := nav.New().Primary(&nav.Prime{
+						Path:      path,
+						OptionsFn: optionFn,
+					}).Run()
+
 					query := QueryPathNotFoundError(err)
 					Expect(query).To(BeTrue(),
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
@@ -290,11 +289,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							},
 						}
 					}
-					session := nav.PrimarySession{
-						Path:     path,
-						OptionFn: optionFn,
-					}
-					_, err := session.Init().Run()
+
+					_, err := nav.New().Primary(&nav.Prime{
+						Path:      path,
+						OptionsFn: optionFn,
+					}).Run()
+
 					query := QueryPathNotFoundError(err)
 					Expect(query).To(BeTrue(),
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
@@ -320,11 +320,12 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							},
 						}
 					}
-					session := nav.PrimarySession{
-						Path:     path,
-						OptionFn: optionFn,
-					}
-					_, err := session.Init().Run()
+
+					_, err := nav.New().Primary(&nav.Prime{
+						Path:      path,
+						OptionsFn: optionFn,
+					}).Run()
+
 					query := QueryPathNotFoundError(err)
 					Expect(query).To(BeTrue(),
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),

@@ -281,12 +281,11 @@ var _ = Describe("Resume", Ordered, func() {
 					}
 				}
 
-				var session nav.TraverseSession = &nav.ResumeSession{
-					Path:     fromJSONPath,
-					Restorer: restorer,
-					Strategy: strategyEn,
-				}
-				result, _ := session.Init().Run()
+				result, _ := nav.New().Resume(&nav.Resumption{
+					RestorePath: fromJSONPath,
+					Restorer:    restorer,
+					Strategy:    strategyEn,
+				}).Run()
 
 				if profile.mandatory != nil {
 					for _, name := range profile.mandatory {

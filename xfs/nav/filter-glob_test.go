@@ -75,11 +75,10 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					},
 				}
 			}
-			session := nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			result, _ := session.Init().Run()
+			result, err := nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
@@ -95,6 +94,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				}
 			}
 
+			Expect(err).Error().To(BeNil())
 			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
 				"Incorrect no of files")
 			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
@@ -235,11 +235,11 @@ var _ = Describe("FilterGlob", Ordered, func() {
 					},
 				}
 			}
-			session := nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			result, _ := session.Init().Run()
+
+			result, _ := nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {

@@ -60,6 +60,7 @@
     "staticcheck",
     "structcheck",
     "stylecheck",
+    "syncable",
     "Syncer",
     "teivah",
     "thelper",

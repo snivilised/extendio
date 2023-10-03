@@ -28,10 +28,9 @@ func (agentFactory) new(params *agentFactoryParams) *navigationAgent {
 }
 
 type navigationAgent struct {
-	doInvoke  utils.RoProp[bool]
-	o         *TraverseOptions
-	deFactory directoryEntriesFactory
-	handler   fileSystemErrorHandler
+	doInvoke utils.RoProp[bool]
+	o        *TraverseOptions
+	handler  fileSystemErrorHandler
 }
 
 type agentTopParams struct {
@@ -81,7 +80,8 @@ func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*Dir
 	//
 	entries, err := a.o.Hooks.ReadDirectory(path)
 
-	de := a.deFactory.new(&directoryEntriesFactoryParams{
+	deFactory := directoryEntriesFactory{}
+	de := deFactory.new(&directoryEntriesFactoryParams{
 		o:       a.o,
 		order:   order,
 		entries: &entries,

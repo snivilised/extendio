@@ -1,6 +1,7 @@
 package nav
 
 import (
+	"context"
 	"io/fs"
 
 	"github.com/snivilised/extendio/internal/log"
@@ -110,9 +111,25 @@ func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
 	return r, r.err
 }
 
+type Prime struct {
+	Path      string
+	OptionsFn TraverseOptionFn
+}
+
+// Resumption
+type Resumption struct {
+	RestorePath string
+	Restorer    PersistenceRestorer
+	Strategy    ResumeStrategyEnum
+}
+
+type syncable interface {
+	ensync(ctx context.Context, cancel context.CancelFunc, ai *AsyncInfo)
+}
+
 // TraverseNavigator interface to the main traverse instance.
 type TraverseNavigator interface {
-	ensync(_ *AsyncInfo)
+	syncable
 	walk(_ string) (*TraverseResult, error)
 	save(_ string) error
 	finish() error
@@ -126,7 +143,7 @@ type traverseParams struct {
 type navigatorImpl interface {
 	options() *TraverseOptions
 	logger() log.Logger
-	ensync(_ *navigationFrame, _ *AsyncInfo)
+	ensync(_ context.Context, _ context.CancelFunc, _ *navigationFrame, _ *AsyncInfo)
 	top(_ *navigationFrame, _ string) (*TraverseResult, error)
 	traverse(_ *traverseParams) error
 	finish() error

@@ -34,11 +34,11 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 		})
 
@@ -51,11 +51,11 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 					o.Callback = skipFolderCallback("College", "Northern Council")
 					o.Notify.OnBegin = begin("🛡️")
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				_, _ = session.Init().Run()
+
+				_, _ = nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
 			})
 		})
 	})
@@ -68,11 +68,11 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 				o.Callback = skipFolderCallback("College", "Northern Council")
 				o.Notify.OnBegin = begin("🛡️")
 			}
-			session := &nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			_, _ = session.Init().Run()
+
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 		},
 		func(entry *skipTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

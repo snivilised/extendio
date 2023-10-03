@@ -76,11 +76,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					},
 				}
 			}
-			session := nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			result, _ := session.Init().Run()
+			result, err := nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
@@ -96,6 +95,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				}
 			}
 
+			Expect(err).Error().To(BeNil())
 			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
 				"Incorrect no of files")
 			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
@@ -278,11 +278,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					},
 				}
 			}
-			session := nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			result, _ := session.Init().Run()
+
+			result, _ := nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			if entry.mandatory != nil {
 				for _, name := range entry.mandatory {
@@ -364,6 +364,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				pe := recover()
 				if entry.errorContains != "" {
 					if err, ok := pe.(error); ok {
+						// nil pointer dereference
 						Expect(strings.Contains(err.Error(), entry.errorContains)).To(BeTrue())
 					}
 				} else {
@@ -392,11 +393,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					},
 				}
 			}
-			session := nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			_, _ = session.Init().Run()
+
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			Fail(fmt.Sprintf("❌ expected panic due to '%v'", entry.name))
 		},
@@ -448,11 +449,11 @@ var _ = Describe("FilterRegex", Ordered, func() {
 					},
 				}
 			}
-			session := nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			_, _ = session.Init().Run()
+
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			Fail(fmt.Sprintf("❌ expected panic due to '%v'", entry.name))
 		},

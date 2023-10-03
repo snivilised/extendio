@@ -62,11 +62,12 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = recorder
 			}
-			session := &nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			_, _ = session.Init().Run()
+
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
+
 			sequence := -1
 
 			for _, n := range entry.expectedOrder {

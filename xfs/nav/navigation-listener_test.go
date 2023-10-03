@@ -73,11 +73,10 @@ var _ = Describe("Listener", Ordered, func() {
 					},
 				}
 			}
-			var session nav.TraverseSession = &nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			_, _ = session.Init().Run()
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 
 			reason := fmt.Sprintf("❌ remaining: '%v'", strings.Join(entry.mandatory, ", "))
 			Expect(len(entry.mandatory)).To(Equal(0), reason)
@@ -229,12 +228,11 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = foldersCallback("EARLY-EXIT-😴", o.Store.DoExtend)
 			}
-			session := &nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
 
-			_, _ = session.Init().Run()
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 		})
 
 		It("should: exit early (files)", func() {
@@ -256,11 +254,11 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = filesCallback("EARLY-EXIT-😴", o.Store.DoExtend)
 			}
-			session := &nav.PrimarySession{
-				Path:     path,
-				OptionFn: optionFn,
-			}
-			_, _ = session.Init().Run()
+
+			_, _ = nav.New().Primary(&nav.Prime{
+				Path:      path,
+				OptionsFn: optionFn,
+			}).Run()
 		})
 	})
 
@@ -326,11 +324,12 @@ var _ = Describe("Listener", Ordered, func() {
 					}
 					o.Store.Logging = logo()
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
-				result, _ := session.Init().Run()
+
+				result, _ := nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				}).Run()
+
 				files := result.Metrics.Count(nav.MetricNoFilesInvokedEn)
 				folders := result.Metrics.Count(nav.MetricNoFoldersInvokedEn)
 

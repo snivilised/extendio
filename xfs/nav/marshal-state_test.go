@@ -68,13 +68,14 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 						},
 					}
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
 
-				_, _ = session.Init().Run()
-				err := session.Save(toJSONPath)
+				runner := nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				})
+
+				_, _ = runner.Run()
+				err := runner.Save(toJSONPath)
 
 				Expect(err).To(BeNil())
 			})
@@ -104,13 +105,13 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 						},
 					}
 				}
-				session := &nav.PrimarySession{
-					Path:     path,
-					OptionFn: optionFn,
-				}
+				runner := nav.New().Primary(&nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				})
 
-				_, _ = session.Init().Run()
-				_ = session.Save(toJSONPath)
+				_, _ = runner.Run()
+				_ = runner.Save(toJSONPath)
 
 				Fail(fmt.Sprintf("❌ expected panic due to %v", entry.errorContains))
 			},

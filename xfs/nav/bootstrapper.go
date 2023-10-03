@@ -13,8 +13,8 @@ func (d *nullDetacher) detach(_ *navigationFrame) {
 
 type bootstrapper struct {
 	o        *TraverseOptions
-	nc       *navigatorController
-	rc       *resumeController
+	nc       *navigationController
+	rc       *resumeStrategyController
 	detacher resumeDetacher
 }
 
@@ -34,7 +34,10 @@ func (b *bootstrapper) init() {
 }
 
 func (b *bootstrapper) initFilters() {
-	b.o.Hooks.InitFilters(b.o, b.nc.frame)
+	b.o.Hooks.InitFilters(
+		b.o,
+		b.nc.frame,
+	)
 }
 
 func (b *bootstrapper) initNotifiers() {
@@ -58,12 +61,14 @@ func (b *bootstrapper) initListener() {
 	}
 
 	b.nc.frame.listener.makeStates(&listenStatesParams{
-		o: b.o, frame: b.nc.frame,
+		o:        b.o,
+		frame:    b.nc.frame,
 		detacher: b,
 	})
 
 	b.nc.frame.listener.decorate(&listenStatesParams{
-		triggers: &state.Listen, frame: b.nc.frame,
+		triggers: &state.Listen,
+		frame:    b.nc.frame,
 	})
 }
 

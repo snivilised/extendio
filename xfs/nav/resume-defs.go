@@ -14,13 +14,13 @@ const (
 type strategyInitParams struct {
 	ps       *persistState
 	frame    *navigationFrame
-	rc       *resumeController
+	rc       *resumeStrategyController
 	triggers *ListenTriggers
 }
 
 type strategyResumeInfo struct {
 	ps *persistState
-	nc *navigatorController
+	nc *navigationController
 	ai *AsyncInfo
 }
 
@@ -39,15 +39,14 @@ type resumeStrategy interface {
 }
 
 type baseStrategy struct {
-	o         *TraverseOptions
-	ps        *persistState
-	nc        *navigatorController
-	deFactory *directoryEntriesFactory
+	o  *TraverseOptions
+	ps *persistState
+	nc *navigationController
 }
 
 func (s *baseStrategy) ensync(ai *AsyncInfo) {
 	if ai != nil {
-		s.nc.impl.ensync(s.nc.frame, ai)
+		s.nc.impl.ensync(ai.Context, func() {}, s.nc.frame, ai)
 	}
 }
 

@@ -139,7 +139,8 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 	})
 	siblings := groups[followingSiblings]
 
-	de := s.deFactory.new(
+	deFactory := directoryEntriesFactory{}
+	de := deFactory.new(
 		&directoryEntriesFactoryParams{
 			o:       s.o,
 			order:   params.order,

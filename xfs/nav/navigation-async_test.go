@@ -3,7 +3,6 @@ package nav_test
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/fortytw2/leaktest"
@@ -28,13 +27,13 @@ type (
 		Listen   nav.ListeningState
 	}
 
-	operatorFunc func(r nav.NavigationRunner) nav.NavigationRunner
+	acceleratorFunc func(a nav.AccelerationOperators) nav.AccelerationOperators
 
 	asyncTE struct {
-		given    string
-		should   string
-		operator operatorFunc
-		resume   *asyncResumeTE
+		given  string
+		should string
+		acc    acceleratorFunc
+		resume *asyncResumeTE
 	}
 
 	asyncOkTE struct {
@@ -107,20 +106,20 @@ func (c *Consumer[O]) run(ctx context.Context) {
 	}
 }
 
-func getSession(entry *asyncTE, root, path, resumeJSONPath string) nav.TraverseSession {
+func getRunner(entry *asyncTE, root, path, resumeJSONPath string) nav.NavigationRunner {
 	return lo.TernaryF(entry.resume == nil,
-		func() nav.TraverseSession {
-			return &nav.PrimarySession{
+		func() nav.NavigationRunner {
+			return nav.New().Primary(&nav.Prime{
 				Path: path,
-				OptionFn: func(o *nav.TraverseOptions) {
+				OptionsFn: func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Store.DoExtend = true
 					o.Callback = boostCallback("boost primary session")
 					o.Notify.OnBegin = begin("🛡️")
 				},
-			}
+			})
 		},
-		func() nav.TraverseSession {
+		func() nav.NavigationRunner {
 			restorer := func(o *nav.TraverseOptions, active *nav.ActiveState) {
 				// synthetic assignments: The client should not perform these
 				// types of assignments.
@@ -133,11 +132,12 @@ func getSession(entry *asyncTE, root, path, resumeJSONPath string) nav.TraverseS
 				// end of synthetic assignments
 				o.Callback = boostCallback(fmt.Sprintf("%v/%v", entry.given, entry.should))
 			}
-			return &nav.ResumeSession{
-				Path:     resumeJSONPath,
-				Restorer: restorer,
-				Strategy: entry.resume.Strategy,
-			}
+
+			return nav.New().Resume(&nav.Resumption{
+				RestorePath: resumeJSONPath,
+				Restorer:    restorer,
+				Strategy:    entry.resume.Strategy,
+			})
 		},
 	)
 }
@@ -174,39 +174,42 @@ var _ = Describe("navigation", Ordered, func() {
 	})
 
 	DescribeTable("async",
-		func(ctx SpecContext, entry *asyncOkTE) {
+		func(ctxSpec SpecContext, entry *asyncOkTE) {
 			defer leaktest.Check(GinkgoT())()
 
 			var (
-				sentry boost.WaitGroupAn
+				consumer *Consumer[nav.TraverseOutput]
 			)
 
+			ctx, cancel := context.WithCancel(ctxSpec)
 			path := helpers.Path(root, "RETRO-WAVE")
-			session := getSession(&entry.asyncTE, root, path, fromJSONPath)
-			runner := session.Init()
+			runner := getRunner(&entry.asyncTE, root, path, fromJSONPath)
+			wgan := boost.NewAnnotatedWaitGroup("🍂 traversal")
+			wgan.Add(1, navigatorRoutineName)
 
-			if entry.operator != nil {
-				entry.operator(runner)
+			runner.WithPool(
+				&nav.AsyncInfo{
+					Context:              ctx,
+					NavigatorRoutineName: navigatorRoutineName,
+					WaitAQ:               wgan,
+					JobsChanOut:          jobsChOut,
+				},
+			)
+
+			if entry.acc != nil {
+				entry.acc(runner)
 			}
 
-			sentry = boost.NewAnnotatedWaitGroup("🍂 traversal")
-			sentry.Add(1, navigatorRoutineName)
-			_, err := runner.Run(&nav.AsyncInfo{
-				Context:              ctx,
-				NavigatorRoutineName: navigatorRoutineName,
-				WaitAQ:               sentry,
-				JobsChanOut:          jobsChOut,
-			})
+			_, err := runner.Run(ctx, cancel)
 
-			var consumer *Consumer[nav.TraverseOutput]
 			if outputCh != nil {
 				consumer = StartConsumer[nav.TraverseOutput](
-					ctx,
-					sentry,
+					ctxSpec,
+					wgan,
 					outputCh,
 				)
 			}
-			sentry.Wait("👾 test-main")
+			wgan.Wait("👾 test-main")
 
 			if consumer != nil {
 				fmt.Printf("---> 📌📌📌 consumer.count: '%v'\n", consumer.Count)
@@ -222,8 +225,8 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "PrimarySession WithCPUPool",
 				should: "run with context",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					return r.WithCPUPool()
+				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
+					return a // the default is like CPUPool
 				},
 			},
 		}, SpecTimeout(time.Second*2)),
@@ -232,8 +235,8 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "PrimarySession WithPool",
 				should: "run with context",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					return r.WithPool(3)
+				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
+					return a.NoW(3)
 				},
 			},
 		}, SpecTimeout(time.Second*2)),
@@ -242,8 +245,8 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "Fastward Resume WithCPUPool(universal: listen pending(logged)",
 				should: "run with context",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					return r.WithCPUPool()
+				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
+					return a
 				},
 				// 🔥 panic: send on closed channel; this is intermittent
 				// probably a race condition
@@ -259,8 +262,8 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "Spawn Resume WithPool(universal: listen not active/deaf)",
 				should: "run with context",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					return r.WithPool(3)
+				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
+					return a.NoW(3)
 				},
 				resume: &asyncResumeTE{
 					Strategy: nav.ResumeStrategySpawnEn,
@@ -273,9 +276,8 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "PrimarySession Consume",
 				should: "enable output to be consumed externally",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					outputCh = nav.CreateTraverseOutputCh(3)
-					return r.WithPool(4).Consume(outputCh)
+				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
+					return a.NoW(4).Consume(outputCh)
 				},
 			},
 		}, SpecTimeout(time.Second*2)),
@@ -284,9 +286,9 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "Fastward Resume Consume(universal: listen pending(logged)",
 				should: "enable output to be consumed externally",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
+				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
 					outputCh = nav.CreateTraverseOutputCh(3)
-					return r.WithPool(4).Consume(outputCh)
+					return a.NoW(4).Consume(outputCh)
 				},
 				// 🔥 panic: send on closed channel;
 				//
@@ -295,96 +297,6 @@ var _ = Describe("navigation", Ordered, func() {
 					Listen:   nav.ListenPending,
 				},
 			},
-		}, SpecTimeout(time.Second*2)),
-	)
-
-	DescribeTable(
-		"operator misuse(panic)",
-		func(ctx SpecContext, entry *asyncErrorTE) {
-			defer leaktest.Check(GinkgoT())()
-
-			defer func() {
-				pe := recover()
-				if err, ok := pe.(error); !ok {
-					Fail(fmt.Sprintf("panic is not an error (%v)", err))
-				} else if !strings.Contains(err.Error(),
-					entry.fragment) {
-					Fail(fmt.Sprintf("🔥 error (%v), does not contain expected fragment (%v)",
-						err.Error(), entry.fragment))
-				}
-			}()
-
-			if entry.fragment == "" {
-				Fail("🔥 invalid test; error fragment not specified")
-			}
-
-			var sentry boost.WaitGroupAn
-
-			path := helpers.Path(root, "RETRO-WAVE")
-			session := getSession(&entry.asyncTE, root, path, fromJSONPath)
-			runner := session.Init()
-
-			if entry.operator != nil {
-				entry.operator(runner)
-			}
-
-			sentry = boost.NewAnnotatedWaitGroup("🍂 traversal")
-			sentry.Add(1, navigatorRoutineName)
-			_, _ = runner.Run(&nav.AsyncInfo{
-				Context:              ctx,
-				NavigatorRoutineName: navigatorRoutineName,
-				WaitAQ:               sentry,
-				JobsChanOut:          jobsChOut,
-			})
-
-			Fail("❌ expected panic due to invalid boost traversal setup")
-		},
-		func(entry *asyncErrorTE) string {
-			return fmt.Sprintf("🧪 ===> given: '%v', should: '%v'", entry.given, entry.should)
-		},
-
-		Entry(nil, &asyncErrorTE{
-			asyncTE: asyncTE{
-				given:  "PrimarySession Consume, missing no of workers",
-				should: "panic",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					outputCh = nav.CreateTraverseOutputCh(3)
-					return r.Consume(outputCh)
-				},
-			},
-			fragment: "worker pool acceleration not active",
-		}, SpecTimeout(time.Second*2)),
-
-		Entry(nil, &asyncErrorTE{
-			asyncTE: asyncTE{
-				given:  "Fastward Resume Consume(universal: listen pending(logged), missing no of workers",
-				should: "panic",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					outputCh = nav.CreateTraverseOutputCh(3)
-					return r.Consume(outputCh)
-				},
-				resume: &asyncResumeTE{
-					Strategy: nav.ResumeStrategyFastwardEn,
-					Listen:   nav.ListenPending,
-				},
-			},
-			fragment: "worker pool acceleration not active",
-		}, SpecTimeout(time.Second*2)),
-
-		Entry(nil, &asyncErrorTE{
-			asyncTE: asyncTE{
-				given:  "Spawn Resume Consume(universal: listen not active/deaf), WithPool after Consume",
-				should: "panic",
-				operator: func(r nav.NavigationRunner) nav.NavigationRunner {
-					outputCh = nav.CreateTraverseOutputCh(3)
-					return r.Consume(outputCh).WithPool(4)
-				},
-				resume: &asyncResumeTE{
-					Strategy: nav.ResumeStrategySpawnEn,
-					Listen:   nav.ListenDeaf,
-				},
-			},
-			fragment: "worker pool acceleration not active",
 		}, SpecTimeout(time.Second*2)),
 	)
 })
