@@ -189,7 +189,6 @@ var _ = Describe("navigation", Ordered, func() {
 
 			runner.WithPool(
 				&nav.AsyncInfo{
-					Context:              ctx,
 					NavigatorRoutineName: navigatorRoutineName,
 					WaitAQ:               wgan,
 					JobsChanOut:          jobsChOut,
