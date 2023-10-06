@@ -300,6 +300,9 @@ var _ = Describe("Resume", Ordered, func() {
 					files:   result.Metrics.Count(nav.MetricNoFilesInvokedEn),
 					folders: result.Metrics.Count(nav.MetricNoFoldersInvokedEn),
 				}
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			}
 
 			for _, strategyEn := range strategies {

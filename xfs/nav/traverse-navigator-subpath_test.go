@@ -55,10 +55,13 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					}
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 
 			When("using RootItemSubPath", func() {
@@ -92,10 +95,13 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						}
 					}
 
-					_, _ = nav.New().Primary(&nav.Prime{
+					result, _ := nav.New().Primary(&nav.Prime{
 						Path:      path,
 						OptionsFn: optionFn,
 					}).Run()
+
+					_ = result.Session.StartedAt()
+					_ = result.Session.Elapsed()
 				})
 			})
 		})
@@ -129,10 +135,13 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					}
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 		})
 	})

@@ -72,7 +72,7 @@ func (n *navigator) ensync(
 					// intermittent panic: send on closed channel, in fastward resume scenarios
 					// 'gr:observable-navigator'
 
-					fmt.Printf("-->> 🍆🍆 sending job(%v)\n", job.ID)
+					fmt.Printf("-->> 🍇🍇 sending job(%v)\n", job.ID)
 				}
 			}
 

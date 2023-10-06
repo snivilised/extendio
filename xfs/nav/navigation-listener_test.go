@@ -73,13 +73,16 @@ var _ = Describe("Listener", Ordered, func() {
 					},
 				}
 			}
-			_, _ = nav.New().Primary(&nav.Prime{
+			result, _ := nav.New().Primary(&nav.Prime{
 				Path:      path,
 				OptionsFn: optionFn,
 			}).Run()
 
 			reason := fmt.Sprintf("❌ remaining: '%v'", strings.Join(entry.mandatory, ", "))
 			Expect(len(entry.mandatory)).To(Equal(0), reason)
+
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 		},
 		func(entry *listenTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
@@ -229,10 +232,13 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Callback = foldersCallback("EARLY-EXIT-😴", o.Store.DoExtend)
 			}
 
-			_, _ = nav.New().Primary(&nav.Prime{
+			result, _ := nav.New().Primary(&nav.Prime{
 				Path:      path,
 				OptionsFn: optionFn,
 			}).Run()
+
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 		})
 
 		It("should: exit early (files)", func() {
@@ -255,10 +261,13 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Callback = filesCallback("EARLY-EXIT-😴", o.Store.DoExtend)
 			}
 
-			_, _ = nav.New().Primary(&nav.Prime{
+			result, _ := nav.New().Primary(&nav.Prime{
 				Path:      path,
 				OptionsFn: optionFn,
 			}).Run()
+
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 		})
 	})
 
@@ -336,6 +345,9 @@ var _ = Describe("Listener", Ordered, func() {
 				GinkgoWriter.Printf("---> 🍕🍕 Metrics, files:'%v', folders:'%v'\n",
 					files, folders,
 				)
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 		})
 	})

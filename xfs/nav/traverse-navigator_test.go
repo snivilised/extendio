@@ -67,8 +67,8 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				// _ = session.StartedAt()
-				// _ = session.Elapsed()
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 
 				if entry.visit {
 					_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
