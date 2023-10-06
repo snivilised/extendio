@@ -1,8 +1,6 @@
 package nav
 
 import (
-	"context"
-
 	"github.com/snivilised/lorax/boost"
 )
 
@@ -25,8 +23,6 @@ type TraverseItemOutputStreamR = boost.JobOutputStreamR[TraverseOutput]
 type TraverseItemOutputStreamW = boost.JobOutputStreamW[TraverseOutput]
 
 type AsyncInfo struct {
-	Context context.Context // this will be retired, instead passed into Run
-
 	// this doesn't seem right, the client shouldn't have to specify
 	// the routine name for the navigator; should be a readonly prop
 	// of the navigator. Perhaps, it can be overridden by the user

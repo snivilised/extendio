@@ -44,12 +44,6 @@ type baseStrategy struct {
 	nc *navigationController
 }
 
-func (s *baseStrategy) ensync(ai *AsyncInfo) {
-	if ai != nil {
-		s.nc.impl.ensync(ai.Context, func() {}, s.nc.frame, ai)
-	}
-}
-
 func (s *baseStrategy) attach(_ *resumeAttachParams) {}
 func (s *baseStrategy) detach(_ *navigationFrame)    {}
 func (s *baseStrategy) finish() error {
