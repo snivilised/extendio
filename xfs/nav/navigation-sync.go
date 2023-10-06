@@ -61,7 +61,7 @@ type acceleratedSync struct {
 	baseSync
 	ai          *AsyncInfo
 	noWorkers   int
-	outputChOut boost.OutputStream[TraverseOutput]
+	outputChOut boost.JobOutputStream[TraverseOutput]
 	pool        *boost.WorkerPool[TraverseItemInput, TraverseOutput]
 }
 
@@ -81,8 +81,6 @@ func (s *acceleratedSync) Run(callback sessionCallback, nc syncable, args ...any
 }
 
 func (s *acceleratedSync) start(ctx context.Context, cancel context.CancelFunc) {
-	_ = cancel
-
 	s.pool = boost.NewWorkerPool[TraverseItemInput, TraverseOutput](
 		&boost.NewWorkerPoolParams[TraverseItemInput, TraverseOutput]{
 			NoWorkers: s.noWorkers,
@@ -97,7 +95,7 @@ func (s *acceleratedSync) start(ctx context.Context, cancel context.CancelFunc) 
 	//
 	s.ai.WaitAQ.Add(1, s.pool.RoutineName)
 
-	go s.pool.Start(ctx, s.outputChOut)
+	go s.pool.Start(ctx, cancel, s.outputChOut)
 }
 
 func (s *acceleratedSync) finish(
@@ -106,4 +104,15 @@ func (s *acceleratedSync) finish(
 	fmt.Printf("---> observable navigator 😈😈😈 defer session.finish (CLOSE(JobsChanOut)/QUIT)\n")
 	close(ai.JobsChanOut) // ⚠️ fastward: intermittent panic on close
 	ai.WaitAQ.Done(ai.NavigatorRoutineName)
+}
+
+func workerExecutive(job boost.Job[TraverseItemInput]) (boost.JobOutput[TraverseOutput], error) {
+	err := job.Input.Fn(job.Input.Item)
+
+	return boost.JobOutput[TraverseOutput]{
+		Payload: TraverseOutput{
+			Item:  job.Input.Item,
+			Error: err,
+		},
+	}, err
 }

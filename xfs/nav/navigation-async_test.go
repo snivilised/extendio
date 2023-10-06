@@ -57,14 +57,14 @@ const (
 type Consumer[O any] struct {
 	waitAQ      boost.AnnotatedWgAQ
 	RoutineName boost.GoRoutineName
-	OutputChIn  boost.OutputStream[O]
+	OutputChIn  boost.JobOutputStream[O]
 	Count       int
 }
 
 func StartConsumer[O any](
 	ctx context.Context,
 	waitAQ boost.AnnotatedWgAQ,
-	outputChIn boost.OutputStream[O],
+	outputChIn boost.JobOutputStream[O],
 ) *Consumer[O] {
 	consumer := &Consumer[O]{
 		waitAQ:      waitAQ,
@@ -148,7 +148,7 @@ var _ = Describe("navigation", Ordered, func() {
 		jroot        string
 		fromJSONPath string
 		jobsChOut    nav.TraverseItemJobStream
-		outputCh     boost.OutputStream[nav.TraverseOutput]
+		outputCh     boost.JobOutputStream[nav.TraverseOutput]
 	)
 
 	BeforeAll(func() {
