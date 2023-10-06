@@ -88,9 +88,9 @@ type EndHandler func(_ *TraverseResult)
 
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
+	Session Session
 	Metrics *NavigationMetrics
-	// collection *MetricCollection
-	err error
+	err     error
 }
 
 func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {

@@ -35,10 +35,13 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 					o.Notify.OnBegin = begin("🛡️")
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 		})
 
@@ -52,10 +55,13 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 					o.Notify.OnBegin = begin("🛡️")
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 		})
 	})
@@ -69,10 +75,13 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 				o.Notify.OnBegin = begin("🛡️")
 			}
 
-			_, _ = nav.New().Primary(&nav.Prime{
+			result, _ := nav.New().Primary(&nav.Prime{
 				Path:      path,
 				OptionsFn: optionFn,
 			}).Run()
+
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 		},
 		func(entry *skipTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

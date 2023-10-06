@@ -27,13 +27,13 @@ type (
 		Listen   nav.ListeningState
 	}
 
-	acceleratorFunc func(a nav.AccelerationOperators) nav.AccelerationOperators
+	operatorFunc func(op nav.AccelerationOperators) nav.AccelerationOperators
 
 	asyncTE struct {
-		given  string
-		should string
-		acc    acceleratorFunc
-		resume *asyncResumeTE
+		given    string
+		should   string
+		operator operatorFunc
+		resume   *asyncResumeTE
 	}
 
 	asyncOkTE struct {
@@ -195,11 +195,11 @@ var _ = Describe("navigation", Ordered, func() {
 				},
 			)
 
-			if entry.acc != nil {
-				entry.acc(runner)
+			if entry.operator != nil {
+				entry.operator(runner)
 			}
 
-			_, err := runner.Run(ctx, cancel)
+			result, err := runner.Run(ctx, cancel)
 
 			if outputCh != nil {
 				consumer = StartConsumer[nav.TraverseOutput](
@@ -208,7 +208,10 @@ var _ = Describe("navigation", Ordered, func() {
 					outputCh,
 				)
 			}
+
 			wgan.Wait("👾 test-main")
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 
 			if consumer != nil {
 				fmt.Printf("---> 📌📌📌 consumer.count: '%v'\n", consumer.Count)
@@ -222,20 +225,20 @@ var _ = Describe("navigation", Ordered, func() {
 
 		Entry(nil, &asyncOkTE{
 			asyncTE: asyncTE{
-				given:  "PrimarySession WithCPUPool",
+				given:  "Primary Session WithCPUPool",
 				should: "run with context",
-				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
-					return a // the default is like CPUPool
+				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
+					return op // the default is like CPUPool
 				},
 			},
 		}, SpecTimeout(time.Second*2)),
 
 		Entry(nil, &asyncOkTE{
 			asyncTE: asyncTE{
-				given:  "PrimarySession WithPool",
+				given:  "Primary Session WithPool",
 				should: "run with context",
-				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
-					return a.NoW(3)
+				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
+					return op.NoW(3)
 				},
 			},
 		}, SpecTimeout(time.Second*2)),
@@ -244,8 +247,8 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "Fastward Resume WithCPUPool(universal: listen pending(logged)",
 				should: "run with context",
-				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
-					return a
+				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
+					return op
 				},
 				// 🔥 panic: send on closed channel; this is intermittent
 				// probably a race condition
@@ -261,8 +264,8 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "Spawn Resume WithPool(universal: listen not active/deaf)",
 				should: "run with context",
-				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
-					return a.NoW(3)
+				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
+					return op.NoW(3)
 				},
 				resume: &asyncResumeTE{
 					Strategy: nav.ResumeStrategySpawnEn,
@@ -273,10 +276,10 @@ var _ = Describe("navigation", Ordered, func() {
 
 		Entry(nil, &asyncOkTE{
 			asyncTE: asyncTE{
-				given:  "PrimarySession Consume",
+				given:  "Primary Session Consume",
 				should: "enable output to be consumed externally",
-				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
-					return a.NoW(4).Consume(outputCh)
+				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
+					return op.NoW(4).Consume(outputCh)
 				},
 			},
 		}, SpecTimeout(time.Second*2)),
@@ -285,9 +288,9 @@ var _ = Describe("navigation", Ordered, func() {
 			asyncTE: asyncTE{
 				given:  "Fastward Resume Consume(universal: listen pending(logged)",
 				should: "enable output to be consumed externally",
-				acc: func(a nav.AccelerationOperators) nav.AccelerationOperators {
+				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
 					outputCh = nav.CreateTraverseOutputCh(3)
-					return a.NoW(4).Consume(outputCh)
+					return op.NoW(4).Consume(outputCh)
 				},
 				// 🔥 panic: send on closed channel;
 				//

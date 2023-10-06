@@ -48,7 +48,8 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				o.Store.DoExtend = true
 				o.Callback = scopeRecorder
 			}
-			_, _ = nav.New().Primary(&nav.Prime{
+
+			result, _ := nav.New().Primary(&nav.Prime{
 				Path:      path,
 				OptionsFn: optionFn,
 			}).Run()
@@ -57,6 +58,9 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				actual := recording[name]
 				Expect(actual).To(Equal(expected), helpers.Reason(name))
 			}
+
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 		},
 		func(entry *scopeTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

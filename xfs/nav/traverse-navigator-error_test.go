@@ -135,10 +135,14 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.Store.DoExtend, false)
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
+
 			})
 
 			It("🧪 should: invoke callback with error at ...", func() {
@@ -152,10 +156,13 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Callback = errorCallback("(FILES):ERR-AT", o.Store.DoExtend, false)
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 		})
 	})
@@ -207,10 +214,13 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.Store.DoExtend, true)
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 		})
 	})
@@ -241,10 +251,13 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					}
 				}
 
-				_, _ = nav.New().Primary(&nav.Prime{
+				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
 				}).Run()
+
+				_ = result.Session.StartedAt()
+				_ = result.Session.Elapsed()
 			})
 		})
 	})
@@ -264,7 +277,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 							},
 						}
 					}
-					_, err := nav.New().Primary(&nav.Prime{
+					result, err := nav.New().Primary(&nav.Prime{
 						Path:      path,
 						OptionsFn: optionFn,
 					}).Run()
@@ -273,6 +286,9 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					Expect(query).To(BeTrue(),
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
 					)
+
+					_ = result.Session.StartedAt()
+					_ = result.Session.Elapsed()
 				})
 			})
 
@@ -290,7 +306,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						}
 					}
 
-					_, err := nav.New().Primary(&nav.Prime{
+					result, err := nav.New().Primary(&nav.Prime{
 						Path:      path,
 						OptionsFn: optionFn,
 					}).Run()
@@ -299,6 +315,8 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					Expect(query).To(BeTrue(),
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
 					)
+					_ = result.Session.StartedAt()
+					_ = result.Session.Elapsed()
 				})
 			})
 		})
@@ -321,7 +339,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						}
 					}
 
-					_, err := nav.New().Primary(&nav.Prime{
+					result, err := nav.New().Primary(&nav.Prime{
 						Path:      path,
 						OptionsFn: optionFn,
 					}).Run()
@@ -330,6 +348,9 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					Expect(query).To(BeTrue(),
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
 					)
+
+					_ = result.Session.StartedAt()
+					_ = result.Session.Elapsed()
 				})
 			})
 		})

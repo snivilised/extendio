@@ -71,7 +71,9 @@ func (s *acceleratedSync) Run(callback sessionCallback, nc syncable, args ...any
 	extracted, ctx, cancel := s.extract(args...)
 
 	if !extracted {
-		panic("failed to obtain context")
+		// TODO: convert to i18n error
+		//
+		panic("failed to extract context")
 	}
 
 	nc.ensync(ctx, cancel, s.ai)

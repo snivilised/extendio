@@ -63,7 +63,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				o.Callback = recorder
 			}
 
-			_, _ = nav.New().Primary(&nav.Prime{
+			result, _ := nav.New().Primary(&nav.Prime{
 				Path:      path,
 				OptionsFn: optionFn,
 			}).Run()
@@ -74,6 +74,9 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				Expect(recording[n] > sequence).To(BeTrue(), helpers.Reason(n))
 				sequence = recording[n]
 			}
+
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 		},
 		func(entry *sortTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

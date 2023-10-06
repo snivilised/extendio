@@ -6,9 +6,13 @@ import (
 	xi18n "github.com/snivilised/extendio/i18n"
 )
 
-type TraverseSession interface {
+type Session interface {
 	StartedAt() time.Time
 	Elapsed() time.Duration
+}
+
+type TraverseSession interface {
+	Session
 	run(sync NavigationSync, args ...any) (*TraverseResult, error)
 	Save(path string) error
 }
@@ -20,12 +24,24 @@ type session struct {
 	duration time.Duration
 }
 
+func (s *session) StartedAt() time.Time {
+	return s.startAt
+}
+
+func (s *session) Elapsed() time.Duration {
+	return s.duration
+}
+
 func (s *session) start() {
 	s.startAt = time.Now()
 }
 
-func (s *session) finish(_ *TraverseResult, _ error) {
+func (s *session) finish(result *TraverseResult, _ error) {
 	s.duration = time.Since(s.startAt)
+
+	if result != nil {
+		result.Session = s
+	}
 }
 
 // Primary
@@ -36,45 +52,39 @@ type Primary struct {
 	navigator TraverseNavigator
 }
 
-func (s *Primary) init() {
-	s.navigator = navigatorFactory{}.new(s.OptionFn)
-}
-
 // Save persists the current state for a primary session, that allows
 // a subsequent run to complete the resume.
 func (s *Primary) Save(path string) error {
 	return s.navigator.save(path)
 }
 
-func (s *Primary) run(sync NavigationSync, args ...any) (result *TraverseResult, err error) {
-	defer s.finish(result, err)
+func (s *Primary) init() {
+	s.navigator = navigatorFactory{}.new(s.OptionFn)
+}
 
+func (s *Primary) run(sync NavigationSync, args ...any) (*TraverseResult, error) {
 	s.start()
 	s.init()
 
-	return sync.Run(
+	result, err := sync.Run(
 		func() (*TraverseResult, error) {
 			return s.navigator.walk(s.Path)
 		},
 		s.navigator,
 		args...,
 	)
-}
 
-func (s *Primary) StartedAt() time.Time {
-	return s.startAt
-}
+	s.finish(result, err)
 
-func (s *Primary) Elapsed() time.Duration {
-	return s.duration
+	return result, err
 }
 
 func (s *Primary) finish(result *TraverseResult, err error) {
-	defer s.session.finish(result, err)
-
 	if s.navigator != nil {
 		_ = s.navigator.finish()
 	}
+
+	s.session.finish(result, err)
 }
 
 // Resume represents a traversal that is invoked as a result
@@ -86,6 +96,12 @@ type Resume struct {
 	Restorer    func(o *TraverseOptions, active *ActiveState)
 	Strategy    ResumeStrategyEnum
 	rsc         *resumeStrategyController
+}
+
+// Save persists the current state for a resume session, that allows
+// a subsequent run to complete the resume.
+func (s *Resume) Save(path string) error {
+	return s.rsc.nc.save(path)
 }
 
 func (s *Resume) init() {
@@ -102,37 +118,27 @@ func (s *Resume) init() {
 	}
 }
 
-// Save persists the current state for a resume session, that allows
-// a subsequent run to complete the resume.
-func (s *Resume) Save(path string) error {
-	return s.rsc.nc.save(path)
-}
-
-func (s *Resume) run(sync NavigationSync, args ...any) (result *TraverseResult, err error) {
-	defer s.finish(result, err)
-
-	s.init()
+func (s *Resume) run(sync NavigationSync, args ...any) (*TraverseResult, error) {
 	s.start()
+	s.init()
 
-	return sync.Run(
+	result, err := sync.Run(
 		func() (*TraverseResult, error) {
 			return s.rsc.run()
 		},
 		s.rsc.nc,
 		args...,
 	)
-}
 
-func (s *Resume) StartedAt() time.Time {
-	return s.startAt
-}
+	s.finish(result, err)
 
-func (s *Resume) Elapsed() time.Duration {
-	return s.duration
+	return result, err
 }
 
 func (s *Resume) finish(result *TraverseResult, err error) {
-	defer s.session.finish(result, err)
+	if s.rsc != nil {
+		_ = s.rsc.finish()
+	}
 
-	_ = s.rsc.finish()
+	s.session.finish(result, err)
 }
