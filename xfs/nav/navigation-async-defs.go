@@ -20,9 +20,9 @@ type TraverseOutput struct {
 	Error error
 }
 type TraverseItemOutput = boost.JobOutput[TraverseOutput]
-type TraverseItemOutputStream = boost.OutputStream[TraverseOutput]
-type TraverseItemOutputStreamR = boost.OutputStreamR[TraverseOutput]
-type TraverseItemOutputStreamW = boost.OutputStreamW[TraverseOutput]
+type TraverseItemOutputStream = boost.JobOutputStream[TraverseOutput]
+type TraverseItemOutputStreamR = boost.JobOutputStreamR[TraverseOutput]
+type TraverseItemOutputStreamW = boost.JobOutputStreamW[TraverseOutput]
 
 type AsyncInfo struct {
 	Context context.Context // this will be retired, instead passed into Run

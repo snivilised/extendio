@@ -13,12 +13,12 @@ const (
 	MaxNoWorkers = 100
 )
 
-func CreateTraverseOutputCh(outputChSize int) boost.OutputStream[TraverseOutput] {
+func CreateTraverseOutputCh(outputChSize int) boost.JobOutputStream[TraverseOutput] {
 	return lo.TernaryF(outputChSize > 0,
-		func() boost.OutputStream[TraverseOutput] {
-			return make(boost.OutputStream[TraverseOutput], outputChSize)
+		func() boost.JobOutputStream[TraverseOutput] {
+			return make(boost.JobOutputStream[TraverseOutput], outputChSize)
 		},
-		func() boost.OutputStream[TraverseOutput] {
+		func() boost.JobOutputStream[TraverseOutput] {
 			return nil
 		},
 	)
@@ -31,7 +31,7 @@ type Runnable interface {
 type AccelerationOperators interface {
 	Runnable
 	NoW(now int) AccelerationOperators
-	Consume(outputCh boost.OutputStream[TraverseOutput]) AccelerationOperators
+	Consume(outputCh boost.JobOutputStream[TraverseOutput]) AccelerationOperators
 }
 
 type SessionRunner interface {
@@ -99,7 +99,7 @@ func (r *runner) NoW(now int) AccelerationOperators {
 	return r
 }
 
-func (r *runner) Consume(outputCh boost.OutputStream[TraverseOutput]) AccelerationOperators {
+func (r *runner) Consume(outputCh boost.JobOutputStream[TraverseOutput]) AccelerationOperators {
 	r.sync.outputChOut = outputCh
 
 	return r
