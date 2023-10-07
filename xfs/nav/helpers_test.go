@@ -174,6 +174,25 @@ func universalCallback(name string, extended bool) nav.LabelledTraverseCallback 
 	}
 }
 
+func universalCallbackNoAssert(name string, extended bool) nav.LabelledTraverseCallback {
+	ex := lo.Ternary(extended, "-EX", "")
+
+	return nav.LabelledTraverseCallback{
+		Label: "test universal callback",
+		Fn: func(item *nav.TraverseItem) error {
+			depth := lo.TernaryF(extended,
+				func() int { return item.Extension.Depth },
+				func() int { return 9999 },
+			)
+			GinkgoWriter.Printf(
+				"---> 🌊 UNIVERSAL//%v-CALLBACK%v: (depth:%v) '%v'\n", name, ex, depth, item.Path,
+			)
+
+			return nil
+		},
+	}
+}
+
 func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 

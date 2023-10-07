@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/snivilised/lorax/boost"
 )
@@ -59,10 +60,11 @@ func (s *inlineSync) Run(callback sessionCallback, _ syncable, _ ...any) (*Trave
 
 type acceleratedSync struct {
 	baseSync
-	ai          *AsyncInfo
-	noWorkers   int
-	outputChOut boost.JobOutputStream[TraverseOutput]
-	pool        *boost.WorkerPool[TraverseItemInput, TraverseOutput]
+	ai              *AsyncInfo
+	noWorkers       int
+	outputChOut     boost.JobOutputStream[TraverseOutput]
+	outputChTimeout time.Duration
+	pool            *boost.WorkerPool[TraverseItemInput, TraverseOutput]
 }
 
 func (s *acceleratedSync) Run(callback sessionCallback, nc syncable, args ...any) (*TraverseResult, error) {
@@ -85,10 +87,11 @@ func (s *acceleratedSync) Run(callback sessionCallback, nc syncable, args ...any
 func (s *acceleratedSync) start(ctx context.Context, cancel context.CancelFunc) {
 	s.pool = boost.NewWorkerPool[TraverseItemInput, TraverseOutput](
 		&boost.NewWorkerPoolParams[TraverseItemInput, TraverseOutput]{
-			NoWorkers: s.noWorkers,
-			Exec:      workerExecutive,
-			JobsCh:    s.ai.JobsChanOut,
-			WaitAQ:    s.ai.WaitAQ,
+			NoWorkers:       s.noWorkers,
+			OutputChTimeout: s.outputChTimeout,
+			Exec:            workerExecutive,
+			JobsCh:          s.ai.JobsChanOut,
+			WaitAQ:          s.ai.WaitAQ,
 		})
 
 	// We are handing over ownership of this channel (ai.OutputsChIn) to the pool as

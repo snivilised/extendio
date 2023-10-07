@@ -19,6 +19,7 @@ import (
 
 var (
 	navigatorRoutineName = boost.GoRoutineName("✨ observable-navigator")
+	outputChTimeout      = time.Second
 )
 
 type (
@@ -279,7 +280,7 @@ var _ = Describe("navigation", Ordered, func() {
 				given:  "Primary Session Consume",
 				should: "enable output to be consumed externally",
 				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
-					return op.NoW(4).Consume(outputCh)
+					return op.NoW(4).Consume(outputCh, outputChTimeout)
 				},
 			},
 		}, SpecTimeout(time.Second*2)),
@@ -290,7 +291,7 @@ var _ = Describe("navigation", Ordered, func() {
 				should: "enable output to be consumed externally",
 				operator: func(op nav.AccelerationOperators) nav.AccelerationOperators {
 					outputCh = nav.CreateTraverseOutputCh(3)
-					return op.NoW(4).Consume(outputCh)
+					return op.NoW(4).Consume(outputCh, outputChTimeout)
 				},
 				// 🔥 panic: send on closed channel;
 				//
