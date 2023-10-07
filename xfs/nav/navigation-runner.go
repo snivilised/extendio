@@ -3,10 +3,34 @@ package nav
 import (
 	"fmt"
 	"runtime"
+	"time"
 
 	"github.com/samber/lo"
 	"github.com/snivilised/lorax/boost"
 )
+
+type CreateNewRunnerWith int
+
+const (
+	RunnerDefault    CreateNewRunnerWith = 0
+	RunnerWithResume CreateNewRunnerWith = 1
+	RunnerWithPool   CreateNewRunnerWith = 2
+)
+
+type Acceleration struct {
+	WgAn            boost.WaitGroupAn
+	RoutineName     boost.GoRoutineName
+	NoW             int
+	JobsChOut       TraverseItemJobStream
+	JobResultsCh    boost.JobOutputStream[TraverseOutput]
+	OutputChTimeout time.Duration
+}
+
+type RunnerInfo struct {
+	ResumeInfo       *Resumption
+	PrimeInfo        *Prime
+	AccelerationInfo *Acceleration
+}
 
 const (
 	MinNoWorkers = 1
@@ -31,10 +55,11 @@ type Runnable interface {
 type AccelerationOperators interface {
 	Runnable
 	NoW(now int) AccelerationOperators
-	Consume(outputCh boost.JobOutputStream[TraverseOutput]) AccelerationOperators
+	Consume(outputCh boost.JobOutputStream[TraverseOutput], timeout time.Duration) AccelerationOperators
 }
 
 type SessionRunner interface {
+	With(with CreateNewRunnerWith, info *RunnerInfo) NavigationRunner
 	Primary(info *Prime) NavigationRunner
 	Resume(info *Resumption) NavigationRunner
 }
@@ -52,6 +77,71 @@ func New() SessionRunner {
 type runner struct {
 	session TraverseSession
 	sync    *acceleratedSync
+}
+
+func (r *runner) With(with CreateNewRunnerWith, info *RunnerInfo) NavigationRunner {
+	lo.TernaryF(with&RunnerWithResume == 0,
+		func() NavigationRunner {
+			return r.Primary(&Prime{
+				Path:      info.PrimeInfo.Path,
+				OptionsFn: info.PrimeInfo.OptionsFn,
+			})
+		},
+		func() NavigationRunner {
+			return r.Resume(&Resumption{
+				RestorePath: info.ResumeInfo.RestorePath,
+				Restorer:    info.ResumeInfo.Restorer,
+				Strategy:    info.ResumeInfo.Strategy,
+			})
+		},
+	)
+
+	lo.TernaryF(with&RunnerWithPool == 0,
+		func() AccelerationOperators {
+			return r
+		},
+		func() AccelerationOperators {
+			if info.AccelerationInfo == nil {
+				// As this is not a user facing issue (ie programming error),
+				// it does not have to be i18n error
+				//
+				panic("internal: acceleration info missing from runner info")
+			}
+
+			if info.AccelerationInfo.JobsChOut == nil {
+				panic("internal: job channel not set on acceleration info")
+			}
+
+			return r.WithPool(&AsyncInfo{
+				NavigatorRoutineName: info.AccelerationInfo.RoutineName,
+				WaitAQ:               info.AccelerationInfo.WgAn,
+				JobsChanOut:          info.AccelerationInfo.JobsChOut,
+			})
+		},
+	)
+
+	if info.AccelerationInfo != nil && with&RunnerWithPool > 0 {
+		if info.AccelerationInfo.JobResultsCh != nil {
+			r.Consume(info.AccelerationInfo.JobResultsCh, info.AccelerationInfo.OutputChTimeout)
+		}
+
+		if info.AccelerationInfo.NoW > 0 {
+			r.NoW(info.AccelerationInfo.NoW)
+		}
+	}
+
+	return r
+}
+
+func IfWithPoolUseContext(with CreateNewRunnerWith, args ...any) []any {
+	return lo.TernaryF(with&RunnerWithPool > 0,
+		func() []any {
+			return args
+		},
+		func() []any {
+			return []any{}
+		},
+	)
 }
 
 func (r *runner) Primary(info *Prime) NavigationRunner {
@@ -99,8 +189,12 @@ func (r *runner) NoW(now int) AccelerationOperators {
 	return r
 }
 
-func (r *runner) Consume(outputCh boost.JobOutputStream[TraverseOutput]) AccelerationOperators {
+func (r *runner) Consume(
+	outputCh boost.JobOutputStream[TraverseOutput],
+	timeout time.Duration,
+) AccelerationOperators {
 	r.sync.outputChOut = outputCh
+	r.sync.outputChTimeout = timeout
 
 	return r
 }

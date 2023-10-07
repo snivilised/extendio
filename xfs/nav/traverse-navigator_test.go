@@ -314,9 +314,13 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				o.Store.DoExtend = entry.extended
 				o.Callback = once
 			}
-			result, _ := nav.New().Primary(&nav.Prime{
-				Path:      path,
-				OptionsFn: optionFn,
+
+			createWith := nav.RunnerDefault
+			result, _ := nav.New().With(createWith, &nav.RunnerInfo{
+				PrimeInfo: &nav.Prime{
+					Path:      path,
+					OptionsFn: optionFn,
+				},
 			}).Run()
 
 			if entry.visit {

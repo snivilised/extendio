@@ -281,10 +281,12 @@ var _ = Describe("Resume", Ordered, func() {
 					}
 				}
 
-				result, _ := nav.New().Resume(&nav.Resumption{
-					RestorePath: fromJSONPath,
-					Restorer:    restorer,
-					Strategy:    strategyEn,
+				result, _ := nav.New().With(nav.RunnerWithResume, &nav.RunnerInfo{
+					ResumeInfo: &nav.Resumption{
+						RestorePath: fromJSONPath,
+						Restorer:    restorer,
+						Strategy:    strategyEn,
+					},
 				}).Run()
 
 				if profile.mandatory != nil {
