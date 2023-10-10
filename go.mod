@@ -14,12 +14,13 @@ require (
 require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/google/uuid v1.3.1
-	github.com/snivilised/lorax v0.4.0
+	github.com/snivilised/lorax v0.4.1
 )
 
 require (
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/google/pprof v0.0.0-20230406165453-00490a63f317 // indirect
+	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	go.uber.org/goleak v1.2.1 // indirect
 	golang.org/x/tools v0.12.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
