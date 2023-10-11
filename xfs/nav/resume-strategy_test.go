@@ -303,7 +303,7 @@ var _ = Describe("Resume", Ordered, func() {
 					folders: result.Metrics.Count(nav.MetricNoFoldersInvokedEn),
 				}
 
-				_ = result.Session.StartedAt()
+				_ = result.Session.StartedAtTime()
 				_ = result.Session.Elapsed()
 			}
 

@@ -40,7 +40,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAt()
+				_ = result.Session.StartedAtTime()
 				_ = result.Session.Elapsed()
 			})
 		})
@@ -60,7 +60,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAt()
+				_ = result.Session.StartedAtTime()
 				_ = result.Session.Elapsed()
 			})
 		})
@@ -80,7 +80,7 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 				OptionsFn: optionFn,
 			}).Run()
 
-			_ = result.Session.StartedAt()
+			_ = result.Session.StartedAtTime()
 			_ = result.Session.Elapsed()
 		},
 		func(entry *skipTE) string {

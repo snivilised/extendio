@@ -59,7 +59,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 				Expect(actual).To(Equal(expected), helpers.Reason(name))
 			}
 
-			_ = result.Session.StartedAt()
+			_ = result.Session.StartedAtTime()
 			_ = result.Session.Elapsed()
 		},
 		func(entry *scopeTE) string {
