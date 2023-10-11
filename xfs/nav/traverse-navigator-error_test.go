@@ -140,7 +140,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 
 			})
@@ -161,7 +161,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
 		})
@@ -219,7 +219,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
 		})
@@ -256,7 +256,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
 		})
@@ -287,7 +287,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
 					)
 
-					_ = result.Session.StartedAtTime()
+					_ = result.Session.StartedAt()
 					_ = result.Session.Elapsed()
 				})
 			})
@@ -315,7 +315,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					Expect(query).To(BeTrue(),
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
 					)
-					_ = result.Session.StartedAtTime()
+					_ = result.Session.StartedAt()
 					_ = result.Session.Elapsed()
 				})
 			})
@@ -349,7 +349,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						fmt.Sprintf("❌ expected error to be path not found, but was: '%v'", err),
 					)
 
-					_ = result.Session.StartedAtTime()
+					_ = result.Session.StartedAt()
 					_ = result.Session.Elapsed()
 				})
 			})

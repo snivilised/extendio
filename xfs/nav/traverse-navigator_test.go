@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"path/filepath"
 	"strings"
-	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -68,7 +67,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAt(time.RFC1123)
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 
 				if entry.visit {

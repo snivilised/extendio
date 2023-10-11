@@ -60,7 +60,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
 
@@ -100,7 +100,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						OptionsFn: optionFn,
 					}).Run()
 
-					_ = result.Session.StartedAtTime()
+					_ = result.Session.StartedAt()
 					_ = result.Session.Elapsed()
 				})
 			})
@@ -140,7 +140,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					OptionsFn: optionFn,
 				}).Run()
 
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
 		})

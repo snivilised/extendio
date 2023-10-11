@@ -81,7 +81,7 @@ var _ = Describe("Listener", Ordered, func() {
 			reason := fmt.Sprintf("❌ remaining: '%v'", strings.Join(entry.mandatory, ", "))
 			Expect(len(entry.mandatory)).To(Equal(0), reason)
 
-			_ = result.Session.StartedAtTime()
+			_ = result.Session.StartedAt()
 			_ = result.Session.Elapsed()
 		},
 		func(entry *listenTE) string {
@@ -237,7 +237,7 @@ var _ = Describe("Listener", Ordered, func() {
 				OptionsFn: optionFn,
 			}).Run()
 
-			_ = result.Session.StartedAtTime()
+			_ = result.Session.StartedAt()
 			_ = result.Session.Elapsed()
 		})
 
@@ -266,7 +266,7 @@ var _ = Describe("Listener", Ordered, func() {
 				OptionsFn: optionFn,
 			}).Run()
 
-			_ = result.Session.StartedAtTime()
+			_ = result.Session.StartedAt()
 			_ = result.Session.Elapsed()
 		})
 	})
@@ -346,7 +346,7 @@ var _ = Describe("Listener", Ordered, func() {
 					files, folders,
 				)
 
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
 		})
