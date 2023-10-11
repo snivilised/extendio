@@ -97,7 +97,7 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 				}
 
 				Expect(err).Error().To(BeNil())
-				_ = result.Session.StartedAtTime()
+				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
 		})

@@ -211,7 +211,7 @@ var _ = Describe("navigation", Ordered, func() {
 			}
 
 			wgan.Wait("👾 test-main")
-			_ = result.Session.StartedAtTime()
+			_ = result.Session.StartedAt()
 			_ = result.Session.Elapsed()
 
 			if consumer != nil {

@@ -7,8 +7,7 @@ import (
 )
 
 type Session interface {
-	StartedAtTime() time.Time
-	StartedAt(format string) string
+	StartedAt() time.Time
 	Elapsed() time.Duration
 }
 
@@ -25,12 +24,8 @@ type session struct {
 	duration time.Duration
 }
 
-func (s *session) StartedAtTime() time.Time {
+func (s *session) StartedAt() time.Time {
 	return s.startAt
-}
-
-func (s *session) StartedAt(format string) string {
-	return s.startAt.Format(format)
 }
 
 func (s *session) Elapsed() time.Duration {
