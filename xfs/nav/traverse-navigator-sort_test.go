@@ -75,7 +75,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				sequence = recording[n]
 			}
 
-			_ = result.Session.StartedAt()
+			_ = result.Session.StartedAtTime()
 			_ = result.Session.Elapsed()
 		},
 		func(entry *sortTE) string {
