@@ -30,7 +30,7 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 					return nil
 				},
 			}
-			frame.raw = *decorator
+			frame.raw = decorator
 			frame.decorate("init-current-filter 🎁", decorator)
 		}
 

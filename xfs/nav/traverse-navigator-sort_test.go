@@ -31,7 +31,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 			recording := make(recordingOrderMap)
 			counter := 0
 
-			recorder := nav.LabelledTraverseCallback{
+			recorder := &nav.LabelledTraverseCallback{
 				Label: "test recorder callback",
 				Fn: func(item *nav.TraverseItem) error {
 					_, found := recording[item.Extension.Name]

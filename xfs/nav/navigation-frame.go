@@ -6,8 +6,8 @@ type navigationFrame struct {
 	root        utils.VarProp[string]
 	currentPath utils.VarProp[string]
 	listener    *navigationListener
-	raw         LabelledTraverseCallback // un-decorated (except for filter) client callback
-	client      LabelledTraverseCallback // decorate-able client callback
+	raw         *LabelledTraverseCallback // un-decorated (except for filter) client callback
+	client      *LabelledTraverseCallback // decorate-able client callback
 	filters     *NavigationFilters
 	notifiers   notificationsSink
 	periscope   *navigationPeriscope
@@ -43,7 +43,7 @@ func (f *navigationFrame) decorate(_ string, decorator *LabelledTraverseCallback
 	// stack overflow due to infinite recursion. Its easy to search when decoration is
 	// occurring in the code base, just search for decorate or go to references.
 	//
-	f.client = *decorator
+	f.client = decorator
 }
 
 func (f *navigationFrame) save(active *ActiveState) {

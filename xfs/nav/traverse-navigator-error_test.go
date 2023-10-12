@@ -70,7 +70,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						nav.DefaultExtendHookFn(navi, entries)
 					}
 					o.Store.DoExtend = true
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test callback",
 						Fn: func(_ *nav.TraverseItem) error {
 							return nil
@@ -100,7 +100,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
 					o.Store.DoExtend = true
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test callback",
 						Fn: func(item *nav.TraverseItem) error {
 							GinkgoWriter.Printf("---> 🔥 READ-ERR-CALLBACK: '%v', error: '%v'\n",
@@ -242,7 +242,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 						Node: filterDef,
 					}
 					o.Notify.OnBegin = begin("🧲")
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test callback",
 						Fn: func(item *nav.TraverseItem) error {
 							GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
@@ -269,7 +269,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					const path = "/foo"
 					optionFn := func(o *nav.TraverseOptions) {
 						o.Store.Subscription = nav.SubscribeAny
-						o.Callback = nav.LabelledTraverseCallback{
+						o.Callback = &nav.LabelledTraverseCallback{
 							Label: "test callback",
 							Fn: func(item *nav.TraverseItem) error {
 								GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
@@ -297,7 +297,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					const path = "/foo"
 					optionFn := func(o *nav.TraverseOptions) {
 						o.Store.Subscription = nav.SubscribeAny
-						o.Callback = nav.LabelledTraverseCallback{
+						o.Callback = &nav.LabelledTraverseCallback{
 							Label: "test callback",
 							Fn: func(item *nav.TraverseItem) error {
 								GinkgoWriter.Printf("===> path:'%s'\n", item.Path)
@@ -328,7 +328,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					optionFn := func(o *nav.TraverseOptions) {
 						o.Store.DoExtend = true
 						o.Store.Subscription = nav.SubscribeAny
-						o.Callback = nav.LabelledTraverseCallback{
+						o.Callback = &nav.LabelledTraverseCallback{
 							Label: "test callback",
 							Fn: func(item *nav.TraverseItem) error {
 								GinkgoWriter.Printf("===> path:'%s'\n", item.Path)

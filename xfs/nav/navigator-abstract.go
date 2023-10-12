@@ -23,12 +23,10 @@ func (n *navigator) options() *TraverseOptions {
 
 func (n *navigator) ensync(
 	ctx context.Context,
-	cancel context.CancelFunc,
+	_ context.CancelFunc, // we don't need this here; only the worker pool needs it!
 	frame *navigationFrame,
 	ai *AsyncInfo,
 ) {
-	_ = cancel
-
 	decorated := frame.client
 	decorator := &LabelledTraverseCallback{
 		Label: "boost decorator",
@@ -37,8 +35,8 @@ func (n *navigator) ensync(
 				if pe := recover(); pe != nil {
 					if err, ok := pe.(error); ok || strings.Contains(err.Error(),
 						"send on closed channel") {
-						fmt.Printf("---> ☠️☠️☠️ ENSYNC-NAV-CALLBACK(panic on close): '%v' (err:'%v')\n",
-							item.Path, pe,
+						n.logger().Error("☠️☠️☠️ send on closed channel",
+							log.String("item-path", item.Path),
 						)
 					} else {
 						// Let panic propagate to whoever can handle it
@@ -47,7 +45,6 @@ func (n *navigator) ensync(
 					}
 				}
 			}()
-			fmt.Printf("---> 🐬 ENSYNC-NAV-CALLBACK: '%v' \n", item.Path)
 
 			var err error
 			select {
@@ -57,8 +54,9 @@ func (n *navigator) ensync(
 				job := TraverseItemJob{
 					ID: fmt.Sprintf("JOB-ID:%v", uuid.NewString()),
 					Input: TraverseItemInput{
-						Item: item,
-						Fn:   decorated.Fn,
+						Item:  item,
+						Fn:    decorated.Fn,
+						Label: decorated.Label,
 					},
 					SequenceNo: -999,
 				}
@@ -71,8 +69,6 @@ func (n *navigator) ensync(
 					//
 					// intermittent panic: send on closed channel, in fastward resume scenarios
 					// 'gr:observable-navigator'
-
-					fmt.Printf("-->> 🍇🍇 sending job(%v)\n", job.ID)
 				}
 			}
 

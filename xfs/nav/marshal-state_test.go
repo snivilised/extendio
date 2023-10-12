@@ -61,7 +61,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test marshal state callback",
 						Fn: func(_ *nav.TraverseItem) error {
 							return nil
@@ -98,7 +98,7 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 					o.Persist.Format = entry.format
 					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test marshal state callback",
 						Fn: func(item *nav.TraverseItem) error {
 							return nil

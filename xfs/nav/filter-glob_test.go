@@ -55,7 +55,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
-				o.Callback = nav.LabelledTraverseCallback{
+				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test glob filter callback",
 					Fn: func(item *nav.TraverseItem) error {
 						GinkgoWriter.Printf(
@@ -216,7 +216,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
 				o.Store.DoExtend = true
-				o.Callback = nav.LabelledTraverseCallback{
+				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test glob filter callback",
 					Fn: func(item *nav.TraverseItem) error {
 						actualNoChildren := len(item.Children)

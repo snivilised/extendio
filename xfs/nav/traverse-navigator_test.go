@@ -35,7 +35,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				recording := make(recordingMap)
 				visited := []string{}
 
-				once := nav.LabelledTraverseCallback{
+				once := &nav.LabelledTraverseCallback{
 					Label: "test once decorator",
 					Fn: func(item *nav.TraverseItem) error {
 						_, found := recording[item.Path]
@@ -46,7 +46,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 					},
 				}
 
-				visitor := nav.LabelledTraverseCallback{
+				visitor := &nav.LabelledTraverseCallback{
 					Fn: func(item *nav.TraverseItem) error {
 						return once.Fn(item)
 					},
@@ -295,7 +295,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			recording := make(recordingMap)
 			visited := []string{}
 
-			once := nav.LabelledTraverseCallback{
+			once := &nav.LabelledTraverseCallback{
 				Label: "test once callback",
 				Fn: func(item *nav.TraverseItem) error {
 					_, found := recording[item.Extension.Name]

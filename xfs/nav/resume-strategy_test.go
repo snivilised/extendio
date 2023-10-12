@@ -246,7 +246,7 @@ var _ = Describe("Resume", Ordered, func() {
 						},
 					}
 
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "unit test callback for resume",
 						Fn: func(item *nav.TraverseItem) error {
 							depth := lo.TernaryF(o.Store.DoExtend,
