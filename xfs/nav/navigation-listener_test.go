@@ -45,7 +45,7 @@ var _ = Describe("Listener", Ordered, func() {
 					}
 				}
 				o.Store.DoExtend = entry.extended
-				o.Callback = nav.LabelledTraverseCallback{
+				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test listener callback",
 					Fn: func(item *nav.TraverseItem) error {
 						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
@@ -311,7 +311,7 @@ var _ = Describe("Listener", Ordered, func() {
 						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 					}
 					o.Store.DoExtend = true
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "Listener Test Callback",
 						Fn: func(item *nav.TraverseItem) error {
 							GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",

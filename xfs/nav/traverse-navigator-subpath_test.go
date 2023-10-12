@@ -38,7 +38,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.Behaviours.SubPath.KeepTrailingSep = true
 					o.Store.DoExtend = true
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test sub-path callback",
 						Fn: func(item *nav.TraverseItem) error {
 							if expected, ok := expectations[item.Extension.Name]; ok {
@@ -80,7 +80,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						o.Hooks.FileSubPath = nav.RootItemSubPath
 						o.Store.Behaviours.SubPath.KeepTrailingSep = true
 						o.Store.DoExtend = true
-						o.Callback = nav.LabelledTraverseCallback{
+						o.Callback = &nav.LabelledTraverseCallback{
 							Label: "test sub-path callback",
 							Fn: func(item *nav.TraverseItem) error {
 								if expected, ok := expectations[item.Extension.Name]; ok {
@@ -120,7 +120,7 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Store.Behaviours.SubPath.KeepTrailingSep = false
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.DoExtend = true
-					o.Callback = nav.LabelledTraverseCallback{
+					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test sub-path callback",
 						Fn: func(item *nav.TraverseItem) error {
 							if expected, ok := expectations[item.Extension.Name]; ok {

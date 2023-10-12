@@ -31,7 +31,7 @@ const (
 	ListenRetired                  // conditional listening is now deactivated
 )
 
-type navigationListeningStates map[ListeningState]LabelledTraverseCallback
+type navigationListeningStates map[ListeningState]*LabelledTraverseCallback
 
 type listenStatesParams struct {
 	// currently used for makeStates and listener.decorate
@@ -45,7 +45,7 @@ type listenStatesParams struct {
 type navigationListener struct {
 	state       ListeningState
 	states      navigationListeningStates
-	current     LabelledTraverseCallback
+	current     *LabelledTraverseCallback
 	resumeStack *collections.Stack[*ListenTriggers]
 	triggers    *ListenTriggers
 }
@@ -74,7 +74,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 		//
 		ListenDeaf: params.frame.raw,
 
-		ListenFastward: LabelledTraverseCallback{
+		ListenFastward: &LabelledTraverseCallback{
 			Label: "ListenFastward decorator",
 			Fn: func(item *TraverseItem) error {
 				// fast forwarding to resume point
@@ -100,7 +100,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 			},
 		},
 
-		ListenPending: LabelledTraverseCallback{
+		ListenPending: &LabelledTraverseCallback{
 			Label: "ListenPending decorator",
 			Fn: func(item *TraverseItem) error {
 				// listening not yet started
@@ -120,7 +120,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 			},
 		},
 
-		ListenActive: LabelledTraverseCallback{
+		ListenActive: &LabelledTraverseCallback{
 			Label: "ListenActive decorator",
 			Fn: func(item *TraverseItem) error {
 				// listening
@@ -138,7 +138,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 			},
 		},
 
-		ListenRetired: LabelledTraverseCallback{
+		ListenRetired: &LabelledTraverseCallback{
 			Label: "ListenRetired decorator",
 			Fn: func(_ *TraverseItem) error {
 				return xi18n.NewTerminateTraverseError()

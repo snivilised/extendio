@@ -37,7 +37,7 @@ type naviTE struct {
 	visit         bool
 	caseSensitive bool
 	subscription  nav.TraverseSubscription
-	callback      nav.LabelledTraverseCallback
+	callback      *nav.LabelledTraverseCallback
 	mandatory     []string
 	prohibited    []string
 	expectedNoOf  expectedNo
@@ -150,10 +150,10 @@ func begin(em string) nav.BeginHandler {
 	}
 }
 
-func universalCallback(name string, extended bool) nav.LabelledTraverseCallback {
+func universalCallback(name string, extended bool) *nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 
-	return nav.LabelledTraverseCallback{
+	return &nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
 			depth := lo.TernaryF(extended,
@@ -174,10 +174,10 @@ func universalCallback(name string, extended bool) nav.LabelledTraverseCallback 
 	}
 }
 
-func universalCallbackNoAssert(name string, extended bool) nav.LabelledTraverseCallback {
+func universalCallbackNoAssert(name string, extended bool) *nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 
-	return nav.LabelledTraverseCallback{
+	return &nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
 			depth := lo.TernaryF(extended,
@@ -193,10 +193,10 @@ func universalCallbackNoAssert(name string, extended bool) nav.LabelledTraverseC
 	}
 }
 
-func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
+func foldersCallback(name string, extended bool) *nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 
-	return nav.LabelledTraverseCallback{
+	return &nav.LabelledTraverseCallback{
 		Label: "folders callback",
 		Fn: func(item *nav.TraverseItem) error {
 			depth := lo.TernaryF(extended,
@@ -221,10 +221,10 @@ func foldersCallback(name string, extended bool) nav.LabelledTraverseCallback {
 	}
 }
 
-func filesCallback(name string, extended bool) nav.LabelledTraverseCallback {
+func filesCallback(name string, extended bool) *nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 
-	return nav.LabelledTraverseCallback{
+	return &nav.LabelledTraverseCallback{
 		Label: "files callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌙 FILES//%v-CALLBACK%v: '%v'\n", name, ex, item.Path)
@@ -240,8 +240,8 @@ func filesCallback(name string, extended bool) nav.LabelledTraverseCallback {
 
 // === scope
 
-func universalScopeCallback(name string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func universalScopeCallback(name string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌠 UNIVERSAL//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
@@ -253,8 +253,8 @@ func universalScopeCallback(name string) nav.LabelledTraverseCallback {
 	}
 }
 
-func foldersScopeCallback(name string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func foldersScopeCallback(name string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test folders callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌟 FOLDERS//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
@@ -267,8 +267,8 @@ func foldersScopeCallback(name string) nav.LabelledTraverseCallback {
 	}
 }
 
-func filesScopeCallback(name string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func filesScopeCallback(name string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test files callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌬️ FILES//%v-CALLBACK-EX item-scope: (%v) '%v'\n",
@@ -283,8 +283,8 @@ func filesScopeCallback(name string) nav.LabelledTraverseCallback {
 
 // === sort
 
-func universalSortCallback(name string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func universalSortCallback(name string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 💚 UNIVERSAL//%v-SORT-CALLBACK-EX(scope:%v, depth:%v) '%v'\n",
@@ -296,8 +296,8 @@ func universalSortCallback(name string) nav.LabelledTraverseCallback {
 	}
 }
 
-func foldersSortCallback(name string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func foldersSortCallback(name string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test folders sort callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 💜 FOLDERS//%v-SORT-CALLBACK-EX '%v'\n",
@@ -310,8 +310,8 @@ func foldersSortCallback(name string) nav.LabelledTraverseCallback {
 	}
 }
 
-func filesSortCallback(name string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func filesSortCallback(name string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test files sort callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 💙 FILES//%v-SORT-CALLBACK-EX '%v'\n",
@@ -324,8 +324,8 @@ func filesSortCallback(name string) nav.LabelledTraverseCallback {
 	}
 }
 
-func universalDepthCallback(name string, maxDepth int) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func universalDepthCallback(name string, maxDepth int) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test universal depth callback",
 		Fn: func(item *nav.TraverseItem) error {
 			if item.Extension.Depth <= maxDepth {
@@ -339,10 +339,10 @@ func universalDepthCallback(name string, maxDepth int) nav.LabelledTraverseCallb
 	}
 }
 
-func foldersCaseSensitiveCallback(first, second string) nav.LabelledTraverseCallback {
+func foldersCaseSensitiveCallback(first, second string) *nav.LabelledTraverseCallback {
 	recording := make(recordingMap)
 
-	return nav.LabelledTraverseCallback{
+	return &nav.LabelledTraverseCallback{
 		Label: "test folders case sensitive callback",
 		Fn: func(item *nav.TraverseItem) error {
 			recording[item.Path] = len(item.Children)
@@ -368,8 +368,8 @@ func foldersCaseSensitiveCallback(first, second string) nav.LabelledTraverseCall
 
 // === skip
 
-func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func skipFolderCallback(skip, exclude string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test skip folder callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf(
@@ -385,8 +385,8 @@ func skipFolderCallback(skip, exclude string) nav.LabelledTraverseCallback {
 	}
 }
 
-func boostCallback(name string) nav.LabelledTraverseCallback {
-	return nav.LabelledTraverseCallback{
+func boostCallback(name string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
 		Label: "test boost callback",
 		Fn: func(item *nav.TraverseItem) error {
 			fmt.Printf("---> ⏩ ON-boost-CALLBACK(%v) '%v'\n", name, item.Path)
@@ -429,10 +429,10 @@ func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error)
 	}
 }
 
-func errorCallback(name string, extended, hasError bool) nav.LabelledTraverseCallback {
+func errorCallback(name string, extended, hasError bool) *nav.LabelledTraverseCallback {
 	ex := lo.Ternary(extended, "-EX", "")
 
-	return nav.LabelledTraverseCallback{
+	return &nav.LabelledTraverseCallback{
 		Label: "test error callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)

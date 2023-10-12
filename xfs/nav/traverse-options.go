@@ -181,7 +181,7 @@ type TraverseOptions struct {
 
 	// Callback function to invoke for every item visited in the file system.
 	//
-	Callback LabelledTraverseCallback `json:"-"`
+	Callback *LabelledTraverseCallback `json:"-"`
 
 	// Notify collection of notification function.
 	//

@@ -29,7 +29,7 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 		func(entry *scopeTE) {
 			recording := make(recordingScopeMap)
 
-			scopeRecorder := nav.LabelledTraverseCallback{
+			scopeRecorder := &nav.LabelledTraverseCallback{
 				Label: "test callback",
 				Fn: func(item *nav.TraverseItem) error {
 					_, found := recording[item.Extension.Name]

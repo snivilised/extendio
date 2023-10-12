@@ -5,8 +5,9 @@ import (
 )
 
 type TraverseItemInput struct {
-	Item *TraverseItem
-	Fn   TraverseCallback
+	Item  *TraverseItem
+	Label string
+	Fn    TraverseCallback
 }
 type TraverseItemJob = boost.Job[TraverseItemInput]
 type TraverseItemJobStream = boost.JobStream[TraverseItemInput]

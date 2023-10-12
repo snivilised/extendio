@@ -37,7 +37,7 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 
 	Context("resume and worker pool acceleration", func() {
 		When("universal: listen pending(logged)", func() {
-			It("should: ...", SpecTimeout(time.Second*5), func(ctxSpec SpecContext) {
+			It("🧪 should: ...", SpecTimeout(time.Second*5), func(ctxSpec SpecContext) {
 				ctx, cancel := context.WithCancel(ctxSpec)
 				path := helpers.Path(root, "RETRO-WAVE")
 				restorer := func(o *nav.TraverseOptions, active *nav.ActiveState) {
@@ -60,7 +60,6 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 				createWith := nav.RunnerWithResume | nav.RunnerWithPool
 				now := 3
 				JobsChOut := make(boost.JobStream[nav.TraverseItemInput], DefaultJobsChSize)
-				outputChTimeout := time.Second
 				jobsOutputChOut := make(boost.JobOutputStream[nav.TraverseOutput], DefaultJobsChSize)
 
 				result, err := nav.New().With(createWith, &nav.RunnerInfo{
@@ -100,6 +99,54 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
 			})
+		})
+	})
+
+	When("Filter Applied", func() {
+		It("🧪 should: only invoke sync callback for filtered items", func(ctxSpec SpecContext) {
+			ctx, cancel := context.WithCancel(ctxSpec)
+			defer cancel()
+
+			path := helpers.Path(root, "RETRO-WAVE")
+
+			wgan := boost.NewAnnotatedWaitGroup("🍂 traversal")
+			wgan.Add(1, navigatorRoutineName)
+			now := 3
+			jobsChOut := make(boost.JobStream[nav.TraverseItemInput], DefaultJobsChSize)
+
+			filterDefs := &nav.FilterDefinitions{
+				Node: nav.FilterDef{
+					Type:        nav.FilterTypeGlobEn,
+					Description: "flac files",
+					Pattern:     "*.flac",
+					Scope:       nav.ScopeLeafEn,
+				},
+			}
+
+			result, err := nav.New().Primary(&nav.Prime{
+				Path: path,
+				OptionsFn: func(o *nav.TraverseOptions) {
+					o.Notify.OnBegin = begin("🛡️")
+					o.Store.Subscription = nav.SubscribeFiles
+					o.Callback = universalCallbackNoAssert(
+						"filtered *.flac files: WithPool",
+						NotExtended,
+					)
+					o.Store.FilterDefs = filterDefs
+				},
+			}).WithPool(
+				&nav.AsyncInfo{
+					NavigatorRoutineName: navigatorRoutineName,
+					WaitAQ:               wgan,
+					JobsChanOut:          jobsChOut,
+				},
+			).NoW(now).Run(ctx, cancel)
+
+			wgan.Wait("👾 test-main")
+
+			Expect(err).Error().To(BeNil())
+			_ = result.Session.StartedAt()
+			_ = result.Session.Elapsed()
 		})
 	})
 })
