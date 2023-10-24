@@ -30,7 +30,7 @@ require (
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/nicksnyder/go-i18n/v2 v2.2.1
+	github.com/nicksnyder/go-i18n/v2 v2.2.2
 	github.com/pkg/errors v0.9.1
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
