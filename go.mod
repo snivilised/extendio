@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/avfs/avfs v0.33.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/google/pprof v0.0.0-20230406165453-00490a63f317 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
