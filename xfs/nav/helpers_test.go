@@ -174,7 +174,7 @@ func universalCallback(name string, extended bool) *nav.LabelledTraverseCallback
 	}
 }
 
-func universalCallbackNoAssert(name string, extended bool) *nav.LabelledTraverseCallback {
+func universalCallbackNoAssert(name string, extended bool) *nav.LabelledTraverseCallback { //nolint:unparam // for future use
 	ex := lo.Ternary(extended, "-EX", "")
 
 	return &nav.LabelledTraverseCallback{

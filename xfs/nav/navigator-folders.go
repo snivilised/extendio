@@ -44,7 +44,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 		DirectoryEntryOrderFoldersFirstEn,
 	)
 	folders := entries.Folders
-	entries.sort(&folders)
+	entries.sort(&folders) // !!!!
 
 	if n.o.Store.Subscription == SubscribeFoldersWithFiles {
 		var files []fs.DirEntry

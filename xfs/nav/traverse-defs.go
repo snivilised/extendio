@@ -112,8 +112,9 @@ func (r *TraverseResult) merge(other *TraverseResult) (*TraverseResult, error) {
 }
 
 type Prime struct {
-	Path      string
-	OptionsFn TraverseOptionFn
+	Path            string
+	OptionsFn       TraverseOptionFn
+	ProvidedOptions *TraverseOptions
 }
 
 // Resumption

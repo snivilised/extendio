@@ -40,12 +40,6 @@ type (
 	asyncOkTE struct {
 		asyncTE
 	}
-
-	asyncErrorTE struct {
-		asyncTE
-		fragment string
-		timeout  time.Duration
-	}
 )
 
 const (

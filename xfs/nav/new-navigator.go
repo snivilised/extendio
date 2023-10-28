@@ -9,13 +9,7 @@ import (
 
 type navigatorFactory struct{}
 
-func (f navigatorFactory) new(fn ...TraverseOptionFn) TraverseNavigator {
-	o := composeTraverseOptions(fn...)
-
-	if o.Callback.Fn == nil {
-		panic(xi18n.NewMissingCallbackError())
-	}
-
+func (f navigatorFactory) new(o *TraverseOptions) TraverseNavigator {
 	impl := navigatorImplFactory{}.new(o)
 	nc := &navigationController{
 		impl: impl,
@@ -28,6 +22,24 @@ func (f navigatorFactory) new(fn ...TraverseOptionFn) TraverseNavigator {
 	booter.init()
 
 	return nc
+}
+
+func (f navigatorFactory) fromOptionsFn(fn ...TraverseOptionFn) TraverseNavigator {
+	o := composeTraverseOptions(fn...)
+
+	if o.Callback.Fn == nil {
+		panic(xi18n.NewMissingCallbackError())
+	}
+
+	return f.new(o)
+}
+
+func (f navigatorFactory) fromProvidedOptions(o *TraverseOptions) TraverseNavigator {
+	nav := f.new(o)
+
+	o.afterUserOptions()
+
+	return nav
 }
 
 type navigatorImplFactory struct{}

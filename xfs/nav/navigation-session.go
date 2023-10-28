@@ -1,6 +1,7 @@
 package nav
 
 import (
+	"errors"
 	"time"
 
 	xi18n "github.com/snivilised/extendio/i18n"
@@ -47,9 +48,10 @@ func (s *session) finish(result *TraverseResult, _ error) {
 // Primary
 type Primary struct {
 	session
-	Path      string
-	OptionFn  TraverseOptionFn
-	navigator TraverseNavigator
+	Path            string
+	OptionFn        TraverseOptionFn
+	ProvidedOptions *TraverseOptions
+	navigator       TraverseNavigator
 }
 
 // Save persists the current state for a primary session, that allows
@@ -59,7 +61,16 @@ func (s *Primary) Save(path string) error {
 }
 
 func (s *Primary) init() {
-	s.navigator = navigatorFactory{}.new(s.OptionFn)
+	switch {
+	case s.OptionFn != nil:
+		s.navigator = navigatorFactory{}.fromOptionsFn(s.OptionFn)
+
+	case s.ProvidedOptions != nil:
+		s.navigator = navigatorFactory{}.fromProvidedOptions(s.ProvidedOptions)
+
+	default:
+		panic(errors.New("missing traverse options"))
+	}
 }
 
 func (s *Primary) run(sync NavigationSync, args ...any) (*TraverseResult, error) {
