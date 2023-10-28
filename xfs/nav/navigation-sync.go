@@ -14,7 +14,6 @@ type NavigationSync interface {
 }
 
 type baseSync struct {
-	session TraverseSession
 }
 
 func (s *baseSync) extract(args ...any) (bool, context.Context, context.CancelFunc) {
@@ -51,7 +50,6 @@ func (s *baseSync) extract(args ...any) (bool, context.Context, context.CancelFu
 }
 
 type inlineSync struct {
-	baseSync
 }
 
 func (s *inlineSync) Run(callback sessionCallback, _ syncable, _ ...any) (*TraverseResult, error) {

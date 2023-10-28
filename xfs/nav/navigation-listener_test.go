@@ -272,68 +272,73 @@ var _ = Describe("Listener", Ordered, func() {
 	})
 
 	Context("folders", func() {
+		var setOptions func(o *nav.TraverseOptions)
+
+		BeforeAll(func() {
+			setOptions = func(o *nav.TraverseOptions) {
+				o.Notify.OnBegin = begin("🛡️")
+				o.Store.Subscription = nav.SubscribeFolders
+				o.Store.FilterDefs = &nav.FilterDefinitions{
+					Node: nav.FilterDef{
+						Type:        nav.FilterTypeRegexEn,
+						Description: "Contains 'o'",
+						Scope:       nav.ScopeAllEn,
+						Pattern:     "(i?)o",
+					},
+				}
+
+				o.Store.ListenDefs = nav.ListenDefinitions{
+					StartAt: &nav.FilterDef{
+						Type: nav.FilterTypeCustomEn,
+						Custom: &helpers.CustomFilter{
+							Value: "Orbital",
+							Name:  "Start Listening At: Orbital",
+						},
+					},
+					StopAt: &nav.FilterDef{
+						Type: nav.FilterTypeCustomEn,
+						Custom: &helpers.CustomFilter{
+							Value: "Underworld",
+							Name:  "Stop Listening At: Underworld",
+						},
+					},
+				}
+
+				o.Notify.OnStart = func(description string) {
+					GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
+				}
+				o.Notify.OnStop = func(description string) {
+					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
+				}
+				o.Store.DoExtend = true
+				o.Callback = &nav.LabelledTraverseCallback{
+					Label: "Listener Test Callback",
+					Fn: func(item *nav.TraverseItem) error {
+						GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
+							item.Extension.Name,
+						)
+						GinkgoWriter.Printf(
+							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							o.Store.FilterDefs.Node.Description,
+							o.Store.FilterDefs.Node.Pattern,
+							item.Extension.Name,
+							item.Extension.NodeScope,
+							o.Store.FilterDefs.Node.Scope,
+						)
+						Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Pattern),
+							helpers.Reason(item.Extension.Name),
+						)
+						return nil
+					},
+				}
+				o.Store.Logging = logo()
+			}
+		})
+
 		Context("given: filter and listen both active", func() {
 			It("🧪 should: apply filter within the listen range", func() {
 				path := helpers.Path(root, "edm/ELECTRONICA")
-				optionFn := func(o *nav.TraverseOptions) {
-					o.Notify.OnBegin = begin("🛡️")
-					o.Store.Subscription = nav.SubscribeFolders
-					o.Store.FilterDefs = &nav.FilterDefinitions{
-						Node: nav.FilterDef{
-							Type:        nav.FilterTypeRegexEn,
-							Description: "Contains 'o'",
-							Scope:       nav.ScopeAllEn,
-							Pattern:     "(i?)o",
-						},
-					}
-
-					o.Store.ListenDefs = nav.ListenDefinitions{
-						StartAt: &nav.FilterDef{
-							Type: nav.FilterTypeCustomEn,
-							Custom: &helpers.CustomFilter{
-								Value: "Orbital",
-								Name:  "Start Listening At: Orbital",
-							},
-						},
-						StopAt: &nav.FilterDef{
-							Type: nav.FilterTypeCustomEn,
-							Custom: &helpers.CustomFilter{
-								Value: "Underworld",
-								Name:  "Stop Listening At: Underworld",
-							},
-						},
-					}
-
-					o.Notify.OnStart = func(description string) {
-						GinkgoWriter.Printf("===> 🎶 Start Listening: '%v'\n", description)
-					}
-					o.Notify.OnStop = func(description string) {
-						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
-					}
-					o.Store.DoExtend = true
-					o.Callback = &nav.LabelledTraverseCallback{
-						Label: "Listener Test Callback",
-						Fn: func(item *nav.TraverseItem) error {
-							GinkgoWriter.Printf("---> 🔊 LISTENING-CALLBACK: name: '%v'\n",
-								item.Extension.Name,
-							)
-							GinkgoWriter.Printf(
-								"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
-								o.Store.FilterDefs.Node.Description,
-								o.Store.FilterDefs.Node.Pattern,
-								item.Extension.Name,
-								item.Extension.NodeScope,
-								o.Store.FilterDefs.Node.Scope,
-							)
-							Expect(item.Extension.Name).To(MatchRegexp(o.Store.FilterDefs.Node.Pattern),
-								helpers.Reason(item.Extension.Name),
-							)
-							return nil
-						},
-					}
-					o.Store.Logging = logo()
-				}
-
+				optionFn := setOptions
 				result, _ := nav.New().Primary(&nav.Prime{
 					Path:      path,
 					OptionsFn: optionFn,
@@ -348,6 +353,26 @@ var _ = Describe("Listener", Ordered, func() {
 
 				_ = result.Session.StartedAt()
 				_ = result.Session.Elapsed()
+			})
+
+			When("using ProvidedOptions", func() {
+				It("🧪 should: apply filter within the listen range", func() {
+					providedOptions := nav.GetDefaultOptions()
+					setOptions(providedOptions) // the sort option is not being set properly
+					//
+					path := helpers.Path(root, "edm/ELECTRONICA")
+					result, _ := nav.New().Primary(&nav.Prime{
+						Path:            path,
+						ProvidedOptions: providedOptions,
+					}).Run()
+
+					files := result.Metrics.Count(nav.MetricNoFilesInvokedEn)
+					folders := result.Metrics.Count(nav.MetricNoFoldersInvokedEn)
+
+					GinkgoWriter.Printf("---> 🍕🍕 Metrics, files:'%v', folders:'%v'\n",
+						files, folders,
+					)
+				})
 			})
 		})
 	})

@@ -83,8 +83,9 @@ func (r *runner) With(with CreateNewRunnerWith, info *RunnerInfo) NavigationRunn
 	lo.TernaryF(with&RunnerWithResume == 0,
 		func() NavigationRunner {
 			return r.Primary(&Prime{
-				Path:      info.PrimeInfo.Path,
-				OptionsFn: info.PrimeInfo.OptionsFn,
+				Path:            info.PrimeInfo.Path,
+				OptionsFn:       info.PrimeInfo.OptionsFn,
+				ProvidedOptions: info.PrimeInfo.ProvidedOptions,
 			})
 		},
 		func() NavigationRunner {
@@ -146,8 +147,9 @@ func IfWithPoolUseContext(with CreateNewRunnerWith, args ...any) []any {
 
 func (r *runner) Primary(info *Prime) NavigationRunner {
 	r.session = &Primary{
-		Path:     info.Path,
-		OptionFn: info.OptionsFn,
+		Path:            info.Path,
+		OptionFn:        info.OptionsFn,
+		ProvidedOptions: info.ProvidedOptions,
 	}
 
 	return r
