@@ -5,20 +5,20 @@ go 1.19
 require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/onsi/ginkgo/v2 v2.13.0
-	github.com/onsi/gomega v1.28.1
+	github.com/onsi/gomega v1.29.0
 	github.com/samber/lo v1.38.1
 	go.uber.org/zap v1.26.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
 
 require (
+	github.com/avfs/avfs v0.33.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/google/uuid v1.3.1
 	github.com/snivilised/lorax v0.4.1
 )
 
 require (
-	github.com/avfs/avfs v0.33.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/google/pprof v0.0.0-20230406165453-00490a63f317 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
