@@ -34,8 +34,8 @@ func reason(backend storage.VirtualBackend, message string, actual, expected any
 }
 
 type setupFile struct {
-	path string
-	data []byte
+	filePath string
+	data     []byte
 }
 
 func setupDirectory(fs storage.VirtualFS, directoryPath string) {
@@ -44,11 +44,11 @@ func setupDirectory(fs storage.VirtualFS, directoryPath string) {
 	}
 }
 
-func setupFiles(fs storage.VirtualFS, directoryPath string, files ...*setupFile) {
-	setupDirectory(fs, directoryPath)
+func setupFiles(fs storage.VirtualFS, parentDir string, files ...*setupFile) {
+	setupDirectory(fs, parentDir)
 
 	for _, f := range files {
-		if e := fs.WriteFile(f.path, f.data, beezledub); e != nil {
+		if e := fs.WriteFile(f.filePath, f.data, beezledub); e != nil {
 			Fail(e.Error())
 		}
 	}
@@ -109,8 +109,8 @@ var _ = Describe("virtual-fs", Ordered, func() {
 			fn: func(vfs storage.VirtualFS, isNative bool) {
 				if !isNative {
 					setupFiles(vfs, root, &setupFile{
-						path: requiem,
-						data: []byte("foo-bar"),
+						filePath: requiem,
+						data:     []byte("foo-bar"),
 					})
 				}
 				actual := vfs.FileExists(requiem)
@@ -147,8 +147,8 @@ var _ = Describe("virtual-fs", Ordered, func() {
 			fn: func(vfs storage.VirtualFS, isNative bool) {
 				if !isNative {
 					setupFiles(vfs, root, &setupFile{
-						path: requiem,
-						data: []byte("requiem-content"),
+						filePath: requiem,
+						data:     []byte("requiem-content"),
 					})
 				}
 				info, err := vfs.Lstat(requiem)
@@ -168,8 +168,8 @@ var _ = Describe("virtual-fs", Ordered, func() {
 			fn: func(vfs storage.VirtualFS, isNative bool) {
 				if !isNative {
 					setupFiles(vfs, root, &setupFile{
-						path: requiem,
-						data: []byte("requiem-content"),
+						filePath: requiem,
+						data:     []byte("requiem-content"),
 					})
 				}
 				info, err := vfs.Stat(requiem)
@@ -191,8 +191,8 @@ var _ = Describe("virtual-fs", Ordered, func() {
 
 				if !isNative {
 					setupFiles(vfs, root, &setupFile{
-						path: requiem,
-						data: []byte(expected),
+						filePath: requiem,
+						data:     []byte(expected),
 					})
 				}
 				content, err := vfs.ReadFile(requiem)
@@ -213,8 +213,8 @@ var _ = Describe("virtual-fs", Ordered, func() {
 
 				if !isNative {
 					setupFiles(vfs, root, &setupFile{
-						path: requiem,
-						data: []byte(expected),
+						filePath: requiem,
+						data:     []byte(expected),
 					})
 				}
 				actual, err := vfs.ReadDir(root)
@@ -305,8 +305,8 @@ var _ = Describe("virtual-fs", Ordered, func() {
 			fn: func(vfs storage.VirtualFS, isNative bool) {
 				path := filepath.Join(root, "shroud.txt")
 				setupFiles(vfs, root, &setupFile{
-					path: path,
-					data: []byte("foo-bar"),
+					filePath: path,
+					data:     []byte("foo-bar"),
 				})
 
 				actual := vfs.Remove(path)
@@ -325,12 +325,12 @@ var _ = Describe("virtual-fs", Ordered, func() {
 
 				setupFiles(vfs, path,
 					&setupFile{
-						path: filepath.Join(path, "x.txt"),
-						data: []byte("x-content"),
+						filePath: filepath.Join(path, "x.txt"),
+						data:     []byte("x-content"),
 					},
 					&setupFile{
-						path: filepath.Join(path, "y.txt"),
-						data: []byte("y-content"),
+						filePath: filepath.Join(path, "y.txt"),
+						data:     []byte("y-content"),
 					},
 				)
 
@@ -349,8 +349,8 @@ var _ = Describe("virtual-fs", Ordered, func() {
 				path := filepath.Join(root, "shroud.txt")
 				destination := filepath.Join(root, "renamed-shroud.txt")
 				setupFiles(vfs, root, &setupFile{
-					path: path,
-					data: []byte("foo-bar"),
+					filePath: path,
+					data:     []byte("foo-bar"),
 				})
 
 				actual := vfs.Rename(path, destination)
@@ -365,6 +365,57 @@ var _ = Describe("virtual-fs", Ordered, func() {
 					reason(vfs.Backend(), "rename return error", actual, nil),
 				)
 				Expect(vfs.FileExists(destination)).To(BeTrue())
+			},
+		}),
+
+		Entry(nil, &virtualTE{
+			message: "Move(Rename) file to different directory",
+			should:  "move file at path to new directory",
+			fn: func(vfs storage.VirtualFS, isNative bool) {
+				if isNative {
+					return
+				}
+				filename := "shroud.txt"
+				sourceDir := filepath.Join(root, "source-d")
+				sourceFile := filepath.Join(sourceDir, filename)
+				setupFiles(vfs, sourceDir, &setupFile{
+					filePath: sourceFile,
+					data:     []byte("foo-bar"),
+				})
+				destinationDir := filepath.Join(root, "destination-d")
+				destinationFile := filepath.Join(destinationDir, filename)
+				setupDirectory(vfs, destinationDir)
+
+				actual := vfs.Rename(sourceFile, destinationFile)
+
+				Expect(actual).Error().To(BeNil(),
+					reason(vfs.Backend(), "rename(move) return error", actual, nil),
+				)
+				Expect(vfs.FileExists(destinationFile)).To(BeTrue())
+			},
+		}),
+
+		Entry(nil, &virtualTE{
+			message: "Move(Rename) directory to different directory",
+			should:  "move directory at path to new directory",
+			fn: func(vfs storage.VirtualFS, isNative bool) {
+				if isNative {
+					return
+				}
+				item := "item"
+				sourceDir := filepath.Join(root, item)
+				setupDirectory(vfs, sourceDir)
+
+				parentDir := filepath.Join(root, "parent")
+				setupDirectory(vfs, parentDir)
+
+				destinationDir := filepath.Join(parentDir, item)
+				actual := vfs.Rename(sourceDir, destinationDir)
+
+				Expect(actual).Error().To(BeNil(),
+					reason(vfs.Backend(), "rename(move) return error", actual, nil),
+				)
+				Expect(vfs.DirectoryExists(destinationDir)).To(BeTrue())
 			},
 		}),
 
