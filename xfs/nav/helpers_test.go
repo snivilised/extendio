@@ -45,8 +45,11 @@ type naviTE struct {
 
 type skipTE struct {
 	naviTE
-	skip    string
-	exclude string
+	skipAt      string
+	prohibit    string
+	all         bool
+	folderCount int
+	fileCount   int
 }
 
 type listenTE struct {
@@ -368,18 +371,35 @@ func foldersCaseSensitiveCallback(first, second string) *nav.LabelledTraverseCal
 
 // === skip
 
-func skipFolderCallback(skip, exclude string) *nav.LabelledTraverseCallback {
+func skipDirFolderCallback(skip, exclude string) *nav.LabelledTraverseCallback {
 	return &nav.LabelledTraverseCallback{
 		Label: "test skip folder callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf(
-				"---> ♻️ ON-NAVIGATOR-SKIP-CALLBACK(skip:%v): '%v'\n", skip, item.Path,
+				"---> ♻️ ON-NAVIGATOR-SKIP-DIR-CALLBACK(skip:%v): '%v'\n", skip, item.Path,
 			)
 
 			Expect(strings.HasSuffix(item.Path, exclude)).To(BeFalse())
 
 			return lo.Ternary(strings.HasSuffix(item.Path, skip),
 				fs.SkipDir, nil,
+			)
+		},
+	}
+}
+
+func skipAllFolderCallback(skip, exclude string) *nav.LabelledTraverseCallback {
+	return &nav.LabelledTraverseCallback{
+		Label: "test skipAll folder callback",
+		Fn: func(item *nav.TraverseItem) error {
+			GinkgoWriter.Printf(
+				"---> ♻️ ON-NAVIGATOR-SKIP-ALL-CALLBACK(skip:%v): '%v'\n", skip, item.Path,
+			)
+
+			Expect(strings.HasSuffix(item.Path, exclude)).To(BeFalse())
+
+			return lo.Ternary(strings.HasSuffix(item.Path, skip),
+				fs.SkipAll, nil,
 			)
 		},
 	}

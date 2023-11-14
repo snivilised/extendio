@@ -1,6 +1,9 @@
 package nav
 
-import "github.com/snivilised/extendio/xfs/utils"
+import (
+	"github.com/samber/lo"
+	"github.com/snivilised/extendio/xfs/utils"
+)
 
 type navigationFrame struct {
 	root        utils.VarProp[string]
@@ -73,4 +76,54 @@ func (f *navigationFrame) link(params *linkParams) {
 
 func (f *navigationFrame) reset() {
 	f.metrics = navigationMetricsFactory{}.new()
+}
+
+func (f *navigationFrame) proxy(item *TraverseItem, compoundCounts *compoundCounters) error {
+	// proxy is the correct way to invoke the client callback, because it takes into
+	// account any active decorations such as listening and filtering. It should be noted
+	// that the Callback on the options represents the client defined function which
+	// can be decorated. Only the callback on the frame should ever be invoked.
+	//
+	err := f.invoke(item, compoundCounts)
+
+	return lo.Ternary(item.Error != nil, item.Error, err)
+}
+
+func (f *navigationFrame) invoke(item *TraverseItem, compoundCounts *compoundCounters) error {
+	f.currentPath.Set(item.Path)
+	err := f.client.Fn(item)
+	f.track(item, compoundCounts)
+
+	return err
+}
+
+func (f *navigationFrame) track(item *TraverseItem, compoundCounts *compoundCounters) {
+	isDirectory := item.IsDir()
+
+	if item.Error == nil {
+		if item.filteredOut {
+			metricEn := lo.Ternary(isDirectory,
+				MetricNoFoldersFilteredOutEn,
+				MetricNoFilesFilteredOutEn,
+			)
+			f.metrics.tick(metricEn)
+		} else {
+			metricEn := lo.Ternary(isDirectory,
+				MetricNoFoldersInvokedEn,
+				MetricNoFilesInvokedEn,
+			)
+			f.metrics.tick(metricEn)
+		}
+
+		if compoundCounts != nil {
+			f.metrics.post(
+				MetricNoChildFilesFoundEn,
+				compoundCounts.filteredIn,
+			)
+			f.metrics.post(
+				MetricNoChildFilesFilteredOutEn,
+				compoundCounts.filteredOut,
+			)
+		}
+	}
 }

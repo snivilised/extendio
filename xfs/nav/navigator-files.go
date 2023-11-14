@@ -12,7 +12,7 @@ func (n *filesNavigator) top(frame *navigationFrame, root string) (*TraverseResu
 	})
 }
 
-func (n *filesNavigator) traverse(params *traverseParams) error {
+func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error) {
 	//
 	// For files, the registered callback will only be invoked for file entries. This means
 	// that the client will have no way to skip the descending of a particular directory. In
@@ -22,14 +22,14 @@ func (n *filesNavigator) traverse(params *traverseParams) error {
 		n.ascend(&NavigationInfo{
 			Options: n.o,
 			Item:    params.item,
-			Frame:   params.frame},
+			frame:   params.frame},
 		)
 	}()
 
 	navi := &NavigationInfo{
 		Options: n.o,
 		Item:    params.item,
-		Frame:   params.frame,
+		frame:   params.frame,
 	}
 
 	var (
@@ -52,26 +52,25 @@ func (n *filesNavigator) traverse(params *traverseParams) error {
 		entries = &DirectoryEntries{}
 	}
 
-	sorted := entries.all()
-
 	if (params.item.Info != nil) && !(params.item.Info.IsDir()) {
 		n.o.Hooks.Extend(navi, entries)
 
 		// Effectively, this is the file only filter
 		//
-		return n.agent.proxy(&agentProxyParams{
-			item:  params.item,
-			frame: params.frame,
-		})
+		return nil, params.frame.proxy(params.item, nil)
 	}
 
-	if exit, err := n.agent.notify(&agentNotifyParams{
+	sorted := entries.all()
+
+	if skip, err := n.agent.notify(&agentNotifyParams{
 		frame:   params.frame,
 		item:    params.item,
-		entries: *sorted,
+		entries: sorted,
 		readErr: readErr,
-	}); exit || err != nil {
-		return err
+	}); skip == SkipTraversalAllEn || err != nil {
+		return nil, err
+	} else if skip == SkipTraversalDirEn {
+		return params.item.Parent, err
 	}
 
 	return n.agent.traverse(&agentTraverseParams{

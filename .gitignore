@@ -20,6 +20,8 @@ ginkgo.report
 
 .task/
 .env
+.DS_Store
+thumbs.db
 
 test-options*.json
 test-state*.json

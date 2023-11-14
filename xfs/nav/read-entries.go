@@ -3,6 +3,8 @@ package nav
 import (
 	"io/fs"
 	"os"
+
+	"github.com/samber/lo"
 )
 
 // ReadEntries reads the contents of a directory. The resulting
@@ -14,10 +16,12 @@ func ReadEntries(dirname string) ([]fs.DirEntry, error) {
 	}
 	defer f.Close()
 
-	dirs, err := f.ReadDir(-1)
+	contents, err := f.ReadDir(-1)
 	if err != nil {
 		return nil, err
 	}
 
-	return dirs, nil
+	return lo.Filter(contents, func(item fs.DirEntry, index int) bool {
+		return item.Name() != ".DS_Store"
+	}), nil
 }

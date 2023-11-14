@@ -1,10 +1,10 @@
 package nav
 
 import (
+	"errors"
 	"io/fs"
 	"path/filepath"
 
-	"github.com/samber/lo"
 	xi18n "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
@@ -44,7 +44,9 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 
 	info, err := a.o.Hooks.QueryStatus(params.top)
 
-	var le error
+	var (
+		le error
+	)
 
 	if err != nil {
 		le = a.handler.accept(&fileSystemErrorParams{
@@ -60,7 +62,7 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 			Children: []fs.DirEntry{},
 		}
 
-		le = params.impl.traverse(&traverseParams{
+		_, le = params.impl.traverse(&traverseParams{
 			item:  item,
 			frame: params.frame,
 		})
@@ -72,7 +74,10 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 	return result, result.err
 }
 
-func (a *navigationAgent) read(path string, order DirectoryEntryOrderEnum) (*DirectoryEntries, error) {
+func (a *navigationAgent) read(
+	path string,
+	order DirectoryEntryOrderEnum,
+) (*DirectoryEntries, error) {
 	// this method was spun out from notify, as there needs to be a separation
 	// between these pieces of functionality to support 'extension'; ie we
 	// need to read the contents of an items contents to determine the properties
@@ -97,115 +102,87 @@ type agentNotifyParams struct {
 	readErr error
 }
 
-func (a *navigationAgent) notify(params *agentNotifyParams) (bool, error) {
-	exit := false
+func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, error) {
+	skip := SkipTraversalNoneEn
 
 	if params.readErr != nil {
+		// TODO: this needs a re-write so that it can also handle SkipTraversalDirEn
+		//
 		if a.doInvoke.Get() {
 			item2 := params.item.clone()
 			item2.Error = xi18n.NewThirdPartyErr(params.readErr)
 
 			// Second call, to report ReadDir error
 			//
-			if le := a.proxy(&agentProxyParams{
-				item:  item2,
-				frame: params.frame,
-			}); le != nil {
-				if QuerySkipDirError(params.readErr) && (item2.Entry != nil && item2.Entry.IsDir()) {
+			if le := params.frame.proxy(item2, nil); le != nil {
+				if errors.Is(params.readErr, fs.SkipAll) && (item2.Entry != nil && item2.Entry.IsDir()) {
 					params.readErr = nil
 				}
 
-				return true, xi18n.NewThirdPartyErr(params.readErr)
+				return SkipTraversalAllEn, xi18n.NewThirdPartyErr(params.readErr)
 			}
 		} else {
-			return true, xi18n.NewThirdPartyErr(params.readErr)
+			return SkipTraversalAllEn, xi18n.NewThirdPartyErr(params.readErr)
 		}
 	}
 
-	return exit, nil
+	return skip, nil
 }
 
 type agentTraverseParams struct {
 	impl     navigatorImpl
-	contents *[]fs.DirEntry
+	contents []fs.DirEntry
 	parent   *TraverseItem
 	frame    *navigationFrame
 }
 
-func (a *navigationAgent) traverse(params *agentTraverseParams) error {
-	for _, entry := range *params.contents {
+var dontSkipTraverseItem *TraverseItem
+
+func (a *navigationAgent) traverse(params *agentTraverseParams) (*TraverseItem, error) {
+	for _, entry := range params.contents {
 		path := filepath.Join(params.parent.Path, entry.Name())
-		info, err := entry.Info()
+		info, e := entry.Info()
 
-		var le error
-
-		if le != nil {
-			le = xi18n.NewThirdPartyErr(err)
-		}
-
-		child := TraverseItem{
-			Path: path, Info: info, Entry: entry, Error: le,
-			Children: []fs.DirEntry{},
-		}
-
-		if le = params.impl.traverse(&traverseParams{
-			item:  &child,
+		if skipItem, err := params.impl.traverse(&traverseParams{
+			item: &TraverseItem{
+				Path:     path,
+				Info:     info,
+				Entry:    entry,
+				Error:    e,
+				Children: []fs.DirEntry{},
+				Parent:   params.parent,
+			},
 			frame: params.frame,
-		}); le != nil {
-			if QuerySkipDirError(le) {
-				break
+		}); skipItem == dontSkipTraverseItem {
+			if err != nil {
+				if errors.Is(err, fs.SkipDir) {
+					// The returning of the parent traverse item by the child, denotes
+					// a skip; params.parent is the skipItem. So when a child item
+					// returns a SkipDir error and return's it parent item, what we're
+					// saying is that we want to skip processing all successive siblings
+					// but continue traversal. The skipItem indicates we're skipping
+					// the remaining processing of all of the parent item's remaining children.
+					// (see the ✨ below ...)
+					//
+					return params.parent, err
+				}
+
+				return dontSkipTraverseItem, err
 			}
-
-			return le
+		} else if err != nil {
+			// ✨ ... we skip processing all the remaining children for
+			// this item, but still continue the overall traversal.
+			//
+			switch {
+			case errors.Is(err, fs.SkipDir):
+				continue
+			case errors.Is(err, fs.SkipAll):
+				break
+			default:
+				return dontSkipTraverseItem, err
+			}
 		}
 	}
 
-	return nil
-}
-
-type agentProxyParams struct {
-	item           *TraverseItem
-	frame          *navigationFrame
-	compoundCounts *compoundCounters
-}
-
-func (a *navigationAgent) proxy(params *agentProxyParams) error {
-	// proxy is the correct way to invoke the client callback, because it takes into
-	// account any active decorations such as listening and filtering. It should be noted
-	// that the Callback on the options represents the client defined function which
-	// can be decorated. Only the callback on the frame should ever be invoked.
-	//
-	params.frame.currentPath.Set(params.item.Path)
-	clientErr := params.frame.client.Fn(params.item)
-	isDirectory := params.item.IsDir()
-
-	if params.item.Error == nil {
-		if params.item.filteredOut {
-			metricEn := lo.Ternary(isDirectory, MetricNoFoldersFilteredOutEn, MetricNoFilesFilteredOutEn)
-			params.frame.metrics.tick(metricEn)
-		} else {
-			metricEn := lo.Ternary(isDirectory, MetricNoFoldersInvokedEn, MetricNoFilesInvokedEn)
-			params.frame.metrics.tick(metricEn)
-		}
-
-		if params.compoundCounts != nil {
-			params.frame.metrics.post(MetricNoChildFilesFoundEn, params.compoundCounts.filteredIn)
-			params.frame.metrics.post(MetricNoChildFilesFilteredOutEn, params.compoundCounts.filteredOut)
-		}
-	}
-
-	if clientErr == nil && params.item.Error == nil {
-		return nil
-	}
-
-	var resultErr error
-
-	switch {
-	case params.item.Error != nil:
-		resultErr = params.item.Error
-	default:
-		resultErr = clientErr
-	}
-
-	return resultErr
+	return dontSkipTraverseItem, nil
 }

@@ -2,7 +2,6 @@ package nav
 
 import (
 	"fmt"
-	"io/fs"
 )
 
 // ❌ Invalid Notification Mute Requested
@@ -51,11 +50,4 @@ func NewInvalidPeriscopeRootPathNativeError(root, current string) error {
 // indicate resume controller not set (internal error)
 func NewResumeControllerNotSetNativeError(from string) error {
 	return fmt.Errorf("internal: resume controller not set (from: '%v')", from)
-}
-
-// ❌ SkipDir
-
-// QuerySkipDirError query if error is the fs SkipDir error
-func QuerySkipDirError(target error) bool {
-	return target != nil && target == fs.SkipDir
 }
