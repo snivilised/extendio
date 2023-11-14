@@ -33,6 +33,7 @@ type TraverseItem struct {
 	Error       error
 	Children    []fs.DirEntry
 	filteredOut bool
+	Parent      *TraverseItem
 }
 
 // clone makes shallow copy of TraverseItem (except the error).
@@ -146,7 +147,7 @@ type navigatorImpl interface {
 	logger() log.Logger
 	ensync(_ context.Context, _ context.CancelFunc, _ *navigationFrame, _ *AsyncInfo)
 	top(_ *navigationFrame, _ string) (*TraverseResult, error)
-	traverse(_ *traverseParams) error
+	traverse(_ *traverseParams) (*TraverseItem, error)
 	finish() error
 }
 
@@ -154,7 +155,7 @@ type navigatorImpl interface {
 type NavigationInfo struct {
 	Options *TraverseOptions
 	Item    *TraverseItem
-	Frame   *navigationFrame
+	frame   *navigationFrame
 }
 
 // SubPathInfo
@@ -178,4 +179,12 @@ const (
 	TriStateBoolUnsetEn TriStateBoolEnum = iota
 	TriStateBoolTrueEn
 	TriStateBoolFalseEn
+)
+
+type SkipTraversal uint
+
+const (
+	SkipTraversalNoneEn SkipTraversal = iota
+	SkipTraversalDirEn
+	SkipTraversalAllEn
 )

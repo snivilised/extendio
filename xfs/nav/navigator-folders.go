@@ -18,12 +18,12 @@ func (n *foldersNavigator) top(frame *navigationFrame, root string) (*TraverseRe
 	})
 }
 
-func (n *foldersNavigator) traverse(params *traverseParams) error {
+func (n *foldersNavigator) traverse(params *traverseParams) (*TraverseItem, error) {
 	defer func() {
 		n.ascend(&NavigationInfo{
 			Options: n.o,
 			Item:    params.item,
-			Frame:   params.frame},
+			frame:   params.frame},
 		)
 	}()
 
@@ -32,7 +32,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 	navi := &NavigationInfo{
 		Options: n.o,
 		Item:    params.item,
-		Frame:   params.frame,
+		frame:   params.frame,
 	}
 	n.descend(navi)
 
@@ -73,33 +73,22 @@ func (n *foldersNavigator) traverse(params *traverseParams) error {
 
 	n.o.Hooks.Extend(navi, entries)
 
-	if le := n.agent.proxy(&agentProxyParams{
-		item:           params.item,
-		frame:          params.frame,
-		compoundCounts: compoundCounts,
-	}); le != nil ||
-		(params.item.Entry != nil && !params.item.Entry.IsDir()) {
-		if QuerySkipDirError(le) && params.item.Entry.IsDir() {
-			// Successfully skipped directory
-			//
-			le = nil
-		}
-
-		return le
+	if le := params.frame.proxy(params.item, compoundCounts); le != nil {
+		return nil, le
 	}
 
-	if exit, err := n.agent.notify(&agentNotifyParams{
+	if skip, err := n.agent.notify(&agentNotifyParams{
 		frame:   params.frame,
 		item:    params.item,
 		entries: folders,
 		readErr: readErr,
-	}); exit {
-		return err
+	}); skip == SkipTraversalAllEn {
+		return nil, err
 	}
 
 	return n.agent.traverse(&agentTraverseParams{
 		impl:     n,
-		contents: &folders,
+		contents: folders,
 		parent:   params.item,
 		frame:    params.frame,
 	})

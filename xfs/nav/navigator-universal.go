@@ -12,19 +12,19 @@ func (n *universalNavigator) top(frame *navigationFrame, root string) (*Traverse
 	})
 }
 
-func (n *universalNavigator) traverse(params *traverseParams) error {
+func (n *universalNavigator) traverse(params *traverseParams) (*TraverseItem, error) {
 	defer func() {
 		n.ascend(&NavigationInfo{
 			Options: n.o,
 			Item:    params.item,
-			Frame:   params.frame},
+			frame:   params.frame},
 		)
 	}()
 
 	navi := &NavigationInfo{
 		Options: n.o,
 		Item:    params.item,
-		Frame:   params.frame,
+		frame:   params.frame,
 	}
 	n.descend(navi)
 
@@ -51,25 +51,19 @@ func (n *universalNavigator) traverse(params *traverseParams) error {
 	sorted := entries.all()
 	n.o.Hooks.Extend(navi, entries)
 
-	if le := n.agent.proxy(&agentProxyParams{
-		item:  params.item,
-		frame: params.frame,
-	}); le != nil ||
-		(params.item.Entry != nil && !params.item.Entry.IsDir()) {
-		if QuerySkipDirError(le) && params.item.Entry.IsDir() {
-			le = nil
-		}
-
-		return le
+	if le := params.frame.proxy(params.item, nil); le != nil {
+		return nil, le
 	}
 
-	if exit, err := n.agent.notify(&agentNotifyParams{
+	if skip, err := n.agent.notify(&agentNotifyParams{
 		frame:   params.frame,
 		item:    params.item,
-		entries: *sorted,
+		entries: sorted,
 		readErr: readErr,
-	}); exit {
-		return err
+	}); skip == SkipTraversalAllEn {
+		return nil, err
+	} else if skip == SkipTraversalDirEn {
+		return params.item.Parent, err
 	}
 
 	return n.agent.traverse(&agentTraverseParams{

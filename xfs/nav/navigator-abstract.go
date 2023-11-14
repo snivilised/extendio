@@ -84,13 +84,13 @@ func (n *navigator) logger() log.Logger {
 }
 
 func (n *navigator) descend(navi *NavigationInfo) {
-	navi.Frame.periscope.descend()
-	navi.Frame.notifiers.descend.invoke(navi.Item)
+	navi.frame.periscope.descend()
+	navi.frame.notifiers.descend.invoke(navi.Item)
 }
 
 func (n *navigator) ascend(navi *NavigationInfo) {
-	navi.Frame.periscope.ascend()
-	navi.Frame.notifiers.ascend.invoke(navi.Item)
+	navi.frame.periscope.ascend()
+	navi.frame.notifiers.ascend.invoke(navi.Item)
 }
 
 func (n *navigator) finish() error {

@@ -23,14 +23,14 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 
 	if navi.Item.IsDir() {
 		isLeaf = len(entries.Folders) == 0
-		scope = navi.Frame.periscope.scope(isLeaf)
+		scope = navi.frame.periscope.scope(isLeaf)
 	} else {
 		scope = ScopeLeafEn
 	}
 
 	parent, name := filepath.Split(navi.Item.Path)
 	navi.Item.Extension = &ExtendedItem{
-		Depth:     navi.Frame.periscope.depth(),
+		Depth:     navi.frame.periscope.depth(),
 		IsLeaf:    isLeaf,
 		Name:      name,
 		Parent:    parent,
@@ -38,7 +38,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 	}
 
 	spInfo := &SubPathInfo{
-		Root:      navi.Frame.root.Get(),
+		Root:      navi.frame.root.Get(),
 		Item:      navi.Item,
 		Behaviour: &navi.Options.Store.Behaviours.SubPath,
 	}

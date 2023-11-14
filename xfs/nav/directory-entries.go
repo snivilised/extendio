@@ -63,7 +63,7 @@ func (e *DirectoryEntries) arrange(entries *[]fs.DirEntry) {
 	}
 }
 
-func (e *DirectoryEntries) all() *[]fs.DirEntry {
+func (e *DirectoryEntries) all() []fs.DirEntry {
 	result := []fs.DirEntry{}
 
 	switch e.Order {
@@ -73,7 +73,7 @@ func (e *DirectoryEntries) all() *[]fs.DirEntry {
 		result = append(e.Files, e.Folders...) //nolint:gocritic // no alternative known
 	}
 
-	return &result
+	return result
 }
 
 func (e *DirectoryEntries) sort(entries *[]fs.DirEntry) {

@@ -87,7 +87,7 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) (*TraverseResult, err
 type seedParams struct {
 	frame      *navigationFrame
 	parent     string
-	entries    *[]fs.DirEntry
+	entries    []fs.DirEntry
 	conclusion *concludeInfo
 }
 
@@ -99,7 +99,7 @@ func (s *spawnStrategy) seed(params *seedParams) (*TraverseResult, error) {
 
 	compoundResult := &TraverseResult{}
 
-	for _, entry := range *params.entries {
+	for _, entry := range params.entries {
 		topPath := filepath.Join(params.parent, entry.Name())
 
 		result, err := s.nc.impl.top(params.frame, topPath)

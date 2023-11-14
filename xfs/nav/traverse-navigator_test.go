@@ -72,6 +72,10 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 
 				if entry.visit {
 					_ = filepath.WalkDir(path, func(path string, de fs.DirEntry, err error) error {
+						if strings.HasSuffix(path, ".DS_Store") {
+							return nil
+						}
+
 						if subscribes(entry.subscription, de) {
 							visited = append(visited, path)
 						}
@@ -121,7 +125,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				},
 			}),
 			Entry(nil, &naviTE{
-				message:      "universal: Path contains folders",
+				message:      "universal: Path contains folders (visit)",
 				relative:     "RETRO-WAVE",
 				extended:     NotExtended,
 				visit:        true,
