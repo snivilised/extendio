@@ -1,8 +1,13 @@
 package nav
 
 import (
+	"errors"
 	"fmt"
 )
+
+// Errors defined here are internal errors that are of no value to end
+// users (hence not l10n). There are usually programming errors which
+// means they only have meaning for client developers.
 
 // ❌ Invalid Notification Mute Requested
 
@@ -51,3 +56,11 @@ func NewInvalidPeriscopeRootPathNativeError(root, current string) error {
 func NewResumeControllerNotSetNativeError(from string) error {
 	return fmt.Errorf("internal: resume controller not set (from: '%v')", from)
 }
+
+// static errors, identifiable with errors.Is
+
+// ErrUndefinedSubscriptionType indicates client has not set the navigation
+// subscription type at /Options.Store.Subscription.
+var ErrUndefinedSubscriptionType = errors.New(
+	"undefined subscription type; please set in traverse options (/Options.Store.Subscription)",
+)

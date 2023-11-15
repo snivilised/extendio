@@ -108,7 +108,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     IsExtended,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("LEAF-PATH", IsExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   4,
 					folders: 1,
 				},
@@ -119,7 +119,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   14,
 					folders: 8,
 				},
@@ -131,7 +131,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				visit:        true,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("VISIT-CONTAINS-FOLDERS", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   14,
 					folders: 8,
 				},
@@ -142,7 +142,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS (large)", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   656,
 					folders: 178,
 				},
@@ -154,7 +154,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				once:         true,
 				subscription: nav.SubscribeAny,
 				callback:     universalCallback("CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   656,
 					folders: 178,
 				},
@@ -168,7 +168,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("LEAF-PATH", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 1,
 				},
@@ -179,7 +179,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     IsExtended,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS ", IsExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 8,
 				},
@@ -191,7 +191,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				visit:        true,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS (check all invoked)", IsExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 8,
 				},
@@ -202,7 +202,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS (large)", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 178,
 				},
@@ -214,7 +214,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				once:         true,
 				subscription: nav.SubscribeFolders,
 				callback:     foldersCallback("CONTAINS-FOLDERS (large, ensure single invoke)", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 178,
 				},
@@ -226,7 +226,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				subscription:  nav.SubscribeFolders,
 				caseSensitive: true,
 				callback:      foldersCaseSensitiveCallback("rock/metal/HARD-METAL", "rock/metal/dark"),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 41,
 				},
@@ -240,7 +240,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("LEAF-PATH", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   4,
 					folders: 0,
 				},
@@ -251,7 +251,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     NotExtended,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   14,
 					folders: 0,
 				},
@@ -263,7 +263,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				visit:        true,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("VISIT-CONTAINS-FOLDERS", NotExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   14,
 					folders: 0,
 				},
@@ -274,7 +274,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				extended:     IsExtended,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS (large)", IsExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   656,
 					folders: 0,
 				},
@@ -286,7 +286,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 				once:         true,
 				subscription: nav.SubscribeFiles,
 				callback:     filesCallback("CONTAINS-FOLDERS (large, ensure single invoke)", IsExtended),
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   656,
 					folders: 0,
 				},
@@ -375,7 +375,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			extended:     IsExtended,
 			subscription: nav.SubscribeFoldersWithFiles,
 			callback:     foldersCallback("LEAF-PATH", IsExtended),
-			expectedNoOf: expectedNo{
+			expectedNoOf: directoryQuantities{
 				files:   0,
 				folders: 1,
 				children: map[string]int{
@@ -390,7 +390,7 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			extended:     IsExtended,
 			visit:        true,
 			subscription: nav.SubscribeFoldersWithFiles,
-			expectedNoOf: expectedNo{
+			expectedNoOf: directoryQuantities{
 				files:   0,
 				folders: 8,
 				children: map[string]int{

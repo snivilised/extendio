@@ -44,7 +44,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) (*TraverseItem, erro
 		DirectoryEntryOrderFoldersFirstEn,
 	)
 	folders := entries.Folders
-	entries.sort(&folders) // !!!!
+	entries.sort(folders) // !!!!
 
 	if n.o.Store.Subscription == SubscribeFoldersWithFiles {
 		var files []fs.DirEntry
@@ -67,11 +67,13 @@ func (n *foldersNavigator) traverse(params *traverseParams) (*TraverseItem, erro
 			filteredOut: uint(allFilesCount - filteredIn),
 		}
 
-		entries.sort(&files)
+		entries.sort(files)
 		params.item.Children = files
 	}
 
 	n.o.Hooks.Extend(navi, entries)
+
+	// sample here
 
 	if le := params.frame.proxy(params.item, compoundCounts); le != nil {
 		return nil, le

@@ -144,6 +144,20 @@ type LoggingOptions struct {
 	Rotation LogRotationOptions
 }
 
+type SampleNoOf struct {
+	Files   uint
+	Folders uint
+}
+
+type SamplingOptions struct {
+	NoOf SampleNoOf
+}
+
+// SamplerOptions
+type SamplerOptions struct {
+	Fn SampleCallback
+}
+
 // OptionsStore represents that part of options that is directly
 // persist-able.
 type OptionsStore struct {
@@ -173,6 +187,10 @@ type OptionsStore struct {
 	// Logging options
 	//
 	Logging LoggingOptions
+
+	// Sampling options
+	//
+	Sampling SamplingOptions
 }
 
 // TraverseOptions customise the way a directory tree is traversed
@@ -194,6 +212,10 @@ type TraverseOptions struct {
 	// Persist contains options for persisting traverse options
 	//
 	Persist PersistOptions `json:"-"`
+
+	// Sampler defines options for sampling directory entries
+	//
+	Sampler SamplerOptions `json:"-"`
 }
 
 // TraverseOptionFn functional traverse options
@@ -221,11 +243,23 @@ func (o *TraverseOptions) afterUserOptions() {
 	if o.Hooks.Extend == nil {
 		o.Hooks.Extend = lo.Ternary(o.Store.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
 	}
+
+	if o.Sampler.Fn == nil {
+		o.Sampler.Fn = GetFirstSampler(&o.Store.Sampling.NoOf)
+	}
 }
 
 func (o *TraverseOptions) Clone() *TraverseOptions {
 	clone := deepcopy.Copy(o)
 	return clone.(*TraverseOptions)
+}
+
+func (o *TraverseOptions) isSamplingActive() bool {
+	return o.Store.Sampling.NoOf.Folders > 0 || o.Store.Sampling.NoOf.Files > 0
+}
+
+func (o *TraverseOptions) isFilteringActive() bool {
+	return o.Store.FilterDefs.Node.Pattern != "" || o.Store.FilterDefs.Node.Custom != nil
 }
 
 const (
@@ -285,5 +319,5 @@ func GetDefaultOptions() *TraverseOptions {
 
 func (o *TraverseOptions) useExtendHook() {
 	o.Store.DoExtend = true
-	o.Hooks.Extend = lo.Ternary(o.Store.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
+	o.Hooks.Extend = DefaultExtendHookFn
 }

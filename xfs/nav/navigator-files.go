@@ -35,9 +35,10 @@ func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error)
 	var (
 		entries *DirectoryEntries
 		readErr error
+		isDir   = params.item.IsDir()
 	)
 
-	if params.item.Info.IsDir() {
+	if isDir {
 		entries, readErr = n.agent.read(
 			params.item.Path,
 			n.o.Store.Behaviours.Sort.DirectoryEntryOrder,
@@ -46,19 +47,21 @@ func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error)
 		// Files and Folders need to be sorted independently to preserve the navigation order
 		// stipulated by .Behaviours.Sort.DirectoryEntryOrder
 		//
-		entries.sort(&entries.Files)
-		entries.sort(&entries.Folders)
+		entries.sort(entries.Files)
+		entries.sort(entries.Folders)
 	} else {
 		entries = &DirectoryEntries{}
 	}
 
-	if (params.item.Info != nil) && !(params.item.Info.IsDir()) {
+	if !isDir {
 		n.o.Hooks.Extend(navi, entries)
 
 		// Effectively, this is the file only filter
 		//
 		return nil, params.frame.proxy(params.item, nil)
 	}
+
+	// sample here
 
 	sorted := entries.all()
 

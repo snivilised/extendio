@@ -84,6 +84,8 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 				log:   logger,
 			},
 		}
+	default:
+		panic(ErrUndefinedSubscriptionType)
 	}
 
 	return impl

@@ -112,7 +112,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "files(any scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   4,
 					folders: 0,
 				},
@@ -126,7 +126,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "files(any scope): regex filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   10,
 					folders: 0,
 				},
@@ -141,7 +141,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "files(default to any scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFiles,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   4,
 					folders: 0,
 				},
@@ -157,7 +157,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folders(any scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 2,
 				},
@@ -172,7 +172,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folders(any scope): regex filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 6,
 				},
@@ -188,7 +188,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folders(undefined scope): regex filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 2,
 				},
@@ -204,7 +204,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folders(top): regex filter (ifNotApplicable=true)",
 				relative:     "PROGRESSIVE-HOUSE",
 				subscription: nav.SubscribeFolders,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 10,
 				},
@@ -222,7 +222,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				relative:     "",
 				subscription: nav.SubscribeFolders,
 				mandatory:    []string{"PROGRESSIVE-HOUSE"},
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 1,
 				},
@@ -320,7 +320,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
 
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 8,
 					children: map[string]int{
@@ -340,7 +340,7 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				message:      "folder(with files): regex filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 8,
 					children: map[string]int{

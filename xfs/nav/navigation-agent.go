@@ -89,7 +89,7 @@ func (a *navigationAgent) read(
 	de := deFactory.new(&directoryEntriesFactoryParams{
 		o:       a.o,
 		order:   order,
-		entries: &entries,
+		entries: entries,
 	})
 
 	return de, err
@@ -106,8 +106,6 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, erro
 	skip := SkipTraversalNoneEn
 
 	if params.readErr != nil {
-		// TODO: this needs a re-write so that it can also handle SkipTraversalDirEn
-		//
 		if a.doInvoke.Get() {
 			item2 := params.item.clone()
 			item2.Error = xi18n.NewThirdPartyErr(params.readErr)
