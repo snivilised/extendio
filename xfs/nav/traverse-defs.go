@@ -188,3 +188,6 @@ const (
 	SkipTraversalDirEn
 	SkipTraversalAllEn
 )
+
+// SampleCallback
+type SampleCallback func(entries *DirectoryEntries) *DirectoryEntries

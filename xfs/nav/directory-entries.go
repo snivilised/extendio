@@ -1,6 +1,7 @@
 package nav
 
 import (
+	"fmt"
 	"io/fs"
 
 	"github.com/samber/lo"
@@ -24,7 +25,7 @@ type directoryEntriesFactory struct{}
 type directoryEntriesFactoryParams struct {
 	o       *TraverseOptions
 	order   DirectoryEntryOrderEnum
-	entries *[]fs.DirEntry
+	entries []fs.DirEntry
 }
 
 func (directoryEntriesFactory) new(params *directoryEntriesFactoryParams) *DirectoryEntries {
@@ -46,8 +47,13 @@ type DirectoryEntries struct {
 	Files   []fs.DirEntry
 }
 
-func (e *DirectoryEntries) arrange(entries *[]fs.DirEntry) {
-	grouped := lo.GroupBy(*entries, func(item fs.DirEntry) bool {
+func (e *DirectoryEntries) Sample() *DirectoryEntries {
+	fmt.Println("❌❌❌ DirectoryEntries.Sample NOT-IMPLEMENTED")
+	return e
+}
+
+func (e *DirectoryEntries) arrange(entries []fs.DirEntry) {
+	grouped := lo.GroupBy(entries, func(item fs.DirEntry) bool {
 		return item.IsDir()
 	})
 
@@ -76,8 +82,8 @@ func (e *DirectoryEntries) all() []fs.DirEntry {
 	return result
 }
 
-func (e *DirectoryEntries) sort(entries *[]fs.DirEntry) {
-	if err := e.Options.Hooks.Sort(*entries); err != nil {
+func (e *DirectoryEntries) sort(entries []fs.DirEntry) {
+	if err := e.Options.Hooks.Sort(entries); err != nil {
 		panic(xi18n.NewSortFnFailedError())
 	}
 }

@@ -114,7 +114,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "universal(any scope): glob filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   8,
 					folders: 0,
 				},
@@ -129,7 +129,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "universal(any scope): glob filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   6,
 					folders: 8,
 				},
@@ -145,7 +145,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "universal(undefined scope): glob filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   8,
 					folders: 0,
 				},
@@ -161,7 +161,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "universal(any scope): glob filter (ifNotApplicable=true)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   8,
 					folders: 4,
 				},
@@ -178,7 +178,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "universal(leaf scope): glob filter (ifNotApplicable=false)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   8,
 					folders: 0,
 				},
@@ -272,7 +272,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "folder(with files): glob filter",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 8,
 					children: map[string]int{
@@ -292,7 +292,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				message:      "folder(with files): glob filter (negate)",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFoldersWithFiles,
-				expectedNoOf: expectedNo{
+				expectedNoOf: directoryQuantities{
 					files:   0,
 					folders: 8,
 					children: map[string]int{

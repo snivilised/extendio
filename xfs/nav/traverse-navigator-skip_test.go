@@ -50,12 +50,12 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 			folders := result.Metrics.Count(nav.MetricNoFoldersInvokedEn)
 			GinkgoWriter.Printf("===> files: '%v', folders: '%v'\n", files, folders)
 
-			if entry.folderCount > 0 {
-				Expect(folders).To(BeEquivalentTo(entry.folderCount))
+			if entry.expectedNoOf.folders > 0 {
+				Expect(folders).To(BeEquivalentTo(entry.expectedNoOf.folders))
 			}
 
-			if entry.fileCount > 0 {
-				Expect(files).To(BeEquivalentTo(entry.fileCount))
+			if entry.expectedNoOf.files > 0 {
+				Expect(files).To(BeEquivalentTo(entry.expectedNoOf.files))
 			}
 		},
 		func(entry *skipTE) string {
@@ -66,80 +66,96 @@ var _ = Describe("TraverseNavigatorSkip", Ordered, func() {
 				message:      "universal: SkipAll (skipAt:folder)",
 				subscription: nav.SubscribeAny,
 			},
-			skipAt:      "College",
-			prohibit:    "Northern Council",
-			all:         true,
-			fileCount:   4,
-			folderCount: 4,
+			skipAt:   "College",
+			prohibit: "Northern Council",
+			all:      true,
+			expectedNoOf: directoryQuantities{
+				files:   4,
+				folders: 4,
+			},
 		}),
 		Entry(nil, &skipTE{
 			naviTE: naviTE{
 				message:      "universal: SkipDir (skipAt:folder)",
 				subscription: nav.SubscribeAny,
 			},
-			skipAt:      "College",
-			prohibit:    "Northern Council",
-			fileCount:   4,
-			folderCount: 4,
+			skipAt:   "College",
+			prohibit: "Northern Council",
+			expectedNoOf: directoryQuantities{
+				files:   4,
+				folders: 4,
+			},
 		}),
 		Entry(nil, &skipTE{
 			naviTE: naviTE{
 				message:      "universal: SkipAll (skipAt:file)",
 				subscription: nav.SubscribeAny,
 			},
-			skipAt:      "A1 - The Telephone Call.flac",
-			prohibit:    "A2 - Night Drive.flac",
-			all:         true,
-			fileCount:   1,
-			folderCount: 3,
+			skipAt:   "A1 - The Telephone Call.flac",
+			prohibit: "A2 - Night Drive.flac",
+			all:      true,
+			expectedNoOf: directoryQuantities{
+				files:   1,
+				folders: 3,
+			},
 		}),
 		Entry(nil, &skipTE{
 			naviTE: naviTE{
 				message:      "universal: SkipDir (skipAt:file)",
 				subscription: nav.SubscribeAny,
 			},
-			skipAt:      "A1 - The Telephone Call.flac",
-			prohibit:    "A2 - Night Drive.flac",
-			fileCount:   11,
-			folderCount: 8,
+			skipAt:   "A1 - The Telephone Call.flac",
+			prohibit: "A2 - Night Drive.flac",
+			expectedNoOf: directoryQuantities{
+				files:   11,
+				folders: 8,
+			},
 		}),
 		Entry(nil, &skipTE{
 			naviTE: naviTE{
 				message:      "folders: SkipAll (skipAt:folder)",
 				subscription: nav.SubscribeFolders,
 			},
-			skipAt:      "College",
-			prohibit:    "Northern Council",
-			all:         true,
-			folderCount: 4,
+			skipAt:   "College",
+			prohibit: "Northern Council",
+			all:      true,
+			expectedNoOf: directoryQuantities{
+				folders: 4,
+			},
 		}),
 		Entry(nil, &skipTE{
 			naviTE: naviTE{
 				message:      "folders: SkipDir (skipAt:folder)",
 				subscription: nav.SubscribeFolders,
 			},
-			skipAt:      "Northern Council",
-			prohibit:    "Teenage Color",
-			folderCount: 7,
+			skipAt:   "Northern Council",
+			prohibit: "Teenage Color",
+			expectedNoOf: directoryQuantities{
+				folders: 7,
+			},
 		}),
 		Entry(nil, &skipTE{
 			naviTE: naviTE{
 				message:      "files: SkipAll (skipAt:file)",
 				subscription: nav.SubscribeFiles,
 			},
-			skipAt:    "A1 - The Telephone Call.flac",
-			prohibit:  "A2 - Night Drive.flac",
-			all:       true,
-			fileCount: 1,
+			skipAt:   "A1 - The Telephone Call.flac",
+			prohibit: "A2 - Night Drive.flac",
+			all:      true,
+			expectedNoOf: directoryQuantities{
+				files: 1,
+			},
 		}),
 		Entry(nil, &skipTE{
 			naviTE: naviTE{
 				message:      "files: SkipDir (skipAt:file)",
 				subscription: nav.SubscribeFiles,
 			},
-			skipAt:    "A1 - The Telephone Call.flac",
-			prohibit:  "A2 - Night Drive.flac",
-			fileCount: 11,
+			skipAt:   "A1 - The Telephone Call.flac",
+			prohibit: "A2 - Night Drive.flac",
+			expectedNoOf: directoryQuantities{
+				files: 11,
+			},
 		}),
 	)
 })

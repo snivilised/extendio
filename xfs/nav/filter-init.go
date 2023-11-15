@@ -15,30 +15,40 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 	if o.Store.FilterDefs != nil {
 		frame.filters = &NavigationFilters{}
 
-		if o.Store.FilterDefs.Node.Pattern != "" || o.Store.FilterDefs.Node.Custom != nil {
-			o.useExtendHook()
-			frame.filters.Node = newNodeFilter(&o.Store.FilterDefs.Node)
-			decorated := frame.client
-			decorator := &LabelledTraverseCallback{
-				Label: "filter decorator",
-				Fn: func(item *TraverseItem) error {
-					if frame.filters.Node.IsMatch(item) {
-						return decorated.Fn(item)
-					}
-
-					item.filteredOut = true
-					return nil
-				},
+		if !o.isSamplingActive() {
+			if o.isFilteringActive() {
+				o.useExtendHook()
+				applyNodeFilterDecoration(&o.Store.FilterDefs.Node, frame)
 			}
-			frame.raw = decorator
-			frame.decorate("init-current-filter 🎁", decorator)
-		}
 
-		if o.Store.FilterDefs.Children.Pattern != "" || o.Store.FilterDefs.Children.Custom != nil {
-			o.useExtendHook()
-			frame.filters.Children = newCompoundFilter(&o.Store.FilterDefs.Children)
+			if o.Store.FilterDefs.Children.Pattern != "" || o.Store.FilterDefs.Children.Custom != nil {
+				if frame.filters.Node == nil {
+					applyNodeFilterDecoration(&BenignNodeFilterDef, frame)
+				}
+
+				frame.filters.Children = newCompoundFilter(&o.Store.FilterDefs.Children)
+			}
 		}
 	} else {
 		frame.raw = frame.client
 	}
+}
+
+func applyNodeFilterDecoration(nodeDef *FilterDef, frame *navigationFrame) {
+	frame.filters.Node = newNodeFilter(nodeDef)
+	decorated := frame.client
+	decorator := &LabelledTraverseCallback{
+		Label: "filter decorator",
+		Fn: func(item *TraverseItem) error {
+			if frame.filters.Node.IsMatch(item) {
+				return decorated.Fn(item)
+			}
+
+			item.filteredOut = true
+			return nil
+		},
+	}
+
+	frame.raw = decorator
+	frame.decorate("init-current-filter 🎁", decorator)
 }

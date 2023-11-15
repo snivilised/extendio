@@ -60,8 +60,8 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) (*TraverseResult, err
 		inclusive: conclusion.inclusive,
 	})
 
-	following.siblings.sort(&following.siblings.Files)
-	following.siblings.sort(&following.siblings.Folders)
+	following.siblings.sort(following.siblings.Files)
+	following.siblings.sort(following.siblings.Folders)
 
 	compoundResult, err := s.seed(&seedParams{
 		frame:      s.nc.frame,
@@ -144,7 +144,7 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 		&directoryEntriesFactoryParams{
 			o:       s.o,
 			order:   params.order,
-			entries: &siblings,
+			entries: siblings,
 		},
 	)
 

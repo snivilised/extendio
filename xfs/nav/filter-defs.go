@@ -167,3 +167,10 @@ type compoundCounters struct {
 	filteredIn  uint
 	filteredOut uint
 }
+
+var BenignNodeFilterDef = FilterDef{
+	Type:        FilterTypeRegexEn,
+	Description: "benign allow all",
+	Pattern:     ".",
+	Scope:       ScopeRootEn,
+}
