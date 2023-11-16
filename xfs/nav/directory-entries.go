@@ -1,11 +1,10 @@
 package nav
 
 import (
-	"fmt"
 	"io/fs"
 
 	"github.com/samber/lo"
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 // DirectoryEntryOrderEnum determines what order a directories
@@ -20,18 +19,14 @@ const (
 	DirectoryEntryOrderFilesFirstEn
 )
 
-type directoryEntriesFactory struct{}
-
-type directoryEntriesFactoryParams struct {
+type newDirectoryEntriesParams struct {
 	o       *TraverseOptions
-	order   DirectoryEntryOrderEnum
 	entries []fs.DirEntry
 }
 
-func (directoryEntriesFactory) new(params *directoryEntriesFactoryParams) *DirectoryEntries {
+func newDirectoryEntries(params *newDirectoryEntriesParams) *DirectoryEntries {
 	instance := DirectoryEntries{
 		Options: params.o,
-		Order:   params.order,
 	}
 
 	instance.arrange(params.entries)
@@ -39,17 +34,29 @@ func (directoryEntriesFactory) new(params *directoryEntriesFactoryParams) *Direc
 	return &instance
 }
 
-// DirectoryEntries
+// DirectoryEntries represents the contents of a directory's contents and
+// handles sorting order which by default is different between various
+// operating systems. This abstraction removes the differences in sorting
+// behaviour on different platforms.
 type DirectoryEntries struct {
 	Options *TraverseOptions
-	Order   DirectoryEntryOrderEnum
 	Folders []fs.DirEntry
 	Files   []fs.DirEntry
 }
 
-func (e *DirectoryEntries) Sample() *DirectoryEntries {
-	fmt.Println("❌❌❌ DirectoryEntries.Sample NOT-IMPLEMENTED")
-	return e
+// All returns the contents of a directory respecting the directory sorting
+// order defined in the traversal options.
+func (e *DirectoryEntries) All() []fs.DirEntry {
+	result := []fs.DirEntry{}
+
+	switch e.Options.Store.Behaviours.Sort.DirectoryEntryOrder {
+	case DirectoryEntryOrderFoldersFirstEn:
+		result = append(e.Folders, e.Files...) //nolint:gocritic // no alternative known
+	case DirectoryEntryOrderFilesFirstEn:
+		result = append(e.Files, e.Folders...) //nolint:gocritic // no alternative known
+	}
+
+	return result
 }
 
 func (e *DirectoryEntries) arrange(entries []fs.DirEntry) {
@@ -69,21 +76,16 @@ func (e *DirectoryEntries) arrange(entries []fs.DirEntry) {
 	}
 }
 
-func (e *DirectoryEntries) all() []fs.DirEntry {
-	result := []fs.DirEntry{}
-
-	switch e.Order {
-	case DirectoryEntryOrderFoldersFirstEn:
-		result = append(e.Folders, e.Files...) //nolint:gocritic // no alternative known
-	case DirectoryEntryOrderFilesFirstEn:
-		result = append(e.Files, e.Folders...) //nolint:gocritic // no alternative known
-	}
-
-	return result
-}
-
 func (e *DirectoryEntries) sort(entries []fs.DirEntry) {
 	if err := e.Options.Hooks.Sort(entries); err != nil {
-		panic(xi18n.NewSortFnFailedError())
+		panic(i18n.NewSortFnFailedError())
+	}
+}
+
+func newEmptyDirectoryEntries(o *TraverseOptions) *DirectoryEntries {
+	return &DirectoryEntries{
+		Options: o,
+		Files:   []fs.DirEntry{},
+		Folders: []fs.DirEntry{},
 	}
 }

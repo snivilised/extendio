@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 type Session interface {
@@ -125,7 +125,7 @@ func (s *Resume) init() {
 	})
 
 	if err != nil {
-		panic(xi18n.NewFailedToResumeFromFileError(s.RestorePath, err))
+		panic(i18n.NewFailedToResumeFromFileError(s.RestorePath, err))
 	}
 }
 

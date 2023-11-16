@@ -2,7 +2,7 @@ package nav
 
 import (
 	"github.com/snivilised/extendio/collections"
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 // ListenHandler
@@ -141,7 +141,7 @@ func (l *navigationListener) makeStates(params *listenStatesParams) {
 		ListenRetired: &LabelledTraverseCallback{
 			Label: "ListenRetired decorator",
 			Fn: func(_ *TraverseItem) error {
-				return xi18n.NewTerminateTraverseError()
+				return i18n.NewTerminateTraverseError()
 			},
 		},
 	}

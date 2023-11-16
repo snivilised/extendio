@@ -3,7 +3,7 @@ package nav
 import (
 	"fmt"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 type marshallerFactory struct{}
@@ -12,7 +12,7 @@ func (m *marshallerFactory) new(o *TraverseOptions, state *persistState) stateMa
 	var marshaller stateMarshaller
 
 	if o.Persist.Format != PersistInJSONEn {
-		panic(xi18n.NewUnknownMarshalFormatError(
+		panic(i18n.NewUnknownMarshalFormatError(
 			fmt.Sprintf("%v", o.Persist.Format), "Options/Persist/Format",
 		))
 	}

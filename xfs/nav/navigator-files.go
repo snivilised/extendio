@@ -1,5 +1,7 @@
 package nav
 
+import "io/fs"
+
 type filesNavigator struct {
 	navigator
 }
@@ -33,16 +35,14 @@ func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error)
 	}
 
 	var (
-		entries *DirectoryEntries
-		readErr error
-		isDir   = params.item.IsDir()
+		entries  *DirectoryEntries
+		contents []fs.DirEntry
+		readErr  error
+		isDir    = params.item.IsDir()
 	)
 
 	if isDir {
-		entries, readErr = n.agent.read(
-			params.item.Path,
-			n.o.Store.Behaviours.Sort.DirectoryEntryOrder,
-		)
+		entries, readErr = n.agent.read(params.item.Path)
 
 		// Files and Folders need to be sorted independently to preserve the navigation order
 		// stipulated by .Behaviours.Sort.DirectoryEntryOrder
@@ -50,7 +50,7 @@ func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error)
 		entries.sort(entries.Files)
 		entries.sort(entries.Folders)
 	} else {
-		entries = &DirectoryEntries{}
+		entries = newEmptyDirectoryEntries(n.o)
 	}
 
 	if !isDir {
@@ -61,15 +61,17 @@ func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error)
 		return nil, params.frame.proxy(params.item, nil)
 	}
 
-	// sample here
+	if n.o.isSamplingActive() {
+		n.o.Sampler.Fn(entries)
+	}
 
-	sorted := entries.all()
+	contents = entries.All()
 
 	if skip, err := n.agent.notify(&agentNotifyParams{
-		frame:   params.frame,
-		item:    params.item,
-		entries: sorted,
-		readErr: readErr,
+		frame:    params.frame,
+		item:     params.item,
+		contents: contents,
+		readErr:  readErr,
 	}); skip == SkipTraversalAllEn || err != nil {
 		return nil, err
 	} else if skip == SkipTraversalDirEn {
@@ -78,7 +80,7 @@ func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error)
 
 	return n.agent.traverse(&agentTraverseParams{
 		impl:     n,
-		contents: sorted,
+		contents: contents,
 		parent:   params.item,
 		frame:    params.frame,
 	})

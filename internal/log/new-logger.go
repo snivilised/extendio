@@ -7,14 +7,14 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 func NewLogger(info *LoggerInfo) Ref {
 	return utils.NewRoProp(lo.TernaryF(info.Enabled,
 		func() Logger {
 			if info.Path == "" {
-				panic(xi18n.NewInvalidConfigEntryError(info.Path, "Store/Logging/Path"))
+				panic(i18n.NewInvalidConfigEntryError(info.Path, "Store/Logging/Path"))
 			}
 			ws := zapcore.AddSync(&lumberjack.Logger{
 				Filename:   info.Path,

@@ -190,4 +190,4 @@ const (
 )
 
 // SampleCallback
-type SampleCallback func(entries *DirectoryEntries) *DirectoryEntries
+type SampleCallback func(entries *DirectoryEntries)

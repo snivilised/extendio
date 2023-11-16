@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/samber/lo"
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 type fileSystemErrorParams struct {
@@ -26,10 +26,10 @@ type notifyCallbackErrorHandler struct {
 func (h *notifyCallbackErrorHandler) accept(params *fileSystemErrorParams) error {
 	err := lo.TernaryF(os.IsNotExist(params.err),
 		func() error {
-			return xi18n.NewPathNotFoundError("Traverse Item", params.path)
+			return i18n.NewPathNotFoundError("Traverse Item", params.path)
 		},
 		func() error {
-			return xi18n.NewThirdPartyErr(params.err)
+			return i18n.NewThirdPartyErr(params.err)
 		},
 	)
 

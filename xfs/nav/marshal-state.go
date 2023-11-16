@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 type stateMarshallerJSON struct {
@@ -48,7 +48,7 @@ func (m *stateMarshallerJSON) unmarshal(path string) error {
 
 func (m *stateMarshallerJSON) validate() {
 	if m.o.Callback.Fn == nil {
-		panic(xi18n.NewMissingCallbackError())
+		panic(i18n.NewMissingCallbackError())
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"strings"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -22,6 +22,12 @@ func Normalise(p string) string {
 
 func Reason(name string) string {
 	return fmt.Sprintf("❌ for item named: '%v'", name)
+}
+
+func BecauseQuantity(name string, expected, actual int) string {
+	return fmt.Sprintf("❌ incorrect no of items for: '%v', expected: '%v', actual: '%v'",
+		name, expected, actual,
+	)
 }
 
 func JoinCwd(segments ...string) string {
@@ -98,8 +104,8 @@ type DummyCreator struct {
 	Invoked bool
 }
 
-func (dc *DummyCreator) Create(_ *xi18n.LanguageInfo, _ string) (*xi18n.Localizer, error) {
+func (dc *DummyCreator) Create(_ *i18n.LanguageInfo, _ string) (*i18n.Localizer, error) {
 	dc.Invoked = true
 
-	return &xi18n.Localizer{}, nil
+	return &i18n.Localizer{}, nil
 }

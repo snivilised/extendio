@@ -9,7 +9,9 @@ import (
 type subSetFn func(entries []fs.DirEntry, n int) []fs.DirEntry
 
 func firstSampler(entries []fs.DirEntry, n int) []fs.DirEntry {
-	return entries[:len(entries)-(min(n, len(entries)))]
+	result := entries[:(min(n, len(entries)))]
+
+	return result
 }
 
 func lastSampler(entries []fs.DirEntry, n int) []fs.DirEntry {
@@ -17,32 +19,40 @@ func lastSampler(entries []fs.DirEntry, n int) []fs.DirEntry {
 }
 
 func getSubSetSampler(noOf *SampleNoOf, fn subSetFn) SampleCallback {
-	return func(entries *DirectoryEntries) *DirectoryEntries {
+	return func(entries *DirectoryEntries) {
 		o := entries.Options
-		clone := entries.Sample()
 
 		switch o.Store.Subscription {
 		case SubscribeAny:
-			clone.Folders = lo.Ternary(noOf.Folders > 0,
-				fn(entries.Folders, int(noOf.Folders)),
-				entries.Folders,
+			entries.Folders = lo.TernaryF(noOf.Folders > 0,
+				func() []fs.DirEntry {
+					return fn(entries.Folders, int(noOf.Folders))
+				},
+				func() []fs.DirEntry {
+					return entries.Folders
+				},
 			)
 
-			clone.Files = lo.Ternary(noOf.Files > 0,
-				fn(entries.Files, int(noOf.Files)),
-				entries.Files,
+			entries.Files = lo.TernaryF(noOf.Files > 0,
+				func() []fs.DirEntry {
+					return fn(entries.Files, int(noOf.Files))
+				},
+				func() []fs.DirEntry {
+					return entries.Files
+				},
 			)
 
 		case SubscribeFolders:
+			entries.Folders = fn(entries.Folders, int(noOf.Folders))
+
 		case SubscribeFoldersWithFiles:
-			clone.Folders = fn(entries.Folders, int(noOf.Folders))
+			entries.Folders = fn(entries.Folders, int(noOf.Folders))
+
 		case SubscribeFiles:
-			clone.Files = fn(entries.Files, int(noOf.Files))
+			entries.Files = fn(entries.Files, int(noOf.Files))
 
 		default:
 		}
-
-		return clone
 	}
 }
 

@@ -37,7 +37,7 @@ import (
   ---> 🌊 UNIVERSAL//CONTAINS-FOLDERS-CALLBACK: (depth:9999) '/Users/plastikfan/dev/github/snivilised/extendio/Test/data/MUSICO/RETRO-WAVE/Electric Youth/Innerworld/vinyl-info.innerworld.txt'
 */
 
-var _ = XDescribe("Traverse With Sample", Ordered, func() {
+var _ = Describe("Traverse With Sample", Ordered, func() {
 	var root string
 
 	BeforeAll(func() {
@@ -92,12 +92,26 @@ var _ = XDescribe("Traverse With Sample", Ordered, func() {
 				providedOptions.Store.FilterDefs = filterDefs
 			}
 
-			_, _ = nav.New().Primary(&nav.Prime{
+			result, _ := nav.New().Primary(&nav.Prime{
 				Path:            path,
 				ProvidedOptions: providedOptions,
 			}).Run()
 
-			Expect(1)
+			files := result.Metrics.Count(nav.MetricNoFilesInvokedEn)
+			folders := result.Metrics.Count(nav.MetricNoFoldersInvokedEn)
+			GinkgoWriter.Printf("===> files: '%v', folders: '%v'\n", files, folders)
+
+			if entry.expectedNoOf.folders > 0 {
+				Expect(folders).To(BeEquivalentTo(entry.expectedNoOf.folders),
+					helpers.BecauseQuantity(entry.message, int(entry.expectedNoOf.folders), int(folders)),
+				)
+			}
+
+			if entry.expectedNoOf.files > 0 {
+				Expect(files).To(BeEquivalentTo(entry.expectedNoOf.files),
+					helpers.BecauseQuantity(entry.message, int(entry.expectedNoOf.files), int(files)),
+				)
+			}
 		},
 		func(entry *sampleTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v', should: '%v'", entry.message, entry.should)
@@ -105,19 +119,23 @@ var _ = XDescribe("Traverse With Sample", Ordered, func() {
 
 		Entry(nil, &sampleTE{
 			naviTE: naviTE{
-				message:      "universal: default (top), with 2 files",
+				message:      "universal: default (first), with 2 files",
 				should:       "invoke for at most 2 files per directory",
 				subscription: nav.SubscribeAny,
 				prohibited:   []string{"cover.night-drive.jpg"},
 			},
 			noOf: nav.SampleNoOf{
-				Files: 2,
+				Files:   2,
+				Folders: 2,
+			},
+			expectedNoOf: directoryQuantities{
+				files: 6,
 			},
 		}),
 
 		Entry(nil, &sampleTE{
 			naviTE: naviTE{
-				message:      "universal: default (top), with 2 folders",
+				message:      "universal: default (first), with 2 folders",
 				should:       "invoke for at most 2 folders per directory",
 				subscription: nav.SubscribeAny,
 				prohibited:   []string{"Electric Youth"},
@@ -125,11 +143,15 @@ var _ = XDescribe("Traverse With Sample", Ordered, func() {
 			noOf: nav.SampleNoOf{
 				Folders: 2,
 			},
+			expectedNoOf: directoryQuantities{
+				files:   11,
+				folders: 6,
+			},
 		}),
 
 		Entry(nil, &sampleTE{
 			naviTE: naviTE{
-				message:      "universal: default (top), with 2 files and 2 folders",
+				message:      "universal: default (first), with 2 files and 2 folders",
 				should:       "invoke for at most 2 files and 2 folders per directory",
 				subscription: nav.SubscribeAny,
 				prohibited:   []string{"cover.night-drive.jpg", "Electric Youth"},
@@ -138,17 +160,24 @@ var _ = XDescribe("Traverse With Sample", Ordered, func() {
 				Files:   2,
 				Folders: 2,
 			},
+			expectedNoOf: directoryQuantities{
+				files:   6,
+				folders: 6,
+			},
 		}),
 
 		Entry(nil, &sampleTE{
 			naviTE: naviTE{
-				message:      "folders: default (top), with 2 folders",
+				message:      "folders: default (first), with 2 folders",
 				should:       "invoke for at most 2 folders per directory",
 				subscription: nav.SubscribeFolders,
 				prohibited:   []string{"Electric Youth"},
 			},
 			noOf: nav.SampleNoOf{
 				Folders: 2,
+			},
+			expectedNoOf: directoryQuantities{
+				folders: 6,
 			},
 		}),
 
@@ -169,13 +198,16 @@ var _ = XDescribe("Traverse With Sample", Ordered, func() {
 
 		Entry(nil, &sampleTE{
 			naviTE: naviTE{
-				message:      "files: default (top), with 2 files",
+				message:      "files: default (first), with 2 files",
 				should:       "invoke for at most 2 files per directory",
-				subscription: nav.SubscribeFolders,
+				subscription: nav.SubscribeFiles,
 				prohibited:   []string{"cover.night-drive.jpg"},
 			},
 			noOf: nav.SampleNoOf{
 				Files: 2,
+			},
+			expectedNoOf: directoryQuantities{
+				files: 8,
 			},
 		}),
 
@@ -188,7 +220,10 @@ var _ = XDescribe("Traverse With Sample", Ordered, func() {
 			},
 			useLastFn: true,
 			noOf: nav.SampleNoOf{
-				Folders: 1,
+				Files: 1,
+			},
+			expectedNoOf: directoryQuantities{
+				files: 4,
 			},
 		}),
 
