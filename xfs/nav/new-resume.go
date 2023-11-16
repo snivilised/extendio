@@ -3,7 +3,7 @@ package nav
 import (
 	"fmt"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 type resumerFactory struct{}
@@ -80,7 +80,7 @@ func (f strategyFactory) new(params *createStrategyParams) resumeStrategy {
 		}
 
 	default:
-		panic(xi18n.NewInvalidResumeStrategyError(fmt.Sprintf("%v", params.strategyEn)))
+		panic(i18n.NewInvalidResumeStrategyError(fmt.Sprintf("%v", params.strategyEn)))
 	}
 
 	return strategy

@@ -5,19 +5,17 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
-type agentFactory struct{}
-type agentFactoryParams struct {
-	doInvoke  bool
-	o         *TraverseOptions
-	deFactory directoryEntriesFactory
-	handler   fileSystemErrorHandler
+type newAgentParams struct {
+	doInvoke bool
+	o        *TraverseOptions
+	handler  fileSystemErrorHandler
 }
 
-func (agentFactory) new(params *agentFactoryParams) *navigationAgent {
+func newAgent(params *newAgentParams) *navigationAgent {
 	instance := navigationAgent{
 		doInvoke: utils.NewRoProp(params.doInvoke),
 		o:        params.o,
@@ -76,7 +74,6 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 
 func (a *navigationAgent) read(
 	path string,
-	order DirectoryEntryOrderEnum,
 ) (*DirectoryEntries, error) {
 	// this method was spun out from notify, as there needs to be a separation
 	// between these pieces of functionality to support 'extension'; ie we
@@ -84,11 +81,8 @@ func (a *navigationAgent) read(
 	// created for the extension.
 	//
 	entries, err := a.o.Hooks.ReadDirectory(path)
-
-	deFactory := directoryEntriesFactory{}
-	de := deFactory.new(&directoryEntriesFactoryParams{
+	de := newDirectoryEntries(&newDirectoryEntriesParams{
 		o:       a.o,
-		order:   order,
 		entries: entries,
 	})
 
@@ -96,10 +90,10 @@ func (a *navigationAgent) read(
 }
 
 type agentNotifyParams struct {
-	frame   *navigationFrame
-	item    *TraverseItem
-	entries []fs.DirEntry
-	readErr error
+	frame    *navigationFrame
+	item     *TraverseItem
+	contents []fs.DirEntry
+	readErr  error
 }
 
 func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, error) {
@@ -108,7 +102,7 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, erro
 	if params.readErr != nil {
 		if a.doInvoke.Get() {
 			item2 := params.item.clone()
-			item2.Error = xi18n.NewThirdPartyErr(params.readErr)
+			item2.Error = i18n.NewThirdPartyErr(params.readErr)
 
 			// Second call, to report ReadDir error
 			//
@@ -117,10 +111,10 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, erro
 					params.readErr = nil
 				}
 
-				return SkipTraversalAllEn, xi18n.NewThirdPartyErr(params.readErr)
+				return SkipTraversalAllEn, i18n.NewThirdPartyErr(params.readErr)
 			}
 		} else {
-			return SkipTraversalAllEn, xi18n.NewThirdPartyErr(params.readErr)
+			return SkipTraversalAllEn, i18n.NewThirdPartyErr(params.readErr)
 		}
 	}
 

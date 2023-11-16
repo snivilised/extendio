@@ -54,9 +54,10 @@ type skipTE struct {
 
 type sampleTE struct {
 	naviTE
-	filter    *filterTE
-	noOf      nav.SampleNoOf
-	useLastFn bool
+	filter       *filterTE
+	noOf         nav.SampleNoOf
+	useLastFn    bool
+	expectedNoOf directoryQuantities
 }
 
 type listenTE struct {

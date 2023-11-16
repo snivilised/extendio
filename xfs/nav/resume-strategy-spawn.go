@@ -8,7 +8,7 @@ import (
 	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
 
-	xi18n "github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/i18n"
 )
 
 const (
@@ -66,7 +66,7 @@ func (s *spawnStrategy) conclude(conclusion *concludeInfo) (*TraverseResult, err
 	compoundResult, err := s.seed(&seedParams{
 		frame:      s.nc.frame,
 		parent:     parent,
-		entries:    following.siblings.all(),
+		entries:    following.siblings.All(),
 		conclusion: conclusion,
 	})
 
@@ -128,7 +128,7 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 	entries, err := s.o.Hooks.ReadDirectory(params.parent)
 
 	if err != nil {
-		panic(xi18n.NewFailedToReadDirectoryContentsError(params.parent, err))
+		panic(i18n.NewFailedToReadDirectoryContentsError(params.parent, err))
 	}
 
 	groups := lo.GroupBy(entries, func(item fs.DirEntry) bool {
@@ -138,12 +138,9 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 		return item.Name() > params.anchor
 	})
 	siblings := groups[followingSiblings]
-
-	deFactory := directoryEntriesFactory{}
-	de := deFactory.new(
-		&directoryEntriesFactoryParams{
+	de := newDirectoryEntries(
+		&newDirectoryEntriesParams{
 			o:       s.o,
-			order:   params.order,
 			entries: siblings,
 		},
 	)

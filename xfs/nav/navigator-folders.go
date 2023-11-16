@@ -40,9 +40,7 @@ func (n *foldersNavigator) traverse(params *traverseParams) (*TraverseItem, erro
 	// n.o.Store.Behaviours.Sort.DirectoryEntryOrder, as we're only interested in
 	// folders and therefore force to use DirectoryEntryOrderFoldersFirstEn instead
 	//
-	entries, readErr := n.agent.read(params.item.Path,
-		DirectoryEntryOrderFoldersFirstEn,
-	)
+	entries, readErr := n.agent.read(params.item.Path)
 	folders := entries.Folders
 	entries.sort(folders) // !!!!
 
@@ -73,17 +71,20 @@ func (n *foldersNavigator) traverse(params *traverseParams) (*TraverseItem, erro
 
 	n.o.Hooks.Extend(navi, entries)
 
-	// sample here
+	if n.o.isSamplingActive() {
+		n.o.Sampler.Fn(entries)
+		folders = entries.Folders
+	}
 
 	if le := params.frame.proxy(params.item, compoundCounts); le != nil {
 		return nil, le
 	}
 
 	if skip, err := n.agent.notify(&agentNotifyParams{
-		frame:   params.frame,
-		item:    params.item,
-		entries: folders,
-		readErr: readErr,
+		frame:    params.frame,
+		item:     params.item,
+		contents: folders,
+		readErr:  readErr,
 	}); skip == SkipTraversalAllEn {
 		return nil, err
 	}
