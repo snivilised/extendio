@@ -1,9 +1,15 @@
 package nav
 
-import "io/fs"
-
 type filesNavigator struct {
 	navigator
+}
+
+func (n *filesNavigator) init(ns *NavigationState) {
+	n.navigator.init(ns)
+
+	if n.samplingActive {
+		n.samplingCtrl.initInspector(n)
+	}
 }
 
 func (n *filesNavigator) top(frame *navigationFrame, root string) (*TraverseResult, error) {
@@ -14,74 +20,76 @@ func (n *filesNavigator) top(frame *navigationFrame, root string) (*TraverseResu
 	})
 }
 
+func (n *filesNavigator) inspect(params *traverseParams) *inspection {
+	stash := &inspection{
+		current: params.current,
+		isDir:   params.current.IsDir(),
+	}
+
+	if stash.isDir {
+		stash.contents, stash.readErr = n.agent.read(params.current.Path)
+		stash.contents.sort(stash.contents.Files)
+		stash.contents.sort(stash.contents.Folders)
+	} else {
+		stash.clearContents(n.o)
+	}
+
+	n.o.Hooks.Extend(params.navi, stash.contents)
+
+	return stash
+}
+
 func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error) {
+	navi := &NavigationInfo{
+		Options: n.o,
+		Item:    params.current,
+		frame:   params.frame,
+	}
 	//
 	// For files, the registered callback will only be invoked for file entries. This means
 	// that the client will have no way to skip the descending of a particular directory. In
 	// this case, the client should use the OnDescend callback (yet to be implemented) and
 	// return SkipDir from there.
 	defer func() {
-		n.ascend(&NavigationInfo{
-			Options: n.o,
-			Item:    params.item,
-			frame:   params.frame},
-		)
+		if n.samplingFilterActive {
+			delete(n.agent.cache, params.current.key())
+		}
+
+		n.ascend(navi)
 	}()
 
-	navi := &NavigationInfo{
-		Options: n.o,
-		Item:    params.item,
-		frame:   params.frame,
-	}
+	params.navi = navi
+	n.descend(navi)
 
-	var (
-		entries  *DirectoryEntries
-		contents []fs.DirEntry
-		readErr  error
-		isDir    = params.item.IsDir()
-	)
+	stash := n.inspect(params)
 
-	if isDir {
-		entries, readErr = n.agent.read(params.item.Path)
-
-		// Files and Folders need to be sorted independently to preserve the navigation order
-		// stipulated by .Behaviours.Sort.DirectoryEntryOrder
-		//
-		entries.sort(entries.Files)
-		entries.sort(entries.Folders)
-	} else {
-		entries = newEmptyDirectoryEntries(n.o)
-	}
-
-	if !isDir {
-		n.o.Hooks.Extend(navi, entries)
-
+	if !stash.isDir {
 		// Effectively, this is the file only filter
 		//
-		return nil, params.frame.proxy(params.item, nil)
+		return nil, params.frame.proxy(params.current, nil)
 	}
 
-	if n.o.isSamplingActive() {
-		n.o.Sampler.Fn(entries)
+	if n.samplingActive {
+		n.samplingCtrl.sample(stash.contents, navi, params)
 	}
 
-	contents = entries.All()
+	entries := stash.contents.All()
 
 	if skip, err := n.agent.notify(&agentNotifyParams{
-		frame:    params.frame,
-		item:     params.item,
-		contents: contents,
-		readErr:  readErr,
-	}); skip == SkipTraversalAllEn || err != nil {
+		frame:   params.frame,
+		current: params.current,
+		entries: entries,
+		readErr: stash.readErr,
+	}); skip == SkipAllTraversalEn || err != nil {
 		return nil, err
-	} else if skip == SkipTraversalDirEn {
-		return params.item.Parent, err
+	} else if skip == SkipDirTraversalEn {
+		return params.current.Parent, err
 	}
 
 	return n.agent.traverse(&agentTraverseParams{
-		impl:     n,
-		contents: contents,
-		parent:   params.item,
-		frame:    params.frame,
+		impl:    n,
+		entries: entries,
+		parent:  params.current,
+		frame:   params.frame,
 	})
 }

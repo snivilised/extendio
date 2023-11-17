@@ -96,7 +96,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				pattern: "*POP*",
 				scope:   nav.ScopeAllEn,
 			},
-			order:         nav.DirectoryEntryOrderFoldersFirstEn,
+			order:         nav.DirectoryContentsOrderFoldersFirstEn,
 			expectedOrder: []string{"DREAM-POP", "ELECTRONIC-POP", "POP"},
 		}),
 
@@ -112,7 +112,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				pattern: "*",
 				scope:   nav.ScopeAllEn,
 			},
-			order:         nav.DirectoryEntryOrderFoldersFirstEn,
+			order:         nav.DirectoryContentsOrderFoldersFirstEn,
 			expectedOrder: []string{"DUB", "DUBSTEP", "segments.bass.infex.txt"},
 		}),
 
@@ -128,7 +128,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				pattern: "*",
 				scope:   nav.ScopeAllEn,
 			},
-			order:         nav.DirectoryEntryOrderFilesFirstEn,
+			order:         nav.DirectoryContentsOrderFilesFirstEn,
 			expectedOrder: []string{"segments.bass.infex.txt", "DUB", "DUBSTEP"},
 		}),
 
@@ -146,7 +146,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				pattern: "*METAL*",
 				scope:   nav.ScopeAllEn,
 			},
-			order: nav.DirectoryEntryOrderFoldersFirstEn,
+			order: nav.DirectoryContentsOrderFoldersFirstEn,
 			expectedOrder: []string{
 				"HEAVY-METAL",
 				"THRASH-METAL",
@@ -168,7 +168,7 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 				pattern: "01*.flac",
 				scope:   nav.ScopeLeafEn,
 			},
-			order: nav.DirectoryEntryOrderFilesFirstEn,
+			order: nav.DirectoryContentsOrderFilesFirstEn,
 			expectedOrder: []string{
 				"01 - Neon Knights.flac",
 				"01 - Turn Up The Night.flac",

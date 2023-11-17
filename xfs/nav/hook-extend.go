@@ -11,9 +11,9 @@ import (
 // override this by setting the custom function on options.Hooks.Extend. If the client
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
-func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
+func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryContents) {
 	if navi.Item.Extension != nil {
-		panic(NewItemAlreadyExtendedNativeError(navi.Item.Path))
+		return
 	}
 
 	var (
@@ -24,8 +24,10 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 	if navi.Item.IsDir() {
 		isLeaf = len(entries.Folders) == 0
 		scope = navi.frame.periscope.scope(isLeaf)
+		scope |= ScopeFolderEn
 	} else {
 		scope = ScopeLeafEn
+		scope |= ScopeFileEn
 	}
 
 	parent, name := filepath.Split(navi.Item.Path)
@@ -62,4 +64,4 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryEntries) {
 	navi.Item.Extension.SubPath = subpath
 }
 
-func nullExtendHookFn(_ *NavigationInfo, _ *DirectoryEntries) {}
+func nullExtendHookFn(_ *NavigationInfo, _ *DirectoryContents) {}

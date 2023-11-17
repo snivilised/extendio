@@ -3,8 +3,10 @@ package nav
 import (
 	"io/fs"
 	"math"
+	"strings"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/collections"
+	"golang.org/x/exp/maps"
 )
 
 // FilterScopeBiEnum allows client to define which node types should be filtered.
@@ -36,11 +38,19 @@ const (
 	//
 	ScopeIntermediateEn
 
+	// ScopeFileEn attributed to file nodes
+	//
+	ScopeFileEn
+
+	// ScopeFolderEn attributed to directory nodes
+	//
+	ScopeFolderEn
+
 	// ScopeCustomEn, client defined categorisation (yet to be confirmed)
 	//
 	ScopeCustomEn
 
-	// ScopeAllEn, any node type
+	// ScopeAllEn represents any node type
 	//
 	ScopeAllEn = math.MaxUint32
 )
@@ -60,20 +70,37 @@ const (
 	FilterTypeCustomEn
 )
 
-var filterScopeStrings = map[FilterScopeBiEnum]string{
+type allOrderedFilterScopeEnums collections.OrderedKeysMap[FilterScopeBiEnum, string]
+
+var filterScopeStrings = allOrderedFilterScopeEnums{
 	ScopeUndefinedEn:    "Undefined",
 	ScopeRootEn:         "Root",
 	ScopeTopEn:          "Top",
 	ScopeLeafEn:         "Leaf",
 	ScopeIntermediateEn: "Intermediate",
+	ScopeFileEn:         "File",
+	ScopeFolderEn:       "Folder",
 	ScopeCustomEn:       "Custom",
 	ScopeAllEn:          "All",
 }
 
+var filterScopeKeys = maps.Keys(filterScopeStrings)
+
 // String converts enum value to a string
 func (f FilterScopeBiEnum) String() string {
-	result := filterScopeStrings[f]
-	return lo.Ternary(result == "", "[multi]", result)
+	result := make([]string, 0, len(filterScopeKeys))
+
+	for _, en := range filterScopeKeys {
+		if en == ScopeAllEn {
+			continue
+		}
+
+		if (en & f) > 0 {
+			result = append(result, filterScopeStrings[en])
+		}
+	}
+
+	return strings.Join(result, "|")
 }
 
 // TraverseFilter filter that can be applied to file system entries. When specified,

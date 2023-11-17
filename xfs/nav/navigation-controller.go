@@ -35,6 +35,7 @@ func (nc *navigationController) init() {
 		Root:    &nc.frame.root,
 		Logger:  utils.NewRoProp[ClientLogger](nc.impl.logger()),
 	}
+	nc.impl.init(nc.ns)
 }
 
 func (nc *navigationController) logger() log.Logger {

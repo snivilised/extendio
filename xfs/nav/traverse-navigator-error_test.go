@@ -53,7 +53,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 	Context("extend", func() {
 		When("item is already extended", func() {
-			It("🧪 should: panic", func() {
+			XIt("🧪 should: panic", func() {
 				defer func() {
 					_ = recover()
 				}()
@@ -63,7 +63,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
-					o.Hooks.Extend = func(navi *nav.NavigationInfo, entries *nav.DirectoryEntries) {
+					o.Hooks.Extend = func(navi *nav.NavigationInfo, entries *nav.DirectoryContents) {
 						navi.Item.Extension = &nav.ExtendedItem{
 							Name: "dummy",
 						}

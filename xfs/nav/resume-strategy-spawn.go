@@ -114,13 +114,13 @@ func (s *spawnStrategy) seed(params *seedParams) (*TraverseResult, error) {
 }
 
 type shard struct {
-	siblings *DirectoryEntries
+	siblings *DirectoryContents
 }
 
 type followingParams struct {
 	parent    string
 	anchor    string
-	order     DirectoryEntryOrderEnum
+	order     DirectoryContentsOrderEnum
 	inclusive bool
 }
 
@@ -138,8 +138,8 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 		return item.Name() > params.anchor
 	})
 	siblings := groups[followingSiblings]
-	de := newDirectoryEntries(
-		&newDirectoryEntriesParams{
+	de := newDirectoryContents(
+		&newDirectoryContentsParams{
 			o:       s.o,
 			entries: siblings,
 		},

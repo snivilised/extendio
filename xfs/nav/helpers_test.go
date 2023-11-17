@@ -54,9 +54,12 @@ type skipTE struct {
 
 type sampleTE struct {
 	naviTE
+	sampleType   nav.SampleTypeEnum
+	reverse      bool
 	filter       *filterTE
-	noOf         nav.SampleNoOf
-	useLastFn    bool
+	noOf         nav.EntryQuantities
+	each         nav.EachDirectoryItemPredicate
+	while        nav.WhileDirectoryPredicate
 	expectedNoOf directoryQuantities
 }
 
@@ -93,7 +96,7 @@ type scopeTE struct {
 type sortTE struct {
 	filterTE
 	expectedOrder []string
-	order         nav.DirectoryEntryOrderEnum
+	order         nav.DirectoryContentsOrderEnum
 }
 
 type activeTE struct {
@@ -453,7 +456,7 @@ func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error)
 			return readDirFakeError(dirname)
 		}
 
-		return nav.ReadEntries(dirname)
+		return nav.ReadEntriesHookFn(dirname)
 	}
 }
 

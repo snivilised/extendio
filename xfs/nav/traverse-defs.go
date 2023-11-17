@@ -34,6 +34,7 @@ type TraverseItem struct {
 	Children    []fs.DirEntry
 	filteredOut bool
 	Parent      *TraverseItem
+	admit       bool
 }
 
 // clone makes shallow copy of TraverseItem (except the error).
@@ -58,6 +59,23 @@ func (ti *TraverseItem) IsDir() bool {
 	return false
 }
 
+func (ti *TraverseItem) filtered() {
+	// 📚 filtered is used by sampling functions to mark an item as already having
+	// been filtered. Sampling functions require the ability to 'Preview' an item
+	// so that it can be filtered, but doing so means there is potential for a
+	// child item to be double filtered. By marking an item is being pre-filtered,
+	// when the navigation process reaches the child entry in its own right (as
+	// opposed to being previewed), the filter can be bypassed and the client
+	// callback for this item can be invoked; ie if an item passes filtering at
+	// the preview stage, it does not needed to be filtered again.
+	//
+	ti.admit = true
+}
+
+func (ti *TraverseItem) key() string {
+	return ti.Path
+}
+
 // TraverseSubscription type to define traversal subscription (for which file system
 // items the client defined callback are invoked for).
 type TraverseSubscription uint
@@ -79,13 +97,13 @@ type LabelledTraverseCallback struct {
 }
 
 // AscendancyHandler defines the signatures of ascend/descend handlers
-type AscendancyHandler func(_ *TraverseItem)
+type AscendancyHandler func(item *TraverseItem)
 
 // BeginHandler life cycle event handler, invoked before start of traversal
-type BeginHandler func(_ *NavigationState)
+type BeginHandler func(ns *NavigationState)
 
 // EndHandler life cycle event handler, invoked at end of traversal
-type EndHandler func(_ *TraverseResult)
+type EndHandler func(result *TraverseResult)
 
 // TraverseResult the result of the traversal process.
 type TraverseResult struct {
@@ -138,16 +156,24 @@ type TraverseNavigator interface {
 }
 
 type traverseParams struct {
-	item  *TraverseItem
-	frame *navigationFrame
+	current *TraverseItem
+	frame   *navigationFrame
+	navi    *NavigationInfo
+}
+
+type inspector interface {
+	inspect(params *traverseParams) *inspection
+	keep(stash *inspection)
 }
 
 type navigatorImpl interface {
+	inspector
 	options() *TraverseOptions
 	logger() log.Logger
-	ensync(_ context.Context, _ context.CancelFunc, _ *navigationFrame, _ *AsyncInfo)
-	top(_ *navigationFrame, _ string) (*TraverseResult, error)
-	traverse(_ *traverseParams) (*TraverseItem, error)
+	init(ns *NavigationState)
+	ensync(ctx context.Context, cancel context.CancelFunc, frame *navigationFrame, ai *AsyncInfo)
+	top(frame *navigationFrame, root string) (*TraverseResult, error)
+	traverse(params *traverseParams) (*TraverseItem, error)
 	finish() error
 }
 
@@ -184,10 +210,27 @@ const (
 type SkipTraversal uint
 
 const (
-	SkipTraversalNoneEn SkipTraversal = iota
-	SkipTraversalDirEn
-	SkipTraversalAllEn
+	SkipNoneTraversalEn SkipTraversal = iota
+	SkipDirTraversalEn
+	SkipAllTraversalEn
 )
 
-// SampleCallback
-type SampleCallback func(entries *DirectoryEntries)
+type inspection struct {
+	current        *TraverseItem
+	contents       *DirectoryContents
+	entries        []fs.DirEntry
+	readErr        error
+	isDir          bool
+	compoundCounts *compoundCounters
+}
+
+func (i *inspection) clearContents(o *TraverseOptions) {
+	if i.contents != nil {
+		i.contents.clear()
+	} else {
+		i.contents = newEmptyDirectoryEntries(o)
+	}
+}
+
+type itemSubPath = string
+type inspectCache map[itemSubPath]*inspection

@@ -6,74 +6,50 @@ import (
 	"github.com/samber/lo"
 )
 
-type subSetFn func(entries []fs.DirEntry, n int) []fs.DirEntry
-
-func firstSampler(entries []fs.DirEntry, n int) []fs.DirEntry {
-	result := entries[:(min(n, len(entries)))]
-
-	return result
+func sampleWithSliceController(params *samplerControllerFuncParams,
+) {
+	params.adapters[params.subscription].slice(
+		params.contents,
+		params.noOf,
+		lo.Ternary(params.forward, firstBySliceSampler, lastBySliceSampler),
+	)
 }
 
-func lastSampler(entries []fs.DirEntry, n int) []fs.DirEntry {
-	return entries[len(entries)-(min(n, len(entries))):]
+func sampleWithIteratorController(params *samplerControllerFuncParams) {
+	params.iterator.withParams(params.tp)
+
+	params.adapters[params.subscription].filterWithIt(
+		params.contents,
+		params.iterator,
+	)
 }
 
-func getSubSetSampler(noOf *SampleNoOf, fn subSetFn) SampleCallback {
-	return func(entries *DirectoryEntries) {
-		o := entries.Options
+func getSamplerControllerFunc(o *TraverseOptions) samplerControllerFunc {
+	switch o.Store.Sampling.SampleType {
+	case SampleTypeSliceEn:
+		return sampleWithSliceController
 
-		switch o.Store.Subscription {
-		case SubscribeAny:
-			entries.Folders = lo.TernaryF(noOf.Folders > 0,
-				func() []fs.DirEntry {
-					return fn(entries.Folders, int(noOf.Folders))
-				},
-				func() []fs.DirEntry {
-					return entries.Folders
-				},
-			)
+	case SampleTypeFilterEn, SampleTypeCustomEn:
+		return sampleWithIteratorController
 
-			entries.Files = lo.TernaryF(noOf.Files > 0,
-				func() []fs.DirEntry {
-					return fn(entries.Files, int(noOf.Files))
-				},
-				func() []fs.DirEntry {
-					return entries.Files
-				},
-			)
-
-		case SubscribeFolders:
-			entries.Folders = fn(entries.Folders, int(noOf.Folders))
-
-		case SubscribeFoldersWithFiles:
-			entries.Folders = fn(entries.Folders, int(noOf.Folders))
-
-		case SubscribeFiles:
-			entries.Files = fn(entries.Files, int(noOf.Files))
-
-		default:
-		}
+	case SampleTypeUnsetEn:
 	}
+
+	panic("sampling type not set")
 }
 
-// GetFirstSampler obtains a sampler function which gets the first
-// n entries of a directory, where n is either the number of files
-// or folders which is determined by the subscription type.
-// To use the sampler feature, the client will find they will need to
-// use the options push model so that the SampleNoOf instance required
-// can be provided. The push model requires the use of ProvidedOptions
-// instead of using the pull model via OptionsFn callback.
-func GetFirstSampler(noOf *SampleNoOf) SampleCallback {
-	return getSubSetSampler(noOf, firstSampler)
+type sliceEntriesFunc func(entries []fs.DirEntry, n int) []fs.DirEntry
+
+// firstBySliceSampler sampler function that creates a subset of
+// a directory's entries using a slice expression. The subset extracted
+// is the first n items of the slice.
+func firstBySliceSampler(entries []fs.DirEntry, n int) []fs.DirEntry {
+	return entries[:(min(n, len(entries)))]
 }
 
-// GetLastSampler obtains a sampler function which gets the last
-// n entries of a directory, where n is either the number of files
-// or folders which is determined by the subscription type.
-// To use the sampler feature, the client will find they will need to
-// use the options push model so that the SampleNoOf instance required
-// can be provided. The push model requires the use of ProvidedOptions
-// instead of using the pull model via OptionsFn callback.
-func GetLastSampler(noOf *SampleNoOf) SampleCallback {
-	return getSubSetSampler(noOf, lastSampler)
+// lastBySliceSampler sampler function that creates a subset of
+// a directory's entries using a slice expression. The subset extracted
+// is the last n items of the slice.
+func lastBySliceSampler(entries []fs.DirEntry, n int) []fs.DirEntry {
+	return entries[len(entries)-(min(n, len(entries))):]
 }

@@ -76,8 +76,8 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					optionFn := func(o *nav.TraverseOptions) {
 						o.Notify.OnBegin = begin("🛡️")
 						o.Store.Subscription = nav.SubscribeAny
-						o.Hooks.FolderSubPath = nav.RootItemSubPath
-						o.Hooks.FileSubPath = nav.RootItemSubPath
+						o.Hooks.FolderSubPath = nav.RootItemSubPathHookFn
+						o.Hooks.FileSubPath = nav.RootItemSubPathHookFn
 						o.Store.Behaviours.SubPath.KeepTrailingSep = true
 						o.Store.DoExtend = true
 						o.Callback = &nav.LabelledTraverseCallback{
@@ -87,7 +87,10 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 									GinkgoWriter.Printf("---> 🧩🧩 SUB-PATH-CALLBACK(with): '%v', name: '%v', scope: '%v'\n",
 										item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 									)
-									Expect(item.Extension.SubPath).To(Equal(expected), helpers.Reason(item.Extension.Name))
+
+									Expect(item.Extension.SubPath).To(Equal(expected),
+										helpers.Reason(item.Extension.Name),
+									)
 								}
 
 								return nil
@@ -127,7 +130,10 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 								GinkgoWriter.Printf("---> 🧩 SUB-PATH-CALLBACK(without): '%v', name: '%v', scope: '%v'\n",
 									item.Extension.SubPath, item.Extension.Name, item.Extension.NodeScope,
 								)
-								Expect(item.Extension.SubPath).To(Equal(expected), helpers.Reason(item.Extension.Name))
+
+								Expect(item.Extension.SubPath).To(Equal(expected),
+									helpers.Reason(item.Extension.Name),
+								)
 							}
 
 							return nil
