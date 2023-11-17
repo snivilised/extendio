@@ -95,14 +95,28 @@ var _ = Describe("FilterGlob", Ordered, func() {
 			}
 
 			Expect(err).Error().To(BeNil())
+
 			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
-				"Incorrect no of files")
+				helpers.BecauseQuantity("Incorrect no of files",
+					int(entry.expectedNoOf.files),
+					int(result.Metrics.Count(nav.MetricNoFilesInvokedEn)),
+				),
+			)
+
 			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
-				"Incorrect no of folders")
+				helpers.BecauseQuantity("Incorrect no of folders",
+					int(entry.expectedNoOf.folders),
+					int(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)),
+				),
+			)
 
 			sum := lo.Sum(lo.Values(entry.expectedNoOf.children))
+
 			Expect(result.Metrics.Count(nav.MetricNoChildFilesFoundEn)).To(Equal(uint(sum)),
-				helpers.Reason("Incorrect total no of child files"),
+				helpers.BecauseQuantity("Incorrect total no of child files",
+					sum,
+					int(result.Metrics.Count(nav.MetricNoChildFilesFoundEn)),
+				),
 			)
 		},
 		func(entry *filterTE) string {
@@ -255,13 +269,29 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				}
 			}
 			for n, actualNoChildren := range entry.expectedNoOf.children {
-				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(n))
+				expected := recording[n]
+
+				Expect(expected).To(Equal(actualNoChildren),
+					helpers.BecauseQuantity("Incorrect no of children",
+						expected,
+						actualNoChildren,
+					),
+				)
 			}
 
 			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
-				"Incorrect no of files")
+				helpers.BecauseQuantity("Incorrect no of files",
+					int(entry.expectedNoOf.files),
+					int(result.Metrics.Count(nav.MetricNoFilesInvokedEn)),
+				),
+			)
+
 			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
-				"Incorrect no of folders")
+				helpers.BecauseQuantity("Incorrect no of folders",
+					int(entry.expectedNoOf.folders),
+					int(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)),
+				),
+			)
 		},
 		func(entry *filterTE) string {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)

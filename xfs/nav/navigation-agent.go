@@ -5,30 +5,36 @@ import (
 	"io/fs"
 	"path/filepath"
 
+	"github.com/samber/lo"
 	"github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
 type newAgentParams struct {
-	doInvoke bool
-	o        *TraverseOptions
-	handler  fileSystemErrorHandler
+	doInvoke             bool
+	o                    *TraverseOptions
+	handler              fileSystemErrorHandler
+	samplingFilterActive bool
 }
 
 func newAgent(params *newAgentParams) *navigationAgent {
 	instance := navigationAgent{
-		doInvoke: utils.NewRoProp(params.doInvoke),
-		o:        params.o,
-		handler:  params.handler,
+		doInvoke:             utils.NewRoProp(params.doInvoke),
+		o:                    params.o,
+		handler:              params.handler,
+		cache:                make(inspectCache),
+		samplingFilterActive: params.samplingFilterActive,
 	}
 
 	return &instance
 }
 
 type navigationAgent struct {
-	doInvoke utils.RoProp[bool]
-	o        *TraverseOptions
-	handler  fileSystemErrorHandler
+	doInvoke             utils.RoProp[bool]
+	o                    *TraverseOptions
+	handler              fileSystemErrorHandler
+	cache                inspectCache
+	samplingFilterActive bool
 }
 
 type agentTopParams struct {
@@ -61,8 +67,8 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 		}
 
 		_, le = params.impl.traverse(&traverseParams{
-			item:  item,
-			frame: params.frame,
+			current: item,
+			frame:   params.frame,
 		})
 	}
 
@@ -74,14 +80,14 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 
 func (a *navigationAgent) read(
 	path string,
-) (*DirectoryEntries, error) {
+) (*DirectoryContents, error) {
 	// this method was spun out from notify, as there needs to be a separation
 	// between these pieces of functionality to support 'extension'; ie we
 	// need to read the contents of an items contents to determine the properties
 	// created for the extension.
 	//
 	entries, err := a.o.Hooks.ReadDirectory(path)
-	de := newDirectoryEntries(&newDirectoryEntriesParams{
+	de := newDirectoryContents(&newDirectoryContentsParams{
 		o:       a.o,
 		entries: entries,
 	})
@@ -90,31 +96,31 @@ func (a *navigationAgent) read(
 }
 
 type agentNotifyParams struct {
-	frame    *navigationFrame
-	item     *TraverseItem
-	contents []fs.DirEntry
-	readErr  error
+	frame   *navigationFrame
+	current *TraverseItem
+	entries []fs.DirEntry
+	readErr error
 }
 
 func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, error) {
-	skip := SkipTraversalNoneEn
+	skip := SkipNoneTraversalEn
 
 	if params.readErr != nil {
 		if a.doInvoke.Get() {
-			item2 := params.item.clone()
-			item2.Error = i18n.NewThirdPartyErr(params.readErr)
+			clone := params.current.clone()
+			clone.Error = i18n.NewThirdPartyErr(params.readErr)
 
 			// Second call, to report ReadDir error
 			//
-			if le := params.frame.proxy(item2, nil); le != nil {
-				if errors.Is(params.readErr, fs.SkipAll) && (item2.Entry != nil && item2.Entry.IsDir()) {
+			if le := params.frame.proxy(clone, nil); le != nil {
+				if errors.Is(params.readErr, fs.SkipAll) && (clone.Entry != nil && clone.Entry.IsDir()) {
 					params.readErr = nil
 				}
 
-				return SkipTraversalAllEn, i18n.NewThirdPartyErr(params.readErr)
+				return SkipAllTraversalEn, i18n.NewThirdPartyErr(params.readErr)
 			}
 		} else {
-			return SkipTraversalAllEn, i18n.NewThirdPartyErr(params.readErr)
+			return SkipAllTraversalEn, i18n.NewThirdPartyErr(params.readErr)
 		}
 	}
 
@@ -122,29 +128,47 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, erro
 }
 
 type agentTraverseParams struct {
-	impl     navigatorImpl
-	contents []fs.DirEntry
-	parent   *TraverseItem
-	frame    *navigationFrame
+	impl    navigatorImpl
+	entries []fs.DirEntry
+	parent  *TraverseItem
+	frame   *navigationFrame
 }
 
 var dontSkipTraverseItem *TraverseItem
 
 func (a *navigationAgent) traverse(params *agentTraverseParams) (*TraverseItem, error) {
-	for _, entry := range params.contents {
+	for _, entry := range params.entries {
 		path := filepath.Join(params.parent.Path, entry.Name())
 		info, e := entry.Info()
 
-		if skipItem, err := params.impl.traverse(&traverseParams{
-			item: &TraverseItem{
+		var current *TraverseItem
+
+		if a.samplingFilterActive {
+			inspection, found := a.cache[path]
+			current = lo.TernaryF(found,
+				func() *TraverseItem {
+					return inspection.current
+				},
+				func() *TraverseItem {
+					return nil
+				},
+			)
+		}
+
+		if current == nil {
+			current = &TraverseItem{
 				Path:     path,
 				Info:     info,
 				Entry:    entry,
 				Error:    e,
 				Children: []fs.DirEntry{},
 				Parent:   params.parent,
-			},
-			frame: params.frame,
+			}
+		}
+
+		if skipItem, err := params.impl.traverse(&traverseParams{
+			current: current,
+			frame:   params.frame,
 		}); skipItem == dontSkipTraverseItem {
 			if err != nil {
 				if errors.Is(err, fs.SkipDir) {
@@ -177,4 +201,9 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) (*TraverseItem, 
 	}
 
 	return dontSkipTraverseItem, nil
+}
+
+func (a *navigationAgent) keep(stash *inspection) {
+	a.cache[stash.current.key()] = stash
+	stash.current.filtered()
 }

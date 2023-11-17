@@ -349,19 +349,40 @@ var _ = Describe("TraverseNavigator(logged)", Ordered, func() {
 			}
 
 			for n, actualNoChildren := range entry.expectedNoOf.children {
-				Expect(recording[n]).To(Equal(actualNoChildren), helpers.Reason(
-					fmt.Sprintf("folder: '%v'", n)),
+				expected := recording[n]
+				helpers.BecauseQuantity(fmt.Sprintf("folder: '%v'", n),
+					expected,
+					actualNoChildren,
+				)
+
+				Expect(recording[n]).To(Equal(actualNoChildren),
+					helpers.BecauseQuantity(fmt.Sprintf("folder: '%v'", n),
+						expected,
+						actualNoChildren,
+					),
 				)
 			}
 
 			Expect(result.Metrics.Count(nav.MetricNoFilesInvokedEn)).To(Equal(entry.expectedNoOf.files),
-				"Incorrect no of files")
+				helpers.BecauseQuantity("Incorrect no of files",
+					int(entry.expectedNoOf.files),
+					int(result.Metrics.Count(nav.MetricNoFilesInvokedEn)),
+				),
+			)
+
 			Expect(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)).To(Equal(entry.expectedNoOf.folders),
-				"Incorrect no of folders")
+				helpers.BecauseQuantity("Incorrect no of folders",
+					int(entry.expectedNoOf.folders),
+					int(result.Metrics.Count(nav.MetricNoFoldersInvokedEn)),
+				),
+			)
 
 			sum := lo.Sum(lo.Values(entry.expectedNoOf.children))
 			Expect(result.Metrics.Count(nav.MetricNoChildFilesFoundEn)).To(Equal(uint(sum)),
-				helpers.Reason("Incorrect total no of child files"),
+				helpers.BecauseQuantity("Incorrect total no of child files",
+					sum,
+					int(result.Metrics.Count(nav.MetricNoChildFilesFoundEn)),
+				),
 			)
 		},
 		func(entry *naviTE) string {

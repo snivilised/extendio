@@ -45,42 +45,43 @@ func (f navigatorFactory) fromProvidedOptions(o *TraverseOptions) TraverseNaviga
 type navigatorImplFactory struct{}
 
 func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
-	var impl navigatorImpl
-
-	doInvoke := o.Store.Subscription != SubscribeFiles
-	agent := newAgent(&newAgentParams{
-		o:        o,
-		doInvoke: doInvoke,
-		handler:  &notifyCallbackErrorHandler{},
-	})
-	logger := f.makeLogger(o)
+	var (
+		impl                 navigatorImpl
+		samplingActive       = o.Store.Sampling.SampleType != SampleTypeUnsetEn
+		filteringActive      = o.isFilteringActive()
+		samplingFilterActive = samplingActive && filteringActive
+		doInvoke             = o.Store.Subscription != SubscribeFiles
+		agent                = newAgent(&newAgentParams{
+			o:                    o,
+			doInvoke:             doInvoke,
+			handler:              &notifyCallbackErrorHandler{},
+			samplingFilterActive: samplingFilterActive,
+		})
+		logger = f.makeLogger(o)
+		n      = navigator{
+			o:                    o,
+			agent:                agent,
+			log:                  logger,
+			samplingActive:       samplingActive,
+			filteringActive:      filteringActive,
+			samplingFilterActive: samplingFilterActive,
+		}
+	)
 
 	switch o.Store.Subscription {
 	case SubscribeAny:
 		impl = &universalNavigator{
-			navigator: navigator{
-				o:     o,
-				agent: agent,
-				log:   logger,
-			},
+			navigator: n,
 		}
 
 	case SubscribeFolders, SubscribeFoldersWithFiles:
 		impl = &foldersNavigator{
-			navigator: navigator{
-				o:     o,
-				agent: agent,
-				log:   logger,
-			},
+			navigator: n,
 		}
 
 	case SubscribeFiles:
 		impl = &filesNavigator{
-			navigator: navigator{
-				o:     o,
-				agent: agent,
-				log:   logger,
-			},
+			navigator: n,
 		}
 	default:
 		panic(ErrUndefinedSubscriptionType)

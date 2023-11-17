@@ -15,19 +15,17 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 	if o.Store.FilterDefs != nil {
 		frame.filters = &NavigationFilters{}
 
-		if !o.isSamplingActive() {
-			if o.isFilteringActive() {
-				o.useExtendHook()
-				applyNodeFilterDecoration(&o.Store.FilterDefs.Node, frame)
+		if o.isFilteringActive() {
+			o.useExtendHook()
+			applyNodeFilterDecoration(&o.Store.FilterDefs.Node, frame)
+		}
+
+		if o.Store.FilterDefs.Children.Pattern != "" || o.Store.FilterDefs.Children.Custom != nil {
+			if frame.filters.Node == nil {
+				applyNodeFilterDecoration(&BenignNodeFilterDef, frame)
 			}
 
-			if o.Store.FilterDefs.Children.Pattern != "" || o.Store.FilterDefs.Children.Custom != nil {
-				if frame.filters.Node == nil {
-					applyNodeFilterDecoration(&BenignNodeFilterDef, frame)
-				}
-
-				frame.filters.Children = newCompoundFilter(&o.Store.FilterDefs.Children)
-			}
+			frame.filters.Children = newCompoundFilter(&o.Store.FilterDefs.Children)
 		}
 	} else {
 		frame.raw = frame.client
@@ -40,11 +38,12 @@ func applyNodeFilterDecoration(nodeDef *FilterDef, frame *navigationFrame) {
 	decorator := &LabelledTraverseCallback{
 		Label: "filter decorator",
 		Fn: func(item *TraverseItem) error {
-			if frame.filters.Node.IsMatch(item) {
+			if item.admit || frame.filters.Node.IsMatch(item) {
 				return decorated.Fn(item)
 			}
 
 			item.filteredOut = true
+
 			return nil
 		},
 	}

@@ -23,7 +23,7 @@ type SortBehaviour struct {
 	// DirectoryEntryOrder defines whether a folder's files or directories
 	// should be navigated first.
 	//
-	DirectoryEntryOrder DirectoryEntryOrderEnum
+	DirectoryEntryOrder DirectoryContentsOrderEnum
 }
 
 // NavigationBehaviours
@@ -144,18 +144,61 @@ type LoggingOptions struct {
 	Rotation LogRotationOptions
 }
 
-type SampleNoOf struct {
+// EntryQuantities contains specification of no of files and folders
+// used in various contexts, but primarily sampling.
+type EntryQuantities struct {
 	Files   uint
 	Folders uint
 }
 
+// SampleTypeEnum determines the type of sampling to use
+type SampleTypeEnum uint
+
+const (
+	SampleTypeUnsetEn SampleTypeEnum = iota
+	SampleTypeSliceEn
+	SampleTypeFilterEn
+	SampleTypeCustomEn
+)
+
 type SamplingOptions struct {
-	NoOf SampleNoOf
+	// SampleInReverse determines the direction of iteration for the sampling
+	// operation
+	SampleInReverse bool
+
+	// SampleType the type of sampling to use
+	SampleType SampleTypeEnum
+
+	// NoOf specifies number of items required in each sample (only applies
+	// when not using Custom iterator options)
+	NoOf EntryQuantities
+}
+
+type SamplingIteratorOptions struct {
+	// Each enables customisation of the sampling functionality, instead of using
+	// the defined filter. A directory's contents is sampled according to this
+	// function. The function receives the TraverseItem being considered and should
+	// return true to include in the sample, false otherwise.
+	Each EachDirectoryItemPredicate
+
+	// While enables customisation of the sampling functionality, instead of using
+	// the defined filter. The sampling loop will continue to run while this
+	// condition is true. The predicate function should return false once condition
+	// has been met to complete the sample. Of course, the loop will only run while
+	// there are still remaining items to consider (ie there are no more entries
+	// to consider for the current traverse item).
+	While WhileDirectoryPredicate
 }
 
 // SamplerOptions
 type SamplerOptions struct {
-	Fn SampleCallback
+	// Custom allows the client to customise how a directory's contents are sampled.
+	// The default way to sample is either by slicing the directory's contents or
+	// by using the filter to select either the first/last n entries (using the
+	// SamplingOptions). If the client requires an alternative way of creating a
+	// sample, eg to take all files greater than a certain size, then this
+	// can be achieved by specifying Each and While inside Custom.
+	Custom SamplingIteratorOptions
 }
 
 // OptionsStore represents that part of options that is directly
@@ -213,7 +256,10 @@ type TraverseOptions struct {
 	//
 	Persist PersistOptions `json:"-"`
 
-	// Sampler defines options for sampling directory entries
+	// Sampler defines options for sampling directory entries. There are
+	// multiple ways of performing sampling. The client can either:
+	// A) Use one of the four predefined functions see (SamplerOptions.Fn)
+	// B) Use a Custom iterator. When setting the Custom iterator properties
 	//
 	Sampler SamplerOptions `json:"-"`
 }
@@ -233,6 +279,10 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 	return o
 }
 
+func (o *TraverseOptions) isFilteringActive() bool {
+	return o.Store.FilterDefs != nil && (o.Store.FilterDefs.Node.Pattern != "" || o.Store.FilterDefs.Node.Custom != nil)
+}
+
 func (o *TraverseOptions) afterUserOptions() {
 	if o.Hooks.Sort == nil {
 		o.Hooks.Sort = lo.Ternary(o.Store.Behaviours.Sort.IsCaseSensitive,
@@ -244,22 +294,17 @@ func (o *TraverseOptions) afterUserOptions() {
 		o.Hooks.Extend = lo.Ternary(o.Store.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
 	}
 
-	if o.Sampler.Fn == nil {
-		o.Sampler.Fn = GetFirstSampler(&o.Store.Sampling.NoOf)
+	noEach := o.Sampler.Custom.Each == nil && o.Sampler.Custom.While != nil
+	noWhile := o.Sampler.Custom.Each != nil && o.Sampler.Custom.While == nil
+
+	if noEach || noWhile {
+		panic("invalid SamplingIteratorOptions (set both or neither: Each, While)")
 	}
 }
 
 func (o *TraverseOptions) Clone() *TraverseOptions {
 	clone := deepcopy.Copy(o)
 	return clone.(*TraverseOptions)
-}
-
-func (o *TraverseOptions) isSamplingActive() bool {
-	return o.Store.Sampling.NoOf.Folders > 0 || o.Store.Sampling.NoOf.Files > 0
-}
-
-func (o *TraverseOptions) isFilteringActive() bool {
-	return o.Store.FilterDefs.Node.Pattern != "" || o.Store.FilterDefs.Node.Custom != nil
 }
 
 const (
@@ -280,7 +325,7 @@ func GetDefaultOptions() *TraverseOptions {
 				},
 				Sort: SortBehaviour{
 					IsCaseSensitive:     false,
-					DirectoryEntryOrder: DirectoryEntryOrderFoldersFirstEn,
+					DirectoryEntryOrder: DirectoryContentsOrderFoldersFirstEn,
 				},
 				Listen: ListenBehaviour{
 					InclusiveStart: true,
@@ -306,9 +351,9 @@ func GetDefaultOptions() *TraverseOptions {
 		},
 		Hooks: TraverseHooks{
 			QueryStatus:   LstatHookFn,
-			ReadDirectory: ReadEntries,
-			FolderSubPath: RootParentSubPath,
-			FileSubPath:   RootParentSubPath,
+			ReadDirectory: ReadEntriesHookFn,
+			FolderSubPath: RootParentSubPathHookFn,
+			FileSubPath:   RootParentSubPathHookFn,
 			InitFilters:   InitFiltersHookFn,
 		},
 		Persist: PersistOptions{

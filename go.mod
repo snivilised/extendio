@@ -34,7 +34,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.2.2
 	github.com/pkg/errors v0.9.1
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0

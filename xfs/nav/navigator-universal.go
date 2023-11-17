@@ -1,9 +1,15 @@
 package nav
 
-import "io/fs"
-
 type universalNavigator struct {
 	navigator
+}
+
+func (n *universalNavigator) init(ns *NavigationState) {
+	n.navigator.init(ns)
+
+	if n.samplingActive {
+		n.samplingCtrl.initInspector(n)
+	}
 }
 
 func (n *universalNavigator) top(frame *navigationFrame, root string) (*TraverseResult, error) {
@@ -14,69 +20,75 @@ func (n *universalNavigator) top(frame *navigationFrame, root string) (*Traverse
 	})
 }
 
-func (n *universalNavigator) traverse(params *traverseParams) (*TraverseItem, error) {
-	defer func() {
-		n.ascend(&NavigationInfo{
-			Options: n.o,
-			Item:    params.item,
-			frame:   params.frame},
-		)
-	}()
+func (n *universalNavigator) inspect(params *traverseParams) *inspection {
+	stash := &inspection{
+		current: params.current,
+		isDir:   params.current.IsDir(),
+	}
 
+	if stash.isDir {
+		stash.contents, stash.readErr = n.agent.read(params.current.Path)
+
+		stash.contents.sort(stash.contents.Files)
+		stash.contents.sort(stash.contents.Folders)
+
+		stash.entries = stash.contents.All()
+	} else {
+		stash.clearContents(n.o)
+	}
+
+	n.o.Hooks.Extend(params.navi, stash.contents)
+
+	return stash
+}
+
+func (n *universalNavigator) traverse(params *traverseParams) (*TraverseItem, error) {
 	navi := &NavigationInfo{
 		Options: n.o,
-		Item:    params.item,
+		Item:    params.current,
 		frame:   params.frame,
 	}
+
+	defer func() {
+		if n.samplingFilterActive {
+			delete(n.agent.cache, params.current.key())
+		}
+
+		n.ascend(navi)
+	}()
+
+	params.navi = navi
 	n.descend(navi)
 
-	var (
-		entries  *DirectoryEntries
-		contents []fs.DirEntry
-		readErr  error
-		isDir    = params.item.IsDir()
-	)
+	stash := n.inspect(params)
+	entries := stash.entries
 
-	if isDir {
-		entries, readErr = n.agent.read(params.item.Path)
-
-		// Files and Folders need to be sorted independently to preserve the navigation order
-		// stipulated by .Behaviours.Sort.DirectoryEntryOrder
-		//
-		entries.sort(entries.Files)
-		entries.sort(entries.Folders)
-
-		contents = entries.All()
-
-		if n.o.isSamplingActive() {
-			n.o.Sampler.Fn(entries)
-			contents = entries.All()
+	if stash.isDir {
+		if n.samplingActive {
+			n.samplingCtrl.sample(stash.contents, navi, params)
+			entries = stash.contents.All()
 		}
-	} else {
-		entries = newEmptyDirectoryEntries(n.o)
 	}
 
-	n.o.Hooks.Extend(navi, entries)
-
-	if le := params.frame.proxy(params.item, nil); le != nil {
+	if le := params.frame.proxy(params.current, nil); le != nil {
 		return nil, le
 	}
 
 	if skip, err := n.agent.notify(&agentNotifyParams{
-		frame:    params.frame,
-		item:     params.item,
-		contents: contents,
-		readErr:  readErr,
-	}); skip == SkipTraversalAllEn {
+		frame:   params.frame,
+		current: params.current,
+		entries: entries,
+		readErr: stash.readErr,
+	}); skip == SkipAllTraversalEn {
 		return nil, err
-	} else if skip == SkipTraversalDirEn {
-		return params.item.Parent, err
+	} else if skip == SkipDirTraversalEn {
+		return params.current.Parent, err
 	}
 
 	return n.agent.traverse(&agentTraverseParams{
-		impl:     n,
-		contents: contents,
-		parent:   params.item,
-		frame:    params.frame,
+		impl:    n,
+		entries: entries,
+		parent:  params.current,
+		frame:   params.frame,
 	})
 }

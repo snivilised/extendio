@@ -7,9 +7,9 @@ import (
 	"github.com/samber/lo"
 )
 
-// ReadEntries reads the contents of a directory. The resulting
+// ReadEntriesHookFn reads the contents of a directory. The resulting
 // slice is left un-sorted
-func ReadEntries(dirname string) ([]fs.DirEntry, error) {
+func ReadEntriesHookFn(dirname string) ([]fs.DirEntry, error) {
 	f, err := os.Open(dirname)
 	if err != nil {
 		return nil, err

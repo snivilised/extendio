@@ -1,6 +1,8 @@
 package nav
 
-import "github.com/samber/lo"
+import (
+	"github.com/samber/lo"
+)
 
 // Filter =====================================================================
 

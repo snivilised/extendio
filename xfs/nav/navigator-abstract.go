@@ -12,13 +12,34 @@ import (
 )
 
 type navigator struct {
-	o     *TraverseOptions
-	agent *navigationAgent
-	log   utils.RoProp[log.Logger]
+	o                    *TraverseOptions
+	agent                *navigationAgent
+	log                  utils.RoProp[log.Logger]
+	samplingActive       bool
+	filteringActive      bool
+	samplingFilterActive bool
+	samplingCtrl         *samplingController
 }
 
 func (n *navigator) options() *TraverseOptions {
 	return n.o
+}
+
+func (n *navigator) init(ns *NavigationState) {
+	if n.samplingActive {
+		adapters := createSamplingAdapters()
+		n.samplingCtrl = &samplingController{
+			o:        n.o,
+			fn:       getSamplerControllerFunc(n.o),
+			adapters: adapters,
+		}
+
+		samplingType := n.o.Store.Sampling.SampleType
+
+		if (samplingType == SampleTypeFilterEn) || (samplingType == SampleTypeCustomEn) {
+			n.samplingCtrl.init(ns)
+		}
+	}
 }
 
 func (n *navigator) ensync(
@@ -39,8 +60,6 @@ func (n *navigator) ensync(
 							log.String("item-path", item.Path),
 						)
 					} else {
-						// Let panic propagate to whoever can handle it
-						//
 						panic(pe)
 					}
 				}
@@ -95,4 +114,8 @@ func (n *navigator) ascend(navi *NavigationInfo) {
 
 func (n *navigator) finish() error {
 	return n.log.Get().Sync()
+}
+
+func (n *navigator) keep(stash *inspection) {
+	n.agent.keep(stash)
 }

@@ -26,13 +26,13 @@ func difference(parent, child string) string {
 	return Tail(child, len(parent))
 }
 
-// RootItemSubPath
-func RootItemSubPath(info *SubPathInfo) string {
+// RootItemSubPathHookFn
+func RootItemSubPathHookFn(info *SubPathInfo) string {
 	return difference(info.Root, info.Item.Path)
 }
 
-// RootParentSubPath
-func RootParentSubPath(info *SubPathInfo) string {
+// RootParentSubPathHookFn
+func RootParentSubPathHookFn(info *SubPathInfo) string {
 	if info.Item.Extension.NodeScope == ScopeTopEn {
 		return lo.Ternary(info.Behaviour.KeepTrailingSep, string(filepath.Separator), "")
 	}
