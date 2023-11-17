@@ -125,11 +125,10 @@ var _ = Describe("Traverse With Sample", Ordered, func() {
 				prohibited:   []string{"cover.night-drive.jpg"},
 			},
 			noOf: nav.SampleNoOf{
-				Files:   2,
-				Folders: 2,
+				Files: 2,
 			},
 			expectedNoOf: directoryQuantities{
-				files: 6,
+				files: 8,
 			},
 		}),
 
@@ -186,6 +185,34 @@ var _ = Describe("Traverse With Sample", Ordered, func() {
 				message:      "folders: custom, with last single folder",
 				should:       "invoke for only last folder per directory",
 				subscription: nav.SubscribeFolders,
+				prohibited:   []string{"Chromatics"},
+			},
+			useLastFn: true,
+			noOf: nav.SampleNoOf{
+				Folders: 1,
+			},
+		}),
+
+		Entry(nil, &sampleTE{
+			naviTE: naviTE{
+				message:      "folders: default (first), with 2 folders",
+				should:       "invoke for at most 2 folders per directory",
+				subscription: nav.SubscribeFoldersWithFiles,
+				prohibited:   []string{"Electric Youth"},
+			},
+			noOf: nav.SampleNoOf{
+				Folders: 2,
+			},
+			expectedNoOf: directoryQuantities{
+				folders: 6,
+			},
+		}),
+
+		Entry(nil, &sampleTE{
+			naviTE: naviTE{
+				message:      "folders: custom, with last single folder",
+				should:       "invoke for only last folder per directory",
+				subscription: nav.SubscribeFoldersWithFiles,
 				prohibited:   []string{"Chromatics"},
 			},
 			useLastFn: true,
