@@ -40,7 +40,6 @@ var _ = Describe("Traverse With Sample", Ordered, func() {
 			providedOptions.Store.Sampling.SampleInReverse = entry.reverse
 			providedOptions.Sampler.Custom.Each = entry.each
 			providedOptions.Sampler.Custom.While = entry.while
-			providedOptions.Store.DoExtend = true
 			providedOptions.Callback = &nav.LabelledTraverseCallback{
 				Label: "test universal callback",
 				Fn: func(item *nav.TraverseItem) error {

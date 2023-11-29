@@ -59,7 +59,6 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 				path := helpers.Path(root, "RETRO-WAVE")
 				optionFn := func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeAny
-					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test marshal state callback",
@@ -96,7 +95,6 @@ var _ = Describe("MarshalOptions", Ordered, func() {
 				path := helpers.Path(root, entry.relative)
 				optionFn := func(o *nav.TraverseOptions) {
 					o.Persist.Format = entry.format
-					o.Store.DoExtend = true
 					o.Store.FilterDefs = &filterDefs
 					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test marshal state callback",

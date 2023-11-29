@@ -55,7 +55,6 @@ var _ = Describe("FilterRegex", Ordered, func() {
 
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
-				o.Store.DoExtend = true
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
 					Fn: func(item *nav.TraverseItem) error {
@@ -267,7 +266,6 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				}
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
-				o.Store.DoExtend = true
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
 					Fn: func(item *nav.TraverseItem) error {
@@ -469,7 +467,6 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = nav.SubscribeFoldersWithFiles
 				o.Store.FilterDefs = filterDefs
-				o.Store.DoExtend = true
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
 					Fn: func(_ *nav.TraverseItem) error {

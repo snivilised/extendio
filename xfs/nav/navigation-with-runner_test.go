@@ -39,7 +39,6 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 			o.Store.Subscription = nav.SubscribeAny
 			o.Callback = universalCallbackNoAssert(
 				"universal: Path contains folders(Prime-WithRunner)",
-				NotExtended,
 			)
 		}
 	})
@@ -72,7 +71,6 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 				// end of synthetic assignments
 				o.Callback = universalCallbackNoAssert(
 					"universal: listen pending(Resume-WithRunner)",
-					NotExtended,
 				)
 			}
 		})
@@ -150,7 +148,6 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 						o.Store.Subscription = nav.SubscribeFiles
 						o.Callback = universalCallbackNoAssert(
 							"filtered *.flac files: WithPool",
-							NotExtended,
 						)
 						o.Store.FilterDefs = filterDefs
 					},
@@ -195,7 +192,6 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 					providedOptions.Store.Subscription = nav.SubscribeFiles
 					providedOptions.Callback = universalCallbackNoAssert(
 						"filtered *.flac files: WithPool",
-						NotExtended,
 					)
 					providedOptions.Store.FilterDefs = filterDefs
 

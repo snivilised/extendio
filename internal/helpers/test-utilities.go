@@ -85,11 +85,7 @@ func (f *CustomFilter) Source() string {
 }
 
 func (f *CustomFilter) IsMatch(item *nav.TraverseItem) bool {
-	if item.Extension != nil {
-		return f.Value == item.Extension.Name
-	}
-
-	return false
+	return f.Value == item.Extension.Name
 }
 
 func (f *CustomFilter) IsApplicable(_ *nav.TraverseItem) bool {

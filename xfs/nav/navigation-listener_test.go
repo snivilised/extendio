@@ -44,7 +44,6 @@ var _ = Describe("Listener", Ordered, func() {
 						GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 					}
 				}
-				o.Store.DoExtend = entry.extended
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test listener callback",
 					Fn: func(item *nav.TraverseItem) error {
@@ -94,7 +93,6 @@ var _ = Describe("Listener", Ordered, func() {
 			naviTE: naviTE{
 				message:      "listening, start and stop (folders, inc:default)",
 				relative:     "RETRO-WAVE",
-				extended:     true,
 				subscription: nav.SubscribeFolders,
 				mandatory:    []string{"Night Drive", "College", "Northern Council", "Teenage Color"},
 				prohibited:   []string{"RETRO-WAVE", "Chromatics", "Electric Youth", "Innerworld"},
@@ -119,7 +117,6 @@ var _ = Describe("Listener", Ordered, func() {
 			naviTE: naviTE{
 				message:      "listening, start and stop (folders, excl:start, inc:stop, mute)",
 				relative:     "RETRO-WAVE",
-				extended:     true,
 				subscription: nav.SubscribeFolders,
 				mandatory:    []string{"College", "Northern Council", "Teenage Color", "Electric Youth"},
 				prohibited: []string{"Night Drive", "RETRO-WAVE", "Chromatics",
@@ -147,7 +144,6 @@ var _ = Describe("Listener", Ordered, func() {
 			naviTE: naviTE{
 				message:      "listening, start only (folders, inc:default)",
 				relative:     "RETRO-WAVE",
-				extended:     true,
 				subscription: nav.SubscribeFolders,
 				mandatory: []string{"Night Drive", "College", "Northern Council", "Teenage Color",
 					"Electric Youth", "Innerworld",
@@ -169,7 +165,6 @@ var _ = Describe("Listener", Ordered, func() {
 			naviTE: naviTE{
 				message:      "listening, stop only (folders, inc:default)",
 				relative:     "RETRO-WAVE",
-				extended:     true,
 				subscription: nav.SubscribeFolders,
 				mandatory: []string{"RETRO-WAVE", "Chromatics", "Night Drive", "College",
 					"Northern Council", "Teenage Color",
@@ -192,7 +187,6 @@ var _ = Describe("Listener", Ordered, func() {
 			naviTE: naviTE{
 				message:      "listening, stop only (folders, inc:default)",
 				relative:     "RETRO-WAVE",
-				extended:     true,
 				subscription: nav.SubscribeFolders,
 				mandatory:    []string{"RETRO-WAVE", "Chromatics"},
 				prohibited: []string{"Night Drive", "College", "Northern Council",
@@ -228,8 +222,7 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Notify.OnStop = func(description string) {
 					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 				}
-				o.Store.DoExtend = true
-				o.Callback = foldersCallback("EARLY-EXIT-😴", o.Store.DoExtend)
+				o.Callback = foldersCallback("EARLY-EXIT-😴")
 			}
 
 			result, _ := nav.New().Primary(&nav.Prime{
@@ -257,8 +250,7 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Notify.OnStop = func(description string) {
 					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 				}
-				o.Store.DoExtend = true
-				o.Callback = filesCallback("EARLY-EXIT-😴", o.Store.DoExtend)
+				o.Callback = filesCallback("EARLY-EXIT-😴")
 			}
 
 			result, _ := nav.New().Primary(&nav.Prime{
@@ -310,7 +302,6 @@ var _ = Describe("Listener", Ordered, func() {
 				o.Notify.OnStop = func(description string) {
 					GinkgoWriter.Printf("===> ⛔ Stop Listening: '%v'\n", description)
 				}
-				o.Store.DoExtend = true
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "Listener Test Callback",
 					Fn: func(item *nav.TraverseItem) error {

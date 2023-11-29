@@ -208,10 +208,6 @@ type OptionsStore struct {
 	//
 	Subscription TraverseSubscription
 
-	// DoExtend request an extended result.
-	//
-	DoExtend bool
-
 	// Behaviours collection of behaviours that adjust the way navigation occurs,
 	// that can be tweaked by the client.
 	//
@@ -291,7 +287,7 @@ func (o *TraverseOptions) afterUserOptions() {
 	}
 
 	if o.Hooks.Extend == nil {
-		o.Hooks.Extend = lo.Ternary(o.Store.DoExtend, DefaultExtendHookFn, nullExtendHookFn)
+		o.Hooks.Extend = DefaultExtendHookFn
 	}
 
 	noEach := o.Sampler.Custom.Each == nil && o.Sampler.Custom.While != nil
@@ -318,7 +314,6 @@ func GetDefaultOptions() *TraverseOptions {
 	return &TraverseOptions{
 		Store: OptionsStore{
 			Subscription: SubscribeAny,
-			DoExtend:     false,
 			Behaviours: NavigationBehaviours{
 				SubPath: SubPathBehaviour{
 					KeepTrailingSep: true,
@@ -363,6 +358,5 @@ func GetDefaultOptions() *TraverseOptions {
 }
 
 func (o *TraverseOptions) useExtendHook() {
-	o.Store.DoExtend = true
 	o.Hooks.Extend = DefaultExtendHookFn
 }

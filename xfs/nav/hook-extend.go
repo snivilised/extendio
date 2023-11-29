@@ -12,10 +12,6 @@ import (
 // wishes to augment the default behaviour rather than replace it, they can call
 // this function from inside the custom function.
 func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryContents) {
-	if navi.Item.Extension != nil {
-		return
-	}
-
 	var (
 		scope  FilterScopeBiEnum
 		isLeaf bool
@@ -31,7 +27,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryContents) {
 	}
 
 	parent, name := filepath.Split(navi.Item.Path)
-	navi.Item.Extension = &ExtendedItem{
+	navi.Item.Extension = ExtendedItem{
 		Depth:     navi.frame.periscope.depth(),
 		IsLeaf:    isLeaf,
 		Name:      name,
@@ -63,5 +59,3 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryContents) {
 
 	navi.Item.Extension.SubPath = subpath
 }
-
-func nullExtendHookFn(_ *NavigationInfo, _ *DirectoryContents) {}
