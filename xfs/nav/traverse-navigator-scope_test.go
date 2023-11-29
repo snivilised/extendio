@@ -45,7 +45,6 @@ var _ = Describe("TraverseNavigatorScope", Ordered, func() {
 			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
-				o.Store.DoExtend = true
 				o.Callback = scopeRecorder
 			}
 

@@ -51,43 +51,6 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 		})
 	})
 
-	Context("extend", func() {
-		When("item is already extended", func() {
-			XIt("🧪 should: panic", func() {
-				defer func() {
-					_ = recover()
-				}()
-
-				const relative = "RETRO-WAVE"
-				path := helpers.Path(root, relative)
-				optionFn := func(o *nav.TraverseOptions) {
-					o.Notify.OnBegin = begin("🧲")
-					o.Store.Subscription = nav.SubscribeFolders
-					o.Hooks.Extend = func(navi *nav.NavigationInfo, entries *nav.DirectoryContents) {
-						navi.Item.Extension = &nav.ExtendedItem{
-							Name: "dummy",
-						}
-						nav.DefaultExtendHookFn(navi, entries)
-					}
-					o.Store.DoExtend = true
-					o.Callback = &nav.LabelledTraverseCallback{
-						Label: "test callback",
-						Fn: func(_ *nav.TraverseItem) error {
-							return nil
-						},
-					}
-				}
-
-				_, _ = nav.New().Primary(&nav.Prime{
-					Path:      path,
-					OptionsFn: optionFn,
-				}).Run()
-
-				Fail("❌ expected panic due to item already being extended")
-			})
-		})
-	})
-
 	Context("read error", func() {
 		Context("navigator-folders", func() {
 			It("🧪 should: invoke callback with error", func() {
@@ -99,7 +62,6 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.Store.DoExtend = true
 					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test callback",
 						Fn: func(item *nav.TraverseItem) error {
@@ -131,8 +93,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeError
-					o.Store.DoExtend = true
-					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", o.Store.DoExtend, false)
+					o.Callback = errorCallback("(FILES):IMMEDIATE-READ-ERR", false)
 				}
 
 				result, _ := nav.New().Primary(&nav.Prime{
@@ -152,8 +113,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFiles
 					o.Hooks.ReadDirectory = readDirFakeErrorAt("Chromatics")
-					o.Store.DoExtend = true
-					o.Callback = errorCallback("(FILES):ERR-AT", o.Store.DoExtend, false)
+					o.Callback = errorCallback("(FILES):ERR-AT", false)
 				}
 
 				result, _ := nav.New().Primary(&nav.Prime{
@@ -182,8 +142,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 
 					return errors.New("fake sort error")
 				}
-				o.Store.DoExtend = true
-				o.Callback = errorCallback("SORT-ERR", o.Store.DoExtend, false)
+				o.Callback = errorCallback("SORT-ERR", false)
 			}
 			_, _ = nav.New().Primary(&nav.Prime{
 				Path:      path,
@@ -211,7 +170,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
-					o.Callback = errorCallback("ROOT-QUERY-STATUS", o.Store.DoExtend, true)
+					o.Callback = errorCallback("ROOT-QUERY-STATUS", true)
 				}
 
 				result, _ := nav.New().Primary(&nav.Prime{
@@ -326,7 +285,6 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				It("🧪 should: not panic due to nil pointer dereference", func() {
 					const path = "/foo"
 					optionFn := func(o *nav.TraverseOptions) {
-						o.Store.DoExtend = true
 						o.Store.Subscription = nav.SubscribeAny
 						o.Callback = &nav.LabelledTraverseCallback{
 							Label: "test callback",

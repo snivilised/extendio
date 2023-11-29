@@ -59,7 +59,6 @@ var _ = Describe("TraverseNavigatorSort", Ordered, func() {
 					},
 				}
 				o.Store.Behaviours.Sort.DirectoryEntryOrder = entry.order
-				o.Store.DoExtend = true
 				o.Callback = recorder
 			}
 

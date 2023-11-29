@@ -33,7 +33,6 @@ type naviTE struct {
 	message       string
 	should        string
 	relative      string
-	extended      bool
 	once          bool
 	visit         bool
 	caseSensitive bool
@@ -146,9 +145,6 @@ func logo() nav.LoggingOptions {
 	}
 }
 
-const IsExtended = true
-const NotExtended = false
-
 func begin(em string) nav.BeginHandler {
 	return func(state *nav.NavigationState) {
 		state.Logger.Get().Info("💧 Beginning Traversal (client side)",
@@ -164,42 +160,29 @@ func begin(em string) nav.BeginHandler {
 	}
 }
 
-func universalCallback(name string, extended bool) *nav.LabelledTraverseCallback {
-	ex := lo.Ternary(extended, "-EX", "")
-
+func universalCallback(name string) *nav.LabelledTraverseCallback {
 	return &nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
-			depth := lo.TernaryF(extended,
-				func() int { return item.Extension.Depth },
-				func() int { return 9999 },
-			)
+			depth := item.Extension.Depth
 			GinkgoWriter.Printf(
-				"---> 🌊 UNIVERSAL//%v-CALLBACK%v: (depth:%v) '%v'\n", name, ex, depth, item.Path,
+				"---> 🌊 UNIVERSAL//%v-CALLBACK: (depth:%v) '%v'\n", name, depth, item.Path,
 			)
 
-			if extended {
-				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
-			} else {
-				Expect(item.Extension).To(BeNil(), helpers.Reason(item.Path))
-			}
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
+
 			return nil
 		},
 	}
 }
 
-func universalCallbackNoAssert(name string, extended bool) *nav.LabelledTraverseCallback { //nolint:unparam // for future use
-	ex := lo.Ternary(extended, "-EX", "")
-
+func universalCallbackNoAssert(name string) *nav.LabelledTraverseCallback {
 	return &nav.LabelledTraverseCallback{
 		Label: "test universal callback",
 		Fn: func(item *nav.TraverseItem) error {
-			depth := lo.TernaryF(extended,
-				func() int { return item.Extension.Depth },
-				func() int { return 9999 },
-			)
+			depth := item.Extension.Depth
 			GinkgoWriter.Printf(
-				"---> 🌊 UNIVERSAL//%v-CALLBACK%v: (depth:%v) '%v'\n", name, ex, depth, item.Path,
+				"---> 🌊 UNIVERSAL//%v-CALLBACK: (depth:%v) '%v'\n", name, depth, item.Path,
 			)
 
 			return nil
@@ -207,46 +190,32 @@ func universalCallbackNoAssert(name string, extended bool) *nav.LabelledTraverse
 	}
 }
 
-func foldersCallback(name string, extended bool) *nav.LabelledTraverseCallback {
-	ex := lo.Ternary(extended, "-EX", "")
-
+func foldersCallback(name string) *nav.LabelledTraverseCallback {
 	return &nav.LabelledTraverseCallback{
 		Label: "folders callback",
 		Fn: func(item *nav.TraverseItem) error {
-			depth := lo.TernaryF(extended,
-				func() int { return item.Extension.Depth },
-				func() int { return 9999 },
-			)
+			depth := item.Extension.Depth
 			actualNoChildren := len(item.Children)
 			GinkgoWriter.Printf(
-				"---> ☀️ FOLDERS//%v-CALLBACK%v: (depth:%v, children:%v) '%v'\n",
-				name, ex, depth, actualNoChildren, item.Path,
+				"---> ☀️ FOLDERS//CALLBACK%v: (depth:%v, children:%v) '%v'\n",
+				name, depth, actualNoChildren, item.Path,
 			)
 			Expect(item.IsDir()).To(BeTrue())
-
-			if extended {
-				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
-			} else {
-				Expect(item.Extension).To(BeNil(), helpers.Reason(item.Path))
-			}
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 
 			return nil
 		},
 	}
 }
 
-func filesCallback(name string, extended bool) *nav.LabelledTraverseCallback {
-	ex := lo.Ternary(extended, "-EX", "")
-
+func filesCallback(name string) *nav.LabelledTraverseCallback {
 	return &nav.LabelledTraverseCallback{
 		Label: "files callback",
 		Fn: func(item *nav.TraverseItem) error {
-			GinkgoWriter.Printf("---> 🌙 FILES//%v-CALLBACK%v: '%v'\n", name, ex, item.Path)
+			GinkgoWriter.Printf("---> 🌙 FILES//%v-CALLBACK: '%v'\n", name, item.Path)
 			Expect(item.IsDir()).To(BeFalse())
+			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 
-			if extended {
-				Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
-			}
 			return nil
 		},
 	}
@@ -460,13 +429,11 @@ func readDirFakeErrorAt(name string) func(dirname string) ([]fs.DirEntry, error)
 	}
 }
 
-func errorCallback(name string, extended, hasError bool) *nav.LabelledTraverseCallback {
-	ex := lo.Ternary(extended, "-EX", "")
-
+func errorCallback(name string, hasError bool) *nav.LabelledTraverseCallback {
 	return &nav.LabelledTraverseCallback{
 		Label: "test error callback",
 		Fn: func(item *nav.TraverseItem) error {
-			GinkgoWriter.Printf("---> 🔥 %v-CALLBACK%v: '%v'\n", name, ex, item.Path)
+			GinkgoWriter.Printf("---> 🔥 %v-CALLBACK: '%v'\n", name, item.Path)
 
 			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 			if hasError {

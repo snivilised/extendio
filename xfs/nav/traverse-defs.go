@@ -27,9 +27,9 @@ type ExtendedItem struct {
 // for the root entity.
 type TraverseItem struct {
 	Path        string
-	Entry       fs.DirEntry   // contains a FileInfo via Info() function
-	Info        fs.FileInfo   // optional file info instance
-	Extension   *ExtendedItem // extended information about the file system node, if requested
+	Entry       fs.DirEntry  // contains a FileInfo via Info() function
+	Info        fs.FileInfo  // optional file info instance
+	Extension   ExtendedItem // extended information about the file system node, if requested
 	Error       error
 	Children    []fs.DirEntry
 	filteredOut bool
@@ -73,7 +73,7 @@ func (ti *TraverseItem) filtered() {
 }
 
 func (ti *TraverseItem) key() string {
-	return ti.Path
+	return ti.Extension.SubPath
 }
 
 // TraverseSubscription type to define traversal subscription (for which file system

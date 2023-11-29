@@ -7,7 +7,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/samber/lo"
 
 	. "github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
@@ -249,10 +248,7 @@ var _ = Describe("Resume", Ordered, func() {
 					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "unit test callback for resume",
 						Fn: func(item *nav.TraverseItem) error {
-							depth := lo.TernaryF(o.Store.DoExtend,
-								func() int { return item.Extension.Depth },
-								func() int { return 9999 },
-							)
+							depth := item.Extension.Depth
 							GinkgoWriter.Printf(
 								"---> ⏩ %v: (depth:%v) '%v'\n", themes[strategyEn].label, depth, item.Path,
 							)

@@ -37,7 +37,6 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Subscription = nav.SubscribeAny
 					o.Store.Behaviours.SubPath.KeepTrailingSep = true
-					o.Store.DoExtend = true
 					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test sub-path callback",
 						Fn: func(item *nav.TraverseItem) error {
@@ -79,7 +78,6 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 						o.Hooks.FolderSubPath = nav.RootItemSubPathHookFn
 						o.Hooks.FileSubPath = nav.RootItemSubPathHookFn
 						o.Store.Behaviours.SubPath.KeepTrailingSep = true
-						o.Store.DoExtend = true
 						o.Callback = &nav.LabelledTraverseCallback{
 							Label: "test sub-path callback",
 							Fn: func(item *nav.TraverseItem) error {
@@ -122,7 +120,6 @@ var _ = Describe("TraverseNavigatorSubpath", Ordered, func() {
 					o.Notify.OnBegin = begin("🛡️")
 					o.Store.Behaviours.SubPath.KeepTrailingSep = false
 					o.Store.Subscription = nav.SubscribeAny
-					o.Store.DoExtend = true
 					o.Callback = &nav.LabelledTraverseCallback{
 						Label: "test sub-path callback",
 						Fn: func(item *nav.TraverseItem) error {

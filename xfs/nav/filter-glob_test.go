@@ -54,7 +54,6 @@ var _ = Describe("FilterGlob", Ordered, func() {
 
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
-				o.Store.DoExtend = true
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test glob filter callback",
 					Fn: func(item *nav.TraverseItem) error {
@@ -229,7 +228,6 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				}
 				o.Store.Subscription = entry.subscription
 				o.Store.FilterDefs = filterDefs
-				o.Store.DoExtend = true
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test glob filter callback",
 					Fn: func(item *nav.TraverseItem) error {

@@ -108,7 +108,6 @@ func getRunner(entry *asyncTE, root, path, resumeJSONPath string) nav.Navigation
 				Path: path,
 				OptionsFn: func(o *nav.TraverseOptions) {
 					o.Store.Subscription = nav.SubscribeFolders
-					o.Store.DoExtend = true
 					o.Callback = boostCallback("boost primary session")
 					o.Notify.OnBegin = begin("🛡️")
 				},

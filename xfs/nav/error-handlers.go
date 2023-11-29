@@ -34,11 +34,10 @@ func (h *notifyCallbackErrorHandler) accept(params *fileSystemErrorParams) error
 	)
 
 	callbackErr := params.frame.proxy(&TraverseItem{
-		Path:      params.path,
-		Info:      params.info,
-		Error:     err,
-		Children:  []fs.DirEntry{},
-		Extension: &ExtendedItem{},
+		Path:     params.path,
+		Info:     params.info,
+		Error:    err,
+		Children: []fs.DirEntry{},
 	}, nil)
 
 	return callbackErr
