@@ -15,9 +15,9 @@ type IteratorCtrl[T any] interface {
 	Valid() bool
 }
 
-// Iterator represents an iterator over a slice. The underlying slice can
-// not be empty. When created, the iterator does not point to a valid
-// slice entry. To begin iteration, the client invokes Start. At any one
+// Iterator represents an iterator over a slice. The underlying slice may
+// be empty. When created, the iterator does not point to a valid
+// slice entry. To begin iteration, the client invokes Start. At any stage
 // after the iteration has started, the iterator, points to the current item
 // in the sequence. The client can query the validity of the current item
 // using the Valid method. To obtain successive elements, the client invokes
@@ -42,15 +42,14 @@ type Iterator[T any] interface {
 	Next() T
 
 	// Reset is designed to be used in high frequency applications. The client
-	// can reuse this entry for a new collection rather that having throw this
+	// can reuse this iterator for a new collection rather that having to throw this
 	// instance away and create a new one. This helps to reduce the number of
 	// allocations in a high frequency application.
 	Reset(entries []T)
 }
 
 // BeginIt creates a forward iterator over a non empty slice. If the provided
-// slice is empty, then a nil iterator is returned. (NB: please remember to check
-// for a nil interface correctly; see the helper function IsNil in utils).
+// slice is empty, then a nil iterator is returned.
 //
 // The zero value represents the value that is returned if the Next method on the
 // iterator is incorrectly invoked after Valid has returned false.
