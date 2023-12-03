@@ -6,7 +6,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/collections"
-	"github.com/snivilised/extendio/xfs/utils"
 )
 
 // WhileDirectoryPredicate determines when to terminate the loop
@@ -104,6 +103,14 @@ func newDirectoryEntryWhileIt(
 	return whit
 }
 
+func (i *directoryEntryWhileIt) isNil() bool {
+	// 📚 It is ok to use == operator with nil interface here because
+	// the iterator interface has not been set to anything so the value of the
+	// interface itself is nil as well as the value it points to.
+	//
+	return i.iterator == nil
+}
+
 func (i *directoryEntryWhileIt) initInspector(navigator inspector) {
 	i.navigator = navigator
 }
@@ -113,7 +120,7 @@ func (i *directoryEntryWhileIt) withParams(tp *traverseParams) {
 }
 
 func (i *directoryEntryWhileIt) start(entries []fs.DirEntry) {
-	if utils.IsNil(i.iterator) {
+	if i.isNil() {
 		i.iterator = lo.TernaryF(i.forward,
 			func() collections.Iterator[fs.DirEntry] {
 				return collections.BeginIt[fs.DirEntry](entries, i.zero)
