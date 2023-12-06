@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
-	github.com/onsi/ginkgo/v2 v2.13.1
+	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.30.0
 	github.com/samber/lo v1.39.0
 	go.uber.org/zap v1.26.0
