@@ -48,7 +48,7 @@ type Iterator[T any] interface {
 	Reset(entries []T)
 }
 
-// BeginIt creates a forward iterator over a non empty slice. If the provided
+// ForwardIt creates a forward iterator over a non empty slice. If the provided
 // slice is empty, then a nil iterator is returned.
 //
 // The zero value represents the value that is returned if the Next method on the
@@ -62,7 +62,7 @@ type Iterator[T any] interface {
 // Next after Valid has returned false. This is preferable than generating a
 // panic. If the collection contains structs, then pass in an empty struct
 // as the nil value.
-func BeginIt[T any](elements []T, zero T) Iterator[T] {
+func ForwardIt[T any](elements []T, zero T) Iterator[T] {
 	// 📚 NB: it is not possible to obtain the type of a generic parameter at runtime
 	// using reflection. Generics in Go are a compile-time feature, and type information
 	// is generally not available at runtime due to the language's design principles.

@@ -50,7 +50,7 @@ func getSleeveIt(forward bool, sequence []sleeve) collections.Iterator[sleeve] {
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[sleeve] {
-			return collections.BeginIt(sequence, nil)
+			return collections.ForwardIt(sequence, nil)
 		},
 		func() collections.Iterator[sleeve] {
 			return collections.ReverseIt(sequence, nil)
@@ -62,7 +62,7 @@ func getRecordPtrIt(forward bool, sequence []*record) collections.Iterator[*reco
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[*record] {
-			return collections.BeginIt(sequence, nil)
+			return collections.ForwardIt(sequence, nil)
 		},
 		func() collections.Iterator[*record] {
 			return collections.ReverseIt(sequence, nil)
@@ -74,7 +74,7 @@ func getRecordsIt(forward bool, sequence []record) collections.Iterator[record] 
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[record] {
-			return collections.BeginIt(sequence, record{})
+			return collections.ForwardIt(sequence, record{})
 		},
 		func() collections.Iterator[record] {
 			return collections.ReverseIt(sequence, record{})
@@ -86,7 +86,7 @@ func getInt32It(forward bool, sequence []int32) collections.Iterator[int32] {
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[int32] {
-			return collections.BeginIt(sequence, int32(0))
+			return collections.ForwardIt(sequence, int32(0))
 		},
 		func() collections.Iterator[int32] {
 			return collections.ReverseIt(sequence, int32(0))
@@ -282,7 +282,7 @@ var _ = Describe("Iterators", func() {
 			it := lo.TernaryF(
 				entry.forward,
 				func() collections.Iterator[sleeve] {
-					return collections.BeginIt(entry.sleeves, nil)
+					return collections.ForwardIt(entry.sleeves, nil)
 				},
 				func() collections.Iterator[sleeve] {
 					return collections.ReverseIt(entry.sleeves, nil)
