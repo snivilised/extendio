@@ -123,7 +123,7 @@ func (i *directoryEntryWhileIt) start(entries []fs.DirEntry) {
 	if i.isNil() {
 		i.iterator = lo.TernaryF(i.forward,
 			func() collections.Iterator[fs.DirEntry] {
-				return collections.BeginIt[fs.DirEntry](entries, i.zero)
+				return collections.ForwardIt[fs.DirEntry](entries, i.zero)
 			},
 			func() collections.Iterator[fs.DirEntry] {
 				return collections.ReverseIt[fs.DirEntry](entries, i.zero)
