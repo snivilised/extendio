@@ -2,6 +2,7 @@ package collections_test
 
 import (
 	"fmt"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -47,49 +48,71 @@ func (e *record) song() string {
 }
 
 func getSleeveIt(forward bool, sequence []sleeve) collections.Iterator[sleeve] {
+	var zero sleeve
+
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[sleeve] {
-			return collections.ForwardIt(sequence, nil)
+			return collections.ForwardIt(sequence, zero)
 		},
 		func() collections.Iterator[sleeve] {
-			return collections.ReverseIt(sequence, nil)
+			return collections.ReverseIt(sequence, zero)
+		},
+	)
+}
+
+func getSleeveRunIt(forward bool, sequence []sleeve) collections.RunnableIterator[sleeve, error] { // RunnableIterator
+	var zero sleeve
+
+	return lo.TernaryF(
+		forward,
+		func() collections.RunnableIterator[sleeve, error] {
+			return collections.ForwardRunIt[sleeve, error](sequence, zero)
+		},
+		func() collections.RunnableIterator[sleeve, error] {
+			return collections.ReverseRunIt[sleeve, error](sequence, zero)
 		},
 	)
 }
 
 func getRecordPtrIt(forward bool, sequence []*record) collections.Iterator[*record] {
+	var zero *record
+
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[*record] {
-			return collections.ForwardIt(sequence, nil)
+			return collections.ForwardIt(sequence, zero)
 		},
 		func() collections.Iterator[*record] {
-			return collections.ReverseIt(sequence, nil)
+			return collections.ReverseIt(sequence, zero)
 		},
 	)
 }
 
 func getRecordsIt(forward bool, sequence []record) collections.Iterator[record] {
+	zero := record{}
+
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[record] {
-			return collections.ForwardIt(sequence, record{})
+			return collections.ForwardIt(sequence, zero)
 		},
 		func() collections.Iterator[record] {
-			return collections.ReverseIt(sequence, record{})
+			return collections.ReverseIt(sequence, zero)
 		},
 	)
 }
 
 func getInt32It(forward bool, sequence []int32) collections.Iterator[int32] {
+	var zero int32
+
 	return lo.TernaryF(
 		forward,
 		func() collections.Iterator[int32] {
-			return collections.ForwardIt(sequence, int32(0))
+			return collections.ForwardIt(sequence, zero)
 		},
 		func() collections.Iterator[int32] {
-			return collections.ReverseIt(sequence, int32(0))
+			return collections.ReverseIt(sequence, zero)
 		},
 	)
 }
@@ -579,6 +602,117 @@ var _ = Describe("Iterators", func() {
 					}
 					expected := []string{"03 - california", "02 - how to disappear", "01 - cinnamon girl"}
 					Expect(actual).To(HaveExactElements(expected))
+				})
+			})
+
+		})
+
+		Context("runnable", Ordered, func() {
+			var sleeves []sleeve
+
+			BeforeAll(func() {
+				sleeves = []sleeve{
+					&record{name: "07 - cinnamon girl"},
+					&record{name: "08 - how to disappear"},
+					&record{name: "09 - california"},
+					&record{name: "BONUS - 01"},
+					&record{name: "BONUS - 02"},
+				}
+			})
+
+			Context("forward", func() {
+				When("while condition is never invalidated", func() {
+					It("🧪 should: invoke each for all items in sequence", func() {
+						const (
+							expected = 5
+							forward  = true
+						)
+
+						iterator := getSleeveRunIt(forward, sleeves)
+						actual := 0
+						each := func(_ sleeve) error {
+							actual++
+
+							return nil
+						}
+						while := func(_ sleeve, err error) bool {
+							return true
+						}
+
+						iterator.RunAll(each, while)
+						Expect(actual).To(Equal(expected))
+					})
+				})
+
+				When("while condition is invalidated before end of sequence", func() {
+					It("🧪 should: invoke each for item until while fails", func() {
+						const (
+							expected = 4
+							forward  = true
+						)
+
+						iterator := getSleeveRunIt(forward, sleeves)
+						actual := 0
+						each := func(_ sleeve) error {
+							actual++
+
+							return nil
+						}
+						while := func(s sleeve, err error) bool {
+							return strings.HasPrefix(s.song(), "0")
+						}
+
+						iterator.RunAll(each, while)
+						Expect(actual).To(Equal(expected))
+					})
+				})
+			})
+
+			Context("reverse", Ordered, func() {
+				When("while condition is never invalidated", func() {
+					It("🧪 should: invoke each for all items in sequence", func() {
+						const (
+							expected = 5
+							forward  = false
+						)
+
+						iterator := getSleeveRunIt(forward, sleeves)
+						actual := 0
+						each := func(_ sleeve) error {
+							actual++
+
+							return nil
+						}
+						while := func(_ sleeve, err error) bool {
+							return true
+						}
+
+						iterator.RunAll(each, while)
+						Expect(actual).To(Equal(expected))
+					})
+				})
+
+				When("while condition is invalidated before end of sequence", func() {
+					It("🧪 should: invoke each for item until while fails", func() {
+						const (
+							expected = 3
+							forward  = false
+						)
+
+						iterator := getSleeveRunIt(forward, sleeves)
+						actual := 0
+						each := func(_ sleeve) error {
+							actual++
+
+							return nil
+						}
+						while := func(s sleeve, err error) bool {
+							return strings.HasPrefix(s.song(), "BONUS")
+						}
+
+						iterator.RunAll(each, while)
+						Expect(actual).To(Equal(expected))
+					})
 				})
 			})
 		})
