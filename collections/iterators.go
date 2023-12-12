@@ -48,6 +48,21 @@ type Iterator[T any] interface {
 	Reset(entries []T)
 }
 
+func newForwardIt[T any](elements []T, zero T) *forwardIterator[T] {
+	// 📚 NB: it is not possible to obtain the type of a generic parameter at runtime
+	// using reflection. Generics in Go are a compile-time feature, and type information
+	// is generally not available at runtime due to the language's design principles.
+	// This is why we need the client to pass in the zero value manually.
+	//
+	return &forwardIterator[T]{
+		baseIterator: baseIterator[T]{
+			zero:      zero,
+			container: elements,
+			current:   -1,
+		},
+	}
+}
+
 // ForwardIt creates a forward iterator over a non empty slice. If the provided
 // slice is empty, then a nil iterator is returned.
 //
@@ -63,16 +78,15 @@ type Iterator[T any] interface {
 // panic. If the collection contains structs, then pass in an empty struct
 // as the nil value.
 func ForwardIt[T any](elements []T, zero T) Iterator[T] {
-	// 📚 NB: it is not possible to obtain the type of a generic parameter at runtime
-	// using reflection. Generics in Go are a compile-time feature, and type information
-	// is generally not available at runtime due to the language's design principles.
-	// This is why we need the client to pass in the zero value manually.
-	//
-	return &forwardIterator[T]{
+	return newForwardIt[T](elements, zero)
+}
+
+func newReverseIt[T any](elements []T, zero T) *reverseIterator[T] {
+	return &reverseIterator[T]{
 		baseIterator: baseIterator[T]{
 			zero:      zero,
 			container: elements,
-			current:   -1,
+			current:   len(elements),
 		},
 	}
 }
@@ -81,13 +95,7 @@ func ForwardIt[T any](elements []T, zero T) Iterator[T] {
 // slice is empty, then a nil iterator is returned. (NB: please remember to check
 // for a nil interface correctly; see the helper function IsNil in utils).
 func ReverseIt[T any](elements []T, zero T) Iterator[T] {
-	return &reverseIterator[T]{
-		baseIterator: baseIterator[T]{
-			zero:      zero,
-			container: elements,
-			current:   len(elements),
-		},
-	}
+	return newReverseIt[T](elements, zero)
 }
 
 type baseIterator[T any] struct {
@@ -183,4 +191,73 @@ func (i *reverseIterator[T]) Next() T {
 func (i *reverseIterator[T]) Reset(entries []T) {
 	i.container = entries
 	i.current = len(i.container)
+}
+
+type (
+	// RunEach is a client defined function which is invoked for each
+	// element in the sequence.
+	RunEach[T any, R any] func(T) R
+
+	// RunWhile is a client defined function that denotes that the iteration
+	// can continue. When it returns false, iteration lapses.
+	//
+	RunWhile[T any, R any] func(T, R) bool
+
+	// RunnableIterator implements a looping mechanism for the Iterator. The
+	// runnable version is intended to make iteration just that little bit
+	// easier. The key feature of the runnable iterator is to be able to
+	// process a sequence while a certain condition holds true (defined,
+	// by the client using the while function.) The runnable iterator
+	// passes the return value for that particular item, to the while
+	// function, along with the item itself, so that it can define logic
+	// based on the return result. If the client always want to invoke
+	// all items in a sequence, then the better solution would be just to
+	// use a standard for/range statement, rather than use this iterator.
+	//
+	RunnableIterator[T any, R any] interface {
+		Iterator[T]
+
+		// RunAll invokes the predicate for every member of the sequence, while
+		// Valid and while both holds true.
+		RunAll(each RunEach[T, R], while RunWhile[T, R])
+	}
+)
+
+type forwardRunnableIterator[T any, R any] struct {
+	forwardIterator[T]
+}
+
+// RunAll
+func (i *forwardRunnableIterator[T, R]) RunAll(each RunEach[T, R], while RunWhile[T, R]) {
+	runAll(i, each, while)
+}
+
+// ForwardRunIt creates a forward runnable iterator
+func ForwardRunIt[T any, R any](elements []T, zero T) RunnableIterator[T, R] {
+	return &forwardRunnableIterator[T, R]{
+		forwardIterator: *newForwardIt(elements, zero),
+	}
+}
+
+type reverseRunnableIterator[T any, R any] struct {
+	reverseIterator[T]
+}
+
+func (i *reverseRunnableIterator[T, R]) RunAll(each RunEach[T, R], while RunWhile[T, R]) {
+	runAll(i, each, while)
+}
+
+// ReverseRunIt creates a reverse runnable iterator
+func ReverseRunIt[T any, R any](elements []T, zero T) RunnableIterator[T, R] {
+	return &reverseRunnableIterator[T, R]{
+		reverseIterator: *newReverseIt(elements, zero),
+	}
+}
+
+func runAll[T any, R any](it RunnableIterator[T, R], each RunEach[T, R], while RunWhile[T, R]) {
+	for entry := it.Start(); it.Valid(); entry = it.Next() {
+		if !while(entry, each(entry)) {
+			break
+		}
+	}
 }
