@@ -276,7 +276,15 @@ func composeTraverseOptions(fn ...TraverseOptionFn) *TraverseOptions {
 }
 
 func (o *TraverseOptions) isFilteringActive() bool {
-	return o.Store.FilterDefs != nil && (o.Store.FilterDefs.Node.Pattern != "" || o.Store.FilterDefs.Node.Custom != nil)
+	if o.Store.FilterDefs != nil {
+		patternDefined := o.Store.FilterDefs.Node.Pattern != ""
+		customDefined := o.Store.FilterDefs.Node.Custom != nil
+		polyDefined := o.Store.FilterDefs.Node.Poly != nil
+
+		return patternDefined || customDefined || polyDefined
+	}
+
+	return false
 }
 
 func (o *TraverseOptions) afterUserOptions() {

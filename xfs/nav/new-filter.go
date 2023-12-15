@@ -51,16 +51,37 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 
 		filter = def.Custom
 
+	case FilterTypePolyEn:
+		filter = newPolyFilter(def.Poly)
+
 	default:
 		panic(fmt.Sprintf("Filter definition for '%v' is missing the Type field", def.Description))
 	}
 
-	filter.Validate()
+	if def.Type != FilterTypePolyEn {
+		filter.Validate()
+	}
 
 	return filter
 }
 
-// newCompoundFilter exported for testing purposes only (do not use)
+func newPolyFilter(polyDef *PolyFilterDef) TraverseFilter {
+	// lets enforce the correct filter scopes
+	//
+	polyDef.File.Scope.Set(ScopeFileEn)     // file scope must be set for files
+	polyDef.File.Scope.Clear(ScopeFolderEn) // folder scope must NOT be set for files
+
+	polyDef.Folder.Scope.Set(ScopeFolderEn) // folder scope must be set for folders
+	polyDef.Folder.Scope.Clear(ScopeFileEn) // file scope must NOT be set for folders
+
+	filter := &PolyFilter{
+		File:   newNodeFilter(&polyDef.File),
+		Folder: newNodeFilter(&polyDef.Folder),
+	}
+
+	return filter
+}
+
 func newCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 	var filter CompoundTraverseFilter
 
@@ -91,6 +112,7 @@ func newCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 		filter = def.Custom
 
 	case FilterTypeUndefinedEn:
+	case FilterTypePolyEn:
 	}
 
 	filter.Validate()

@@ -81,6 +81,12 @@ type filterTE struct {
 	ifNotApplicable nav.TriStateBoolEnum
 }
 
+type polyTE struct {
+	naviTE
+	file   nav.FilterDef
+	folder nav.FilterDef
+}
+
 type marshalTE struct {
 	naviTE
 	errorContains string
