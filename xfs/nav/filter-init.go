@@ -1,5 +1,7 @@
 package nav
 
+import "fmt"
+
 // InitFiltersHookFn is the default filter initialiser. This can be overridden or extended
 // by the client if the need arises. To extend this behaviour rather than replace it,
 // call this function from inside the custom function set on o.Hooks.Filter. To
@@ -16,6 +18,12 @@ func InitFiltersHookFn(o *TraverseOptions, frame *navigationFrame) {
 		frame.filters = &NavigationFilters{}
 
 		if o.isFilteringActive() {
+			if o.Store.FilterDefs.Node.Poly != nil {
+				if (o.Store.Subscription == SubscribeFolders) || (o.Store.Subscription == SubscribeFoldersWithFiles) {
+					panic(fmt.Errorf("invalid subscription type for poly filter"))
+				}
+			}
+
 			o.useExtendHook()
 			applyNodeFilterDecoration(&o.Store.FilterDefs.Node, frame)
 		}

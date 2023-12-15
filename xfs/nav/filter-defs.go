@@ -68,6 +68,9 @@ const (
 
 	// FilterTypeCustomEn client definable filter
 	FilterTypeCustomEn
+
+	// FilterTypePolyEn poly filter
+	FilterTypePolyEn
 )
 
 type allOrderedFilterScopeEnums collections.OrderedKeysMap[FilterScopeBiEnum, string]
@@ -101,6 +104,16 @@ func (f FilterScopeBiEnum) String() string {
 	}
 
 	return strings.Join(result, "|")
+}
+
+// Set sets the bit position indicated by mask
+func (f *FilterScopeBiEnum) Set(mask FilterScopeBiEnum) {
+	*f |= mask
+}
+
+// Clear clears the bit position indicated by mask
+func (f *FilterScopeBiEnum) Clear(mask FilterScopeBiEnum) {
+	*f &^= mask
 }
 
 // TraverseFilter filter that can be applied to file system entries. When specified,
@@ -152,6 +165,17 @@ type FilterDef struct {
 	// its the client's responsibility to restore this themselves (see
 	// PersistenceRestorer)
 	Custom TraverseFilter `json:"-"`
+
+	// Poly allows for the definition of a PolyFilter which contains separate
+	// filters that target files and folders separately. If present, then
+	// all other fields are redundant, since the filter definitions inside
+	// Poly should be referred to instead.
+	Poly *PolyFilterDef
+}
+
+type PolyFilterDef struct {
+	File   FilterDef
+	Folder FilterDef
 }
 
 // CompoundTraverseFilter filter that can be applied to a folder's collection of entries
