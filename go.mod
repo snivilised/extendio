@@ -14,7 +14,7 @@ require (
 require (
 	github.com/avfs/avfs v0.33.0
 	github.com/fortytw2/leaktest v1.3.0
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/snivilised/lorax v0.4.2
 )
 
