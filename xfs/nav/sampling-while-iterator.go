@@ -138,7 +138,7 @@ func (i *directoryEntryWhileIt) start(entries []fs.DirEntry) {
 func (i *directoryEntryWhileIt) sample(entries []fs.DirEntry, processingFiles bool) []fs.DirEntry {
 	i.start(entries)
 
-	result := i.loop()
+	result := i.enumerate()
 
 	return lo.Ternary[[]fs.DirEntry](processingFiles, result.Files, result.Folders)
 }
@@ -148,7 +148,7 @@ func (i *directoryEntryWhileIt) samples(
 ) (files, folders []fs.DirEntry) {
 	i.start(sourceEntries.All())
 
-	result := i.loop()
+	result := i.enumerate()
 
 	files = result.Files
 	folders = result.Folders
@@ -156,7 +156,7 @@ func (i *directoryEntryWhileIt) samples(
 	return
 }
 
-func (i *directoryEntryWhileIt) loop() *DirectoryContents {
+func (i *directoryEntryWhileIt) enumerate() *DirectoryContents {
 	result := newEmptyDirectoryEntries(i.o, &i.o.Store.Sampling.NoOf)
 	parent := i.tp.current
 

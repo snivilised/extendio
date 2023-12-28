@@ -102,14 +102,21 @@ func (n *navigator) logger() log.Logger {
 	return n.log.Get()
 }
 
-func (n *navigator) descend(navi *NavigationInfo) {
-	navi.frame.periscope.descend()
+func (n *navigator) descend(navi *NavigationInfo) bool {
+	if !navi.frame.periscope.descend(n.o.Store.Behaviours.Cascade.Depth) {
+		return false
+	}
+
 	navi.frame.notifiers.descend.invoke(navi.Item)
+
+	return true
 }
 
-func (n *navigator) ascend(navi *NavigationInfo) {
-	navi.frame.periscope.ascend()
-	navi.frame.notifiers.ascend.invoke(navi.Item)
+func (n *navigator) ascend(navi *NavigationInfo, permit bool) {
+	if permit {
+		navi.frame.periscope.ascend()
+		navi.frame.notifiers.ascend.invoke(navi.Item)
+	}
 }
 
 func (n *navigator) finish() error {

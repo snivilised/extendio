@@ -76,16 +76,21 @@ func (n *foldersNavigator) traverse(params *traverseParams) (*TraverseItem, erro
 		Item:    params.current,
 		frame:   params.frame,
 	}
-	defer func() {
+
+	params.navi = navi
+	descended := n.descend(navi)
+
+	defer func(permit bool) {
 		if n.samplingFilterActive {
 			delete(n.agent.cache, params.current.key())
 		}
 
-		n.ascend(navi)
-	}()
+		n.ascend(navi, permit)
+	}(descended)
 
-	params.navi = navi
-	n.descend(navi)
+	if !descended {
+		return nil, nil
+	}
 
 	stash := n.inspect(params)
 	entries := stash.entries

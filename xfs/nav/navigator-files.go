@@ -45,21 +45,25 @@ func (n *filesNavigator) traverse(params *traverseParams) (*TraverseItem, error)
 		Item:    params.current,
 		frame:   params.frame,
 	}
+	params.navi = navi
+	descended := n.descend(navi)
+
 	//
 	// For files, the registered callback will only be invoked for file entries. This means
 	// that the client will have no way to skip the descending of a particular directory. In
 	// this case, the client should use the OnDescend callback (yet to be implemented) and
 	// return SkipDir from there.
-	defer func() {
+	defer func(permit bool) {
 		if n.samplingFilterActive {
 			delete(n.agent.cache, params.current.key())
 		}
 
-		n.ascend(navi)
-	}()
+		n.ascend(navi, permit)
+	}(descended)
 
-	params.navi = navi
-	n.descend(navi)
+	if !descended {
+		return nil, nil
+	}
 
 	stash := n.inspect(params)
 
