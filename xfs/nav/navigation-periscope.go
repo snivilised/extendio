@@ -50,8 +50,14 @@ func (p *navigationPeriscope) difference(root, current string) {
 	p._offset = currentSize - rootSize
 }
 
-func (p *navigationPeriscope) descend() {
+func (p *navigationPeriscope) descend(max uint) bool {
+	if max > 0 && p._depth > int(max) {
+		return false
+	}
+
 	p._depth++
+
+	return true
 }
 
 func (p *navigationPeriscope) ascend() {

@@ -6,8 +6,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func sampleWithSliceController(params *samplerControllerFuncParams,
-) {
+func sampleWithSliceController(params *samplerControllerFuncParams) {
 	params.adapters[params.subscription].slice(
 		params.contents,
 		params.noOf,

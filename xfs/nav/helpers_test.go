@@ -117,6 +117,12 @@ type resumeTE struct {
 	log            bool
 }
 
+type cascadeTE struct {
+	naviTE
+	skim  bool
+	depth uint
+}
+
 type resumeTestProfile struct {
 	filtered   bool
 	prohibited map[string]string
