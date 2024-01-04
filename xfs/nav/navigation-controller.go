@@ -2,9 +2,9 @@ package nav
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/samber/lo"
-	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
@@ -33,12 +33,12 @@ func (nc *navigationController) init() {
 	nc.ns = &NavigationState{
 		Filters: nc.frame.filters,
 		Root:    &nc.frame.root,
-		Logger:  utils.NewRoProp[ClientLogger](nc.impl.logger()),
+		Logger:  nc.logger(),
 	}
 	nc.impl.init(nc.ns)
 }
 
-func (nc *navigationController) logger() log.Logger {
+func (nc *navigationController) logger() *slog.Logger {
 	return nc.impl.logger()
 }
 
@@ -48,15 +48,15 @@ func (nc *navigationController) ensync(ctx context.Context, cancel context.Cance
 
 func (nc *navigationController) walk(root string) (*TraverseResult, error) {
 	nc.frame.root.Set(root)
-	nc.impl.logger().Info("walk", log.String("root", root))
+	nc.impl.logger().Info("walk", slog.String("root", root))
 
 	nc.frame.notifiers.begin.invoke(nc.ns)
 
 	result, err := nc.impl.top(nc.frame, root)
 
-	fields := []log.Field{}
+	fields := []any{}
 	for _, m := range result.Metrics.collection {
-		fields = append(fields, log.Uint(m.Name, m.Count))
+		fields = append(fields, slog.Int(m.Name, int(m.Count)))
 	}
 
 	nc.impl.logger().Info("Result", fields...)

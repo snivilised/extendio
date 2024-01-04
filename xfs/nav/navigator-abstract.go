@@ -4,17 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/snivilised/extendio/internal/log"
-	"github.com/snivilised/extendio/xfs/utils"
 )
 
 type navigator struct {
 	o                    *TraverseOptions
 	agent                *navigationAgent
-	log                  utils.RoProp[log.Logger]
 	samplingActive       bool
 	filteringActive      bool
 	samplingFilterActive bool
@@ -57,7 +55,7 @@ func (n *navigator) ensync(
 					if err, ok := pe.(error); ok || strings.Contains(err.Error(),
 						"send on closed channel") {
 						n.logger().Error("☠️☠️☠️ send on closed channel",
-							log.String("item-path", item.Path),
+							slog.String("item-path", item.Path),
 						)
 					} else {
 						panic(pe)
@@ -98,8 +96,8 @@ func (n *navigator) ensync(
 	frame.decorate("boost decorator", decorator)
 }
 
-func (n *navigator) logger() log.Logger {
-	return n.log.Get()
+func (n *navigator) logger() *slog.Logger {
+	return n.o.Monitor.Log
 }
 
 func (n *navigator) descend(navi *NavigationInfo) bool {
@@ -120,7 +118,7 @@ func (n *navigator) ascend(navi *NavigationInfo, permit bool) {
 }
 
 func (n *navigator) finish() error {
-	return n.log.Get().Sync()
+	return nil
 }
 
 func (n *navigator) keep(stash *inspection) {

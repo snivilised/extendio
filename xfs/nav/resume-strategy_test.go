@@ -272,9 +272,6 @@ var _ = Describe("Resume", Ordered, func() {
 							}
 						}
 					}
-					if entry.log {
-						o.Store.Logging = logo()
-					}
 				}
 
 				result, _ := nav.New().With(nav.RunnerWithResume, &nav.RunnerInfo{
@@ -334,7 +331,7 @@ var _ = Describe("Resume", Ordered, func() {
 
 		Entry(nil, &resumeTE{
 			naviTE: naviTE{
-				message:      "universal: listen pending(logged)",
+				message:      "universal: listen pending",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
 			},
@@ -344,7 +341,6 @@ var _ = Describe("Resume", Ordered, func() {
 			},
 			clientListenAt: StartAtElectricYouth,
 			profile:        "-> universal(pending): unfiltered",
-			log:            true,
 		}),
 
 		Entry(nil, &resumeTE{

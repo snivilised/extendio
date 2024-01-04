@@ -1,9 +1,6 @@
 package nav
 
 import (
-	"github.com/snivilised/extendio/internal/log"
-	"github.com/snivilised/extendio/xfs/utils"
-
 	"github.com/snivilised/extendio/i18n"
 )
 
@@ -57,11 +54,9 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 			handler:              &notifyCallbackErrorHandler{},
 			samplingFilterActive: samplingFilterActive,
 		})
-		logger = f.makeLogger(o)
-		n      = navigator{
+		n = navigator{
 			o:                    o,
 			agent:                agent,
-			log:                  logger,
 			samplingActive:       samplingActive,
 			filteringActive:      filteringActive,
 			samplingFilterActive: samplingFilterActive,
@@ -88,19 +83,4 @@ func (f navigatorImplFactory) new(o *TraverseOptions) navigatorImpl {
 	}
 
 	return impl
-}
-
-func (f navigatorImplFactory) makeLogger(o *TraverseOptions) utils.RoProp[log.Logger] {
-	return log.NewLogger(&log.LoggerInfo{
-		Rotation: log.Rotation{
-			Filename:       o.Store.Logging.Path,
-			MaxSizeInMb:    o.Store.Logging.Rotation.MaxSizeInMb,
-			MaxNoOfBackups: o.Store.Logging.Rotation.MaxNoOfBackups,
-			MaxAgeInDays:   o.Store.Logging.Rotation.MaxAgeInDays,
-		},
-		Enabled:         o.Store.Logging.Enabled,
-		Path:            o.Store.Logging.Path,
-		TimeStampFormat: o.Store.Logging.TimeStampFormat,
-		Level:           o.Store.Logging.Level,
-	})
 }

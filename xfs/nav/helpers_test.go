@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"math"
 	"os"
 	"path/filepath"
@@ -14,7 +15,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/snivilised/extendio/i18n"
 	"github.com/snivilised/extendio/internal/helpers"
-	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/nav"
 	"github.com/snivilised/extendio/xfs/utils"
 )
@@ -114,7 +114,6 @@ type resumeTE struct {
 	active         activeTE
 	clientListenAt string
 	profile        string
-	log            bool
 }
 
 type cascadeTE struct {
@@ -144,26 +143,13 @@ func musico() string {
 	panic("could not get root path")
 }
 
-func logo() nav.LoggingOptions {
-	return nav.LoggingOptions{
-		Enabled:         true,
-		Path:            helpers.Log(),
-		TimeStampFormat: "2006-01-02 15:04:05",
-		Rotation: nav.LogRotationOptions{
-			MaxSizeInMb:    5,
-			MaxNoOfBackups: 1,
-			MaxAgeInDays:   7,
-		},
-	}
-}
-
 func begin(em string) nav.BeginHandler {
 	return func(state *nav.NavigationState) {
-		state.Logger.Get().Info("💧 Beginning Traversal (client side)",
-			log.String("Root", state.Root.Get()),
-			log.Uint("Foo", 42),
-			log.Int("Bar", 13),
-			log.Float64("Pi", float64(math.Pi)),
+		state.Logger.Info("💧 Beginning Traversal (client side)",
+			slog.String("Root", state.Root.Get()),
+			slog.Int("Foo", 42),
+			slog.Int("Bar", 13),
+			slog.Float64("Pi", float64(math.Pi)),
 		)
 
 		GinkgoWriter.Printf(

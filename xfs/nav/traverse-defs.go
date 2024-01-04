@@ -3,8 +3,8 @@ package nav
 import (
 	"context"
 	"io/fs"
+	"log/slog"
 
-	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 
@@ -169,7 +169,7 @@ type inspector interface {
 type navigatorImpl interface {
 	inspector
 	options() *TraverseOptions
-	logger() log.Logger
+	logger() *slog.Logger
 	init(ns *NavigationState)
 	ensync(ctx context.Context, cancel context.CancelFunc, frame *navigationFrame, ai *AsyncInfo)
 	top(frame *navigationFrame, root string) (*TraverseResult, error)
@@ -189,14 +189,6 @@ type SubPathInfo struct {
 	Root      string
 	Item      *TraverseItem
 	Behaviour *SubPathBehaviour
-}
-
-// ClientLogger
-type ClientLogger interface {
-	Debug(_ string, _ ...log.Field)
-	Info(_ string, _ ...log.Field)
-	Warn(_ string, _ ...log.Field)
-	Error(_ string, _ ...log.Field)
 }
 
 type TriStateBoolEnum uint
