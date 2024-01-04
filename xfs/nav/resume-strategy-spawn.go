@@ -2,10 +2,10 @@ package nav
 
 import (
 	"io/fs"
+	"log/slog"
 	"path/filepath"
 
 	"github.com/samber/lo"
-	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
 
 	"github.com/snivilised/extendio/i18n"
@@ -26,8 +26,8 @@ func (s *spawnStrategy) resume(info *strategyResumeInfo) (*TraverseResult, error
 	resumeAt := s.ps.Active.NodePath
 
 	s.nc.logger().Info("spawn resume",
-		log.String("root-path", info.ps.Active.Root),
-		log.String("resume-at-path", resumeAt),
+		slog.String("root-path", info.ps.Active.Root),
+		slog.String("resume-at-path", resumeAt),
 	)
 
 	return s.conclude(&concludeInfo{

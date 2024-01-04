@@ -322,7 +322,6 @@ var _ = Describe("Listener", Ordered, func() {
 						return nil
 					},
 				}
-				o.Store.Logging = logo()
 			}
 		})
 

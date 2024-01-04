@@ -2,8 +2,7 @@ package nav
 
 import (
 	"fmt"
-
-	"github.com/snivilised/extendio/internal/log"
+	"log/slog"
 )
 
 type fastwardListener struct {
@@ -41,7 +40,7 @@ type fastwardStrategy struct {
 }
 
 func (s *fastwardStrategy) init(params *strategyInitParams) {
-	s.nc.logger().Info("fastward resume", log.String("path", params.ps.Active.Root))
+	s.nc.logger().Info("fastward resume", slog.String("path", params.ps.Active.Root))
 	// this is the start we revert back to when we get back to the resume point
 	//
 	s.client.state = params.ps.Active.Listen
@@ -101,8 +100,8 @@ func (s *fastwardStrategy) detach(frame *navigationFrame) {
 func (s *fastwardStrategy) resume(info *strategyResumeInfo) (*TraverseResult, error) {
 	resumeAt := info.ps.Active.NodePath
 	s.nc.logger().Info("fastward resume",
-		log.String("root-path", info.ps.Active.Root),
-		log.String("resume-at-path", resumeAt),
+		slog.String("root-path", info.ps.Active.Root),
+		slog.String("resume-at-path", resumeAt),
 	)
 
 	// fast-forward doesn't need to restore the entire state, eg, the

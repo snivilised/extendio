@@ -1,12 +1,13 @@
 package nav
 
 import (
-	"path/filepath"
+	"log/slog"
 
 	"github.com/mohae/deepcopy"
 	"github.com/samber/lo"
-	"github.com/snivilised/extendio/internal/log"
 	"github.com/snivilised/extendio/xfs/utils"
+	"go.uber.org/zap/exp/zapslog"
+	"go.uber.org/zap/zapcore"
 )
 
 // SubPathBehaviour
@@ -124,7 +125,7 @@ type NavigationFilters struct {
 type NavigationState struct {
 	Root    *utils.VarProp[string]
 	Filters *NavigationFilters
-	Logger  utils.RoProp[ClientLogger]
+	Logger  *slog.Logger
 }
 
 // PersistOptions contains options for persisting traverse options
@@ -144,23 +145,8 @@ type LogRotationOptions struct {
 	MaxAgeInDays int
 }
 
-// LoggingOptions
-type LoggingOptions struct {
-
-	// Enabled controls logging actuation
-	Enabled bool
-
-	// Path of log file
-	Path string
-
-	// TimeStampFormat format of the timestamp field in generated logs
-	TimeStampFormat string
-
-	// Level controls which the level of logging desired
-	Level log.Level
-
-	// Rotation log file rotation options
-	Rotation LogRotationOptions
+type MonitorOptions struct {
+	Log *slog.Logger
 }
 
 // EntryQuantities contains specification of no of files and folders
@@ -242,10 +228,6 @@ type OptionsStore struct {
 	//
 	ListenDefs ListenDefinitions
 
-	// Logging options
-	//
-	Logging LoggingOptions
-
 	// Sampling options
 	//
 	Sampling SamplingOptions
@@ -277,6 +259,10 @@ type TraverseOptions struct {
 	// B) Use a Custom iterator. When setting the Custom iterator properties
 	//
 	Sampler SamplerOptions `json:"-"`
+
+	// Monitor contains externally provided logger
+	//
+	Monitor MonitorOptions `json:"-"`
 }
 
 // TraverseOptionFn functional traverse options
@@ -334,12 +320,6 @@ func (o *TraverseOptions) Clone() *TraverseOptions {
 	return clone.(*TraverseOptions)
 }
 
-const (
-	defaultMaxSizeInMb    = 50
-	defaultMaxNoOfBackups = 3
-	defaultMaxAgeInDays   = 28
-)
-
 // GetDefaultOptions
 func GetDefaultOptions() *TraverseOptions {
 	return &TraverseOptions{
@@ -358,16 +338,6 @@ func GetDefaultOptions() *TraverseOptions {
 					InclusiveStop:  false,
 				},
 			},
-			Logging: LoggingOptions{
-				Path:            filepath.Join("~", "snivilised.extendio.nav.log"),
-				TimeStampFormat: "2006-01-02 15:04:05",
-				Level:           log.InfoLevel,
-				Rotation: LogRotationOptions{
-					MaxSizeInMb:    defaultMaxSizeInMb,
-					MaxNoOfBackups: defaultMaxNoOfBackups,
-					MaxAgeInDays:   defaultMaxAgeInDays,
-				},
-			},
 		},
 		Notify: Notifications{
 			OnBegin:   func(_ *NavigationState) {},
@@ -384,6 +354,11 @@ func GetDefaultOptions() *TraverseOptions {
 		},
 		Persist: PersistOptions{
 			Format: PersistInJSONEn,
+		},
+		Monitor: MonitorOptions{
+			Log: slog.New(zapslog.NewHandler(
+				zapcore.NewNopCore(), nil),
+			),
 		},
 	}
 }
