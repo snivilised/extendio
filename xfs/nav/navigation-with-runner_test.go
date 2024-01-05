@@ -2,11 +2,14 @@ package nav_test
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/fortytw2/leaktest"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/zap/exp/zapslog"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -25,6 +28,7 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 		jobsChOut       boost.JobStream[nav.TraverseItemInput]
 		jobsOutputChOut boost.JobOutputStream[nav.TraverseOutput]
 		setOptions      func(o *nav.TraverseOptions)
+		no              *slog.Logger
 	)
 
 	BeforeAll(func() {
@@ -33,14 +37,6 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 		fromJSONPath = helpers.Path(jroot, "resume-state.json")
 		path = helpers.Path(root, "RETRO-WAVE")
 		now = 3
-
-		setOptions = func(o *nav.TraverseOptions) {
-			o.Notify.OnBegin = begin("🛡️")
-			o.Store.Subscription = nav.SubscribeAny
-			o.Callback = universalCallbackNoAssert(
-				"universal: Path contains folders(Prime-WithRunner)",
-			)
-		}
 	})
 
 	BeforeEach(func() {
@@ -52,6 +48,18 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 
 		jobsChOut = make(boost.JobStream[nav.TraverseItemInput], DefaultJobsChSize)
 		jobsOutputChOut = make(boost.JobOutputStream[nav.TraverseOutput], DefaultJobsChSize)
+		no = slog.New(zapslog.NewHandler(
+			zapcore.NewNopCore(), nil),
+		)
+
+		setOptions = func(o *nav.TraverseOptions) {
+			o.Notify.OnBegin = begin("🛡️")
+			o.Store.Subscription = nav.SubscribeAny
+			o.Callback = universalCallbackNoAssert(
+				"universal: Path contains folders(Prime-WithRunner)",
+			)
+			o.Monitor.Log = no
+		}
 	})
 
 	Context("resume and worker pool acceleration", func() {
@@ -82,7 +90,7 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 					defer leaktest.Check(GinkgoT())()
 
 					ctx, cancel := context.WithCancel(ctxSpec)
-					wgan := boost.NewAnnotatedWaitGroup("🍂 traversal")
+					wgan := boost.NewAnnotatedWaitGroup("🍂 traversal", no)
 					wgan.Add(1, navigatorRoutineName)
 					createWith := nav.RunnerWithResume | nav.RunnerWithPool
 
@@ -129,7 +137,7 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 				ctx, cancel := context.WithCancel(ctxSpec)
 				defer cancel()
 
-				wgan := boost.NewAnnotatedWaitGroup("🍂 traversal")
+				wgan := boost.NewAnnotatedWaitGroup("🍂 traversal", no)
 				wgan.Add(1, navigatorRoutineName)
 
 				filterDefs := &nav.FilterDefinitions{
@@ -175,7 +183,7 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 					ctx, cancel := context.WithCancel(ctxSpec)
 					defer cancel()
 
-					wgan := boost.NewAnnotatedWaitGroup("🍂 traversal")
+					wgan := boost.NewAnnotatedWaitGroup("🍂 traversal", no)
 					wgan.Add(1, navigatorRoutineName)
 
 					filterDefs := &nav.FilterDefinitions{
@@ -194,6 +202,7 @@ var _ = Describe("NavigationWithRunner", Ordered, func() {
 						"filtered *.flac files: WithPool",
 					)
 					providedOptions.Store.FilterDefs = filterDefs
+					providedOptions.Monitor.Log = no
 
 					_, err := nav.New().Primary(&nav.Prime{
 						Path:            path,

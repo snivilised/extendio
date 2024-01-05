@@ -104,7 +104,6 @@ func (s *acceleratedSync) start(ctx context.Context, cancel context.CancelFunc) 
 func (s *acceleratedSync) finish(
 	ai *AsyncInfo,
 ) {
-	fmt.Printf("---> observable navigator 😈😈😈 defer session.finish (CLOSE(JobsChanOut)/QUIT)\n")
 	close(ai.JobsChanOut) // ⚠️ fastward: intermittent panic on close
 	ai.WaitAQ.Done(ai.NavigatorRoutineName)
 }

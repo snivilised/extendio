@@ -3,12 +3,15 @@ package nav_test
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/fortytw2/leaktest"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
+	"go.uber.org/zap/exp/zapslog"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/nav"
@@ -102,6 +105,10 @@ func (c *Consumer[O]) run(ctx context.Context) {
 }
 
 func getRunner(entry *asyncTE, root, path, resumeJSONPath string) nav.NavigationRunner {
+	no := slog.New(zapslog.NewHandler(
+		zapcore.NewNopCore(), nil),
+	)
+
 	return lo.TernaryF(entry.resume == nil,
 		func() nav.NavigationRunner {
 			return nav.New().Primary(&nav.Prime{
@@ -110,6 +117,7 @@ func getRunner(entry *asyncTE, root, path, resumeJSONPath string) nav.Navigation
 					o.Store.Subscription = nav.SubscribeFolders
 					o.Callback = boostCallback("boost primary session")
 					o.Notify.OnBegin = begin("🛡️")
+					o.Monitor.Log = no
 				},
 			})
 		},
@@ -125,6 +133,7 @@ func getRunner(entry *asyncTE, root, path, resumeJSONPath string) nav.Navigation
 				//
 				// end of synthetic assignments
 				o.Callback = boostCallback(fmt.Sprintf("%v/%v", entry.given, entry.should))
+				o.Monitor.Log = no
 			}
 
 			return nav.New().Resume(&nav.Resumption{
