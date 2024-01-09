@@ -8,16 +8,17 @@ import (
 	"github.com/snivilised/extendio/xfs/storage"
 )
 
-// EnsurePathAt ensures that the specified path exists. Given a path and a default
-// filename, the specified path is created in the following manner:
-// - If the path denotes a file (path does not end is a directory separator), the
+// EnsurePathAt ensures that the specified path exists (including any non
+// existing intermediate directories). Given a path and a default filename,
+// the specified path is created in the following manner:
+// - If the path denotes a file (path does not end is a directory separator), then
 // the parent folder is created if it doesn't exist on the file-system provided.
-// - If the path denotes a directory, then that directory is created
+// - If the path denotes a directory, then that directory is created.
 //
-// The returned string represents the file, so if the path specified was a path, then
-// the defaultFilename provided is joined the the path and returned, otherwise
-// the original path is returned un-modified.
-// Note: filepath.Join does not preserve trailing separator, therefore to make sure
+// The returned string represents the file, so if the path specified was a
+// directory path, then the defaultFilename provided is joined to the path
+// and returned, otherwise the original path is returned un-modified.
+// Note: filepath.Join does not preserve a trailing separator, therefore to make sure
 // a path is interpreted as a directory and not a file, then the separator has
 // to be appended manually onto the end of the path.
 // If vfs is not provided, then the path is ensured directly on the native file
@@ -36,7 +37,6 @@ func EnsurePathAt(path, defaultFilename string, perm int, vfs ...storage.Virtual
 
 	if len(vfs) > 0 {
 		if !vfs[0].DirectoryExists(directory) {
-			const perm = 0o766
 			err = vfs[0].MkdirAll(directory, os.FileMode(perm))
 		}
 	} else {
