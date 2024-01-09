@@ -58,8 +58,10 @@ var _ = Describe("FilterRegex", Ordered, func() {
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test regex filter callback",
 					Fn: func(item *nav.TraverseItem) error {
+						indicator := lo.Ternary(item.IsDir(), "📁", "💠")
 						GinkgoWriter.Printf(
-							"===> ⚗️ Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							"===> %v Regex Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							indicator,
 							filter.Description(),
 							filter.Source(),
 							item.Extension.Name,

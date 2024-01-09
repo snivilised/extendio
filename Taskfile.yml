@@ -18,6 +18,14 @@ tasks:
     cmds:
       - go build ./...
 
+  clean:
+    cmds:
+      - go clean
+
+  clean-t:
+    cmds:
+      - go clean -testcache
+
   # === test =================================================
 
   t:
