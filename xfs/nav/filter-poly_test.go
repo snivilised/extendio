@@ -74,8 +74,10 @@ var _ = Describe("FilterPoly", Ordered, func() {
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test poly filter callback",
 					Fn: func(item *nav.TraverseItem) error {
+						indicator := lo.Ternary(item.IsDir(), "📁", "💠")
 						GinkgoWriter.Printf(
-							"===> ⚗️ Poly Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							"===> %v Poly Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
+							indicator,
 							filter.Description(),
 							filter.Source(),
 							item.Extension.Name,
@@ -129,6 +131,8 @@ var _ = Describe("FilterPoly", Ordered, func() {
 			return fmt.Sprintf("🧪 ===> given: '%v'", entry.message)
 		},
 
+		// === universal(file:regex; folder:glob) ============================
+
 		Entry(nil, &polyTE{
 			naviTE: naviTE{
 				message:      "poly - files:regex; folders:glob",
@@ -156,6 +160,8 @@ var _ = Describe("FilterPoly", Ordered, func() {
 			},
 		}),
 
+		// === universal(file:regex; folder:regex) ===========================
+
 		Entry(nil, &polyTE{
 			naviTE: naviTE{
 				message:      "poly - files:regex; folders:regex",
@@ -176,6 +182,84 @@ var _ = Describe("FilterPoly", Ordered, func() {
 				Type:        nav.FilterTypeRegexEn,
 				Description: "folders: contains i (case insensitive)",
 				Pattern:     "[iI]",
+				Scope:       nav.ScopeFolderEn | nav.ScopeLeafEn,
+			},
+		}),
+
+		// === universal(file:extended-glob; folder:glob) ====================
+
+		Entry(nil, &polyTE{
+			naviTE: naviTE{
+				message:      "poly - files:extended-glob; folders:glob",
+				relative:     "RETRO-WAVE",
+				subscription: nav.SubscribeAny,
+				expectedNoOf: directoryQuantities{
+					// file is 2 not 3 because *i* is case sensitive so Innerworld is not a match
+					// The next 2 tests regex/extended-glob test case, fixes this because they
+					// have better control over case sensitivity
+					//
+					files:   2,
+					folders: 8,
+				},
+			},
+			file: nav.FilterDef{
+				Type:        nav.FilterTypeExtendedGlobEn,
+				Description: "files: txt files starting with vinyl",
+				Pattern:     "vinyl*|txt",
+				Scope:       nav.ScopeFileEn,
+			},
+			folder: nav.FilterDef{
+				Type:        nav.FilterTypeGlobEn,
+				Description: "folders: contains i (case sensitive)",
+				Pattern:     "*i*",
+				Scope:       nav.ScopeFolderEn | nav.ScopeLeafEn,
+			},
+		}),
+
+		Entry(nil, &polyTE{
+			naviTE: naviTE{
+				message:      "poly - files:extended-glob; folders:regex",
+				relative:     "RETRO-WAVE",
+				subscription: nav.SubscribeAny,
+				expectedNoOf: directoryQuantities{
+					files:   3,
+					folders: 8,
+				},
+			},
+			file: nav.FilterDef{
+				Type:        nav.FilterTypeExtendedGlobEn,
+				Description: "files: txt files starting with vinyl",
+				Pattern:     "vinyl*|txt",
+				Scope:       nav.ScopeFileEn,
+			},
+			folder: nav.FilterDef{
+				Type:        nav.FilterTypeRegexEn,
+				Description: "folders: contains i (case sensitive)",
+				Pattern:     "[iI]",
+				Scope:       nav.ScopeFolderEn | nav.ScopeLeafEn,
+			},
+		}),
+
+		Entry(nil, &polyTE{
+			naviTE: naviTE{
+				message:      "poly - files:extended-glob; folders:extended-glob",
+				relative:     "RETRO-WAVE",
+				subscription: nav.SubscribeAny,
+				expectedNoOf: directoryQuantities{
+					files:   3,
+					folders: 8,
+				},
+			},
+			file: nav.FilterDef{
+				Type:        nav.FilterTypeExtendedGlobEn,
+				Description: "files: txt files starting with vinyl",
+				Pattern:     "vinyl*|txt",
+				Scope:       nav.ScopeFileEn,
+			},
+			folder: nav.FilterDef{
+				Type:        nav.FilterTypeExtendedGlobEn,
+				Description: "folders: contains i (case sensitive)",
+				Pattern:     "*i*|",
 				Scope:       nav.ScopeFolderEn | nav.ScopeLeafEn,
 			},
 		}),
@@ -207,6 +291,8 @@ var _ = Describe("FilterPoly", Ordered, func() {
 				Scope:       nav.ScopeLeafEn, // folder scope omitted
 			},
 		}),
+
+		// === files (file:regex; folder:regex) ==============================
 
 		Entry(nil, &polyTE{
 			naviTE: naviTE{

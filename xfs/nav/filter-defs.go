@@ -60,6 +60,17 @@ type FilterTypeEnum uint
 const (
 	FilterTypeUndefinedEn FilterTypeEnum = iota
 
+	// FilterTypeExtendedGlobEn is the preferred filter type as it the most
+	// user friendly. The base part of the name is filtered by a glob
+	// and the suffix is filtered by a list of defined extensions. The pattern
+	// for the extended filter type is composed of 2 parts; the first is a
+	// glob, which is applied to the base part of the name. The second part
+	// is a csv of required extensions to filter for. The pattern is specified
+	// in the form: "<base-glob>|ext1,ext2...". Each extension may include a
+	// a leading dot. An example pattern definition would be:
+	// "cover.*|.jpg,jpeg"
+	FilterTypeExtendedGlobEn
+
 	// FilterTypeRegexEn regex filter
 	FilterTypeRegexEn
 

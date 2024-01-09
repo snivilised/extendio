@@ -88,3 +88,44 @@ func (m *IsCurrentGlobMatchMatcher) NegatedFailureMessage(actual interface{}) st
 
 	return fmt.Sprintf("🔥 Expected\n\t%v\nNOT to match glob\n\t%v\n", item.Extension.Name, filter.Source())
 }
+
+// === MatchCurrentExtendedGlobFilter ===
+//
+
+type IsCurrentExtendedGlobMatchMatcher struct {
+	filter interface{}
+}
+
+func MatchCurrentExtendedFilter(expected interface{}) GomegaMatcher {
+	return &IsCurrentExtendedGlobMatchMatcher{
+		filter: expected,
+	}
+}
+
+func (m *IsCurrentExtendedGlobMatchMatcher) Match(actual interface{}) (bool, error) {
+	item, itemOk := actual.(*nav.TraverseItem)
+	if !itemOk {
+		return false, fmt.Errorf("matcher expected a *TraverseItem (%T)", item)
+	}
+
+	filter, filterOk := m.filter.(*nav.ExtendedGlobFilter)
+	if !filterOk {
+		return false, fmt.Errorf("matcher expected a *IncaseFilter (%T)", filter)
+	}
+
+	return filter.IsMatch(item), nil
+}
+
+func (m *IsCurrentExtendedGlobMatchMatcher) FailureMessage(actual interface{}) string {
+	item, _ := actual.(*nav.TraverseItem)
+	filter, _ := m.filter.(*nav.ExtendedGlobFilter)
+
+	return fmt.Sprintf("🔥 Expected\n\t%v\nto match incase\n\t%v\n", item.Extension.Name, filter.Source())
+}
+
+func (m *IsCurrentExtendedGlobMatchMatcher) NegatedFailureMessage(actual interface{}) string {
+	item, _ := actual.(*nav.TraverseItem)
+	filter, _ := m.filter.(*nav.ExtendedGlobFilter)
+
+	return fmt.Sprintf("🔥 Expected\n\t%v\nNOT to match incase\n\t%v\n", item.Extension.Name, filter.Source())
+}
