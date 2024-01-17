@@ -13,14 +13,22 @@ type ExtendedGlobFilter struct {
 	baseGlob     string
 	suffixes     []string
 	anyExtension bool
+	exclusion    string
 }
 
-func filterFileByExtendedGlob(name, base string, suffixes []string, anyExtension bool) bool {
+func filterFileByExtendedGlob(name, base, exclusion string, suffixes []string, anyExtension bool) bool {
 	extension := filepath.Ext(name)
 	baseName := strings.ToLower(strings.TrimSuffix(name, extension))
-	baseMatch, _ := filepath.Match(base, baseName)
 
-	return baseMatch && lo.TernaryF(anyExtension,
+	if baseMatch, _ := filepath.Match(base, baseName); !baseMatch {
+		return false
+	}
+
+	if excluded, _ := filepath.Match(exclusion, baseName); excluded {
+		return false
+	}
+
+	return lo.TernaryF(anyExtension,
 		func() bool {
 			return true
 		},
@@ -50,7 +58,7 @@ func (f *ExtendedGlobFilter) IsMatch(item *TraverseItem) bool {
 			},
 			func() bool {
 				return filterFileByExtendedGlob(
-					item.Extension.Name, f.baseGlob, f.suffixes, f.anyExtension,
+					item.Extension.Name, f.baseGlob, f.exclusion, f.suffixes, f.anyExtension,
 				)
 			},
 		)
@@ -66,6 +74,7 @@ func (f *ExtendedGlobFilter) IsMatch(item *TraverseItem) bool {
 type CompoundExtendedGlobFilter struct {
 	CompoundFilter
 	baseGlob     string
+	exclusion    string
 	suffixes     []string
 	anyExtension bool
 }
@@ -74,6 +83,8 @@ func (f *CompoundExtendedGlobFilter) Matching(children []fs.DirEntry) []fs.DirEn
 	return lo.Filter(children, func(entry fs.DirEntry, _ int) bool {
 		name := entry.Name()
 
-		return f.invert(filterFileByExtendedGlob(name, f.baseGlob, f.suffixes, f.anyExtension))
+		return f.invert(filterFileByExtendedGlob(
+			name, f.baseGlob, f.exclusion, f.suffixes, f.anyExtension,
+		))
 	})
 }
