@@ -51,6 +51,8 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 			panic(err)
 		}
 
+		base, exclusion := splitGlob(segments[0])
+
 		filter = &ExtendedGlobFilter{
 			Filter: Filter{
 				name:            def.Description,
@@ -59,11 +61,12 @@ func newNodeFilter(def *FilterDef) TraverseFilter {
 				negate:          def.Negate,
 				ifNotApplicable: ifNotApplicable,
 			},
-			baseGlob: strings.ToLower(segments[0]),
+			baseGlob: base,
 			suffixes: lo.Map(suffixes, func(s string, _ int) string {
 				return strings.ToLower(strings.TrimPrefix(strings.TrimSpace(s), "."))
 			}),
 			anyExtension: slices.Contains(suffixes, "*"),
+			exclusion:    exclusion,
 		}
 
 	case FilterTypeRegexEn:
@@ -126,6 +129,22 @@ func newPolyFilter(polyDef *PolyFilterDef) TraverseFilter {
 	return filter
 }
 
+const (
+	exclusionDelim = "/"
+)
+
+func splitGlob(baseGlob string) (base, exclusion string) {
+	base = strings.ToLower(baseGlob)
+
+	if strings.Contains(base, exclusionDelim) {
+		constituents := strings.Split(base, exclusionDelim)
+		base = constituents[0]
+		exclusion = constituents[1]
+	}
+
+	return base, exclusion
+}
+
 func newCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 	var (
 		filter CompoundTraverseFilter
@@ -142,17 +161,20 @@ func newCompoundFilter(def *CompoundFilterDef) CompoundTraverseFilter {
 			panic(errors.New("invalid incase filter definition; pattern is missing separator"))
 		}
 
+		base, exclusion := splitGlob(segments[0])
+
 		filter = &CompoundExtendedGlobFilter{
 			CompoundFilter: CompoundFilter{
 				Name:    def.Description,
 				Pattern: def.Pattern,
 				Negate:  def.Negate,
 			},
-			baseGlob: strings.ToLower(segments[0]),
+			baseGlob: base,
 			suffixes: lo.Map(suffixes, func(s string, _ int) string {
 				return strings.ToLower(strings.TrimPrefix(strings.TrimSpace(s), "."))
 			}),
 			anyExtension: slices.Contains(suffixes, "*"),
+			exclusion:    exclusion,
 		}
 
 	case FilterTypeRegexEn:

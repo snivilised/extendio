@@ -451,6 +451,24 @@ var _ = Describe("Filter Extended glob", Ordered, func() {
 			scope:           nav.ScopeLeafEn,
 			ifNotApplicable: nav.TriStateBoolFalseEn,
 		}),
+
+		// === with-exclusion ================================================
+
+		Entry(nil, &filterTE{
+			naviTE: naviTE{
+				message:      "universal(any scope): extended glob filter with exclusion",
+				relative:     "rock/PROGRESSIVE-ROCK/Marillion",
+				subscription: nav.SubscribeFiles,
+				expectedNoOf: directoryQuantities{
+					files:   12,
+					folders: 0,
+				},
+				prohibited: []string{"01 - Hotel Hobbies.flac"},
+			},
+			name:    "files starting with 0, except 01 items and flac suffix",
+			pattern: "0*/*01*|flac",
+			scope:   nav.ScopeFileEn,
+		}),
 	)
 
 	DescribeTable("Filter Children (extended glob)",
@@ -584,6 +602,28 @@ var _ = Describe("Filter Extended glob", Ordered, func() {
 			name:    "items without '.txt' suffix",
 			pattern: "*|txt",
 			negate:  true,
+		}),
+
+		// === with-exclusion ================================================
+
+		Entry(nil, &filterTE{
+			naviTE: naviTE{
+				message:      "folder(with files): extended glob filter with exclusion",
+				relative:     "rock/PROGRESSIVE-ROCK/Marillion",
+				subscription: nav.SubscribeFoldersWithFiles,
+				expectedNoOf: directoryQuantities{
+					files:   0,
+					folders: 5,
+					children: map[string]int{
+						"Clutching At Straws":       3,
+						"Fugazi":                    3,
+						"Misplaced Childhood":       3,
+						"Script for a Jesters Tear": 3,
+					},
+				},
+			},
+			name:    "files starting with 0, except 01 items and flac suffix",
+			pattern: "0*/*01*|flac",
 		}),
 	)
 })
