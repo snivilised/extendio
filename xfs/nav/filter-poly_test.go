@@ -74,7 +74,7 @@ var _ = Describe("FilterPoly", Ordered, func() {
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test poly filter callback",
 					Fn: func(item *nav.TraverseItem) error {
-						indicator := lo.Ternary(item.IsDir(), "📁", "💠")
+						indicator := lo.Ternary(item.IsDirectory(), "📁", "💠")
 						GinkgoWriter.Printf(
 							"===> %v Poly Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
 							indicator,

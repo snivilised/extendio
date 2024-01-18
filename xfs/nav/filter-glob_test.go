@@ -57,7 +57,7 @@ var _ = Describe("FilterGlob", Ordered, func() {
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test glob filter callback",
 					Fn: func(item *nav.TraverseItem) error {
-						indicator := lo.Ternary(item.IsDir(), "📁", "💠")
+						indicator := lo.Ternary(item.IsDirectory(), "📁", "💠")
 						GinkgoWriter.Printf(
 							"===> %v Glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
 							indicator,

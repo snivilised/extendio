@@ -60,8 +60,8 @@ func (e *DirectoryContents) All() []fs.DirEntry {
 }
 
 func (e *DirectoryContents) arrange(entries []fs.DirEntry) {
-	grouped := lo.GroupBy(entries, func(item fs.DirEntry) bool {
-		return item.IsDir()
+	grouped := lo.GroupBy(entries, func(entry fs.DirEntry) bool {
+		return entry.IsDir()
 	})
 
 	e.Folders = grouped[true]

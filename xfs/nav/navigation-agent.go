@@ -116,7 +116,7 @@ func (a *navigationAgent) notify(params *agentNotifyParams) (SkipTraversal, erro
 			// Second call, to report ReadDir error
 			//
 			if le := params.frame.proxy(clone, nil); le != nil {
-				if errors.Is(params.readErr, fs.SkipAll) && (clone.Entry != nil && clone.Entry.IsDir()) {
+				if errors.Is(params.readErr, fs.SkipAll) && (clone.IsDirectory()) {
 					params.readErr = nil
 				}
 

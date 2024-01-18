@@ -17,7 +17,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryContents) {
 		isLeaf bool
 	)
 
-	if navi.Item.IsDir() {
+	if navi.Item.IsDirectory() {
 		isLeaf = len(entries.Folders) == 0
 		scope = navi.frame.periscope.scope(isLeaf)
 		scope |= ScopeFolderEn
@@ -40,7 +40,7 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryContents) {
 		Item:      navi.Item,
 		Behaviour: &navi.Options.Store.Behaviours.SubPath,
 	}
-	subpath := lo.TernaryF(navi.Item.IsDir(),
+	subpath := lo.TernaryF(navi.Item.IsDirectory(),
 		func() string { return navi.Options.Hooks.FolderSubPath(spInfo) },
 		func() string { return navi.Options.Hooks.FileSubPath(spInfo) },
 	)

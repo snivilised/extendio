@@ -57,7 +57,7 @@ var _ = Describe("Filter Extended glob", Ordered, func() {
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "test extended glob filter callback",
 					Fn: func(item *nav.TraverseItem) error {
-						indicator := lo.Ternary(item.IsDir(), "📁", "💠")
+						indicator := lo.Ternary(item.IsDirectory(), "📁", "💠")
 						GinkgoWriter.Printf(
 							"===> %v extended glob Filter(%v) source: '%v', item-name: '%v', item-scope(fs): '%v(%v)'\n",
 							indicator,
@@ -498,7 +498,7 @@ var _ = Describe("Filter Extended glob", Ordered, func() {
 					Label: "test extended glob filter callback",
 					Fn: func(item *nav.TraverseItem) error {
 						actualNoChildren := len(item.Children)
-						indicator := lo.Ternary(item.IsDir(), "📁", "💠")
+						indicator := lo.Ternary(item.IsDirectory(), "📁", "💠")
 						GinkgoWriter.Printf(
 							"===> %v Compound extended glob Filter(%v, children: %v) source: '%v', item-name: '%v', item-scope: '%v', depth: '%v'\n",
 							indicator,

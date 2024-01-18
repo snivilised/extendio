@@ -26,6 +26,16 @@ tasks:
     cmds:
       - go clean -testcache
 
+  # === mod-cache =============================================
+
+  clean-cache:
+    cmds:
+      - go clean -modcache
+
+  download:
+    cmds:
+      - go mod download
+
   # === test =================================================
 
   t:

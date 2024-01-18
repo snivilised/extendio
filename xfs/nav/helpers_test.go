@@ -198,7 +198,7 @@ func foldersCallback(name string) *nav.LabelledTraverseCallback {
 				"---> ☀️ FOLDERS//CALLBACK%v: (depth:%v, children:%v) '%v'\n",
 				name, depth, actualNoChildren, item.Path,
 			)
-			Expect(item.IsDir()).To(BeTrue())
+			Expect(item.IsDirectory()).To(BeTrue())
 			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 
 			return nil
@@ -211,7 +211,7 @@ func filesCallback(name string) *nav.LabelledTraverseCallback {
 		Label: "files callback",
 		Fn: func(item *nav.TraverseItem) error {
 			GinkgoWriter.Printf("---> 🌙 FILES//%v-CALLBACK: '%v'\n", name, item.Path)
-			Expect(item.IsDir()).To(BeFalse())
+			Expect(item.IsDirectory()).To(BeFalse())
 			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Path))
 
 			return nil
@@ -242,7 +242,7 @@ func foldersScopeCallback(name string) *nav.LabelledTraverseCallback {
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
 			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
-			Expect(item.IsDir()).To(BeTrue())
+			Expect(item.IsDirectory()).To(BeTrue())
 			return nil
 		},
 	}
@@ -256,7 +256,7 @@ func filesScopeCallback(name string) *nav.LabelledTraverseCallback {
 				name, item.Extension.NodeScope, item.Extension.Name,
 			)
 			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
-			Expect(item.IsDir()).To(BeFalse())
+			Expect(item.IsDirectory()).To(BeFalse())
 			return nil
 		},
 	}
@@ -285,7 +285,7 @@ func foldersSortCallback(name string) *nav.LabelledTraverseCallback {
 				name, item.Extension.Name,
 			)
 			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
-			Expect(item.IsDir()).To(BeTrue())
+			Expect(item.IsDirectory()).To(BeTrue())
 			return nil
 		},
 	}
@@ -299,7 +299,7 @@ func filesSortCallback(name string) *nav.LabelledTraverseCallback {
 				name, item.Extension.Name,
 			)
 			Expect(item.Extension).NotTo(BeNil(), helpers.Reason(item.Extension.Name))
-			Expect(item.IsDir()).To(BeFalse())
+			Expect(item.IsDirectory()).To(BeFalse())
 			return nil
 		},
 	}
@@ -329,7 +329,7 @@ func foldersCaseSensitiveCallback(first, second string) *nav.LabelledTraverseCal
 			recording[item.Path] = len(item.Children)
 
 			GinkgoWriter.Printf("---> ☀️ CASE-SENSITIVE-CALLBACK: '%v'\n", item.Path)
-			Expect(item.IsDir()).To(BeTrue())
+			Expect(item.IsDirectory()).To(BeTrue())
 
 			if strings.HasSuffix(item.Path, second) {
 				GinkgoWriter.Printf("---> 💧 FIRST: '%v', 💧 SECOND: '%v'\n", first, second)

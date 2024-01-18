@@ -74,7 +74,7 @@ func (ti *TraverseItem) clone() *TraverseItem {
 	}
 }
 
-func (ti *TraverseItem) IsDir() bool {
+func (ti *TraverseItem) IsDirectory() bool {
 	return ti.dir
 }
 
