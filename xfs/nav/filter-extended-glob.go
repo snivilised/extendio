@@ -50,7 +50,7 @@ func filterFileByExtendedGlob(name, base, exclusion string, suffixes []string, a
 // IsMatch does this item match the filter
 func (f *ExtendedGlobFilter) IsMatch(item *TraverseItem) bool {
 	if f.IsApplicable(item) {
-		result := lo.TernaryF(item.IsDir(),
+		result := lo.TernaryF(item.IsDirectory(),
 			func() bool {
 				result, _ := filepath.Match(f.baseGlob, strings.ToLower(item.Extension.Name))
 

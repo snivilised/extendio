@@ -29,7 +29,7 @@ func (n *foldersNavigator) top(frame *navigationFrame, root string) (*TraverseRe
 func (n *foldersNavigator) inspect(params *traverseParams) *inspection {
 	stash := &inspection{
 		current: params.current,
-		isDir:   params.current.IsDir(),
+		isDir:   params.current.IsDirectory(),
 	}
 
 	// for the folders navigator, we ignore the user defined setting in

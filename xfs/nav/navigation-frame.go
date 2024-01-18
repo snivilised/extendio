@@ -98,7 +98,7 @@ func (f *navigationFrame) invoke(item *TraverseItem, compoundCounts *compoundCou
 }
 
 func (f *navigationFrame) track(item *TraverseItem, compoundCounts *compoundCounters) {
-	isDirectory := item.IsDir()
+	isDirectory := item.IsDirectory()
 
 	if item.Error == nil {
 		if item.filteredOut {

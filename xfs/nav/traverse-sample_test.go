@@ -423,7 +423,7 @@ var _ = Describe("Traverse With Sample", Ordered, func() {
 				prohibited:   []string{"02 - Swab.flac"},
 			},
 			each: func(childItem *nav.TraverseItem) bool {
-				if childItem.IsDir() {
+				if childItem.IsDirectory() {
 					return true
 				}
 

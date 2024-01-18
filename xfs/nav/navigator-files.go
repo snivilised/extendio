@@ -23,7 +23,7 @@ func (n *filesNavigator) top(frame *navigationFrame, root string) (*TraverseResu
 func (n *filesNavigator) inspect(params *traverseParams) *inspection {
 	stash := &inspection{
 		current: params.current,
-		isDir:   params.current.IsDir(),
+		isDir:   params.current.IsDirectory(),
 	}
 
 	if stash.isDir {
