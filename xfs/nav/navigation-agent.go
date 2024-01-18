@@ -61,10 +61,13 @@ func (a *navigationAgent) top(params *agentTopParams) (*TraverseResult, error) {
 			frame: params.frame,
 		})
 	} else {
-		item := &TraverseItem{
-			Path: params.top, Info: info,
-			Children: []fs.DirEntry{},
-		}
+		item := newTraverseItem(
+			params.top,
+			nil,
+			info,
+			nil,
+			nil,
+		)
 
 		_, le = params.impl.traverse(&traverseParams{
 			current: item,
@@ -156,14 +159,13 @@ func (a *navigationAgent) traverse(params *agentTraverseParams) (*TraverseItem, 
 		}
 
 		if current == nil {
-			current = &TraverseItem{
-				Path:     path,
-				Info:     info,
-				Entry:    entry,
-				Error:    e,
-				Children: []fs.DirEntry{},
-				Parent:   params.parent,
-			}
+			current = newTraverseItem(
+				path,
+				entry,
+				info,
+				params.parent,
+				e,
+			)
 		}
 
 		if skipItem, err := params.impl.traverse(&traverseParams{

@@ -180,13 +180,13 @@ func (i *directoryEntryWhileIt) enumerate() *DirectoryContents {
 		}
 
 		path := filepath.Join(parent.Path, entry.Name())
-		child := &TraverseItem{
-			Path:   path,
-			Info:   info,
-			Entry:  entry,
-			Error:  err,
-			Parent: parent,
-		}
+		child := newTraverseItem(
+			path,
+			entry,
+			info,
+			parent,
+			err,
+		)
 
 		stash := i.navigator.inspect(&traverseParams{ // preview
 			current: child,
