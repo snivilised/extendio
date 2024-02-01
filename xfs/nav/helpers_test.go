@@ -118,8 +118,8 @@ type resumeTE struct {
 
 type cascadeTE struct {
 	naviTE
-	skim  bool
-	depth uint
+	noRecurse bool
+	depth     uint
 }
 
 type resumeTestProfile struct {
