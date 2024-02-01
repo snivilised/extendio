@@ -32,7 +32,7 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 				o.Notify.OnBegin = begin("🛡️")
 				o.Store.Subscription = entry.subscription
 				o.Callback = entry.callback
-				o.Store.Behaviours.Cascade.Skim = entry.skim
+				o.Store.Behaviours.Cascade.NoRecurse = entry.noRecurse
 				o.Store.Behaviours.Cascade.Depth = entry.depth
 			}
 
@@ -57,7 +57,7 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 
 		Entry(nil, &cascadeTE{
 			naviTE: naviTE{
-				message:      "universal: Path contains folders only, skim",
+				message:      "universal: Path contains folders only, no-recurse",
 				should:       "traverse single level",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeAny,
@@ -67,12 +67,12 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 					folders: 4,
 				},
 			},
-			skim: true,
+			noRecurse: true,
 		}),
 
 		Entry(nil, &cascadeTE{
 			naviTE: naviTE{
-				message:      "universal: Path contains files only, skim",
+				message:      "universal: Path contains files only, no-recurse",
 				should:       "traverse single level (containing files)",
 				relative:     "RETRO-WAVE/Chromatics/Night Drive",
 				subscription: nav.SubscribeAny,
@@ -82,7 +82,7 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 					folders: 1,
 				},
 			},
-			skim: true,
+			noRecurse: true,
 		}),
 
 		Entry(nil, &cascadeTE{
@@ -134,7 +134,7 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 
 		Entry(nil, &cascadeTE{
 			naviTE: naviTE{
-				message:      "universal: Path contains folders only, skim",
+				message:      "universal: Path contains folders only, no-recurse",
 				should:       "traverse single level",
 				relative:     "RETRO-WAVE",
 				subscription: nav.SubscribeFolders,
@@ -144,12 +144,12 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 					folders: 4,
 				},
 			},
-			skim: true,
+			noRecurse: true,
 		}),
 
 		Entry(nil, &cascadeTE{
 			naviTE: naviTE{
-				message:      "universal: Path contains files only, skim",
+				message:      "universal: Path contains files only, no-recurse",
 				should:       "traverse single level (containing files)",
 				relative:     "RETRO-WAVE/Chromatics/Night Drive",
 				subscription: nav.SubscribeFolders,
@@ -159,7 +159,7 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 					folders: 1,
 				},
 			},
-			skim: true,
+			noRecurse: true,
 		}),
 
 		Entry(nil, &cascadeTE{
@@ -211,7 +211,7 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 
 		Entry(nil, &cascadeTE{
 			naviTE: naviTE{
-				message:      "file: Path contains folders only, skim",
+				message:      "file: Path contains folders only, no-recurse",
 				should:       "traverse single level",
 				relative:     "RETRO-WAVE/Chromatics/Night Drive",
 				subscription: nav.SubscribeFiles,
@@ -221,7 +221,7 @@ var _ = Describe("TraverseNavigatorCascade", Ordered, func() {
 					folders: 0,
 				},
 			},
-			skim: true,
+			noRecurse: true,
 		}),
 
 		Entry(nil, &cascadeTE{

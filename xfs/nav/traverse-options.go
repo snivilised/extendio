@@ -32,14 +32,14 @@ type CascadeBehaviour struct {
 	//
 	Depth uint
 
-	// Skim is an alternative to using Depth, but limits the traversal
+	// NoRecurse is an alternative to using Depth, but limits the traversal
 	// to just the path specified by the user. Since the raison d'etre
 	// of the navigator is to recursively process a directory tree, using
-	// Skim would appear to be contrary to its natural behaviour. However
+	// NoRecurse would appear to be contrary to its natural behaviour. However
 	// there are clear usage scenarios where a client needs to process
 	// only the files in a specified directory.
 	//
-	Skim bool
+	NoRecurse bool
 }
 
 // NavigationBehaviours
@@ -306,7 +306,7 @@ func (o *TraverseOptions) afterUserOptions() {
 	noEach := o.Sampler.Custom.Each == nil && o.Sampler.Custom.While != nil
 	noWhile := o.Sampler.Custom.Each != nil && o.Sampler.Custom.While == nil
 
-	if o.Store.Behaviours.Cascade.Skim {
+	if o.Store.Behaviours.Cascade.NoRecurse {
 		o.Store.Behaviours.Cascade.Depth = 1
 	}
 
