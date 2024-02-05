@@ -28,7 +28,7 @@ require (
 require (
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/nicksnyder/go-i18n/v2 v2.3.0
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/pkg/errors v0.9.1
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap/exp v0.2.0
