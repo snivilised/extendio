@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 	"github.com/samber/lo"
 
 	"github.com/snivilised/extendio/collections"
@@ -635,7 +635,7 @@ var _ = Describe("Iterators", func() {
 
 							return nil
 						}
-						while := func(_ sleeve, err error) bool {
+						while := func(_ sleeve, _ error) bool {
 							return true
 						}
 
@@ -658,7 +658,7 @@ var _ = Describe("Iterators", func() {
 
 							return nil
 						}
-						while := func(s sleeve, err error) bool {
+						while := func(s sleeve, _ error) bool {
 							return strings.HasPrefix(s.song(), "0")
 						}
 
@@ -683,7 +683,7 @@ var _ = Describe("Iterators", func() {
 
 							return nil
 						}
-						while := func(_ sleeve, err error) bool {
+						while := func(_ sleeve, _ error) bool {
 							return true
 						}
 
@@ -706,7 +706,7 @@ var _ = Describe("Iterators", func() {
 
 							return nil
 						}
-						while := func(s sleeve, err error) bool {
+						while := func(s sleeve, _ error) bool {
 							return strings.HasPrefix(s.song(), "BONUS")
 						}
 

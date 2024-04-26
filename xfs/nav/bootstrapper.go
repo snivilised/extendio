@@ -41,11 +41,11 @@ func (b *bootstrapper) initFilters() {
 
 func (b *bootstrapper) initNotifiers() {
 	if b.o.Notify.OnStart == nil {
-		b.o.Notify.OnStart = func(description string) {}
+		b.o.Notify.OnStart = func(_ string) {}
 	}
 
 	if b.o.Notify.OnStop == nil {
-		b.o.Notify.OnStop = func(description string) {}
+		b.o.Notify.OnStop = func(_ string) {}
 	}
 
 	b.nc.frame.notifiers.init(&b.o.Notify)

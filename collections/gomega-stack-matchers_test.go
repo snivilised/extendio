@@ -3,9 +3,7 @@ package collections_test
 import (
 	"fmt"
 
-	// . "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	// . "github.com/onsi/gomega/matchers"
+	. "github.com/onsi/gomega" //nolint:revive // gomega ok
 
 	"github.com/onsi/gomega/types"
 	"github.com/snivilised/extendio/collections"

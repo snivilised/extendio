@@ -42,7 +42,7 @@ func (f *CompoundRegexFilter) Validate() {
 }
 
 func (f *CompoundRegexFilter) Matching(children []fs.DirEntry) []fs.DirEntry {
-	return lo.Filter(children, func(entry fs.DirEntry, index int) bool {
+	return lo.Filter(children, func(entry fs.DirEntry, _ int) bool {
 		return f.invert(f.rex.MatchString(entry.Name()))
 	})
 }

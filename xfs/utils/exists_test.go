@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 	"github.com/snivilised/extendio/internal/helpers"
 
 	"github.com/snivilised/extendio/xfs/utils"
@@ -26,14 +26,14 @@ var _ = Describe("Exists Utils", Ordered, func() {
 	})
 
 	DescribeTable("Exists",
-		func(message, relative string, expected bool) {
+		func(_, relative string, expected bool) {
 			path := path(repo, relative)
 
 			GinkgoWriter.Printf("---> 🔰 FULL-PATH: '%v'\n", path)
 			Expect(utils.Exists(path)).To(Equal(expected))
 		},
 
-		func(message, relative string, expected bool) string {
+		func(message, _ string, _ bool) string {
 			return fmt.Sprintf("🥣 message: '%v'", message)
 		},
 		Entry(nil, "folder exists", "/", true),
@@ -42,13 +42,13 @@ var _ = Describe("Exists Utils", Ordered, func() {
 	)
 
 	DescribeTable("FolderExists",
-		func(message, relative string, expected bool) {
+		func(_, relative string, expected bool) {
 			path := path(repo, relative)
 			GinkgoWriter.Printf("---> 🔰 FULL-PATH: '%v'\n", path)
 
 			Expect(utils.FolderExists(path)).To(Equal(expected))
 		},
-		func(message, relative string, expected bool) string {
+		func(message, _ string, _ bool) string {
 			return fmt.Sprintf("🍤 message: '%v'", message)
 		},
 		Entry(nil, "folder exists", "/", true),
@@ -57,13 +57,13 @@ var _ = Describe("Exists Utils", Ordered, func() {
 	)
 
 	DescribeTable("FileExists",
-		func(message, relative string, expected bool) {
+		func(_, relative string, expected bool) {
 			path := path(repo, relative)
 			GinkgoWriter.Printf("---> 🔰 FULL-PATH: '%v'\n", path)
 
 			Expect(utils.FileExists(path)).To(Equal(expected))
 		},
-		func(message, relative string, expected bool) string {
+		func(message, _ string, _ bool) string {
 			return fmt.Sprintf("🍤 message: '%v'", message)
 		},
 		Entry(nil, "file exists", "README.md", true),

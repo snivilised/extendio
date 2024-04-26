@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 
-	. "github.com/snivilised/extendio/i18n"
+	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -226,7 +226,7 @@ var _ = Describe("Resume", Ordered, func() {
 					// end of synthetic assignments
 
 					if strategyEn == nav.ResumeStrategyFastwardEn {
-						o.Notify.OnBegin = func(state *nav.NavigationState) {
+						o.Notify.OnBegin = func(_ *nav.NavigationState) {
 							panic("begin handler should not be invoked because begin notification muted")
 						}
 					}

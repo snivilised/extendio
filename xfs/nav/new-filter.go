@@ -20,7 +20,7 @@ func fromExtendedGlobPattern(pattern string) (segments, suffixes []string, err e
 	segments = strings.Split(pattern, "|")
 	suffixes = strings.Split(segments[1], ",")
 
-	suffixes = lo.Reject(suffixes, func(item string, index int) bool {
+	suffixes = lo.Reject(suffixes, func(item string, _ int) bool {
 		return item == ""
 	})
 

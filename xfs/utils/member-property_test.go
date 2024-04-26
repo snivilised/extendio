@@ -1,8 +1,8 @@
 package utils_test
 
 import (
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 
 	"github.com/snivilised/extendio/xfs/utils"
 )
@@ -197,7 +197,7 @@ var _ = Describe("Property", func() {
 				It("should: retrieve property value", func() {
 					factory := utils.PutPropFactory[int]{}
 					w := &widget{
-						rank: factory.New(77, func(value int) {}),
+						rank: factory.New(77, func(_ int) {}),
 					}
 					Expect(w.rank.Get()).To(Equal(77))
 				})
@@ -207,7 +207,7 @@ var _ = Describe("Property", func() {
 				It("should: set property value", func() {
 					factory := utils.PutPropFactory[int]{}
 					w := &widget{
-						rank: factory.New(77, func(value int) {}),
+						rank: factory.New(77, func(_ int) {}),
 					}
 					w.rank.Set(88)
 					Expect(w.rank.Get()).To(Equal(88))
@@ -233,7 +233,7 @@ var _ = Describe("Property", func() {
 					It("should: return false without panic", func() {
 						factory := utils.PutPropFactory[int]{}
 						w := &widget{
-							rank: factory.New(77, func(value int) {}),
+							rank: factory.New(77, func(_ int) {}),
 						}
 						Expect(w.rank.IsNone()).To(BeFalse())
 					})
@@ -244,7 +244,7 @@ var _ = Describe("Property", func() {
 						It("should: return false without panic", func() {
 							factory := utils.PutPropFactory[int]{Zeroable: true}
 							w := &widget{
-								rank: factory.New(0, func(value int) {}),
+								rank: factory.New(0, func(_ int) {}),
 							}
 							Expect(w.rank.IsNone()).To(BeFalse())
 						})
@@ -254,7 +254,7 @@ var _ = Describe("Property", func() {
 						It("should: return false without panic", func() {
 							factory := utils.PutPropFactory[int]{}
 							w := &widget{
-								rank: factory.New(0, func(value int) {}),
+								rank: factory.New(0, func(_ int) {}),
 							}
 							Expect(w.rank.IsNone()).To(BeTrue())
 						})

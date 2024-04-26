@@ -135,6 +135,7 @@ func (s *spawnStrategy) following(params *followingParams) *shard {
 		if params.inclusive {
 			return item.Name() >= params.anchor
 		}
+
 		return item.Name() > params.anchor
 	})
 	siblings := groups[followingSiblings]
