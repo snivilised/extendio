@@ -31,7 +31,7 @@ type CompoundGlobFilter struct {
 // Matching returns the collection of files contained within this
 // item's folder that matches this filter.
 func (f *CompoundGlobFilter) Matching(children []fs.DirEntry) []fs.DirEntry {
-	return lo.Filter(children, func(entry fs.DirEntry, index int) bool {
+	return lo.Filter(children, func(entry fs.DirEntry, _ int) bool {
 		matched, _ := filepath.Match(f.Pattern, entry.Name())
 		return f.invert(matched)
 	})

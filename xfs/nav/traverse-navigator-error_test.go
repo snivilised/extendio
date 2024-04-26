@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io/fs"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 	"github.com/snivilised/extendio/internal/helpers"
 
-	. "github.com/snivilised/extendio/i18n"
+	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -138,8 +138,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 			optionFn := func(o *nav.TraverseOptions) {
 				o.Notify.OnBegin = begin("🧲")
 				o.Store.Subscription = entry.subscription
-				o.Hooks.Sort = func(entries []fs.DirEntry, _ ...any) error {
-
+				o.Hooks.Sort = func(_ []fs.DirEntry, _ ...any) error {
 					return errors.New("fake sort error")
 				}
 				o.Callback = errorCallback("SORT-ERR", false)
@@ -167,7 +166,7 @@ var _ = Describe("TraverseNavigator errors", Ordered, func() {
 				optionFn := func(o *nav.TraverseOptions) {
 					o.Notify.OnBegin = begin("🧲")
 					o.Store.Subscription = nav.SubscribeFolders
-					o.Hooks.QueryStatus = func(path string) (fs.FileInfo, error) {
+					o.Hooks.QueryStatus = func(_ string) (fs.FileInfo, error) {
 						return nil, errors.New("fake Lstat error")
 					}
 					o.Callback = errorCallback("ROOT-QUERY-STATUS", true)

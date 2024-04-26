@@ -3,7 +3,7 @@ package nav_test
 import (
 	"fmt"
 
-	. "github.com/onsi/gomega/types"
+	. "github.com/onsi/gomega/types" //nolint:revive // gomega ok
 	"github.com/snivilised/extendio/xfs/nav"
 )
 

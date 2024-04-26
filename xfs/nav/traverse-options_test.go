@@ -1,10 +1,10 @@
 package nav_test
 
 import (
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 
-	. "github.com/snivilised/extendio/i18n"
+	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 	"github.com/snivilised/extendio/xfs/nav"
 )
 
@@ -31,7 +31,7 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 			It("should: return a deep copy", func() {
 				cloneCount, sourceCount := 0, 0
 
-				o.Notify.OnBegin = func(state *nav.NavigationState) {
+				o.Notify.OnBegin = func(_ *nav.NavigationState) {
 					sourceCount++
 				}
 				clone := o.Clone()
@@ -53,7 +53,7 @@ var _ = Describe("TraverseOptions", Ordered, func() {
 				state := &nav.NavigationState{}
 				o.Notify.OnBegin(state)
 
-				clone.Notify.OnBegin = func(state *nav.NavigationState) {
+				clone.Notify.OnBegin = func(_ *nav.NavigationState) {
 					cloneCount++
 				}
 				clone.Notify.OnBegin(state)

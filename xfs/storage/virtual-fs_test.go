@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 
-	. "github.com/snivilised/extendio/i18n"
+	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 	"github.com/snivilised/extendio/xfs/storage"
 )
 
@@ -302,7 +302,7 @@ var _ = Describe("virtual-fs", Ordered, func() {
 		Entry(nil, &virtualTE{
 			message: "Remove",
 			should:  "remove file at path",
-			fn: func(vfs storage.VirtualFS, isNative bool) {
+			fn: func(vfs storage.VirtualFS, _ bool) {
 				path := filepath.Join(root, "shroud.txt")
 				setupFiles(vfs, root, &setupFile{
 					filePath: path,
@@ -320,7 +320,7 @@ var _ = Describe("virtual-fs", Ordered, func() {
 		Entry(nil, &virtualTE{
 			message: "RemoveAll",
 			should:  "remove all at path",
-			fn: func(vfs storage.VirtualFS, isNative bool) {
+			fn: func(vfs storage.VirtualFS, _ bool) {
 				path := filepath.Join(root, "__A")
 
 				setupFiles(vfs, path,

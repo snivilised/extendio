@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/fortytw2/leaktest"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 	"go.uber.org/zap/exp/zapslog"
 	"go.uber.org/zap/zapcore"
 
@@ -15,7 +15,7 @@ import (
 	"github.com/snivilised/extendio/xfs/nav"
 	"github.com/snivilised/lorax/boost"
 
-	. "github.com/snivilised/extendio/i18n"
+	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 )
 
 var _ = Describe("NavigationWithRunner", Ordered, func() {

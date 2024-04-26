@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
 	"github.com/samber/lo"
 
-	. "github.com/snivilised/extendio/i18n"
+	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/nav"
 )
@@ -356,7 +356,7 @@ var _ = Describe("FilterPoly", Ordered, func() {
 				o.Store.FilterDefs = filterDefs
 				o.Callback = &nav.LabelledTraverseCallback{
 					Label: "(panic): test poly filter callback",
-					Fn: func(item *nav.TraverseItem) error {
+					Fn: func(_ *nav.TraverseItem) error {
 						return nil
 					},
 				}

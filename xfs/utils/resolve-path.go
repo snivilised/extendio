@@ -49,12 +49,14 @@ func ResolvePath(path string, mocks ...ResolveMocks) string {
 				if h, err := m.HomeFunc(); err == nil {
 					return filepath.Join(h, result[1:])
 				}
+
 				return path
 			},
 			func() string {
 				if a, err := m.AbsFunc(result); err == nil {
 					return a
 				}
+
 				return path
 			},
 		)
@@ -64,12 +66,14 @@ func ResolvePath(path string, mocks ...ResolveMocks) string {
 				if h, err := os.UserHomeDir(); err == nil {
 					return filepath.Join(h, result[1:])
 				}
+
 				return path
 			},
 			func() string {
 				if a, err := filepath.Abs(result); err == nil {
 					return a
 				}
+
 				return path
 			},
 		)

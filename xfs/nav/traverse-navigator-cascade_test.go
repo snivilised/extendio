@@ -3,9 +3,9 @@ package nav_test
 import (
 	"fmt"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	. "github.com/snivilised/extendio/i18n"
+	. "github.com/onsi/ginkgo/v2"           //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"              //nolint:revive // gomega ok
+	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 	"github.com/snivilised/extendio/internal/helpers"
 	"github.com/snivilised/extendio/xfs/nav"
 )

@@ -21,7 +21,7 @@ func ReadEntriesHookFn(dirname string) ([]fs.DirEntry, error) {
 		return nil, err
 	}
 
-	return lo.Filter(contents, func(item fs.DirEntry, index int) bool {
+	return lo.Filter(contents, func(item fs.DirEntry, _ int) bool {
 		return item.Name() != ".DS_Store"
 	}), nil
 }

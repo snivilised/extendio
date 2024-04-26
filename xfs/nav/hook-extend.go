@@ -50,9 +50,11 @@ func DefaultExtendHookFn(navi *NavigationInfo, entries *DirectoryContents) {
 		func() string {
 			result := subpath
 			sep := string(filepath.Separator)
+
 			if strings.HasSuffix(subpath, sep) {
 				result = subpath[:strings.LastIndex(subpath, sep)]
 			}
+
 			return result
 		},
 	)
