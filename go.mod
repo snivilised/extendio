@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/onsi/ginkgo/v2 v2.17.2
-	github.com/onsi/gomega v1.33.0
+	github.com/onsi/gomega v1.33.1
 	github.com/samber/lo v1.39.0
 	go.uber.org/zap v1.27.0
 )
