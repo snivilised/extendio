@@ -50,6 +50,10 @@ tasks:
     cmds:
       - go test ./i18n
 
+  tb:
+    cmds:
+      - go test ./bus
+
   tn:
     cmds:
       - go test ./xfs/nav
