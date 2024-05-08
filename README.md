@@ -20,7 +20,7 @@
 <!-- MarkDownLint-disable MD040 -->
 
 <p align="left">
-  <a href="https://go.dev"><img src="resources/images/go-logo-light-blue.png" width="50" /></a>
+  <a href="https://go.dev"><img src="resources/images/go-logo-light-blue.png" width="50" alt="go.dev" /></a>
 </p>
 
 ⚠ ___DOCUMENTATION IS A WORK IN PROGRESS___
@@ -104,6 +104,10 @@ func(item *TraverseItem) error
 ### 🌐 i18n
 
 - In order to support i18n, error handling will be implemented slightly differently to the standard error handling paradigm already established in Go. Simply returning an error which is just a string containing an error message, is not i18n friendly. We could just return an error code which of course would be documented, but it would be more useful to return a richer abstraction, another object which contains various properties about the error. This object will contain an error code (probably int based, or pseudo enum). It can even contain a string member which contains the error message in English, but the error code would allow for messages to be translated (possibly using Go templates). The exact implementation has not been finalised yet, but this is the direction of travel.
+
+### 📨 Message Bus
+
+- Contains an alternative version of [bus](https://github.com/mustafaturan/bus). The requirement for a bus implementation is based upon the need to create loosely coupled internal code. The original bus was designed with concurrency in mind so it uses locks to achieve thread safety. This aspect is surplus to requirements as all we need it for are synchronous scenarios, so it has been striped out.
 
 #### ☢ Error Handling
 
@@ -362,7 +366,7 @@ The ___Start___ and ___Stop___ conditions are defined using `ListenBy`, eg:
 ___RxGo___
 
 <p align="left">
-  <a href="https://rxjs.dev/guide/overview"><img src="https://avatars.githubusercontent.com/u/6407041?s=200&v=4" width="50" /></a>
+  <a href="https://rxjs.dev/guide/overview"><img src="https://avatars.githubusercontent.com/u/6407041?s=200&v=4" width="50" alt="rxjs" /></a>
 </p>
 
 To support concurrency features, Extendio uses the reactive model provided by [RxGo](https://github.com/ReactiveX/RxGo). However, since ___RxGo___ seems to be a dead project with its last release in April 2021 and its unit tests not currently running successfully, the decision has been made to re-implement this locally. One of the main reasons for the project no longer being actively maintained is the release of generics feature in Go version 1.18, and supporting generics in RxGo would require significant effort to re-write the entire library. While work on this has begun, it's unclear when this will be delivered. Despite this, the reactive model's support for concurrency is highly valued, and Extendio aims to make use of a minimal functionality set for parallel processing during directory traversal. The goal is to replace it with the next version of RxGo when it becomes available.
