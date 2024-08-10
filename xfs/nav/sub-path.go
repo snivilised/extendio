@@ -3,7 +3,7 @@ package nav
 import (
 	"path/filepath"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 // Tail extracts the end part of a string, starting from the offset

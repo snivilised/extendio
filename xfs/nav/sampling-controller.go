@@ -1,6 +1,6 @@
 package nav
 
-import "github.com/samber/lo"
+import "github.com/snivilised/extendio/internal/lo"
 
 type samplingController struct {
 	o        *TraverseOptions

@@ -4,8 +4,8 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/samber/lo"
 	"github.com/snivilised/extendio/collections"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 // WhileDirectoryPredicate determines when to terminate the loop

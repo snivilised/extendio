@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 	"github.com/snivilised/lorax/boost"
 )
 

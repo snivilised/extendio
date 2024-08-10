@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 type notificationBiEnum uint32

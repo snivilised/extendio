@@ -6,7 +6,7 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/onsi/ginkgo/v2 v2.20.0
 	github.com/onsi/gomega v1.34.1
-	github.com/samber/lo v1.39.0
+	github.com/samber/lo v1.39.0 // indirect
 	go.uber.org/zap v1.27.0
 )
 

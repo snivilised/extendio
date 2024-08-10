@@ -4,8 +4,8 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/samber/lo"
 	"github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 type fileSystemErrorParams struct {

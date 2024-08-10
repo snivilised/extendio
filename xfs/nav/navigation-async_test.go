@@ -9,7 +9,7 @@ import (
 	"github.com/fortytw2/leaktest"
 	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
 	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 	"go.uber.org/zap/exp/zapslog"
 	"go.uber.org/zap/zapcore"
 

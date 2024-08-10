@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/samber/lo"
 	"github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/internal/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 

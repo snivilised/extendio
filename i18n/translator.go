@@ -1,7 +1,7 @@
 package i18n
 
 import (
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 	"golang.org/x/text/language"
 )

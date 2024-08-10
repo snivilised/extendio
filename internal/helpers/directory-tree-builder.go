@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/samber/lo"
 	"github.com/snivilised/extendio/collections"
+	"github.com/snivilised/extendio/internal/lo"
 
 	"github.com/snivilised/extendio/xfs/utils"
 )
