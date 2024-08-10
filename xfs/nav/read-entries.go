@@ -4,7 +4,7 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 // ReadEntriesHookFn reads the contents of a directory. The resulting

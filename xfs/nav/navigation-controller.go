@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 )
 

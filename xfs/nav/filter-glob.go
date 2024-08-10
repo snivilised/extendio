@@ -4,7 +4,7 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 // GlobFilter wildcard filter.

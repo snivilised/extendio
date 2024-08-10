@@ -3,8 +3,8 @@ package nav
 import (
 	"io/fs"
 
-	"github.com/samber/lo"
 	"github.com/snivilised/extendio/i18n"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 // DirectoryContentsOrderEnum determines what order a directories

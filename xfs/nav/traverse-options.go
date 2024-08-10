@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/mohae/deepcopy"
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 	"github.com/snivilised/extendio/xfs/utils"
 	"go.uber.org/zap/exp/zapslog"
 	"go.uber.org/zap/zapcore"

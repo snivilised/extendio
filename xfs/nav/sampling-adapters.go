@@ -3,7 +3,7 @@ package nav
 import (
 	"io/fs"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 const samplingFiles = true

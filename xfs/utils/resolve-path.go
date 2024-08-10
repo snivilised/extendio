@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 // AbsFunc signature of function used to obtain the absolute representation of

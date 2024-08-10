@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/onsi/ginkgo/v2" //nolint:revive // ginkgo ok
-	. "github.com/onsi/gomega"    //nolint:revive // gomega ok
-	"github.com/samber/lo"
+	. "github.com/onsi/ginkgo/v2"           //nolint:revive // ginkgo ok
+	. "github.com/onsi/gomega"              //nolint:revive // gomega ok
 	. "github.com/snivilised/extendio/i18n" //nolint:revive // i18n ok
 	"github.com/snivilised/extendio/internal/helpers"
+	"github.com/snivilised/extendio/internal/lo"
 
 	"github.com/snivilised/extendio/xfs/nav"
 )

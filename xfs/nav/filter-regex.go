@@ -4,7 +4,7 @@ import (
 	"io/fs"
 	"regexp"
 
-	"github.com/samber/lo"
+	"github.com/snivilised/extendio/internal/lo"
 )
 
 // RegexFilter ================================================================
