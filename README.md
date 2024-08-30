@@ -23,7 +23,7 @@
   <a href="https://go.dev"><img src="resources/images/go-logo-light-blue.png" width="50" alt="go.dev" /></a>
 </p>
 
-⚠ ___DOCUMENTATION IS A WORK IN PROGRESS___
+🪦 This repo will soon be retired. extendio has been superseded by other snivilised projects (traverse, li18ngo, pants) as a result of lessons learned on the journey to learning Go programming.
 
 ## 🔰 Introduction
 
